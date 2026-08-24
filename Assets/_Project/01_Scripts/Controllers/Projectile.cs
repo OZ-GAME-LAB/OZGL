@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace OzGameLab01.Controllers
+namespace Combat
 {
     public class Projectile : MonoBehaviour
     {

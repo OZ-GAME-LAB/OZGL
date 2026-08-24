@@ -2,10 +2,10 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using OzGameLab01.Controllers;
+using OzGameLab01.Managers;
 using OzGameLab01.UI;
 
-namespace OzGameLab01.Managers
+namespace Combat
 {
     public class BattleResultChecker : MonoBehaviour
     {

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace OzGameLab01.UI
+namespace Combat
 {
     public class HealthBar : MonoBehaviour
     {

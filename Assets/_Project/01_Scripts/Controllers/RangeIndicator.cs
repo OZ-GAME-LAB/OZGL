@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace OzGameLab01.Controllers
+namespace Combat
 {
     [RequireComponent(typeof(LineRenderer))]
     public class RangeIndicator : MonoBehaviour
