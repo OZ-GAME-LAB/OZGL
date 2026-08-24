@@ -17,8 +17,15 @@ namespace Combat
         [SerializeField] private float attackRange = 1.5f;
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [SerializeField] private GameObject projectilePrefab;
 
         [SerializeField] private SkillType skillType;
+
+        [Header("Skill (별도 쿨다운, 발광 후 강한 투사체)")]
+        [SerializeField] private float skillDamage = 30f;
+        [SerializeField] private float skillCooldown = 4f;
+        [SerializeField] private Color skillGlowColor = new Color(1f, 0.95f, 0.3f, 1f);
+        [SerializeField] private float skillGlowDuration = 0.35f;
 
         public static List<Unit> All = new List<Unit>();
 
@@ -33,6 +40,8 @@ namespace Combat
         private float _currentHP;
         private bool _isDead;
         private Color _originalColor;
+        private float _attackTimer;
+        private float _skillTimer;
 
         private void Awake()
         {
@@ -42,6 +51,7 @@ namespace Combat
                 float multiplier = 1f + 0.1f * (_level - 1);
                 maxHP *= multiplier;
                 attackDamage *= multiplier;
+                skillDamage *= multiplier;
             }
 
             _currentHP = maxHP;
@@ -51,6 +61,9 @@ namespace Combat
                 _originalColor = spriteRenderer.color;
             }
             All.Add(this);
+
+            _attackTimer = attackCooldown;
+            _skillTimer = skillCooldown;
         }
 
         private void OnDestroy()
@@ -61,6 +74,85 @@ namespace Combat
         private void OnDisable()
         {
             All.Remove(this);
+        }
+
+        private void Update()
+        {
+            if (_isDead || CombatManager.Instance == null)
+            {
+                return;
+            }
+
+            Unit target = ResolveTarget();
+            if (target == null)
+            {
+                return;
+            }
+
+            _attackTimer -= Time.deltaTime;
+            if (_attackTimer <= 0f)
+            {
+                FireProjectile(target, attackDamage);
+                _attackTimer = attackCooldown;
+            }
+
+            _skillTimer -= Time.deltaTime;
+            if (_skillTimer <= 0f)
+            {
+                StartCoroutine(SkillAttack(target));
+                _skillTimer = skillCooldown;
+            }
+        }
+
+        private Unit ResolveTarget()
+        {
+            return team == Team.Ally ? CombatManager.Instance.EnemyUnit : CombatManager.Instance.ResolveAllyTarget();
+        }
+
+        private void FireProjectile(Unit target, float damage)
+        {
+            if (projectilePrefab == null)
+            {
+                return;
+            }
+
+            GameObject projectileObj = Instantiate(projectilePrefab, transform.position, Quaternion.identity);
+            Projectile projectile = projectileObj.GetComponent<Projectile>();
+            if (projectile != null)
+            {
+                projectile.Init(target, damage);
+            }
+        }
+
+        private IEnumerator SkillAttack(Unit target)
+        {
+            if (spriteRenderer != null)
+            {
+                float half = skillGlowDuration / 2f;
+                float t = 0f;
+
+                while (t < half)
+                {
+                    t += Time.deltaTime;
+                    spriteRenderer.color = Color.Lerp(_originalColor, skillGlowColor, t / half);
+                    yield return null;
+                }
+
+                t = 0f;
+                while (t < half)
+                {
+                    t += Time.deltaTime;
+                    spriteRenderer.color = Color.Lerp(skillGlowColor, _originalColor, t / half);
+                    yield return null;
+                }
+
+                spriteRenderer.color = _originalColor;
+            }
+
+            if (target != null && !target.IsDead)
+            {
+                FireProjectile(target, skillDamage);
+            }
         }
 
         public void TakeDamage(float dmg)

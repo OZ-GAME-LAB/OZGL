@@ -1,9 +1,13 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Combat
 {
     public class CombatManager : MonoBehaviour
     {
+        public static CombatManager Instance;
+
+
         public enum SlotRow { Front, Back }
 
         [System.Serializable]
@@ -31,18 +35,53 @@ namespace Combat
         private static readonly SlotEntry[] TestRoster =
         {
             new SlotEntry { column = 0, row = SlotRow.Front, prefabResourceName = "Characters/Ally_Sword" },
+            new SlotEntry { column = 0, row = SlotRow.Back, prefabResourceName = "Characters/Ally_Bow" },
             new SlotEntry { column = 1, row = SlotRow.Front, prefabResourceName = "Characters/Ally_Sword" },
             new SlotEntry { column = 1, row = SlotRow.Back, prefabResourceName = "Characters/Ally_Bow" },
-            new SlotEntry { column = 2, row = SlotRow.Back, prefabResourceName = "Characters/Ally_Staff" },
-            new SlotEntry { column = 3, row = SlotRow.Front, prefabResourceName = "Characters/Ally_Bow" },
-            new SlotEntry { column = 4, row = SlotRow.Front, prefabResourceName = "Characters/Ally_Staff" },
+            new SlotEntry { column = 2, row = SlotRow.Front, prefabResourceName = "Characters/Ally_Sword" },
+            new SlotEntry { column = 2, row = SlotRow.Back, prefabResourceName = "Characters/Ally_Bow" },
+            new SlotEntry { column = 3, row = SlotRow.Front, prefabResourceName = "Characters/Ally_Sword" },
+            new SlotEntry { column = 3, row = SlotRow.Back, prefabResourceName = "Characters/Ally_Bow" },
         };
+
+        private readonly Unit[,] _slotUnits = new Unit[SlotColumns, 2];
+        private Unit _enemyUnit;
+
+        public Unit EnemyUnit => _enemyUnit;
 
         private void Awake()
         {
+            Instance = this;
             SpawnSlotMarkers();
             SpawnAllies();
             SpawnEnemy();
+        }
+
+        public Unit ResolveAllyTarget()
+        {
+            List<Unit> exposed = new List<Unit>();
+
+            for (int column = 0; column < SlotColumns; column++)
+            {
+                Unit front = _slotUnits[column, (int)SlotRow.Front];
+                Unit back = _slotUnits[column, (int)SlotRow.Back];
+
+                if (front != null && !front.IsDead)
+                {
+                    exposed.Add(front);
+                }
+                else if (back != null && !back.IsDead)
+                {
+                    exposed.Add(back);
+                }
+            }
+
+            if (exposed.Count == 0)
+            {
+                return null;
+            }
+
+            return exposed[Random.Range(0, exposed.Count)];
         }
 
         private void SpawnSlotMarkers()
@@ -87,7 +126,8 @@ namespace Combat
                     continue;
                 }
 
-                Instantiate(prefab, GetSlotPosition(entry.column, entry.row), Quaternion.identity, unitsRoot);
+                GameObject instance = Instantiate(prefab, GetSlotPosition(entry.column, entry.row), Quaternion.identity, unitsRoot);
+                _slotUnits[entry.column, (int)entry.row] = instance.GetComponent<Unit>();
             }
         }
 
@@ -107,6 +147,7 @@ namespace Combat
             GameObject enemyInstance = Instantiate(prefab, enemySlot.transform);
             enemyInstance.transform.localPosition = Vector3.zero;
             enemyInstance.transform.localRotation = Quaternion.identity;
+            _enemyUnit = enemyInstance.GetComponent<Unit>();
         }
 
         private Vector3 GetSlotPosition(int column, SlotRow row)

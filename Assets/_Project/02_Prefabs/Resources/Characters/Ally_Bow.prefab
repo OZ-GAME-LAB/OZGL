@@ -131,12 +131,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Unit
   team: 0
   maxHP: 110
-  attackDamage: 13
+  attackDamage: 6
   attackCooldown: 1.1
   attackRange: 4.5
   healthBar: {fileID: 6999584022157537931}
   spriteRenderer: {fileID: 7085562952291949485}
+  projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
   skillType: 1
+  skillDamage: 30
+  skillCooldown: 4
+  skillGlowColor: {r: 1, g: 0.95, b: 0.3, a: 1}
+  skillGlowDuration: 0.35
 --- !u!1 &3208309019493305694
 GameObject:
   m_ObjectHideFlags: 0
