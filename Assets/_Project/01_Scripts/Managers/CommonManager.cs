@@ -28,7 +28,7 @@ namespace OzGameLab01.Managers
             // 중복 초기화 방지
             if (IsInitialized)
             {
-                Debug.LogWarning("[CommonManager] 이미 초기화되어 있어 Initialize() 호출을 건너뜁니다.", this);
+                //Debug.LogWarning("[CommonManager] 이미 초기화되어 있어 Initialize() 호출을 건너뜁니다.", this);
 
                 return;
             }
