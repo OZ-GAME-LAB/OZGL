@@ -8,6 +8,11 @@ public class MonsterData
     public string name;
     public string spriteAddress;
 
+    public int healthPoint;
+    public int attackPoint;
+    public int attackSpeed;
+    public int skillCooldown;
+
     public MonsterType type;
 }
 
