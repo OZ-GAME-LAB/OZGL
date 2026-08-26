@@ -1,9 +1,9 @@
 //using UnityEngine;
-//using Newtonsoft.Json;
 //using System.Collections.Generic;
 //using UnityEngine.AddressableAssets;
 //using System.Threading.Tasks;
 //using System.Reflection;
+//using Newtonsoft.Json;
 
 //public interface IDataList<T>
 //{
@@ -14,7 +14,7 @@
 //{
 //    // Dictionary<int, T>    ->   ID 값인 int, 데이터 값 그 자체인 T
 //    // ID 기반 데이터 딕셔너리
-//    private Dictionary<int, T> _dataDict = new Dictionary<string, T>();
+//    private Dictionary<int, T> _dataDict = new Dictionary<int, T>();
 
 //    /// <summary>
 //    /// 게임 부팅 시 주소 기반 데이터베이스 불러오기
@@ -49,10 +49,10 @@
 //            _dataDict.Clear();
 //            foreach (var item in list.GetList())
 //            {
-//                var idValue = idFieldInfo.GetValue(item)?.ToString();
-//                if (!string.IsNullOrEmpty(idValue))
+//                var idValue = idFieldInfo.GetValue(item);
+//                if (idValue is int inObj)
 //                {
-//                    _dataDict[idValue] = item;
+//                    _dataDict[inObj] = item;
 //                }
 //            }
 //        });
