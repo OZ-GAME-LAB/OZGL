@@ -12,7 +12,7 @@ namespace Combat
         [SerializeField] private GameObject resultPanel;
         [SerializeField] private TextMeshProUGUI resultText;
         [SerializeField] private Button continueButton;
-        [SerializeField] private LevelUpSelector levelUpSelector;
+        [SerializeField] private BattleRewardPanel battleRewardPanel;
 
         private bool _resolved;
 
@@ -56,9 +56,9 @@ namespace Combat
                 resultPanel.SetActive(true);
                 Time.timeScale = 0f;
 
-                if (levelUpSelector != null)
+                if (battleRewardPanel != null && CombatManager.Instance != null)
                 {
-                    levelUpSelector.Show(OnContinueClicked);
+                    battleRewardPanel.Show(CombatManager.Instance.GetParticipatingAllySkillTypes());
                 }
             }
             else if (!allyAlive)
