@@ -492,17 +492,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!114 &440569970 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8805404150534823073, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
-  m_PrefabInstance: {fileID: 1326156632}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &464759053
 GameObject:
   m_ObjectHideFlags: 0
@@ -1310,28 +1299,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 867415100}
   m_CullTransparentMesh: 1
---- !u!114 &915676943 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2692573925712367936, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
-  m_PrefabInstance: {fileID: 1326156632}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
---- !u!114 &954855010 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2980818511683840519, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
-  m_PrefabInstance: {fileID: 1326156632}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1 &990000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -1650,7 +1617,8 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 4278867244937705279, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 1293300783737173053, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 568244020726446791, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
@@ -1680,9 +1648,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.BattleRewardPanel
   panel: {fileID: 1680929440}
-  swordLevelText: {fileID: 440569970}
-  bowLevelText: {fileID: 954855010}
-  staffLevelText: {fileID: 915676943}
+  rowsContainer: {fileID: 0}
+  confirmButton: {fileID: 0}
+  koreanFont: {fileID: 11400000, guid: 34968b8879e6e7a43876b01cf39c0c40, type: 2}
+  fillAnimationDuration: 0.6
 --- !u!1 &1469565449
 GameObject:
   m_ObjectHideFlags: 0

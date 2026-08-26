@@ -101,18 +101,18 @@ namespace Combat
             return exposed[Random.Range(0, exposed.Count)];
         }
 
-        public HashSet<Unit.SkillType> GetParticipatingAllySkillTypes()
+        public List<Unit> GetParticipatingAllyUnits()
         {
-            HashSet<Unit.SkillType> skillTypes = new HashSet<Unit.SkillType>();
+            List<Unit> units = new List<Unit>();
             foreach (Unit unit in _slotUnits)
             {
                 if (unit != null)
                 {
-                    skillTypes.Add(unit.Skill);
+                    units.Add(unit);
                 }
             }
 
-            return skillTypes;
+            return units;
         }
 
         private void SpawnSlotMarkers()

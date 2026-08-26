@@ -58,7 +58,7 @@ namespace Combat
 
                 if (battleRewardPanel != null && CombatManager.Instance != null)
                 {
-                    battleRewardPanel.Show(CombatManager.Instance.GetParticipatingAllySkillTypes());
+                    battleRewardPanel.Show(CombatManager.Instance.GetParticipatingAllyUnits(), OnContinueClicked);
                 }
             }
             else if (!allyAlive)

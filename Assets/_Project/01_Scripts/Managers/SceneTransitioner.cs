@@ -15,6 +15,61 @@ namespace OzGameLab01.Managers
         public static int BowLevel = 1;
         public static int StaffLevel = 1;
 
+        public const float ExpPerLevel = 100f;
+
+        public static float SwordExp = 0f;
+        public static float BowExp = 0f;
+        public static float StaffExp = 0f;
+
+        public static float GetAllyExpRatio(Unit.SkillType skillType)
+        {
+            switch (skillType)
+            {
+                case Unit.SkillType.Warrior:
+                    return SwordExp / ExpPerLevel;
+                case Unit.SkillType.Archer:
+                    return BowExp / ExpPerLevel;
+                case Unit.SkillType.Mage:
+                    return StaffExp / ExpPerLevel;
+                default:
+                    return 0f;
+            }
+        }
+
+        /// <summary>
+        /// 지정한 클래스에 경험치를 더합니다. 누적치가 ExpPerLevel을 넘으면 레벨업하고 남은 경험치는 이월됩니다.
+        /// 레벨업이 발생했으면 true를 반환합니다.
+        /// </summary>
+        public static bool AddExp(Unit.SkillType skillType, float amount)
+        {
+            switch (skillType)
+            {
+                case Unit.SkillType.Warrior:
+                    return AddExpInternal(ref SwordExp, ref SwordLevel, amount);
+                case Unit.SkillType.Archer:
+                    return AddExpInternal(ref BowExp, ref BowLevel, amount);
+                case Unit.SkillType.Mage:
+                    return AddExpInternal(ref StaffExp, ref StaffLevel, amount);
+                default:
+                    return false;
+            }
+        }
+
+        private static bool AddExpInternal(ref float exp, ref int level, float amount)
+        {
+            exp += amount;
+            bool leveledUp = false;
+
+            while (exp >= ExpPerLevel)
+            {
+                exp -= ExpPerLevel;
+                level++;
+                leveledUp = true;
+            }
+
+            return leveledUp;
+        }
+
         public static int GetAllyLevel(Unit.SkillType skillType)
         {
             switch (skillType)
