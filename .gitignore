@@ -6,6 +6,7 @@
 # See: https://github.com/github/gitignore/tree/main/Global
 #
 .utmp/
+/Docs/
 /[Ll]ibrary/
 /[Tt]emp/
 /[Oo]bj/
@@ -37,6 +38,9 @@ ImporteAssets/
 
 # Visual Studio cache directory
 .vs/
+
+# VS Code personal editor settings
+.vscode/
 
 # Gradle cache directory
 .gradle/
