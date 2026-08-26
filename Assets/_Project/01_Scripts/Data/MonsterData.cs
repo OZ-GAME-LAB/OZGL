@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class MonsterDataList : IDataList<MonsterData>
-{
-    private List<MonsterData> monsterList;
-    public List<MonsterData> GetList() => monsterList;
-}
+//public class MonsterDataList : IDataList<MonsterData>
+//{
+//    public List<MonsterData> monsterList;
+//    public List<MonsterData> GetList() => monsterList;
+//}
 
 [System.Serializable]
 public class MonsterData
