@@ -39,6 +39,9 @@ ImporteAssets/
 # Visual Studio cache directory
 .vs/
 
+# VS Code personal editor settings
+.vscode/
+
 # Gradle cache directory
 .gradle/
 
