@@ -1,0 +1,12 @@
+using UnityEngine;
+
+namespace Combat
+{
+    [CreateAssetMenu(fileName = "SynergyTrait", menuName = "Combat/Synergy Trait")]
+    public class SynergyTrait : ScriptableObject
+    {
+        [SerializeField] private string displayName;
+
+        public string DisplayName => displayName;
+    }
+}

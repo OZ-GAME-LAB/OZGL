@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae6180fea54505f498affd10f66a0176, type: 3}
+  m_Name: Unit_red_swordman
+  m_EditorClassIdentifier: Assembly-CSharp::Combat.UnitData
+  unitPrefab: {fileID: 1608710449723199639, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
+  traits:
+  - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
+  - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}

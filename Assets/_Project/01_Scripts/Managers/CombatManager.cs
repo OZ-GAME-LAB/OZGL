@@ -45,6 +45,9 @@ namespace Combat
         [Tooltip("맵 씬에서 미리 정한 아군 배치. 슬롯(열+행)을 키로, 그 슬롯에 들어갈 유닛 클래스를 값으로 가짐.")]
         [SerializeField] private List<SlotPlacement> allyFormation = new List<SlotPlacement>();
 
+        [Tooltip("아군 배치의 트레이트 조합으로 발동 가능한 시너지 목록.")]
+        [SerializeField] private List<SynergyDefinition> synergyDefinitions = new List<SynergyDefinition>();
+
         private Dictionary<SlotKey, UnitData> _allyFormation;
         private readonly Unit[,] _slotUnits = new Unit[SlotColumns, SlotRows];
         private Unit _enemyUnit;
@@ -57,6 +60,7 @@ namespace Combat
             BuildAllyFormation();
             SpawnSlotMarkers();
             SpawnAllies();
+            ApplySynergies();
             SpawnEnemy();
         }
 
@@ -146,6 +150,51 @@ namespace Combat
                 SlotKey slot = kvp.Key;
                 GameObject instance = Instantiate(kvp.Value.UnitPrefab, GetSlotPosition(slot.column, slot.row), Quaternion.identity, unitsRoot);
                 _slotUnits[slot.column, (int)slot.row] = instance.GetComponent<Unit>();
+            }
+        }
+
+        private void ApplySynergies()
+        {
+            Dictionary<SynergyTrait, int> traitCounts = new Dictionary<SynergyTrait, int>();
+            foreach (UnitData unitData in _allyFormation.Values)
+            {
+                if (unitData == null)
+                {
+                    continue;
+                }
+
+                foreach (SynergyTrait trait in unitData.Traits)
+                {
+                    if (trait == null)
+                    {
+                        continue;
+                    }
+
+                    traitCounts.TryGetValue(trait, out int count);
+                    traitCounts[trait] = count + 1;
+                }
+            }
+
+            foreach (SynergyDefinition definition in synergyDefinitions)
+            {
+                if (definition == null || definition.Trait == null)
+                {
+                    continue;
+                }
+
+                traitCounts.TryGetValue(definition.Trait, out int count);
+                if (!definition.TryGetActiveTier(count, out SynergyDefinition.Tier tier))
+                {
+                    continue;
+                }
+
+                foreach (Unit unit in _slotUnits)
+                {
+                    if (unit != null)
+                    {
+                        unit.ApplySynergyBonus(tier.hpMultiplier, tier.attackMultiplier);
+                    }
+                }
             }
         }
 

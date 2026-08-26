@@ -107,6 +107,16 @@ namespace Combat
             }
         }
 
+        public void ApplySynergyBonus(float hpMultiplier, float attackMultiplier)
+        {
+            maxHP *= hpMultiplier;
+            _currentHP = maxHP;
+            healthBar.Init(maxHP);
+
+            basicAttack.damage *= attackMultiplier;
+            skillAttack.damage *= attackMultiplier;
+        }
+
         private Unit ResolveTarget()
         {
             return team == Team.Ally ? CombatManager.Instance.EnemyUnit : CombatManager.Instance.ResolveAllyTarget();
