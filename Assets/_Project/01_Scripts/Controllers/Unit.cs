@@ -10,11 +10,16 @@ namespace Combat
         public enum Team { Ally, Enemy }
         public enum SkillType { Warrior, Archer, Mage }
 
+        [System.Serializable]
+        private struct AttackProfile
+        {
+            public float damage;
+            public float cooldown;
+        }
+
         [SerializeField] private Team team;
         [SerializeField] private float maxHP = 100f;
-        [SerializeField] private float attackDamage = 10f;
-        [SerializeField] private float attackCooldown = 1.2f;
-        [SerializeField] private float attackRange = 1.5f;
+        [SerializeField] private AttackProfile basicAttack = new AttackProfile { damage = 10f, cooldown = 1.2f };
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private GameObject projectilePrefab;
@@ -22,14 +27,12 @@ namespace Combat
         [SerializeField] private SkillType skillType;
 
         [Header("Skill (별도 쿨다운, 발광 후 강한 투사체)")]
-        [SerializeField] private float skillDamage = 30f;
-        [SerializeField] private float skillCooldown = 4f;
+        [SerializeField] private AttackProfile skillAttack = new AttackProfile { damage = 30f, cooldown = 4f };
         [SerializeField] private Color skillGlowColor = new Color(1f, 0.95f, 0.3f, 1f);
         [SerializeField] private float skillGlowDuration = 0.35f;
 
         public static List<Unit> All = new List<Unit>();
 
-        public float AttackRange => attackRange;
         public bool IsDead => _isDead;
         public SkillType Skill => skillType;
         public Team TeamValue => team;
@@ -50,8 +53,8 @@ namespace Combat
                 _level = SceneTransitioner.GetAllyLevel(skillType);
                 float multiplier = 1f + 0.1f * (_level - 1);
                 maxHP *= multiplier;
-                attackDamage *= multiplier;
-                skillDamage *= multiplier;
+                basicAttack.damage *= multiplier;
+                skillAttack.damage *= multiplier;
             }
 
             _currentHP = maxHP;
@@ -62,8 +65,8 @@ namespace Combat
             }
             All.Add(this);
 
-            _attackTimer = attackCooldown;
-            _skillTimer = skillCooldown;
+            _attackTimer = basicAttack.cooldown;
+            _skillTimer = skillAttack.cooldown;
         }
 
         private void OnDestroy()
@@ -92,15 +95,15 @@ namespace Combat
             _attackTimer -= Time.deltaTime;
             if (_attackTimer <= 0f)
             {
-                FireProjectile(target, attackDamage);
-                _attackTimer = attackCooldown;
+                FireProjectile(target, basicAttack.damage);
+                _attackTimer = basicAttack.cooldown;
             }
 
             _skillTimer -= Time.deltaTime;
             if (_skillTimer <= 0f)
             {
                 StartCoroutine(SkillAttack(target));
-                _skillTimer = skillCooldown;
+                _skillTimer = skillAttack.cooldown;
             }
         }
 
@@ -151,7 +154,7 @@ namespace Combat
 
             if (target != null && !target.IsDead)
             {
-                FireProjectile(target, skillDamage);
+                FireProjectile(target, skillAttack.damage);
             }
         }
 

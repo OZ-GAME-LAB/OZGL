@@ -490,7 +490,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -801,7 +801,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
-  m_AdditionalShaderChannelsFlag: 0
+  m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
   m_SortingOrder: 10
@@ -1299,16 +1299,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CombatManager
   unitsRoot: {fileID: 72615827}
-  gridOrigin: {x: -2.5, y: -3, z: 0}
+  gridOrigin: {x: -4.5, y: -1.2, z: 0}
   columnSpacing: 1.2
   rowSpacing: 1.2
-  gridTiltDegrees: 45
   slotMarkerSize: 0.9
   slotMarkerLineWidth: 0.03
   slotMarkerColor: {r: 1, g: 1, b: 1, a: 0.25}
-  enemyPosition: {x: 4.5, y: 3, z: 0}
+  enemyPosition: {x: 4.5, y: 0, z: 0}
   enemyPrefabResourceName: Characters/Enemy_Melee
   enemyScale: 3
+  allyFormation:
+  - slot:
+      column: 0
+      row: 0
+    unitData: {fileID: 11400000, guid: 95956b2ac41a17547a352fd9b03eba8b, type: 2}
+  - slot:
+      column: 0
+      row: 1
+    unitData: {fileID: 11400000, guid: 566f1f5b01e6b044497e002269e0216f, type: 2}
+  - slot:
+      column: 0
+      row: 2
+    unitData: {fileID: 11400000, guid: 4d32967d48b8f644ea9853700fbe37c6, type: 2}
+  - slot:
+      column: 1
+      row: 0
+    unitData: {fileID: 11400000, guid: 95956b2ac41a17547a352fd9b03eba8b, type: 2}
+  - slot:
+      column: 1
+      row: 1
+    unitData: {fileID: 11400000, guid: 566f1f5b01e6b044497e002269e0216f, type: 2}
+  - slot:
+      column: 1
+      row: 2
+    unitData: {fileID: 11400000, guid: 4d32967d48b8f644ea9853700fbe37c6, type: 2}
+  - slot:
+      column: 2
+      row: 0
+    unitData: {fileID: 11400000, guid: 95956b2ac41a17547a352fd9b03eba8b, type: 2}
+  - slot:
+      column: 2
+      row: 1
+    unitData: {fileID: 11400000, guid: 566f1f5b01e6b044497e002269e0216f, type: 2}
+  - slot:
+      column: 2
+      row: 2
+    unitData: {fileID: 11400000, guid: 4d32967d48b8f644ea9853700fbe37c6, type: 2}
 --- !u!1 &1125794418
 GameObject:
   m_ObjectHideFlags: 0
@@ -1713,7 +1749,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
