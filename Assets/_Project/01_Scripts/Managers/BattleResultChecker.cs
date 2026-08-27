@@ -12,7 +12,7 @@ namespace Combat
         [SerializeField] private GameObject resultPanel;
         [SerializeField] private TextMeshProUGUI resultText;
         [SerializeField] private Button continueButton;
-        [SerializeField] private LevelUpSelector levelUpSelector;
+        [SerializeField] private BattleRewardPanel battleRewardPanel;
 
         private bool _resolved;
 
@@ -52,13 +52,17 @@ namespace Combat
             if (!enemyAlive)
             {
                 _resolved = true;
-                resultText.text = "승리!";
-                resultPanel.SetActive(true);
                 Time.timeScale = 0f;
 
-                if (levelUpSelector != null)
+                if (battleRewardPanel != null && CombatManager.Instance != null)
                 {
-                    levelUpSelector.Show(OnContinueClicked);
+                    // BattleRewardPanel이 자체 배경/제목을 갖춘 독립 팝업이라 ResultPanel은 승리 시 띄우지 않음
+                    battleRewardPanel.Show(CombatManager.Instance.GetParticipatingAllyUnits(), OnContinueClicked);
+                }
+                else
+                {
+                    resultText.text = "승리!";
+                    resultPanel.SetActive(true);
                 }
             }
             else if (!allyAlive)

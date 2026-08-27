@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using OzGameLab01.Managers;
 
 namespace Combat
 {
@@ -105,6 +106,20 @@ namespace Combat
             return exposed[Random.Range(0, exposed.Count)];
         }
 
+        public List<Unit> GetParticipatingAllyUnits()
+        {
+            List<Unit> units = new List<Unit>();
+            foreach (Unit unit in _slotUnits)
+            {
+                if (unit != null)
+                {
+                    units.Add(unit);
+                }
+            }
+
+            return units;
+        }
+
         private void SpawnSlotMarkers()
         {
             for (int column = 0; column < SlotColumns; column++)
@@ -140,6 +155,26 @@ namespace Combat
 
         private void SpawnAllies()
         {
+            Unit[] placedUnits = SceneTransitioner.AllyFormationSlots;
+            bool hasPlacementData = false;
+            if (placedUnits != null)
+            {
+                foreach (Unit placedUnit in placedUnits)
+                {
+                    if (placedUnit != null)
+                    {
+                        hasPlacementData = true;
+                        break;
+                    }
+                }
+            }
+
+            if (hasPlacementData)
+            {
+                SpawnAlliesFromPlacement(placedUnits);
+                return;
+            }
+
             foreach (KeyValuePair<SlotKey, UnitData> kvp in _allyFormation)
             {
                 if (kvp.Value == null || kvp.Value.UnitPrefab == null)
@@ -151,6 +186,37 @@ namespace Combat
                 GameObject instance = Instantiate(kvp.Value.UnitPrefab, GetSlotPosition(slot.column, slot.row), Quaternion.identity, unitsRoot);
                 _slotUnits[slot.column, (int)slot.row] = instance.GetComponent<Unit>();
             }
+        }
+
+        private void SpawnAlliesFromPlacement(Unit[] placedUnits)
+        {
+            for (int placementIndex = 0; placementIndex < placedUnits.Length; placementIndex++)
+            {
+                Unit placedUnit = placedUnits[placementIndex];
+                if (placedUnit == null)
+                {
+                    continue;
+                }
+
+                SlotKey slot = PlacementIndexToSlotKey(placementIndex);
+                GameObject instance = Instantiate(placedUnit.gameObject, GetSlotPosition(slot.column, slot.row), Quaternion.identity, unitsRoot);
+                _slotUnits[slot.column, (int)slot.row] = instance.GetComponent<Unit>();
+            }
+        }
+
+        // UnitPlaceScene 배치 그리드(인덱스 0-8, row-major: row=idx/3 위→아래, col=idx%3 왼쪽→오른쪽)를
+        // CombatManager 슬롯으로 옮긴다. 오른쪽 열=Front, 가운데=Mid, 왼쪽=Back로 취급하고,
+        // 배치 UI의 위쪽 행이 CombatManager의 높은 column 값이 되도록 상하 시각 순서를 그대로 보존한다.
+        private static SlotKey PlacementIndexToSlotKey(int placementIndex)
+        {
+            int placeRow = placementIndex / SlotColumns;
+            int placeCol = placementIndex % SlotColumns;
+
+            return new SlotKey
+            {
+                column = (SlotColumns - 1) - placeRow,
+                row = (SlotRow)((SlotColumns - 1) - placeCol)
+            };
         }
 
         private void ApplySynergies()
