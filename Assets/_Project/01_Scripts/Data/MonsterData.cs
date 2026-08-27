@@ -16,8 +16,14 @@ public class MonsterData
 
     public int healthPoint;
     public int attackPoint;
+    public int criticalRate;
+    public int dodgeRate;
     public int attackSpeed;
     public int skillCooldown;
+
+    public string skillKey_one;
+    public string skillKey_two;
+    public string skillKey_three;
 
     public MonsterType type;
 }
