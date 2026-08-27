@@ -11,6 +11,12 @@ namespace OzGameLab01.Managers
         public static SceneTransitioner Instance;
         public static int MapTileIndex = 0;
 
+        /// <summary>
+        /// UnitPlaceScene의 FormationManager가 채우는 배치 결과(인덱스 0-8, 3x3 row-major).
+        /// CombatManager.SpawnAllies()가 이 데이터가 있으면 우선 사용하고, 비어 있으면 인스펙터 allyFormation으로 폴백한다.
+        /// </summary>
+        public static Unit[] AllyFormationSlots;
+
         public static int SwordLevel = 1;
         public static int BowLevel = 1;
         public static int StaffLevel = 1;

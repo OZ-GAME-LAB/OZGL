@@ -52,13 +52,17 @@ namespace Combat
             if (!enemyAlive)
             {
                 _resolved = true;
-                resultText.text = "승리!";
-                resultPanel.SetActive(true);
                 Time.timeScale = 0f;
 
                 if (battleRewardPanel != null && CombatManager.Instance != null)
                 {
+                    // BattleRewardPanel이 자체 배경/제목을 갖춘 독립 팝업이라 ResultPanel은 승리 시 띄우지 않음
                     battleRewardPanel.Show(CombatManager.Instance.GetParticipatingAllyUnits(), OnContinueClicked);
+                }
+                else
+                {
+                    resultText.text = "승리!";
+                    resultPanel.SetActive(true);
                 }
             }
             else if (!allyAlive)

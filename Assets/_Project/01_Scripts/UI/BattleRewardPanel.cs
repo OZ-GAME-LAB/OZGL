@@ -12,14 +12,15 @@ namespace OzGameLab01.UI
     public class BattleRewardPanel : MonoBehaviour
     {
         private const float ExpPerBattle = 40f;
+        private const string TitleLabel = "승리!";
 
         [SerializeField] private GameObject panel;
-        [SerializeField] private Transform rowsContainer;
+        [SerializeField] private Transform cellsContainer;
         [SerializeField] private Button confirmButton;
         [SerializeField] private TMP_FontAsset koreanFont;
-        [SerializeField] private float fillAnimationDuration = 0.6f;
+        [SerializeField] private float fillAnimationDuration = 2.4f;
 
-        private struct RowVisual
+        private struct CellVisual
         {
             public Image fillImage;
             public TextMeshProUGUI levelText;
@@ -30,18 +31,20 @@ namespace OzGameLab01.UI
         }
 
         private Action _onContinue;
-        private readonly List<RowVisual> _rows = new List<RowVisual>();
+        private readonly List<CellVisual> _cells = new List<CellVisual>();
 
         private void Awake()
         {
             if (panel != null)
             {
+                EnsureBackground(panel);
+                CreateTitle(panel.transform);
                 panel.SetActive(false);
             }
 
-            if (rowsContainer == null)
+            if (cellsContainer == null)
             {
-                rowsContainer = CreateRowsContainer();
+                cellsContainer = CreateCellsContainer();
             }
 
             if (confirmButton == null)
@@ -56,17 +59,18 @@ namespace OzGameLab01.UI
         {
             _onContinue = onContinue;
 
-            foreach (Transform child in rowsContainer)
+            // ResultPanel 등 같은 Canvas의 다른 형제보다 항상 위에 그려지도록 보장
+            transform.SetAsLastSibling();
+
+            foreach (Transform child in cellsContainer)
             {
                 Destroy(child.gameObject);
             }
-            _rows.Clear();
+            _cells.Clear();
 
             // 클래스별로 경험치를 한 번씩만 적용 (같은 클래스 유닛이 여러 명이어도 중복 지급하지 않음)
             Dictionary<Unit.SkillType, (float before, float after, bool leveledUp)> progressByType =
                 new Dictionary<Unit.SkillType, (float, float, bool)>();
-
-            Dictionary<Unit.SkillType, int> instanceCounters = new Dictionary<Unit.SkillType, int>();
 
             foreach (Unit unit in participatingUnits)
             {
@@ -78,13 +82,8 @@ namespace OzGameLab01.UI
                     progressByType[unit.Skill] = (before, after, leveledUp);
                 }
 
-                instanceCounters.TryGetValue(unit.Skill, out int count);
-                count++;
-                instanceCounters[unit.Skill] = count;
-
                 var progress = progressByType[unit.Skill];
-                string label = $"{SkillTypeLabel(unit.Skill)} #{count}";
-                CreateRow(label, unit.Skill, progress.before, progress.after, progress.leveledUp);
+                CreateCell(unit, progress.before, progress.after, progress.leveledUp);
             }
 
             if (panel != null)
@@ -96,42 +95,40 @@ namespace OzGameLab01.UI
             StartCoroutine(AnimateFillBars());
         }
 
-        private static string SkillTypeLabel(Unit.SkillType skillType)
+        private void CreateCell(Unit unit, float beforeRatio, float afterRatio, bool leveledUp)
         {
-            switch (skillType)
+            GameObject cell = new GameObject(unit.name, typeof(RectTransform));
+            cell.transform.SetParent(cellsContainer, false);
+
+            GameObject iconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
+            iconObj.transform.SetParent(cell.transform, false);
+            RectTransform iconRt = iconObj.GetComponent<RectTransform>();
+            iconRt.anchorMin = new Vector2(0.5f, 1f);
+            iconRt.anchorMax = new Vector2(0.5f, 1f);
+            iconRt.pivot = new Vector2(0.5f, 1f);
+            iconRt.anchoredPosition = new Vector2(0f, 0f);
+            iconRt.sizeDelta = new Vector2(56f, 56f);
+
+            SpriteRenderer spriteRenderer = unit.GetComponentInChildren<SpriteRenderer>();
+            Image icon = iconObj.GetComponent<Image>();
+            if (spriteRenderer != null && spriteRenderer.sprite != null)
             {
-                case Unit.SkillType.Warrior:
-                    return "전사";
-                case Unit.SkillType.Archer:
-                    return "궁수";
-                case Unit.SkillType.Mage:
-                    return "마법사";
-                default:
-                    return skillType.ToString();
+                icon.sprite = spriteRenderer.sprite;
             }
-        }
-
-        private void CreateRow(string label, Unit.SkillType skillType, float beforeRatio, float afterRatio, bool leveledUp)
-        {
-            GameObject row = new GameObject(label, typeof(RectTransform), typeof(LayoutElement));
-            row.transform.SetParent(rowsContainer, false);
-            row.GetComponent<LayoutElement>().preferredHeight = 60f;
-
-            TextMeshProUGUI nameText = CreateText(row.transform, label, 22, TextAlignmentOptions.MidlineLeft);
-            RectTransform nameRt = nameText.rectTransform;
-            nameRt.anchorMin = new Vector2(0f, 0f);
-            nameRt.anchorMax = new Vector2(0.3f, 1f);
-            nameRt.offsetMin = Vector2.zero;
-            nameRt.offsetMax = Vector2.zero;
+            else
+            {
+                icon.color = new Color(1f, 1f, 1f, 0.3f);
+            }
 
             GameObject barBg = new GameObject("BarBackground", typeof(RectTransform), typeof(Image));
-            barBg.transform.SetParent(row.transform, false);
+            barBg.transform.SetParent(cell.transform, false);
             RectTransform barBgRt = barBg.GetComponent<RectTransform>();
-            barBgRt.anchorMin = new Vector2(0.32f, 0.3f);
-            barBgRt.anchorMax = new Vector2(0.85f, 0.7f);
-            barBgRt.offsetMin = Vector2.zero;
-            barBgRt.offsetMax = Vector2.zero;
-            barBg.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.5f);
+            barBgRt.anchorMin = new Vector2(0.5f, 1f);
+            barBgRt.anchorMax = new Vector2(0.5f, 1f);
+            barBgRt.pivot = new Vector2(0.5f, 1f);
+            barBgRt.anchoredPosition = new Vector2(0f, -62f);
+            barBgRt.sizeDelta = new Vector2(90f, 10f);
+            barBg.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.6f);
 
             GameObject barFill = new GameObject("BarFill", typeof(RectTransform), typeof(Image));
             barFill.transform.SetParent(barBg.transform, false);
@@ -146,21 +143,22 @@ namespace OzGameLab01.UI
             fillImage.fillMethod = Image.FillMethod.Horizontal;
             fillImage.fillAmount = beforeRatio;
 
-            TextMeshProUGUI levelText = CreateText(row.transform, $"Lv.{SceneTransitioner.GetAllyLevel(skillType) - (leveledUp ? 1 : 0)}", 22, TextAlignmentOptions.MidlineRight);
+            TextMeshProUGUI levelText = CreateText(cell.transform, $"Lv.{SceneTransitioner.GetAllyLevel(unit.Skill) - (leveledUp ? 1 : 0)}", 16, TextAlignmentOptions.Top);
             RectTransform levelRt = levelText.rectTransform;
-            levelRt.anchorMin = new Vector2(0.87f, 0f);
-            levelRt.anchorMax = new Vector2(1f, 1f);
-            levelRt.offsetMin = Vector2.zero;
-            levelRt.offsetMax = Vector2.zero;
+            levelRt.anchorMin = new Vector2(0.5f, 1f);
+            levelRt.anchorMax = new Vector2(0.5f, 1f);
+            levelRt.pivot = new Vector2(0.5f, 1f);
+            levelRt.anchoredPosition = new Vector2(0f, -76f);
+            levelRt.sizeDelta = new Vector2(90f, 20f);
 
-            _rows.Add(new RowVisual
+            _cells.Add(new CellVisual
             {
                 fillImage = fillImage,
                 levelText = levelText,
                 beforeRatio = beforeRatio,
                 afterRatio = afterRatio,
                 leveledUp = leveledUp,
-                finalLevel = SceneTransitioner.GetAllyLevel(skillType)
+                finalLevel = SceneTransitioner.GetAllyLevel(unit.Skill)
             });
         }
 
@@ -172,69 +170,102 @@ namespace OzGameLab01.UI
             float t = 0f;
             while (t < half)
             {
-                t += Time.deltaTime;
+                t += Time.unscaledDeltaTime;
                 float ratio = Mathf.Clamp01(t / half);
-                foreach (RowVisual row in _rows)
+                foreach (CellVisual cell in _cells)
                 {
-                    float target = row.leveledUp ? 1f : row.afterRatio;
-                    row.fillImage.fillAmount = Mathf.Lerp(row.beforeRatio, target, ratio);
+                    float target = cell.leveledUp ? 1f : cell.afterRatio;
+                    cell.fillImage.fillAmount = Mathf.Lerp(cell.beforeRatio, target, ratio);
                 }
                 yield return null;
             }
 
-            foreach (RowVisual row in _rows)
+            foreach (CellVisual cell in _cells)
             {
-                row.fillImage.fillAmount = row.leveledUp ? 1f : row.afterRatio;
+                cell.fillImage.fillAmount = cell.leveledUp ? 1f : cell.afterRatio;
             }
 
-            List<RowVisual> leveledRows = _rows.FindAll(r => r.leveledUp);
-            if (leveledRows.Count == 0)
+            List<CellVisual> leveledCells = _cells.FindAll(c => c.leveledUp);
+            if (leveledCells.Count == 0)
             {
                 yield break;
             }
 
+            yield return new WaitForSecondsRealtime(0.3f);
+
             // 2단계: 레벨업한 유닛만 0으로 리셋 후 이월 경험치만큼 다시 채움 + 레벨 텍스트 갱신
-            foreach (RowVisual row in leveledRows)
+            foreach (CellVisual cell in leveledCells)
             {
-                row.fillImage.fillAmount = 0f;
-                row.levelText.text = $"Lv.{row.finalLevel}";
+                cell.fillImage.fillAmount = 0f;
+                cell.levelText.text = $"Lv.{cell.finalLevel}";
             }
 
             t = 0f;
             while (t < half)
             {
-                t += Time.deltaTime;
+                t += Time.unscaledDeltaTime;
                 float ratio = Mathf.Clamp01(t / half);
-                foreach (RowVisual row in leveledRows)
+                foreach (CellVisual cell in leveledCells)
                 {
-                    row.fillImage.fillAmount = Mathf.Lerp(0f, row.afterRatio, ratio);
+                    cell.fillImage.fillAmount = Mathf.Lerp(0f, cell.afterRatio, ratio);
                 }
                 yield return null;
             }
 
-            foreach (RowVisual row in leveledRows)
+            foreach (CellVisual cell in leveledCells)
             {
-                row.fillImage.fillAmount = row.afterRatio;
+                cell.fillImage.fillAmount = cell.afterRatio;
             }
         }
 
-        private Transform CreateRowsContainer()
+        private void EnsureBackground(GameObject targetPanel)
         {
-            GameObject container = new GameObject("Rows", typeof(RectTransform), typeof(VerticalLayoutGroup), typeof(ContentSizeFitter));
+            Image background = targetPanel.GetComponent<Image>();
+            if (background == null)
+            {
+                background = targetPanel.AddComponent<Image>();
+            }
+
+            background.enabled = true;
+            background.color = new Color(0f, 0f, 0f, 0.85f);
+
+            RectTransform rt = targetPanel.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                rt.anchorMin = Vector2.zero;
+                rt.anchorMax = Vector2.one;
+                rt.offsetMin = Vector2.zero;
+                rt.offsetMax = Vector2.zero;
+            }
+        }
+
+        private void CreateTitle(Transform parent)
+        {
+            TextMeshProUGUI title = CreateText(parent, TitleLabel, 48, TextAlignmentOptions.Center);
+            RectTransform rt = title.rectTransform;
+            rt.anchorMin = new Vector2(0.1f, 0.82f);
+            rt.anchorMax = new Vector2(0.9f, 0.95f);
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
+        }
+
+        private Transform CreateCellsContainer()
+        {
+            GameObject container = new GameObject("Cells", typeof(RectTransform), typeof(GridLayoutGroup));
             container.transform.SetParent(panel != null ? panel.transform : transform, false);
 
             RectTransform rt = container.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.15f, 0.2f);
-            rt.anchorMax = new Vector2(0.85f, 0.85f);
-            rt.offsetMin = Vector2.zero;
-            rt.offsetMax = Vector2.zero;
+            rt.anchorMin = new Vector2(0.5f, 0.2f);
+            rt.anchorMax = new Vector2(0.5f, 0.78f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(700f, 0f);
 
-            VerticalLayoutGroup layout = container.GetComponent<VerticalLayoutGroup>();
-            layout.spacing = 8f;
-            layout.childControlHeight = true;
-            layout.childControlWidth = true;
-            layout.childForceExpandHeight = false;
-            layout.childForceExpandWidth = true;
+            GridLayoutGroup layout = container.GetComponent<GridLayoutGroup>();
+            layout.cellSize = new Vector2(130f, 100f);
+            layout.spacing = new Vector2(20f, 20f);
+            layout.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+            layout.constraintCount = 3;
+            layout.childAlignment = TextAnchor.UpperCenter;
 
             return container.transform;
         }
@@ -245,8 +276,8 @@ namespace OzGameLab01.UI
             buttonObj.transform.SetParent(panel != null ? panel.transform : transform, false);
 
             RectTransform rt = buttonObj.GetComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0.05f);
-            rt.anchorMax = new Vector2(0.5f, 0.05f);
+            rt.anchorMin = new Vector2(0.5f, 0.08f);
+            rt.anchorMax = new Vector2(0.5f, 0.08f);
             rt.pivot = new Vector2(0.5f, 0f);
             rt.sizeDelta = new Vector2(200f, 60f);
             buttonObj.GetComponent<Image>().color = new Color(0.2f, 0.6f, 0.9f, 1f);
