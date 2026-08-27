@@ -80,11 +80,11 @@ namespace Combat
 
             if (SceneTransitioner.Instance != null)
             {
-                SceneTransitioner.Instance.LoadScene("MapScene");
+                SceneTransitioner.Instance.LoadScene("ProtoBoardScene");
             }
             else
             {
-                SceneManager.LoadScene("MapScene");
+                SceneManager.LoadScene("ProtoBoardScene");
             }
         }
     }
