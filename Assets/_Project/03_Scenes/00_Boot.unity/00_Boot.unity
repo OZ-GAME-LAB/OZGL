@@ -135,6 +135,14 @@ PrefabInstance:
       propertyPath: '_managerComponents.Array.data[1]'
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 4413370296528165858, guid: 8195829e9d519794ca2949457a54fec9, type: 3}
+      propertyPath: '_managerComponents.Array.data[2]'
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 4413370296528165858, guid: 8195829e9d519794ca2949457a54fec9, type: 3}
+      propertyPath: '_managerComponents.Array.data[3]'
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 4478891463764493965, guid: 8195829e9d519794ca2949457a54fec9, type: 3}
       propertyPath: m_Name
       value: GlobalManagers

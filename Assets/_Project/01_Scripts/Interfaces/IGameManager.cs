@@ -6,6 +6,13 @@ namespace OzGameLab01.Interfaces
     ///
     /// GameBootstrapper 또는 씬 전용 부트스트래퍼가
     /// 생명주기를 관리해야 하는 매니저만 구현합니다.
+    ///
+    /// 생명주기 관리 규칙:
+    /// - Initialize()는 중복 호출되어도 다시 초기화하지 않습니다.
+    /// - 초기화에 실패하면 매니저 내부에서 생성한 자원을 직접 정리합니다.
+    /// - 초기화에 실패한 경우 IsInitialized는 false를 유지합니다.
+    /// - 부트스트래퍼는 자신이 직접 초기화한 매니저만 종료합니다.
+    /// - Shutdown()은 반복 호출되어도 안전하게 종료되어야 합니다.
     /// </summary>
     public interface IGameManager
     {
@@ -14,6 +21,9 @@ namespace OzGameLab01.Interfaces
         ///
         /// false: 아직 초기화되지 않았거나 초기화에 실패한 상태
         /// true: 초기화가 정상적으로 완료된 상태
+        ///
+        /// Initialize()의 모든 준비 작업이 성공한 이후에만
+        /// true로 변경해야 합니다.
         /// </summary>
         bool IsInitialized { get; }
 
@@ -25,6 +35,13 @@ namespace OzGameLab01.Interfaces
         /// - 이벤트 구독
         /// - 오브젝트 풀 생성
         /// - 다른 매니저와의 연결 준비
+        ///
+        /// 이미 초기화가 완료된 경우에는
+        /// 준비 작업을 다시 실행하지 않고 종료해야 합니다.
+        ///
+        /// 초기화 도중 실패한 경우에는
+        /// 해당 매니저가 생성하거나 연결한 자원을 내부에서 직접 정리하고,
+        /// IsInitialized를 false로 유지해야 합니다.
         /// </summary>
         void Initialize();
 
@@ -36,6 +53,12 @@ namespace OzGameLab01.Interfaces
         /// - 코루틴 정지
         /// - 임시 데이터 제거
         /// - 초기화 상태 초기화
+        ///
+        /// 초기화되지 않은 상태에서 호출되거나
+        /// 여러 번 호출되어도 오류가 발생하지 않아야 합니다.
+        ///
+        /// 모든 정리 작업이 완료되면
+        /// IsInitialized를 false로 변경해야 합니다.
         /// </summary>
         void Shutdown();
     }

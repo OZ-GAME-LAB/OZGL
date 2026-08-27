@@ -6,12 +6,10 @@ using UnityEngine;
 namespace OzGameLab01.Managers
 {
     /// <summary>
-    /// 게임 전체에서 공통으로 사용하는 기능을 관리하는 매니저입니다.
+    /// 게임 전체에서 공통으로 사용하는 기능과 게임 상태를 관리합니다.
     ///
-    /// #10 현재 단계에서는 GameBootstrapper의 동작을 검증하기 위해
-    /// 초기화와 종료 기능만 최소한으로 구현합니다.
-    /// 
-    /// #19 현재 단계에서는 게임 상태 관리와 상태 변경 이벤트 기능을 추가합니다. 
+    /// GameBootstrapper를 통해 초기화 및 종료되며,
+    /// 현재 게임 상태와 상태 변경 이벤트를 제공합니다.
     /// </summary>
     public class CommonManager : MonoBehaviour, IGameManager
     {
@@ -54,7 +52,10 @@ namespace OzGameLab01.Managers
             // 중복 초기화 방지
             if (IsInitialized)
             {
-                Debug.LogWarning("[CommonManager] 이미 초기화되어 있어 Initialize() 호출을 건너뜁니다.", this);
+                Debug.LogWarning(
+                    "[CommonManager] 이미 초기화되어 있어 " +
+                    "Initialize() 호출을 건너뜁니다.",
+                    this);
 
                 return;
             }
@@ -67,27 +68,38 @@ namespace OzGameLab01.Managers
             // 모든 준비 작업 완료 후 초기화 상태로 변경
             IsInitialized = true;
 
-            Debug.Log("[CommonManager] 초기화가 완료되었습니다.", this);
+            Debug.Log(
+                $"[CommonManager] 초기화 완료 | 현재 상태: {_currentState}",
+                this);
         }
 
-
         /// <summary>
-        /// 현재 게임 상태를 새로운 상태로 변경합니다. 
-        /// 상태 변경에 성공하면 true를 반환하고, 실패하면 false를 반환합니다.
+        /// 현재 게임 상태를 새로운 상태로 변경합니다.
+        ///
+        /// 상태 변경에 성공하면 true를 반환하고,
+        /// 변경하지 못하면 false를 반환합니다.
         /// </summary>
         public bool ChangeState(GameState newState)
         {
             // 초기화 전 상태 변경 방지
             if (!IsInitialized)
             {
-                Debug.LogError("[CommonManager] 초기화되지 않은 상태에서 ChangeState() 호출이 발생했습니다.", this);
+                Debug.LogError(
+                    "[CommonManager] 초기화되지 않은 상태에서 " +
+                    "ChangeState() 호출이 발생했습니다.",
+                    this);
+
                 return false;
             }
 
             // 동일 상태 중복 변경 방지
             if (_currentState == newState)
             {
-                Debug.LogWarning($"[CommonManager] 현재 상태가 이미 {newState}이므로 상태 변경을 건너뜁니다.", this);
+                Debug.LogWarning(
+                    $"[CommonManager] 현재 상태가 이미 {newState}이므로 " +
+                    "상태 변경을 건너뜁니다.",
+                    this);
+
                 return false;
             }
 
@@ -96,6 +108,12 @@ namespace OzGameLab01.Managers
 
             // 현재 게임 상태 변경
             _currentState = newState;
+
+            // 상태 변경 결과 출력
+            Debug.Log(
+                $"[CommonManager] 게임 상태 변경 | " +
+                $"{previousState} → {_currentState}",
+                this);
 
             // 이전 상태와 새로운 상태 전달
             GameStateChanged?.Invoke(previousState, _currentState);
@@ -125,7 +143,9 @@ namespace OzGameLab01.Managers
             // 초기화 상태 해제
             IsInitialized = false;
 
-            Debug.Log("[CommonManager] 종료 작업이 완료되었습니다.", this);
+            Debug.Log(
+                "[CommonManager] 종료 완료 | 상태 및 이벤트 초기화",
+                this);
         }
     }
 }
