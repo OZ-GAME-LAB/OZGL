@@ -103,6 +103,7 @@ namespace OzGameLab01.Managers
 
         private void NotifyFormationChanged()
         {
+            SceneTransitioner.AllyFormationSlots = _placedUnits;
             OnFormationChagned?.Invoke();
             //ToDo : 시너지 매니저에게 시너지 체크 요청
         }

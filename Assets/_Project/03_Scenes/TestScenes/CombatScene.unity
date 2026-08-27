@@ -901,7 +901,7 @@ MonoBehaviour:
   resultPanel: {fileID: 867415100}
   resultText: {fileID: 750468699}
   continueButton: {fileID: 1125794419}
-  levelUpSelector: {fileID: 1326156633}
+  battleRewardPanel: {fileID: 1367785148}
 --- !u!4 &673526479
 Transform:
   m_ObjectHideFlags: 0
@@ -984,8 +984,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC2B9\uB9AC!"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 0}
-  m_sharedMaterial: {fileID: 0}
+  m_fontAsset: {fileID: 11400000, guid: 34968b8879e6e7a43876b01cf39c0c40, type: 2}
+  m_sharedMaterial: {fileID: 8887313186883105125, guid: 34968b8879e6e7a43876b01cf39c0c40, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1521,7 +1521,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 568244020726446791, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
       propertyPath: m_Name
-      value: LevelUpSelector
+      value: BattleRewardPanel
       objectReference: {fileID: 0}
     - target: {fileID: 841322974473990401, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
       propertyPath: m_Pivot.x
@@ -1615,27 +1615,43 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedComponents:
+    - {fileID: 4278867244937705279, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
+    m_RemovedGameObjects:
+    - {fileID: 1293300783737173053, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 568244020726446791, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1367785148}
   m_SourcePrefab: {fileID: 100100000, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
---- !u!114 &1326156633 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4278867244937705279, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
-  m_PrefabInstance: {fileID: 1326156632}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 692a3fcc7a1b44b4e866880a9cbe5975, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::LevelUpSelector
 --- !u!224 &1326156634 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 841322974473990401, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
   m_PrefabInstance: {fileID: 1326156632}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1367785147 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 568244020726446791, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
+  m_PrefabInstance: {fileID: 1326156632}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1367785148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1367785147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a49cc31a4a8a47545a50e1b053e60494, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.BattleRewardPanel
+  panel: {fileID: 1680929440}
+  rowsContainer: {fileID: 0}
+  confirmButton: {fileID: 0}
+  koreanFont: {fileID: 11400000, guid: 34968b8879e6e7a43876b01cf39c0c40, type: 2}
+  fillAnimationDuration: 0.6
 --- !u!1 &1469565449
 GameObject:
   m_ObjectHideFlags: 0
@@ -1928,6 +1944,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1563206142}
   m_CullTransparentMesh: 1
+--- !u!1 &1680929440 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6018542715592828542, guid: 97161c3f0b5a35f4e818fed7bf0ba786, type: 3}
+  m_PrefabInstance: {fileID: 1326156632}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1989063578
 GameObject:
   m_ObjectHideFlags: 0
