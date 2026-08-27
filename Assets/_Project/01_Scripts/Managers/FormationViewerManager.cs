@@ -31,18 +31,13 @@ namespace OzGameLab01.Managers
         //두 슬롯의 unitIcon을 스왑
         public bool SwapUnitIcon(int fromSlot, int toSlot, UnitPlaceIconUI fromUnitIcon)
         {
-            Debug.Log($"{fromSlot} | {toSlot}"); //디버그용
-            Debug.Log("스왑 UI 1");
-
             //예외처리
             //if (!IsValidSlot(fromSlot) || !IsValidSlot(toSlot)) return false;
             if (fromSlot == toSlot) return false;
 
-            Debug.Log("스왑 UI 2");
             //시작한 유닛의 위치가 유닛리스트 일 때 
             if (fromSlot == -1)
             {
-                Debug.Log("리스트의 유닛과 슬롯의 스왑");
                 ReturnToListUnitIcon(GetUnitIcon(toSlot));
                 SetUnitIconPosition(fromUnitIcon, fieldSlotRoot.GetChild(toSlot));
 
@@ -50,7 +45,6 @@ namespace OzGameLab01.Managers
 
                 return true;
             }
-            Debug.Log("스왑 UI 3");
             //시작한 유닛의 위치가 필드슬롯 일 때
             
             UnitPlaceIconUI toSlotUnitIcon = GetUnitIcon(toSlot);

@@ -26,14 +26,16 @@ namespace OzGameLab01.Managers
 
         private void Start()
         {
-            Open();
+            CreateUnitIcons();
         }
 
         public void Open()//List<Unit> units)
         {
-            CreateUnitIcons();
         }
-
+        public void Close()
+        {
+            this.gameObject.SetActive(false);
+        }
         private void CreateUnitIcons()//List<Unit> units)
         {
             ClearUnitIcons();

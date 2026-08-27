@@ -92,7 +92,7 @@ namespace OzGameLab01.UI
             if (fieldSlot == null)
             {
                 _formationViewerManager.PlaceUnitIcon(this, _prevParent);
-               
+                transform.position = _prevPosition;
                 return;
             }
 
@@ -101,7 +101,6 @@ namespace OzGameLab01.UI
                 //해당 슬롯에 이미 다른 기물이 있을 경우 스왑.
                 if (!_formationManager.IsEmpty(fieldSlot.SlotIndex)) 
                 {
-                    Debug.Log("스왑");
                     _formationManager.SwapUnit(prevSlotIndex, fieldSlot.SlotIndex, _unit);
                     _formationViewerManager.SwapUnitIcon( prevSlotIndex, fieldSlot.SlotIndex, this);
                     return;

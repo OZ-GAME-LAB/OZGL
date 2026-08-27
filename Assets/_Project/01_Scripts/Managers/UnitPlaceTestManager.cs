@@ -22,7 +22,6 @@ namespace OzGameLab01.Test
         public void OnUnitPlaceSystem()
         {
             unitPlaceSystemPanel.gameObject.SetActive(true);
-            unitPlaceSystemPanel.Open();
         }
     }
 }
