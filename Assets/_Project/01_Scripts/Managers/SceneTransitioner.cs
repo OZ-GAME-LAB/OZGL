@@ -17,6 +17,13 @@ namespace OzGameLab01.Managers
         /// </summary>
         public static Unit[] AllyFormationSlots;
 
+        /// <summary>
+        /// ProtoBoardScene에서 CombatScene으로 진입하기 직전의 보드 위치(MapNode.Position).
+        /// 전투 종료 후 ProtoBoardScene으로 복귀할 때 이 위치에 플레이어를 되돌려 놓는다.
+        /// 기본값 (0,0)은 시작 노드 위치와 같아 별도 플래그 없이도 "복귀 위치 없음"과 자연히 일치한다.
+        /// </summary>
+        public static Vector2Int BoardReturnPosition;
+
         public static int SwordLevel = 1;
         public static int BowLevel = 1;
         public static int StaffLevel = 1;
