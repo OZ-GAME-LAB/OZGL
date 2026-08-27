@@ -42,9 +42,8 @@ namespace OzGameLab01.UI
         }
 
         [Header("Base")]
-        [SerializeField] private Image dimmer;
-        [SerializeField] private Image panel;
-
+        [SerializeField] private Image dimmer; //팝업시 배경을 어둡게 처리하는 영역
+        [SerializeField] private Image panel; //버튼을 담는 팝업 패널
         [SerializeField] private Button backButton;
 
         [Header("Category Buttons")]
@@ -53,9 +52,9 @@ namespace OzGameLab01.UI
         [SerializeField] private Button audioButton;
 
         [Header("Category Content")]
-        [SerializeField] private GameObject gameContent;
-        [SerializeField] private GameObject videoContent;
-        [SerializeField] private GameObject audioContent;
+        [SerializeField] private GameObject gameContent; //게임 설정 관련 UI 영역
+        [SerializeField] private GameObject videoContent; //영상 설정 관련 UI 영역
+        [SerializeField] private GameObject audioContent; //오디오 설정 관련 UI 영역
 
         [Header("Game")]
         [SerializeField] private DropdownRefs languageDropdown;
@@ -77,15 +76,26 @@ namespace OzGameLab01.UI
         [SerializeField] private ToggleRefs muteAllToggle;
 
         #region Properties
-
+        
+        /// <summary>
+        /// 설정 팝업의 현재 표시 상태
+        /// </summary>
         public bool IsVisible => gameObject.activeSelf;
-
+        
+        /// <summary>
+        /// 현재 선택된 설정 탭 (Show, SelectTab 호출 시 변경됨)
+        /// </summary>
         public SettingsTab CurrentTab { get; private set; } = SettingsTab.Game;
-
+        
+        /// <summary>
+        /// 현재 선택된 언어 옵션의 인덱스
+        /// 외부 설정 데이터를 ui에 반영할 때 설정하며, 사용자 변경은 LanguageSelected 이벤트를 통해 전달됨
+        /// 아래도 동일
+        /// </summary>
         public int LanguageIndex
         {
             get => languageDropdown.dropdown.value;
-            set => SetDropdownValue(languageDropdown.dropdown, value);
+            set => SetDropdownValue(languageDropdown.dropdown, value); //외부 값 반영 시 이벤트를 다시 발생시키지 않음
         }
 
         public int ResolutionIndex
@@ -140,24 +150,24 @@ namespace OzGameLab01.UI
 
         #region Events
 
-        public event Action CloseRequested;
-        public event Action<SettingsTab> TabSelected;
+        public event Action CloseRequested; //설정 팝업의 닫기 버튼을 누르면 발생하는 이벤트
+        public event Action<SettingsTab> TabSelected; //설정 팝업의 탭 버튼을 누르면 발생하는 이벤트 (Game, Video, Audio)
 
-        public event Action<int> LanguageSelected;
-        public event Action<int> ResolutionSelected;
-        public event Action<int> ScreenModeSelected;
+        public event Action<int> LanguageSelected; //사용자가 언어 옵션을 변경하면 발생하는 이벤트 (옵션 인덱스 전달)
+        public event Action<int> ResolutionSelected; //사용자가 해상도 옵션을 변경하면 발생하는 이벤트 (옵션 인덱스 전달)
+        public event Action<int> ScreenModeSelected; //사용자가 화면 모드 옵션을 변경하면 발생하는 이벤트 (옵션 인덱스 전달)
 
-        public event Action<float> MasterVolumeChanged;
-        public event Action<float> BgmVolumeChanged;
-        public event Action<float> SfxVolumeChanged;
+        public event Action<float> MasterVolumeChanged; //사용자가 마스터 볼륨 슬라이더를 변경하면 발생하는 이벤트 (볼륨 값 전달)
+        public event Action<float> BgmVolumeChanged; //사용자가 BGM 볼륨 슬라이더를 변경하면 발생하는 이벤트 (볼륨 값 전달)
+        public event Action<float> SfxVolumeChanged; //사용자가 SFX 볼륨 슬라이더를 변경하면 발생하는 이벤트 (볼륨 값 전달)
 
-        public event Action<bool> MuteAllChanged;
-        public event Action<bool> EffectsSimplifiedChanged;
-        public event Action<bool> SynergySummaryChanged;
+        public event Action<bool> MuteAllChanged; //사용자가 전체 음소거 토글을 변경하면 발생하는 이벤트 (토글 상태 전달)
+        public event Action<bool> EffectsSimplifiedChanged; //사용자가 이펙트 단순화 토글을 변경하면 발생하는 이벤트 (토글 상태 전달)
+        public event Action<bool> SynergySummaryChanged; //사용자가 시너지 요약 토글을 변경하면 발생하는 이벤트 (토글 상태 전달)
 
-        public event Action ReplayTutorialRequested;
-        public event Action ReplayCutsceneRequested;
-        public event Action ResetGameDataRequested;
+        public event Action ReplayTutorialRequested; //사용자가 튜토리얼 재시청 버튼을 누르면 발생하는 이벤트
+        public event Action ReplayCutsceneRequested; //사용자가 컷씬 재시청 버튼을 누르면 발생하는 이벤트
+        public event Action ResetGameDataRequested; //사용자가 게임 데이터 초기화 버튼을 누르면 발생하는 이벤트
 
         #endregion
 
@@ -216,18 +226,28 @@ namespace OzGameLab01.UI
         #endregion
 
         #region Public API
-
+        
+        /// <summary>
+        /// 설정 팝업을 열고 지정된 탭을 표시
+        /// </summary>
+        /// <param name="tab"></param>
         public void Show(SettingsTab tab = SettingsTab.Game)
         {
             gameObject.SetActive(true);
             SelectTab(tab, false);
         }
-
+        
         public void Hide()
         {
             gameObject.SetActive(false);
         }
-
+        
+        /// <summary>
+        /// 지정된 설정 탭만 활성화 됨
+        /// 이때 notify가 트루면 TabSelected 이벤트가 발생함
+        /// </summary>
+        /// <param name="tab"></param>
+        /// <param name="notify"></param>
         public void SelectTab(SettingsTab tab, bool notify)
         {
             CurrentTab = tab;
@@ -243,7 +263,11 @@ namespace OzGameLab01.UI
         #endregion
 
         #region Internal API
-
+        
+        /// <summary>
+        /// 외부에서 리소스 데이터를 받아 UI에 적용
+        /// </summary>
+        /// <param name="resources"></param>
         internal void ApplyResources(TitleSettingsResources resources)
         {
             if (resources == null)
