@@ -6,14 +6,21 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/_Project/03_Scenes/00_Boot.unity/00_Boot.unity
+    guid: 715edc5153ea74241963a9e8fd0ab8b2
+  - enabled: 1
     path: Assets/_Project/03_Scenes/TestScenes/ProtoTitle.unity
     guid: b11efb1af49735b4b9a7fdd9d77f9e3c
   - enabled: 1
     path: Assets/_Project/03_Scenes/TestScenes/ProtoBoardScene.unity
     guid: 9c6099e4e299e1247a21fbf2172180b2
   - enabled: 1
-    path: Assets/_Project/03_Scenes/TestScenes/CombatScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
+    path: Assets/_Project/03_Scenes/TestScenes/ProtoCombatScene.unity
+    guid: 1d2dd56e00bf98c469ba49a7e9a44d73
+  - enabled: 1
+    path: Assets/_Project/03_Scenes/TestScenes/ProtoResult.unity
+    guid: f4df4c19e468ef04390a84235f21dc83
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 2fc668aa847042c43960beba1e13d6d6, type: 2}
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
   m_UseUCBPForAssetBundles: 0
