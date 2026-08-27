@@ -59,5 +59,26 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3575520010445509818, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4375299817091587971}
   m_SourcePrefab: {fileID: 100100000, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+--- !u!1 &4280870000895994989 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3575520010445509818, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+  m_PrefabInstance: {fileID: 789950815584385239}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4375299817091587971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4280870000895994989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92c0cb299e630814696b011faae79f81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.TileView
+  _renderer: {fileID: 0}

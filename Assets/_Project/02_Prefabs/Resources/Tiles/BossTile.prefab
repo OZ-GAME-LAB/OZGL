@@ -56,8 +56,35 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 58911f6910eb2774ab8f14db50a32c2a, type: 2}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: -4629704591746137697, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3575520010445509818, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 6501041515931750780}
   m_SourcePrefab: {fileID: 100100000, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+--- !u!1 &364926051122135692 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3575520010445509818, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+  m_PrefabInstance: {fileID: 3787165333409502774}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6501041515931750780
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 364926051122135692}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92c0cb299e630814696b011faae79f81, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.TileView
+  _renderer: {fileID: 5589348339382478183}
+--- !u!23 &5589348339382478183 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8727954625644458833, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+  m_PrefabInstance: {fileID: 3787165333409502774}
+  m_PrefabAsset: {fileID: 0}

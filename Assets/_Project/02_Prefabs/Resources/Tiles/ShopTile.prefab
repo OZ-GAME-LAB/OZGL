@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -4629704591746137697, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+      propertyPath: _renderer
+      value: 
+      objectReference: {fileID: 4961030410705050378}
     - target: {fileID: 3575520010445509818, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
       propertyPath: m_Name
       value: ShopTile
@@ -61,3 +65,8 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+--- !u!23 &4961030410705050378 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 8727954625644458833, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+  m_PrefabInstance: {fileID: 4451512063340046427}
+  m_PrefabAsset: {fileID: 0}
