@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace OZGL.Data
 {
-    // À¯´ÏÆ¼ ÇÁ·ÎÁ§Æ® Ã¢ ¿ìÅ¬¸¯(Create) ¸Ş´º¿¡¼­ µ¥ÀÌÅÍ¸¦ »ı¼ºÇÒ ¼ö ÀÖµµ·Ï ¼Ó¼º Ãß°¡
+    // ìœ ë‹ˆí‹° í”„ë¡œì íŠ¸ ì°½ ìš°í´ë¦­(Create) ë©”ë‰´ì—ì„œ ë°ì´í„°ë¥¼ ìƒì„±í•  ìˆ˜ ìˆë„ë¡ ì†ì„± ì¶”ê°€
     [CreateAssetMenu(fileName = "NewMapTheme", menuName = "OZGL/Data/MapTheme")]
     public class MapThemeData : ScriptableObject
     {
-        [Header("ÇÊ¼ö Å¸ÀÏµé")]
+        [Header("í•„ìˆ˜ íƒ€ì¼ë“¤")]
         public GameObject NormalPrefab;
         public GameObject BossPrefab;
         public GameObject BattlePrefab;
@@ -15,13 +15,13 @@ namespace OZGL.Data
         public GameObject ShopPrefab;
         public GameObject ElitePrefab;
 
-        [Header("Àå¾Ö¹° Å¸ÀÏ")]
-        [Tooltip("ºñ¿öµÎ¸é ¸Ê »ı¼º ½Ã ÇØ´ç Àå¾Ö¹° »ı¼º ·ÎÁ÷À» ¹«½ÃÇÕ´Ï´Ù.")]
+        [Header("ì¥ì• ë¬¼ íƒ€ì¼")]
+        [Tooltip("ë¹„ì›Œë‘ë©´ ë§µ ìƒì„± ì‹œ í•´ë‹¹ ì¥ì• ë¬¼ ìƒì„± ë¡œì§ì„ ë¬´ì‹œí•©ë‹ˆë‹¤.")]
         public List<GameObject> TreePrefabs;
         public List<GameObject> RockPrefabs;
 
-        [Header("¿õµ¢ÀÌ, È£¼ö »ı¼º ½Ã½ºÅÛ")]
-        [Tooltip("4°¡Áö ¹° ÇÁ¸®ÆÕ Áß ÇÏ³ª¶óµµ ´©¶ôµÇ¸é ¹° ÁöÇüÀ» »ı¼ºÇÏÁö ¾Ê½À´Ï´Ù.")]
+        [Header("ì›…ë©ì´, í˜¸ìˆ˜ ìƒì„± ì‹œìŠ¤í…œ")]
+        [Tooltip("4ê°€ì§€ ë¬¼ í”„ë¦¬íŒ¹ ì¤‘ í•˜ë‚˜ë¼ë„ ëˆ„ë½ë˜ë©´ ë¬¼ ì§€í˜•ì„ ìƒì„±í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.")]
         public GameObject WaterPuddlePrefab;
         public GameObject WaterStartPrefab;
         public List<GameObject> WaterBodyPrefabs;

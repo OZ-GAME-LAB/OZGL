@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6523164857794533615}
   - component: {fileID: 5159637184039086307}
   - component: {fileID: 8727954625644458833}
-  - component: {fileID: -7408034545962620341}
+  - component: {fileID: -7883908992851718029}
   - component: {fileID: 6304496944970015853}
   m_Layer: 0
   m_Name: NormalTile
@@ -92,7 +92,7 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &-7408034545962620341
+--- !u!114 &-7883908992851718029
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

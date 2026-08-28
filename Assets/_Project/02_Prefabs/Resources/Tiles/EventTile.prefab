@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &7124936643003189997
+--- !u!1001 &3520431597134565335
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -56,35 +56,8 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 38746c73fbe3834419677f0719d2018e, type: 2}
-    m_RemovedComponents:
-    - {fileID: -4629704591746137697, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 3575520010445509818, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
-      insertIndex: 3
-      addedObject: {fileID: 4782125764118482450}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
---- !u!23 &2017384337566955964 stripped
-MeshRenderer:
-  m_CorrespondingSourceObject: {fileID: 8727954625644458833, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
-  m_PrefabInstance: {fileID: 7124936643003189997}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &6016264440062238295 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3575520010445509818, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
-  m_PrefabInstance: {fileID: 7124936643003189997}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &4782125764118482450
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6016264440062238295}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 92c0cb299e630814696b011faae79f81, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.TileView
-  _renderer: {fileID: 2017384337566955964}

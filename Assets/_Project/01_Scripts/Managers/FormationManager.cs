@@ -9,7 +9,7 @@ namespace OzGameLab01.Managers
     {
         private int _slotCount = 9;        //3x3
 
-        private Unit[] _placedUnits;        //ÇöÀç ¹èÄ¡µÈ À¯´Öµé
+        private Unit[] _placedUnits;        //í˜„ì¬ ë°°ì¹˜ëœ ìœ ë‹›ë“¤
 
         public Unit[] PlaceUnits => _placedUnits; 
 
@@ -40,7 +40,7 @@ namespace OzGameLab01.Managers
             return _placedUnits[slotIndex];
         }
 
-        public bool PlaceUnit(int slotIndex, Unit unit) //À¯´ÖÀÇ ´ëÇÑ Á¤º¸µµ ³Ñ±æ¿¹Á¤
+        public bool PlaceUnit(int slotIndex, Unit unit) //ìœ ë‹›ì˜ ëŒ€í•œ ì •ë³´ë„ ë„˜ê¸¸ì˜ˆì •
         {
             //if (unit == null)
             //    return false;
@@ -105,7 +105,7 @@ namespace OzGameLab01.Managers
         {
             SceneTransitioner.AllyFormationSlots = _placedUnits;
             OnFormationChagned?.Invoke();
-            //ToDo : ½Ã³ÊÁö ¸Å´ÏÀú¿¡°Ô ½Ã³ÊÁö Ã¼Å© ¿äÃ»
+            //ToDo : ì‹œë„ˆì§€ ë§¤ë‹ˆì €ì—ê²Œ ì‹œë„ˆì§€ ì²´í¬ ìš”ì²­
         }
     }
 }

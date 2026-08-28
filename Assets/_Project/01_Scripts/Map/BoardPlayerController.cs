@@ -11,7 +11,7 @@ namespace OzGameLab01.Controllers
         public static BoardPlayerController Instance { get; private set; }
 
         [Header("Player Visuals")]
-        [Tooltip("º¸µå À§¿¡¼­ ÇÃ·¹ÀÌ¾î¸¦ »óÂ¡ÇÒ 3D ÅäÅ«(¸») ÇÁ¸®ÆÕÀ» ¿¬°áÇÏ¼¼¿ä.")]
+        [Tooltip("ë³´ë“œ ìœ„ì—ì„œ í”Œë ˆì´ì–´ë¥¼ ìƒì§•í•  3D í† í°(ë§) í”„ë¦¬íŒ¹ì„ ì—°ê²°í•˜ì„¸ìš”.")]
         [SerializeField] private GameObject _playerTokenPrefab;
         private GameObject _tokenInstance;
 
@@ -20,7 +20,7 @@ namespace OzGameLab01.Controllers
         private MapNode _currentNode;
         private bool _isMoving = false;
 
-        // DiceManager µî ¿ÜºÎ¿¡¼­ »óÅÂ¸¦ È®ÀÎÇÏ±â À§ÇÑ ÇÁ·ÎÆÛÆ¼ (ÀĞ±â Àü¿ë)
+        // DiceManager ë“± ì™¸ë¶€ì—ì„œ ìƒíƒœë¥¼ í™•ì¸í•˜ê¸° ìœ„í•œ í”„ë¡œí¼í‹° (ì½ê¸° ì „ìš©)
         public bool IsMoving => _isMoving;
         public int CurrentDiceValue => _currentDiceValue;
 
@@ -29,7 +29,7 @@ namespace OzGameLab01.Controllers
         [SerializeField] private float _shakeIntensity = 0.3f;
         [SerializeField] private float _shakeDuration = 0.4f;
 
-        // Ä³½Ì µ¥ÀÌÅÍ
+        // ìºì‹± ë°ì´í„°
         private TileView _currentHoveredTile = null;
         private List<MapNode> _validPath = null;
 
@@ -43,47 +43,47 @@ namespace OzGameLab01.Controllers
         {
             _currentNode = startNode;
 
-            // MapGenerator¸¦ Ã£¾Æ ±âÈ¹ÀÚ°¡ ¼³Á¤ÇÑ Å¸ÀÏ °£°İÀ» °¡Á®¿É´Ï´Ù (±âº»°ª 2f).
+            // MapGeneratorë¥¼ ì°¾ì•„ ê¸°íšìê°€ ì„¤ì •í•œ íƒ€ì¼ ê°„ê²©ì„ ê°€ì ¸ì˜µë‹ˆë‹¤ (ê¸°ë³¸ê°’ 2f).
             float spacing = 2f;
 
-            // ÃÖ½Å À¯´ÏÆ¼ ±ÇÀå »çÇ×¿¡ ¸ÂÃß¾î FindFirstObjectByTypeÀ¸·Î º¯°æ (°æ°í ÇØ°á)
+            // ìµœì‹  ìœ ë‹ˆí‹° ê¶Œì¥ ì‚¬í•­ì— ë§ì¶”ì–´ FindFirstObjectByTypeìœ¼ë¡œ ë³€ê²½ (ê²½ê³  í•´ê²°)
             OZGL.Map.MapGenerator mapGen = FindFirstObjectByType<OZGL.Map.MapGenerator>();
             if (mapGen != null) spacing = mapGen.tileSpacing;
 
-            // ÄÁÆ®·Ñ·¯ÀÇ ³í¸®Àû À§Ä¡¸¦ ½ÃÀÛ Å¸ÀÏ¿¡ Á¤È®ÇÏ°Ô ¸ÂÃã
+            // ì»¨íŠ¸ë¡¤ëŸ¬ì˜ ë…¼ë¦¬ì  ìœ„ì¹˜ë¥¼ ì‹œì‘ íƒ€ì¼ì— ì •í™•í•˜ê²Œ ë§ì¶¤
             transform.position = new Vector3(startNode.Position.x * spacing, 0.5f, startNode.Position.y * spacing);
 
-            // ½Ã°¢Àû ÅäÅ« ÇÁ¸®ÆÕÀ» ÀÌ ÄÁÆ®·Ñ·¯ÀÇ ÀÚ½ÄÀ¸·Î »ı¼º
+            // ì‹œê°ì  í† í° í”„ë¦¬íŒ¹ì„ ì´ ì»¨íŠ¸ë¡¤ëŸ¬ì˜ ìì‹ìœ¼ë¡œ ìƒì„±
             if (_playerTokenPrefab != null && _tokenInstance == null)
             {
-                // À§Ä¡¿Í È¸ÀüÀ» ÃÊ±âÈ­ÇÏ¿© ÄÁÆ®·Ñ·¯(ºÎ¸ğ)ÀÇ À§Ä¡¸¦ ¿Ïº®ÇÏ°Ô µû¶ó°¡µµ·Ï ¼³Á¤
+                // ìœ„ì¹˜ì™€ íšŒì „ì„ ì´ˆê¸°í™”í•˜ì—¬ ì»¨íŠ¸ë¡¤ëŸ¬(ë¶€ëª¨)ì˜ ìœ„ì¹˜ë¥¼ ì™„ë²½í•˜ê²Œ ë”°ë¼ê°€ë„ë¡ ì„¤ì •
                 _tokenInstance = Instantiate(_playerTokenPrefab, transform.position, Quaternion.identity, this.transform);
 
-                // ¸¸¾à ÇÁ¸®ÆÕ ÀÚÃ¼¿¡ ¾î»öÇÑ ¿ÀÇÁ¼ÂÀÌ ÀÖ´Ù¸é ¾Æ·¡ ÄÚµå·Î °­Á¦ Áß¾Ó Á¤·Ä
+                // ë§Œì•½ í”„ë¦¬íŒ¹ ìì²´ì— ì–´ìƒ‰í•œ ì˜¤í”„ì…‹ì´ ìˆë‹¤ë©´ ì•„ë˜ ì½”ë“œë¡œ ê°•ì œ ì¤‘ì•™ ì •ë ¬
                 _tokenInstance.transform.localPosition = Vector3.zero;
             }
         }
 
-        // UI ¹öÆ° µîÀ» ÅëÇØ ÁÖ»çÀ§¸¦ ±¼·ÈÀ» ¶§ È£ÃâµË´Ï´Ù.
+        // UI ë²„íŠ¼ ë“±ì„ í†µí•´ ì£¼ì‚¬ìœ„ë¥¼ êµ´ë ¸ì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
         public void SetDiceValue(int value)
         {
             _currentDiceValue = value;
-            Debug.Log($"ÁÖ»çÀ§ ´«±İ: {value}");
+            Debug.Log($"ì£¼ì‚¬ìœ„ ëˆˆê¸ˆ: {value}");
         }
 
         public void OnTileHovered(TileView tile)
         {
             if (_isMoving || _currentDiceValue <= 0) return;
 
-            // --- ¾ÈÀü¸Á(Fail-safe) Ãß°¡ ---
+            // --- ì•ˆì „ë§(Fail-safe) ì¶”ê°€ ---
             if (MapManager.Instance == null)
             {
-                Debug.LogError("[BoardPlayerController] ¸Ê ¸Å´ÏÀú¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù! ¾À¿¡ MapManager ¿ÀºêÁ§Æ®°¡ ÀÖ´ÂÁö È®ÀÎÇÏ¼¼¿ä.");
+                Debug.LogError("[BoardPlayerController] ë§µ ë§¤ë‹ˆì €ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤! ì”¬ì— MapManager ì˜¤ë¸Œì íŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸í•˜ì„¸ìš”.");
                 return;
             }
             if (_currentNode == null)
             {
-                Debug.LogWarning("[BoardPlayerController] ÇÃ·¹ÀÌ¾îÀÇ ÇöÀç À§Ä¡°¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+                Debug.LogWarning("[BoardPlayerController] í”Œë ˆì´ì–´ì˜ í˜„ì¬ ìœ„ì¹˜ê°€ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
                 return;
             }
             // -----------------------------
@@ -91,7 +91,7 @@ namespace OzGameLab01.Controllers
             _currentHoveredTile = tile;
             MapNode targetNode = tile.MyNode;
 
-            // MapManager¸¦ ÅëÇØ ÇöÀç À§Ä¡¿¡¼­ ¸ñÇ¥±îÁö °æ·Î°¡ ÀÖ´ÂÁö, °Å¸®°¡ ÁÖ»çÀ§ ÀÌ³»ÀÎÁö °Ë»ç
+            // MapManagerë¥¼ í†µí•´ í˜„ì¬ ìœ„ì¹˜ì—ì„œ ëª©í‘œê¹Œì§€ ê²½ë¡œê°€ ìˆëŠ”ì§€, ê±°ë¦¬ê°€ ì£¼ì‚¬ìœ„ ì´ë‚´ì¸ì§€ ê²€ì‚¬
             _validPath = MapManager.Instance.FindPath(_currentNode, targetNode, _currentDiceValue);
 
             bool isReachable = (_validPath != null && _validPath.Count > 0);
@@ -100,7 +100,7 @@ namespace OzGameLab01.Controllers
 
         public void ClearHover()
         {
-            // ¹æ¾î¸·: ÇÃ·¹ÀÌ¾î°¡ ÀÌµ¿ ÁßÀÏ ¶§´Â ¸¶¿ì½º°¡ ¹ş¾î³ªµµ µ¥ÀÌÅÍ¸¦ ³¯¸®Áö ¾ÊÀ½!
+            // ë°©ì–´ë§‰: í”Œë ˆì´ì–´ê°€ ì´ë™ ì¤‘ì¼ ë•ŒëŠ” ë§ˆìš°ìŠ¤ê°€ ë²—ì–´ë‚˜ë„ ë°ì´í„°ë¥¼ ë‚ ë¦¬ì§€ ì•ŠìŒ!
             if (_isMoving) return;
 
             _currentHoveredTile = null;
@@ -113,12 +113,12 @@ namespace OzGameLab01.Controllers
 
             if (_validPath != null && _validPath.Count > 0)
             {
-                // ÀÌµ¿ °¡´É
+                // ì´ë™ ê°€ëŠ¥
                 StartCoroutine(MoveAlongPathRoutine());
             }
             else
             {
-                // ÀÌµ¿ ºÒ°¡´É (Àå¾Ö¹°ÀÌ°Å³ª ³Ê¹« ¸×)
+                // ì´ë™ ë¶ˆê°€ëŠ¥ (ì¥ì• ë¬¼ì´ê±°ë‚˜ ë„ˆë¬´ ë©‚)
                 StartCoroutine(ShakeRoutine());
                 ShowCannotMoveUI();
             }
@@ -127,19 +127,19 @@ namespace OzGameLab01.Controllers
         private IEnumerator MoveAlongPathRoutine()
         {
             _isMoving = true;
-            _currentHoveredTile?.ResetHighlight(); // ÀÌµ¿ ½ÃÀÛ ½Ã ÇÏÀÌ¶óÀÌÆ® ÇØÁ¦
+            _currentHoveredTile?.ResetHighlight(); // ì´ë™ ì‹œì‘ ì‹œ í•˜ì´ë¼ì´íŠ¸ í•´ì œ
 
-            // ¡Ú ÇÙ½É ÇØ°áÃ¥: ¸¶¿ì½º ÀÌº¥Æ®¿Í ²¿ÀÌÁö ¾Êµµ·Ï °æ·Î¸¦ º¹»çÇØµÓ´Ï´Ù.
+            // â˜… í•µì‹¬ í•´ê²°ì±…: ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ì™€ ê¼¬ì´ì§€ ì•Šë„ë¡ ê²½ë¡œë¥¼ ë³µì‚¬í•´ë‘¡ë‹ˆë‹¤.
             List<MapNode> pathToMove = new List<MapNode>(_validPath);
 
-            // º¹»çº»À» ¸¸µé¾úÀ¸´Ï ¿øº» È£¹ö µ¥ÀÌÅÍ´Â ÀÌÁ¦ ¾ÈÀüÇÏ°Ô ÃÊ±âÈ­ÇÕ´Ï´Ù.
+            // ë³µì‚¬ë³¸ì„ ë§Œë“¤ì—ˆìœ¼ë‹ˆ ì›ë³¸ í˜¸ë²„ ë°ì´í„°ëŠ” ì´ì œ ì•ˆì „í•˜ê²Œ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
             _validPath = null;
 
             foreach (MapNode node in pathToMove)
             {
-                // ¡Ú ¼öÇĞÀû °è»ê(* 2f)À» ¾ø¾Ö°í, ½ÇÁ¦ 3D Å¸ÀÏ ¸ğµ¨ÀÇ ¿ùµå À§Ä¡¸¦ °¡Á®¿É´Ï´Ù.
+                // â˜… ìˆ˜í•™ì  ê³„ì‚°(* 2f)ì„ ì—†ì• ê³ , ì‹¤ì œ 3D íƒ€ì¼ ëª¨ë¸ì˜ ì›”ë“œ ìœ„ì¹˜ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
                 Vector3 targetPos = node.NodeView.transform.position;
-                targetPos.y = 0.5f; // Å¸ÀÏ À§·Î ¶ç¿ì´Â ³ôÀÌ °íÁ¤
+                targetPos.y = 0.5f; // íƒ€ì¼ ìœ„ë¡œ ë„ìš°ëŠ” ë†’ì´ ê³ ì •
 
                 while (Vector3.Distance(transform.position, targetPos) > 0.01f)
                 {
@@ -149,15 +149,15 @@ namespace OzGameLab01.Controllers
 
                 transform.position = targetPos;
                 _currentNode = node;
-                _currentDiceValue--; // ÇÑ Ä­ °¥ ¶§¸¶´Ù ÁÖ»çÀ§ ¼Ò¸ğ (UI ¾÷µ¥ÀÌÆ® ·ÎÁ÷ Ãß°¡ ÇÊ¿ä)
+                _currentDiceValue--; // í•œ ì¹¸ ê°ˆ ë•Œë§ˆë‹¤ ì£¼ì‚¬ìœ„ ì†Œëª¨ (UI ì—…ë°ì´íŠ¸ ë¡œì§ ì¶”ê°€ í•„ìš”)
             }
 
             _isMoving = false;
 
-            // _validPath.Clear(); <--- ÀÌ ÁÙÀº »èÁ¦µÇ¾ú½À´Ï´Ù! (À§¿¡¼­ º¹»çº»À» ½è±â ¶§¹®)
+            // _validPath.Clear(); <--- ì´ ì¤„ì€ ì‚­ì œë˜ì—ˆìŠµë‹ˆë‹¤! (ìœ„ì—ì„œ ë³µì‚¬ë³¸ì„ ì¼ê¸° ë•Œë¬¸)
 
-            // ÀÌµ¿ ¿Ï·á ÈÄ µµÂøÇÑ Å¸ÀÏÀÇ ÀÌº¥Æ®(ÀüÅõ, »óÁ¡ µî) ½ÇÇà
-            Debug.Log($"µµÂøÇÑ Å¸ÀÏ: {_currentNode.Type}");
+            // ì´ë™ ì™„ë£Œ í›„ ë„ì°©í•œ íƒ€ì¼ì˜ ì´ë²¤íŠ¸(ì „íˆ¬, ìƒì  ë“±) ì‹¤í–‰
+            Debug.Log($"ë„ì°©í•œ íƒ€ì¼: {_currentNode.Type}");
             // GameManager.Instance.OnPlayerArrivedAt(_currentNode);
         }
 
@@ -169,7 +169,7 @@ namespace OzGameLab01.Controllers
 
             while (elapsed < _shakeDuration)
             {
-                // X, Z ÃàÀ¸·Î¸¸ Áøµ¿ (»çÀÎÆÄ È°¿ë)
+                // X, Z ì¶•ìœ¼ë¡œë§Œ ì§„ë™ (ì‚¬ì¸íŒŒ í™œìš©)
                 float xOffset = Mathf.Sin(Time.time * 50f) * _shakeIntensity;
                 float zOffset = Mathf.Cos(Time.time * 60f) * _shakeIntensity;
 
@@ -179,15 +179,15 @@ namespace OzGameLab01.Controllers
                 yield return null;
             }
 
-            transform.position = originalPos; // ¿ø·¡ ÀÚ¸®·Î º¹±¸
+            transform.position = originalPos; // ì›ë˜ ìë¦¬ë¡œ ë³µêµ¬
             _isMoving = false;
         }
 
         private void ShowCannotMoveUI()
         {
-            // ½ÇÁ¦ ±¸Çö¿¡¼­´Â UIManager¸¦ È£ÃâÇÏ¿© ÇÃ·ÎÆÃ ÅØ½ºÆ®¸¦ ¶ç¿ó´Ï´Ù.
-            Debug.LogWarning("ÀÌµ¿ ºÒ°¡!");
-            // UIManager.Instance.ShowFloatingText(transform.position, "ÀÌµ¿ ºÒ°¡!");
+            // ì‹¤ì œ êµ¬í˜„ì—ì„œëŠ” UIManagerë¥¼ í˜¸ì¶œí•˜ì—¬ í”Œë¡œíŒ… í…ìŠ¤íŠ¸ë¥¼ ë„ì›ë‹ˆë‹¤.
+            Debug.LogWarning("ì´ë™ ë¶ˆê°€!");
+            // UIManager.Instance.ShowFloatingText(transform.position, "ì´ë™ ë¶ˆê°€!");
         }
     }
 }

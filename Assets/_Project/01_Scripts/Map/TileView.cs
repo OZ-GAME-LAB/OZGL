@@ -4,8 +4,8 @@ using UnityEngine;
 
 namespace OzGameLab01.Map
 {
-    // ÀÌ ½ºÅ©¸³Æ®´Â ¸ğµç Å¸ÀÏ ÇÁ¸®ÆÕ(Normal, Battle, Tree µî)¿¡ ºÎÂøµÇ¾î¾ß ÇÕ´Ï´Ù.
-    // ¡Ø ÁÖÀÇ: ÇÁ¸®ÆÕ¿¡ BoxCollider µî Ãæµ¹Ã¼°¡ ÀÖ¾î¾ß ¸¶¿ì½º ÀÌº¥Æ®¸¦ °¨ÁöÇÒ ¼ö ÀÖ½À´Ï´Ù!
+    // ì´ ìŠ¤í¬ë¦½íŠ¸ëŠ” ëª¨ë“  íƒ€ì¼ í”„ë¦¬íŒ¹(Normal, Battle, Tree ë“±)ì— ë¶€ì°©ë˜ì–´ì•¼ í•©ë‹ˆë‹¤.
+    // â€» ì£¼ì˜: í”„ë¦¬íŒ¹ì— BoxCollider ë“± ì¶©ëŒì²´ê°€ ìˆì–´ì•¼ ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ë¥¼ ê°ì§€í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤!
     [RequireComponent(typeof(Collider))]
     public class TileView : MonoBehaviour
     {
@@ -46,7 +46,7 @@ namespace OzGameLab01.Map
         {
             if (_renderer == null) return;
 
-            // ÀÌµ¿ °¡´ÉÇÏ¸é Èò»ö, ºÒ°¡´ÉÇÏ¸é ºÓÀº»ö
+            // ì´ë™ ê°€ëŠ¥í•˜ë©´ í°ìƒ‰, ë¶ˆê°€ëŠ¥í•˜ë©´ ë¶‰ì€ìƒ‰
             _renderer.material.color = isReachable ? Color.white : Color.red;
         }
 

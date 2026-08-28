@@ -33,7 +33,7 @@ namespace OZGL.Map
     public class MapGenerator : MonoBehaviour
     {
         [Header("Theme Data")]
-        [Tooltip("ÇöÀç ½ºÅ×ÀÌÁö¿¡ ¸Â´Â Å×¸¶ µ¥ÀÌÅÍ(SO)¸¦ ¿¬°áÇØÁÖ¼¼¿ä.")]
+        [Tooltip("í˜„ì¬ ìŠ¤í…Œì´ì§€ì— ë§ëŠ” í…Œë§ˆ ë°ì´í„°(SO)ë¥¼ ì—°ê²°í•´ì£¼ì„¸ìš”.")]
         [SerializeField] private OZGL.Data.MapThemeData _currentTheme;
 
         [Header("Map Settings")]
@@ -78,19 +78,19 @@ namespace OZGL.Map
         {
             if (_currentTheme == null)
             {
-                Debug.LogError("[MapGenerator] MapThemeData°¡ ÇÒ´çµÇÁö ¾Ê¾Æ ¸ÊÀ» »ı¼ºÇÒ ¼ö ¾ø½À´Ï´Ù!");
+                Debug.LogError("[MapGenerator] MapThemeDataê°€ í• ë‹¹ë˜ì§€ ì•Šì•„ ë§µì„ ìƒì„±í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
                 return;
             }
 
             ValidatePrefabs();
 
-            // Å×½ºÆ®¸¦ À§ÇØ Start¿¡¼­ µÎ ÇÔ¼ö¸¦ ¿¬´Ş¾Æ È£ÃâÇÏÁö¸¸,
-            // ½ÇÁ¦ °ÔÀÓ¿¡¼­´Â ·Îµù¾À¿¡¼­ GenerateMapData()¸¦, º»°ÔÀÓ ¾À ÁøÀÔ ½Ã PlayMapAnimation()À» µû·Î È£ÃâÇÏ½Ã¸é µË´Ï´Ù.
+            // í…ŒìŠ¤íŠ¸ë¥¼ ìœ„í•´ Startì—ì„œ ë‘ í•¨ìˆ˜ë¥¼ ì—°ë‹¬ì•„ í˜¸ì¶œí•˜ì§€ë§Œ,
+            // ì‹¤ì œ ê²Œì„ì—ì„œëŠ” ë¡œë”©ì”¬ì—ì„œ GenerateMapData()ë¥¼, ë³¸ê²Œì„ ì”¬ ì§„ì… ì‹œ PlayMapAnimation()ì„ ë”°ë¡œ í˜¸ì¶œí•˜ì‹œë©´ ë©ë‹ˆë‹¤.
             GenerateMapData();
             PlayMapAnimation();
         }
 
-        // ¿ÜºÎ(GameManager µî)¿¡¼­ Áï½Ã ¸Ê µ¥ÀÌÅÍ¸¸ »ı¼ºÇÒ ¶§ È£ÃâÇÏ´Â public ÇÔ¼ö
+        // ì™¸ë¶€(GameManager ë“±)ì—ì„œ ì¦‰ì‹œ ë§µ ë°ì´í„°ë§Œ ìƒì„±í•  ë•Œ í˜¸ì¶œí•˜ëŠ” public í•¨ìˆ˜
         public void GenerateMapData()
         {
             _nodeDict.Clear();
@@ -99,16 +99,16 @@ namespace OZGL.Map
             GenerateLogicalShape();
             AssignNodeTypes();
 
-            Debug.Log("[MapGenerator] ¸Ê µ¥ÀÌÅÍ »ı¼ºÀÌ ¿Ï·áµÇ¾ú½À´Ï´Ù.");
+            Debug.Log("[MapGenerator] ë§µ ë°ì´í„° ìƒì„±ì´ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.");
 
-            // ---------------- [¿¬µ¿ ÄÚµå Ãß°¡ ºÎºĞ] ----------------
-            // 1. MapManager¿¡ »ı¼ºµÈ ³ëµå µñ¼Å³Ê¸®¸¦ ÅëÂ°·Î ³Ñ°Ü ±æÃ£±â ½Ã½ºÅÛÀ» È°¼ºÈ­ÇÕ´Ï´Ù.
+            // ---------------- [ì—°ë™ ì½”ë“œ ì¶”ê°€ ë¶€ë¶„] ----------------
+            // 1. MapManagerì— ìƒì„±ëœ ë…¸ë“œ ë”•ì…”ë„ˆë¦¬ë¥¼ í†µì§¸ë¡œ ë„˜ê²¨ ê¸¸ì°¾ê¸° ì‹œìŠ¤í…œì„ í™œì„±í™”í•©ë‹ˆë‹¤.
             if (OzGameLab01.Map.MapManager.Instance != null)
             {
                 OzGameLab01.Map.MapManager.Instance.InitializeMapData(_nodeDict);
             }
 
-            // 2. ÇÃ·¹ÀÌ¾î ÄÁÆ®·Ñ·¯¿¡ ½ÃÀÛÁ¡(Vector2Int.zero) ³ëµå¸¦ Àü´ŞÇÏ¿© ÇÃ·¹ÀÌ¾î ÅäÅ«À» ¼¼ÆÃÇÕ´Ï´Ù.
+            // 2. í”Œë ˆì´ì–´ ì»¨íŠ¸ë¡¤ëŸ¬ì— ì‹œì‘ì (Vector2Int.zero) ë…¸ë“œë¥¼ ì „ë‹¬í•˜ì—¬ í”Œë ˆì´ì–´ í† í°ì„ ì„¸íŒ…í•©ë‹ˆë‹¤.
             if (OzGameLab01.Controllers.BoardPlayerController.Instance != null && _nodeDict.ContainsKey(Vector2Int.zero))
             {
                 OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(_nodeDict[Vector2Int.zero]);
@@ -116,7 +116,7 @@ namespace OZGL.Map
             // -------------------------------------------------------
         }
 
-        // ¾À ÀüÈ¯ÀÌ ¿Ï·áµÈ ÈÄ Å¸ÀÏ ÆË¾÷ ¿¬ÃâÀ» ½ÃÀÛÇÒ ¶§ È£ÃâÇÏ´Â public ÇÔ¼ö
+        // ì”¬ ì „í™˜ì´ ì™„ë£Œëœ í›„ íƒ€ì¼ íŒì—… ì—°ì¶œì„ ì‹œì‘í•  ë•Œ í˜¸ì¶œí•˜ëŠ” public í•¨ìˆ˜
         public void PlayMapAnimation()
         {
             StartCoroutine(AnimateMapGeneration());
@@ -124,12 +124,12 @@ namespace OZGL.Map
 
         private void ValidatePrefabs()
         {
-            if (_currentTheme.NormalPrefab == null) Debug.LogWarning("[MapGenerator] ÇÊ¼ö: Normal ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
-            if (_currentTheme.BossPrefab == null) Debug.LogWarning("[MapGenerator] ÇÊ¼ö: Boss ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
-            if (_currentTheme.BattlePrefab == null) Debug.LogWarning("[MapGenerator] ÇÊ¼ö: Battle ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
-            if (_currentTheme.EventPrefab == null) Debug.LogWarning("[MapGenerator] ÇÊ¼ö: Event ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
-            if (_currentTheme.ShopPrefab == null) Debug.LogWarning("[MapGenerator] ÇÊ¼ö: Shop ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
-            if (_currentTheme.ElitePrefab == null) Debug.LogWarning("[MapGenerator] ÇÊ¼ö: Elite ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            if (_currentTheme.NormalPrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Normal í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.BossPrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Boss í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.BattlePrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Battle í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.EventPrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Event í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.ShopPrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Shop í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.ElitePrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Elite í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
         }
 
         private IEnumerator GenerateAndAnimateMap()
@@ -160,14 +160,14 @@ namespace OZGL.Map
                     _nodeDict.Add(newPos, newNode);
                     _allNodes.Add(newNode);
 
-                    // ÇÙ½É ¼öÁ¤: ¹æ±İ »ı¼ºµÈ ³ëµåÀÇ »óÇÏÁÂ¿ì¸¦ ¸ğµÎ °Ë»çÇØ¼­, 
-                    // ÀÎÁ¢ÇÑ À§Ä¡¿¡ ÀÌ¹Ì ´Ù¸¥ ³ëµå°¡ ÀÖ´Ù¸é ¼­·Î ¿Ïº®ÇÏ°Ô ´Ù¸®(Edge)¸¦ ¿¬°áÇØÁİ´Ï´Ù!
+                    // í•µì‹¬ ìˆ˜ì •: ë°©ê¸ˆ ìƒì„±ëœ ë…¸ë“œì˜ ìƒí•˜ì¢Œìš°ë¥¼ ëª¨ë‘ ê²€ì‚¬í•´ì„œ, 
+                    // ì¸ì ‘í•œ ìœ„ì¹˜ì— ì´ë¯¸ ë‹¤ë¥¸ ë…¸ë“œê°€ ìˆë‹¤ë©´ ì„œë¡œ ì™„ë²½í•˜ê²Œ ë‹¤ë¦¬(Edge)ë¥¼ ì—°ê²°í•´ì¤ë‹ˆë‹¤!
                     foreach (Vector2Int dir in directions)
                     {
                         Vector2Int neighborPos = newPos + dir;
                         if (_nodeDict.TryGetValue(neighborPos, out MapNode neighborNode))
                         {
-                            // ¼­·Î ¿¬°áµÇ¾î ÀÖÁö ¾Ê´Ù¸é ¾ç¹æÇâÀ¸·Î ±æÀ» ¶Õ¾îÁİ´Ï´Ù.
+                            // ì„œë¡œ ì—°ê²°ë˜ì–´ ìˆì§€ ì•Šë‹¤ë©´ ì–‘ë°©í–¥ìœ¼ë¡œ ê¸¸ì„ ëš«ì–´ì¤ë‹ˆë‹¤.
                             if (!newNode.ConnectedNodes.Contains(neighborNode))
                             {
                                 newNode.ConnectedNodes.Add(neighborNode);
@@ -197,19 +197,19 @@ namespace OZGL.Map
 
         private void PlaceObstacleClusters(List<MapNode> availableNodes)
         {
-            // ³ª¹« ±ºÁı ¹èÄ¡
+            // ë‚˜ë¬´ êµ°ì§‘ ë°°ì¹˜
             if (_currentTheme.TreePrefabs != null && _currentTheme.TreePrefabs.Count > 0)
             {
                 CreateCluster(availableNodes, treeClusterCount, minTreeClusterSize, maxTreeClusterSize, NodeType.Tree, false);
             }
 
-            // ¹ÙÀ§ ±ºÁı ¹èÄ¡
+            // ë°”ìœ„ êµ°ì§‘ ë°°ì¹˜
             if (_currentTheme.RockPrefabs != null && _currentTheme.RockPrefabs.Count > 0)
             {
                 CreateCluster(availableNodes, rockClusterCount, minRockClusterSize, maxRockClusterSize, NodeType.Rock, false);
             }
 
-            // ¹° ±ºÁı ¹èÄ¡
+            // ë¬¼ êµ°ì§‘ ë°°ì¹˜
             if (_currentTheme.WaterPuddlePrefab != null && _currentTheme.WaterStartPrefab != null &&
                 _currentTheme.WaterEndPrefab != null && _currentTheme.WaterBodyPrefabs != null &&
                 _currentTheme.WaterBodyPrefabs.Count > 0)
@@ -224,7 +224,7 @@ namespace OZGL.Map
             {
                 if (availableNodes.Count == 0) break;
 
-                // ÀÎ½ºÆåÅÍ¿¡¼­ min, max¸¦ 1·Î ÁÖ¸é ¹«Á¶°Ç targetSize´Â 1ÀÌ µÊ
+                // ì¸ìŠ¤í™í„°ì—ì„œ min, maxë¥¼ 1ë¡œ ì£¼ë©´ ë¬´ì¡°ê±´ targetSizeëŠ” 1ì´ ë¨
                 int targetSize = Random.Range(minSize, maxSize + 1);
                 MapNode seed = availableNodes[Random.Range(0, availableNodes.Count)];
 
@@ -266,14 +266,14 @@ namespace OZGL.Map
                     }
                     else
                     {
-                        // Å¬·¯½ºÅÍ Å©±â°¡ 1ÀÌ¸é ¹«Á¶°Ç '¿õµ¢ÀÌ(WaterPuddle)' Ã³¸®
+                        // í´ëŸ¬ìŠ¤í„° í¬ê¸°ê°€ 1ì´ë©´ ë¬´ì¡°ê±´ 'ì›…ë©ì´(WaterPuddle)' ì²˜ë¦¬
                         if (cluster.Count == 1)
                         {
                             cluster[0].Type = NodeType.WaterPuddle;
                         }
                         else
                         {
-                            // 2Ä­ ÀÌ»óÀÌ¸é ½ÃÀÛ, ¸öÅë, ³¡Á¡À¸·Î ±¸ºĞÇÏ¿© È£¼ö/°­ ÇüÅÂ ¿Ï¼º
+                            // 2ì¹¸ ì´ìƒì´ë©´ ì‹œì‘, ëª¸í†µ, ëì ìœ¼ë¡œ êµ¬ë¶„í•˜ì—¬ í˜¸ìˆ˜/ê°• í˜•íƒœ ì™„ì„±
                             cluster[0].Type = NodeType.WaterStart;
                             cluster[cluster.Count - 1].Type = NodeType.WaterEnd;
                             for (int j = 1; j < cluster.Count - 1; j++) cluster[j].Type = NodeType.WaterBody;
@@ -314,7 +314,7 @@ namespace OZGL.Map
                 MapNode candidate = availableNodes[Random.Range(0, availableNodes.Count)];
                 bool isValid = true;
 
-                // 1. °í¸³ ¹æÁö °Ë»ç: ÁÖº¯¿¡ ÀÌµ¿ °¡´ÉÇÑ Å¸ÀÏÀÌ ÃÖ¼Ò 1°³´Â ÀÖ¾î¾ß ÇÔ
+                // 1. ê³ ë¦½ ë°©ì§€ ê²€ì‚¬: ì£¼ë³€ì— ì´ë™ ê°€ëŠ¥í•œ íƒ€ì¼ì´ ìµœì†Œ 1ê°œëŠ” ìˆì–´ì•¼ í•¨
                 int walkableNeighbors = 0;
                 foreach (MapNode neighbor in candidate.ConnectedNodes)
                 {
@@ -323,17 +323,17 @@ namespace OZGL.Map
 
                 if (walkableNeighbors == 0)
                 {
-                    isValid = false; // 4¸éÀÌ ¸ğµÎ ¸·ÇôÀÖÀ¸¸é Å»¶ô
+                    isValid = false; // 4ë©´ì´ ëª¨ë‘ ë§‰í˜€ìˆìœ¼ë©´ íƒˆë½
                 }
 
-                // 2. ½ÃÀÛÁ¡À¸·ÎºÎÅÍÀÇ ÃÖ¼Ò °Å¸® °Ë»ç
+                // 2. ì‹œì‘ì ìœ¼ë¡œë¶€í„°ì˜ ìµœì†Œ ê±°ë¦¬ ê²€ì‚¬
                 if (isValid && minDistanceFromStart > 0)
                 {
                     int distFromStart = Mathf.Abs(candidate.Position.x) + Mathf.Abs(candidate.Position.y);
                     if (distFromStart < minDistanceFromStart) isValid = false;
                 }
 
-                // 3. µ¿Á¾ Å¸ÀÏ °£ÀÇ °Å¸® °Ë»ç
+                // 3. ë™ì¢… íƒ€ì¼ ê°„ì˜ ê±°ë¦¬ ê²€ì‚¬
                 if (isValid)
                 {
                     foreach (MapNode placed in placedNodes)
@@ -347,7 +347,7 @@ namespace OZGL.Map
                     }
                 }
 
-                // ¸ğµç °Ë»ç¸¦ Åë°úÇßÀ» ¶§¸¸ ¹èÄ¡
+                // ëª¨ë“  ê²€ì‚¬ë¥¼ í†µê³¼í–ˆì„ ë•Œë§Œ ë°°ì¹˜
                 if (isValid)
                 {
                     candidate.Type = type;
@@ -359,7 +359,7 @@ namespace OZGL.Map
 
             if (currentCount < count)
             {
-                Debug.LogWarning($"[MapGenerator] {type} Å¸ÀÏÀ» ¸ñÇ¥Ä¡({count}°³)¸¸Å­ ¹èÄ¡ÇÏÁö ¸øÇß½À´Ï´Ù. (¹èÄ¡µÊ: {currentCount}°³)");
+                Debug.LogWarning($"[MapGenerator] {type} íƒ€ì¼ì„ ëª©í‘œì¹˜({count}ê°œ)ë§Œí¼ ë°°ì¹˜í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤. (ë°°ì¹˜ë¨: {currentCount}ê°œ)");
             }
         }
 
@@ -389,7 +389,7 @@ namespace OZGL.Map
                 Vector3 worldPos = new Vector3(currentNode.Position.x * tileSpacing, 0, currentNode.Position.y * tileSpacing);
                 currentNode.NodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, this.transform);
                 
-                // Å¸ÀÏ ÃÊ±âÈ­ (»ö»ó ¹× ³ëµå Á¤º¸ ÀúÀå)
+                // íƒ€ì¼ ì´ˆê¸°í™” (ìƒ‰ìƒ ë° ë…¸ë“œ ì •ë³´ ì €ì¥)
                 TileView tileView = currentNode.NodeView.GetComponent<TileView>();
                 if (tileView != null)
                 {
@@ -397,7 +397,7 @@ namespace OZGL.Map
                 }
                 else
                 {
-                    Debug.LogWarning($"[MapGenerator] {currentNode.Type} Å¸ÀÏ ÇÁ¸®ÆÕ¿¡ TileView ÄÄÆ÷³ÍÆ®°¡ ¾ø½À´Ï´Ù!");
+                    Debug.LogWarning($"[MapGenerator] {currentNode.Type} íƒ€ì¼ í”„ë¦¬íŒ¹ì— TileView ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤!");
                 }
 
                 StartCoroutine(ScaleUpNode(currentNode.NodeView.transform, 0.5f));

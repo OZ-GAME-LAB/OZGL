@@ -8,7 +8,7 @@ namespace OzGameLab01.Map
     {
         public static MapManager Instance { get; private set; }
 
-        // MapGenerator°¡ »ı¼ºÇÑ µ¥ÀÌÅÍ¸¦ ³Ñ°Ü¹Ş¾Æ º¸°üÇÕ´Ï´Ù.
+        // MapGeneratorê°€ ìƒì„±í•œ ë°ì´í„°ë¥¼ ë„˜ê²¨ë°›ì•„ ë³´ê´€í•©ë‹ˆë‹¤.
         private Dictionary<Vector2Int, MapNode> _nodeDict = new Dictionary<Vector2Int, MapNode>();
 
         private void Awake()
@@ -17,7 +17,7 @@ namespace OzGameLab01.Map
             else Destroy(gameObject);
         }
 
-        // MapGenerator¿¡¼­ ¸Ê »ı¼ºÀÌ ¿Ï·áµÇ¸é ÀÌ ÇÔ¼ö¸¦ È£ÃâÇÏ¿© µ¥ÀÌÅÍ¸¦ ÁÖÀÔÇÕ´Ï´Ù.
+        // MapGeneratorì—ì„œ ë§µ ìƒì„±ì´ ì™„ë£Œë˜ë©´ ì´ í•¨ìˆ˜ë¥¼ í˜¸ì¶œí•˜ì—¬ ë°ì´í„°ë¥¼ ì£¼ì…í•©ë‹ˆë‹¤.
         public void InitializeMapData(Dictionary<Vector2Int, MapNode> generatedNodes)
         {
             _nodeDict = generatedNodes;
@@ -37,7 +37,7 @@ namespace OzGameLab01.Map
                    type == NodeType.WaterBody || type == NodeType.WaterEnd;
         }
 
-        // ½ÃÀÛÁ¡¿¡¼­ ¸ñÇ¥Á¡±îÁö ÁÖ»çÀ§ °ª ³»¿¡ °¥ ¼ö ÀÖ´Â ÃÖ´Ü °æ·Î¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+        // ì‹œì‘ì ì—ì„œ ëª©í‘œì ê¹Œì§€ ì£¼ì‚¬ìœ„ ê°’ ë‚´ì— ê°ˆ ìˆ˜ ìˆëŠ” ìµœë‹¨ ê²½ë¡œë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
         public List<MapNode> FindPath(MapNode startNode, MapNode targetNode, int maxDistance)
         {
             if (startNode == targetNode || IsObstacle(targetNode.Type)) return null;
@@ -54,15 +54,15 @@ namespace OzGameLab01.Map
             {
                 MapNode current = queue.Dequeue();
 
-                if (current == targetNode) break; // ¸ñÇ¥ µµ´Ş
+                if (current == targetNode) break; // ëª©í‘œ ë„ë‹¬
 
                 foreach (MapNode next in current.ConnectedNodes)
                 {
-                    if (IsObstacle(next.Type)) continue; // Àå¾Ö¹° Åë°ú ºÒ°¡
+                    if (IsObstacle(next.Type)) continue; // ì¥ì• ë¬¼ í†µê³¼ ë¶ˆê°€
 
                     int newCost = costSoFar[current] + 1;
 
-                    // ÁÖ»çÀ§ ÇÑ°è °Å¸®¸¦ ÃÊ°úÇÏ¸é Å½»ö ¾È ÇÔ
+                    // ì£¼ì‚¬ìœ„ í•œê³„ ê±°ë¦¬ë¥¼ ì´ˆê³¼í•˜ë©´ íƒìƒ‰ ì•ˆ í•¨
                     if (newCost > maxDistance) continue;
 
                     if (!costSoFar.ContainsKey(next) || newCost < costSoFar[next])
@@ -74,10 +74,10 @@ namespace OzGameLab01.Map
                 }
             }
 
-            // ¸ñÇ¥Á¡±îÁö µµ´ŞÇÏÁö ¸øÇß´Ù¸é null ¹İÈ¯
+            // ëª©í‘œì ê¹Œì§€ ë„ë‹¬í•˜ì§€ ëª»í–ˆë‹¤ë©´ null ë°˜í™˜
             if (!cameFrom.ContainsKey(targetNode)) return null;
 
-            // ¿ªÃßÀûÇÏ¿© °æ·Î ¸®½ºÆ® »ı¼º
+            // ì—­ì¶”ì í•˜ì—¬ ê²½ë¡œ ë¦¬ìŠ¤íŠ¸ ìƒì„±
             List<MapNode> path = new List<MapNode>();
             MapNode curr = targetNode;
             while (curr != startNode)
@@ -85,7 +85,7 @@ namespace OzGameLab01.Map
                 path.Add(curr);
                 curr = cameFrom[curr];
             }
-            path.Reverse(); // start -> target ¼ø¼­·Î Á¤·Ä
+            path.Reverse(); // start -> target ìˆœì„œë¡œ ì •ë ¬
 
             return path;
         }
