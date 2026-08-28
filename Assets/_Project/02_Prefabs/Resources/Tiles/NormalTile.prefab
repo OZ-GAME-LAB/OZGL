@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6523164857794533615}
   - component: {fileID: 5159637184039086307}
   - component: {fileID: 8727954625644458833}
+  - component: {fileID: -7883908992851718029}
   - component: {fileID: 6304496944970015853}
   m_Layer: 0
   m_Name: NormalTile
@@ -91,6 +92,19 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &-7883908992851718029
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3575520010445509818}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 16b5931c71784e847b2a486545251cc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.TileView
+  _renderer: {fileID: 8727954625644458833}
 --- !u!65 &6304496944970015853
 BoxCollider:
   m_ObjectHideFlags: 0

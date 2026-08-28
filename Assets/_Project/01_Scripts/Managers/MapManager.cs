@@ -1,126 +1,93 @@
-using System.Collections;
-using TMPro;
+using OZGL.Map;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using OzGameLab01.Controllers;
-using OzGameLab01.UI;
 
-namespace OzGameLab01.Managers
+namespace OzGameLab01.Map
 {
     public class MapManager : MonoBehaviour
     {
-        [SerializeField] private Transform tilesRoot;
-        [SerializeField] private Transform token;
-        [SerializeField] private Button rollButton;
-        [SerializeField] private TextMeshProUGUI resultText;
-        [SerializeField] private float hopDuration = 0.25f;
-        [SerializeField] private float combatTilePause = 0.5f;
-        [SerializeField] private DiceRoller diceRoller;
-        [SerializeField] private LevelUpSelector levelUpSelector;
-        [SerializeField] private PartyStatusUI partyStatusUI;
+        public static MapManager Instance { get; private set; }
 
-        private MapTile[] _tiles;
-        private int _currentIndex;
-        private bool _isMoving;
+        // MapGenerator가 생성한 데이터를 넘겨받아 보관합니다.
+        private Dictionary<Vector2Int, MapNode> _nodeDict = new Dictionary<Vector2Int, MapNode>();
 
         private void Awake()
         {
-            int childCount = tilesRoot.childCount;
-            _tiles = new MapTile[childCount];
-            for (int i = 0; i < childCount; i++)
-            {
-                _tiles[i] = tilesRoot.GetChild(i).GetComponent<MapTile>();
-            }
-
-            _currentIndex = SceneTransitioner.MapTileIndex;
-            token.position = tilesRoot.GetChild(_currentIndex).position;
-
-            rollButton.onClick.AddListener(OnRollClicked);
+            if (Instance == null) Instance = this;
+            else Destroy(gameObject);
         }
 
-        private void OnEventLevelUpComplete()
+        // MapGenerator에서 맵 생성이 완료되면 이 함수를 호출하여 데이터를 주입합니다.
+        public void InitializeMapData(Dictionary<Vector2Int, MapNode> generatedNodes)
         {
-            rollButton.interactable = true;
-
-            if (partyStatusUI != null)
-            {
-                partyStatusUI.Refresh();
-            }
+            _nodeDict = generatedNodes;
         }
 
-        private void OnRollClicked()
+        public MapNode GetNodeAt(Vector2Int position)
         {
-            if (_isMoving)
-            {
-                return;
-            }
-
-            StartCoroutine(RollAndMove());
+            if (_nodeDict.TryGetValue(position, out MapNode node))
+                return node;
+            return null;
         }
 
-        private IEnumerator RollAndMove()
+        public bool IsObstacle(NodeType type)
         {
-            _isMoving = true;
-            rollButton.interactable = false;
-
-            int roll = Random.Range(1, 7);
-
-            if (diceRoller != null)
-            {
-                yield return StartCoroutine(diceRoller.PlayRoll(roll));
-            }
-
-            if (resultText != null)
-            {
-                resultText.text = roll.ToString();
-            }
-
-            yield return StartCoroutine(MoveToken(roll));
+            return type == NodeType.Tree || type == NodeType.Rock ||
+                   type == NodeType.WaterPuddle || type == NodeType.WaterStart ||
+                   type == NodeType.WaterBody || type == NodeType.WaterEnd;
         }
 
-        private IEnumerator MoveToken(int steps)
+        // 시작점에서 목표점까지 주사위 값 내에 갈 수 있는 최단 경로를 반환합니다.
+        public List<MapNode> FindPath(MapNode startNode, MapNode targetNode, int maxDistance)
         {
-            for (int i = 0; i < steps; i++)
-            {
-                _currentIndex = (_currentIndex + 1) % _tiles.Length;
-                Vector3 startPos = token.position;
-                Vector3 endPos = tilesRoot.GetChild(_currentIndex).position;
+            if (startNode == targetNode || IsObstacle(targetNode.Type)) return null;
 
-                float elapsed = 0f;
-                while (elapsed < hopDuration)
+            Queue<MapNode> queue = new Queue<MapNode>();
+            Dictionary<MapNode, MapNode> cameFrom = new Dictionary<MapNode, MapNode>();
+            Dictionary<MapNode, int> costSoFar = new Dictionary<MapNode, int>();
+
+            queue.Enqueue(startNode);
+            cameFrom[startNode] = null;
+            costSoFar[startNode] = 0;
+
+            while (queue.Count > 0)
+            {
+                MapNode current = queue.Dequeue();
+
+                if (current == targetNode) break; // 목표 도달
+
+                foreach (MapNode next in current.ConnectedNodes)
                 {
-                    elapsed += Time.deltaTime;
-                    token.position = Vector3.Lerp(startPos, endPos, elapsed / hopDuration);
-                    yield return null;
-                }
+                    if (IsObstacle(next.Type)) continue; // 장애물 통과 불가
 
-                token.position = endPos;
-            }
+                    int newCost = costSoFar[current] + 1;
 
-            _isMoving = false;
+                    // 주사위 한계 거리를 초과하면 탐색 안 함
+                    if (newCost > maxDistance) continue;
 
-            MapTile finalTile = _tiles[_currentIndex];
-            if (finalTile != null && finalTile.tileType == MapTile.TileType.Combat)
-            {
-                SceneTransitioner.MapTileIndex = _currentIndex;
-                yield return new WaitForSeconds(combatTilePause);
-                SceneTransitioner.Instance.LoadScene("CombatScene");
-            }
-            else if (finalTile != null && finalTile.tileType == MapTile.TileType.Event)
-            {
-                if (levelUpSelector != null)
-                {
-                    levelUpSelector.Show(OnEventLevelUpComplete);
-                }
-                else
-                {
-                    rollButton.interactable = true;
+                    if (!costSoFar.ContainsKey(next) || newCost < costSoFar[next])
+                    {
+                        costSoFar[next] = newCost;
+                        cameFrom[next] = current;
+                        queue.Enqueue(next);
+                    }
                 }
             }
-            else
+
+            // 목표점까지 도달하지 못했다면 null 반환
+            if (!cameFrom.ContainsKey(targetNode)) return null;
+
+            // 역추적하여 경로 리스트 생성
+            List<MapNode> path = new List<MapNode>();
+            MapNode curr = targetNode;
+            while (curr != startNode)
             {
-                rollButton.interactable = true;
+                path.Add(curr);
+                curr = cameFrom[curr];
             }
+            path.Reverse(); // start -> target 순서로 정렬
+
+            return path;
         }
     }
 }
