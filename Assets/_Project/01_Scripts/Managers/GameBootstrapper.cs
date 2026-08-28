@@ -1,7 +1,10 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using OzGameLab01.Data;
 using OzGameLab01.Interfaces;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace OzGameLab01.Managers
 {
@@ -192,6 +195,47 @@ namespace OzGameLab01.Managers
 
             // 초기화 결과에 따른 최종 상태 결정
             DetermineFinalState(hasErrors);
+
+            // ==================== 부트 씬 자동 전환 ====================
+
+            // 모든 매니저의 준비가 완료된 경우에만 타이틀 이동 시작
+            if (IsInitializationComplete)
+            {
+                StartCoroutine(LoadTitleSceneAfterInitialization());
+            }
+        }
+
+        /// <summary>
+        /// 모든 전역 매니저의 초기화가 완료된 다음
+        /// 부트 씬에서 타이틀 씬으로 이동합니다.
+        /// </summary>
+        private IEnumerator LoadTitleSceneAfterInitialization()
+        {
+            // 같은 프레임의 모든 Start() 호출이 끝날 때까지 대기
+            yield return null;
+
+            // 00_Boot에서 실행된 경우에만 자동 이동
+            if (SceneManager.GetActiveScene().name != SceneNames.Boot)
+            {
+                yield break;
+            }
+
+            // SceneTransitioner 준비 여부 확인
+            if (SceneTransitioner.Instance == null)
+            {
+                Debug.LogError(
+                    "[GameBootstrapper] SceneTransitioner가 준비되지 않아 " +
+                    "타이틀 씬으로 이동할 수 없습니다.",
+                    this);
+
+                yield break;
+            }
+
+            Debug.Log(
+                "[GameBootstrapper] 전역 매니저 준비 완료 | 타이틀 씬 이동",
+                this);
+
+            SceneTransitioner.Instance.LoadTitleScene();
         }
 
         /// <summary>
