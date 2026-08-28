@@ -1,3 +1,4 @@
+using OzGameLab01.Data;
 using OzGameLab01.Map;
 using System.Collections;
 using System.Collections.Generic;
@@ -90,6 +91,92 @@ namespace OZGL.Map
             PlayMapAnimation();
         }
 
+        /// <summary>
+        /// 현재 게임 진행의 Map Seed를 사용해 맵 데이터를 생성합니다.
+        /// 일반 전투 후 보드 씬으로 돌아와도 동일한 Seed를 사용하므로
+        /// 이전과 같은 구조와 타일 배치로 맵이 복원됩니다.
+        /// </summary>
+        public void GenerateMapData()
+        {
+            // ==================== 보드 진행 데이터 연동 ====================
+
+            // 보드 씬을 직접 실행한 테스트 상황에서도
+            // 사용할 수 있는 게임 진행 데이터가 존재하도록 보장
+            BoardRunData.EnsureActiveRun();
+
+            // 맵 생성이 다른 시스템의 무작위 결과에 영향을 주지 않도록
+            // 현재 Unity Random 상태를 임시로 보관
+            Random.State previousRandomState = Random.state;
+
+            // 저장된 Seed를 적용하여 동일한 맵을 생성
+            Random.InitState(BoardRunData.MapSeed);
+
+            try
+            {
+                _nodeDict.Clear();
+                _allNodes.Clear();
+
+                GenerateLogicalShape();
+                AssignNodeTypes();
+            }
+            finally
+            {
+                // 맵 생성 이전의 Random 상태 복원
+                Random.state = previousRandomState;
+            }
+
+            Debug.Log($"[MapGenerator] 맵 데이터 생성 완료 | Seed: {BoardRunData.MapSeed}");
+
+            // 생성된 노드 데이터를 MapManager에 전달
+            if (OzGameLab01.Map.MapManager.Instance != null)
+            {
+                OzGameLab01.Map.MapManager.Instance.InitializeMapData(_nodeDict);
+            }
+            else
+            {
+                Debug.LogError("[MapGenerator] MapManager를 찾을 수 없어 생성된 맵 데이터를 전달하지 못했습니다.", this);
+            }
+
+            // ==================== 플레이어 위치 복원 ====================
+
+            if (OzGameLab01.Controllers.BoardPlayerController.Instance == null)
+            {
+                Debug.LogError("[MapGenerator] BoardPlayerController를 찾을 수 없어 플레이어 위치를 설정하지 못했습니다.", this);
+
+                return;
+            }
+
+            // 저장 위치가 있으면 해당 위치에서 시작하고,
+            // 처음 시작한 게임이면 (0, 0) 시작 노드 사용
+            Vector2Int targetPosition = BoardRunData.HasPlayerPosition ? BoardRunData.PlayerPosition : Vector2Int.zero;
+
+            if (!_nodeDict.TryGetValue( targetPosition, out MapNode targetNode))
+            {
+                Debug.LogWarning(
+                    $"[MapGenerator] 저장된 플레이어 위치 {targetPosition}을 " +
+                    "생성된 맵에서 찾을 수 없어 시작 위치로 복구합니다.", this);
+
+                targetPosition = Vector2Int.zero;
+
+                if (!_nodeDict.TryGetValue(targetPosition, out targetNode))
+                {
+                    Debug.LogError("[MapGenerator] 시작 노드를 찾을 수 없어 플레이어를 배치하지 못했습니다.", this);
+
+                    return;
+                }
+
+                BoardRunData.SavePlayerPosition(targetPosition);
+            }
+
+            OzGameLab01.Controllers.BoardPlayerController.Instance
+                .SetupPlayer(targetNode);
+
+            Debug.Log($"[MapGenerator] 플레이어 배치 완료 | Position: {targetPosition}", this);
+        }
+
+
+        /* 리팩 전 / public void GenerateMapData()
+         
         // 외부(GameManager 등)에서 즉시 맵 데이터만 생성할 때 호출하는 public 함수
         public void GenerateMapData()
         {
@@ -115,6 +202,7 @@ namespace OZGL.Map
             }
             // -------------------------------------------------------
         }
+        */
 
         // 씬 전환이 완료된 후 타일 팝업 연출을 시작할 때 호출하는 public 함수
         public void PlayMapAnimation()
