@@ -28,7 +28,7 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         }
     }
 
-    private void Awake()
+    protected virtual void Awake()
     {
         if (transform.parent != null && transform.root != null) // 해당 오브젝트가 자식 오브젝트라면
         {
