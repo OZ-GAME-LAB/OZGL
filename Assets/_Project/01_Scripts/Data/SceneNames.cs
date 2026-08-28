@@ -30,9 +30,13 @@ namespace OzGameLab01.Data
         /// </summary>
         public const string Combat = "ProtoCombatScene";
 
+        public const string Boss = "ProtoBossScene";
+
         /// <summary>
         /// 최종 승리 또는 패배를 표시하는 결과 씬입니다.
         /// </summary>
         public const string Result = "ProtoResultScene";
+
+        
     }
 }

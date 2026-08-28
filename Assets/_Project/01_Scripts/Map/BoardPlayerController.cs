@@ -1,3 +1,4 @@
+using System;
 using OzGameLab01.Map;
 using OZGL.Map;
 using System.Collections;
@@ -23,6 +24,14 @@ namespace OzGameLab01.Controllers
         // DiceManager 등 외부에서 상태를 확인하기 위한 프로퍼티 (읽기 전용)
         public bool IsMoving => _isMoving;
         public int CurrentDiceValue => _currentDiceValue;
+
+        // ==================== 보드 도착 이벤트 추가 ====================
+
+        /// <summary>
+        /// 플레이어가 보드 이동을 모두 완료했을 때 호출되는 이벤트입니다.
+        /// 도착한 MapNode를 전달하며, 씬 전환과 이벤트 타일 처리는 외부 컨트롤러가 담당합니다.
+        /// </summary>
+        public event Action<MapNode> PlayerArrived;
 
         [Header("Movement Settings")]
         [SerializeField] private float _moveSpeed = 5f;
@@ -157,7 +166,18 @@ namespace OzGameLab01.Controllers
             // _validPath.Clear(); <--- 이 줄은 삭제되었습니다! (위에서 복사본을 썼기 때문)
 
             // 이동 완료 후 도착한 타일의 이벤트(전투, 상점 등) 실행
-            Debug.Log($"도착한 타일: {_currentNode.Type}");
+            //Debug.Log($"도착한 타일: {_currentNode.Type}");
+            // 이동 완료 후 도착한 타일 정보 출력
+
+            Debug.Log($"[BoardPlayerController] 도착한 타일 | Position: {_currentNode.Position}, " +
+                $"Type: {_currentNode.Type}", this);
+
+            // ==================== 보드 도착 이벤트 추가 ====================
+
+            // 씬 전환과 타일 이벤트 처리를 담당하는 외부 컨트롤러에
+            // 최종 도착 노드를 전달
+            PlayerArrived?.Invoke(_currentNode);
+
             // GameManager.Instance.OnPlayerArrivedAt(_currentNode);
         }
 
