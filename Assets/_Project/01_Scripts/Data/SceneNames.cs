@@ -35,7 +35,7 @@ namespace OzGameLab01.Data
         /// <summary>
         /// 최종 승리 또는 패배를 표시하는 결과 씬입니다.
         /// </summary>
-        public const string Result = "ProtoResultScene";
+        public const string Result = "ProtoResult";
 
         
     }
