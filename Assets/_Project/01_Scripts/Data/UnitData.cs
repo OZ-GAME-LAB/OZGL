@@ -1,12 +1,29 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-namespace Combat
+public class UnitDataList : IDataList<UnitData>
 {
-    [CreateAssetMenu(fileName = "UnitData", menuName = "Combat/Unit Data")]
-    public class UnitData : ScriptableObject
-    {
-        [SerializeField] private GameObject unitPrefab;
+    public List<UnitData> unitList;
+    public List<UnitData> GetList() => unitList;
+}
 
-        public GameObject UnitPrefab => unitPrefab;
-    }
+[System.Serializable]
+public class UnitData
+{
+    public int id;
+    public string name;
+    public string spriteAddress;
+
+    public int healthPoint;
+    public int attackPoint;
+    public int criticalRate;
+    public int dodgeRate;
+    public int bloodDrain;
+    public int attackSpeed;
+    public int skillCooldown;
+
+    public string attackKey;
+    public string skillKey;
+
+    // public UnitType type;
 }
