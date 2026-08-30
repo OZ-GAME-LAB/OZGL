@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace OzGameLab01.UI
+namespace OzGameLab01.UI.Title
 {
     public enum SettingsTab
     {
@@ -12,7 +12,7 @@ namespace OzGameLab01.UI
         Audio
     }
 
-    public sealed class SettingsView : MonoBehaviour
+    public sealed class TitleSettingsView : MonoBehaviour
     {
         [Serializable]
         private struct DropdownRefs
@@ -262,44 +262,6 @@ namespace OzGameLab01.UI
 
         #endregion
 
-        #region Internal API
-        
-        /// <summary>
-        /// 외부에서 리소스 데이터를 받아 UI에 적용
-        /// </summary>
-        /// <param name="resources"></param>
-        internal void ApplyResources(TitleSettingsResources resources)
-        {
-            if (resources == null)
-                return;
-
-            TitleUiStyleApplier.Apply(dimmer, resources.dimmer);
-            TitleUiStyleApplier.Apply(panel, resources.panel);
-
-            TitleUiStyleApplier.Apply(gameButton, resources.categoryButton);
-            TitleUiStyleApplier.Apply(videoButton, resources.categoryButton);
-            TitleUiStyleApplier.Apply(audioButton, resources.categoryButton);
-            TitleUiStyleApplier.Apply(backButton, resources.backButton);
-
-            TitleUiStyleApplier.Apply(replayTutorialButton, resources.actionButton);
-            TitleUiStyleApplier.Apply(replayCutsceneButton, resources.actionButton);
-            TitleUiStyleApplier.Apply(resetGameDataButton, resources.actionButton);
-
-            ApplyDropdown(languageDropdown, resources.dropdown);
-            ApplyDropdown(resolutionDropdown, resources.dropdown);
-            ApplyDropdown(screenModeDropdown, resources.dropdown);
-
-            ApplySlider(masterSlider, resources.slider);
-            ApplySlider(bgmSlider, resources.slider);
-            ApplySlider(sfxSlider, resources.slider);
-
-            ApplyToggle(muteAllToggle, resources.toggle);
-            ApplyToggle(simplifyEffectsToggle, resources.toggle);
-            ApplyToggle(synergySummaryToggle, resources.toggle);
-        }
-
-        #endregion
-
         #region Private Methods
 
         private void OnGameTabClicked()
@@ -380,30 +342,6 @@ namespace OzGameLab01.UI
         private void OnResetGameDataClicked()
         {
             ResetGameDataRequested?.Invoke();
-        }
-
-        private static void ApplyDropdown(DropdownRefs refs, DropdownStyle style)
-        {
-            TitleUiStyleApplier.Apply(refs.background, style.background);
-            TitleUiStyleApplier.Apply(refs.arrow, style.arrow);
-            TitleUiStyleApplier.Apply(refs.itemBackground, style.itemBackground);
-            TitleUiStyleApplier.Apply(refs.itemCheckmark, style.itemCheckmark);
-        }
-
-        private static void ApplySlider(SliderRefs refs, SliderStyle style)
-        {
-            TitleUiStyleApplier.Apply(refs.track, style.track);
-            TitleUiStyleApplier.Apply(refs.fill, style.fill);
-            TitleUiStyleApplier.Apply(refs.handle, style.handle);
-        }
-
-        private static void ApplyToggle(ToggleRefs refs, ToggleStyle style)
-        {
-            TitleUiStyleApplier.Apply(
-                refs.toggle,
-                style,
-                refs.background,
-                refs.checkmark);
         }
 
         private static void SetDropdownValue(TMP_Dropdown dropdown, int value)

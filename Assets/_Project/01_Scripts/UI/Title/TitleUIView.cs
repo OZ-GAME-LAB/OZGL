@@ -2,13 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace OzGameLab01.UI
+namespace OzGameLab01.UI.Title
 {
     public sealed class TitleUIView : MonoBehaviour
     {
-        [Header("Resource")]
-        [SerializeField] private UIResourceSO uiResourceSO;
-
         [Header("Main Canvas")]
         [SerializeField] private Image backgroundVisual;
         [SerializeField] private Image titleVisual;
@@ -19,12 +16,12 @@ namespace OzGameLab01.UI
         [SerializeField] private Button exitButton;
 
         [Header("Overlay / Popup")]
-        [SerializeField] private SettingsView settingsView;
+        [SerializeField] private TitleSettingsView settingsView;
         [SerializeField] private ExitConfirmView exitConfirmView;
 
         #region Properties
 
-        public SettingsView Settings => settingsView; //타이틀 화면에 연결됨, 외부에서 설정 때문에 ui에 접근할 때 사용해요
+        public TitleSettingsView Settings => settingsView; //타이틀 화면에 연결됨, 외부에서 설정 때문에 ui에 접근할 때 사용해요
         public ExitConfirmView ExitConfirm => exitConfirmView;
         public bool IsVisible => gameObject.activeSelf;
         public bool IsSettingsVisible => settingsView != null && settingsView.IsVisible;
@@ -56,8 +53,6 @@ namespace OzGameLab01.UI
 
             HideSettings();
             HideExitConfirm();
-
-            ApplyResources();
         }
 
         private void OnDestroy()
@@ -114,30 +109,6 @@ namespace OzGameLab01.UI
 
         #region Private Methods
         
-        /// <summary>
-        /// Ui리소스SO에 정의된 타이틀 스타일을 메인 화면과 하위 파업에 일괄 적용함
-        /// Awake에서 초기 ui 외형을 구성하며, ContextMenu를 통해 에디터에서 바로 적용 가능
-        /// 그래서 만약에 필요하다면 매니저 쪽에서 Init()해도 되고, 그냥 Awake에서 바로 적용해도 됨
-        /// </summary>
-        [ContextMenu("Apply UI Resources")]
-        private void ApplyResources()
-        {
-            if (uiResourceSO == null || uiResourceSO.titleUi == null)
-                return;
-
-            TitleUiSO resources = uiResourceSO.titleUi;
-
-            TitleUiStyleApplier.Apply(backgroundVisual,resources.main.background);
-            TitleUiStyleApplier.Apply(titleVisual,resources.main.title);
-            TitleUiStyleApplier.Apply(startButton,resources.main.startButton);
-            TitleUiStyleApplier.Apply(upgradeButton,resources.main.upgradeButton);
-            TitleUiStyleApplier.Apply(settingsButton,resources.main.settingsButton);
-            TitleUiStyleApplier.Apply(exitButton,resources.main.exitButton);
-
-            settingsView.ApplyResources(resources.settings);
-            exitConfirmView.ApplyResources(resources.exitConfirm);
-        }
-
         private void OnStartClicked()
         {
             StartRequested?.Invoke();

@@ -3699,7 +3699,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e4cebfae965323409d534ec8946ead6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OZGL.UI.TitleUIView
-  uiResourceSO: {fileID: 11400000, guid: 5add4efde9b9379408f34d7c03d2a43a, type: 2}
   backgroundVisual: {fileID: 7613380347226262405}
   titleVisual: {fileID: 3083496928550050307}
   startButton: {fileID: 5798262011050951081}

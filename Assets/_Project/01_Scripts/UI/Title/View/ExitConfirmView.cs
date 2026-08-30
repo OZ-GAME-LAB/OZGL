@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace OzGameLab01.UI
+namespace OzGameLab01.UI.Title
 {
     public sealed class ExitConfirmView : MonoBehaviour
     {
@@ -50,27 +50,6 @@ namespace OzGameLab01.UI
         public void Hide() //팝업 닫기
         {
             gameObject.SetActive(false);
-        }
-
-        #endregion
-
-        #region Internal API
-        
-        /// <summary>
-        /// UI 리소스를 적용합니다.
-        /// 타이틀 ui뷰가 전체 타이틀 ui리소스를 적용하는 단계에서 호출되요
-        /// </summary>
-        /// <param name="resources"></param>
-        internal void ApplyResources(TitleExitConfirmResources resources)
-        {
-            if (resources == null)
-                return;
-
-            TitleUiStyleApplier.Apply(dimmer, resources.dimmer);
-            TitleUiStyleApplier.Apply(panel, resources.panel);
-
-            TitleUiStyleApplier.Apply(confirmButton, resources.confirmButton);
-            TitleUiStyleApplier.Apply(cancelButton, resources.cancelButton);
         }
 
         #endregion
