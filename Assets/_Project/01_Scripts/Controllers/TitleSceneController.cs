@@ -1,5 +1,5 @@
 using OzGameLab01.Managers;
-using OzGameLab01.UI;
+using OzGameLab01.UI.Title;
 using UnityEngine;
 
 namespace OzGameLab01.Controllers
