@@ -5,12 +5,14 @@ using UnityEngine.UI;
 
 namespace OzGameLab01.UI
 {
+    public enum UnitSlotType
+    {
+        Battle,
+        Support
+    }
+
     [DisallowMultipleComponent]
-    public sealed class UnitSlotItemView : MonoBehaviour,
-        IPointerClickHandler,
-        IPointerEnterHandler,
-        IPointerExitHandler,
-        IDropHandler
+    public sealed class UnitSlotItemView : MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler,IDropHandler
     {
         [Header("References")]
         [SerializeField] private RectTransform rectTransform;
@@ -18,6 +20,7 @@ namespace OzGameLab01.UI
 
         [Header("Settings")]
         [SerializeField] private int slotIndex;
+        [SerializeField] private UnitSlotType slotType;
 
         private bool isOccupied;
         private bool isInteractable = true;
@@ -28,6 +31,11 @@ namespace OzGameLab01.UI
         public Image SlotIcon => slotIcon;
 
         public int SlotIndex => slotIndex;
+        public UnitSlotType SlotType => slotType;
+
+        public bool IsBattleSlot => slotType == UnitSlotType.Battle;
+        public bool IsSupportSlot => slotType == UnitSlotType.Support;
+
         public bool IsOccupied => isOccupied;
 
         public bool IsInteractable
@@ -36,10 +44,10 @@ namespace OzGameLab01.UI
             set => SetInteractable(value);
         }
 
-        public event Action<UnitSlotItemView, PointerEventData> Clicked; //슬롯 아이템 클릭 이벤트
-        public event Action<UnitSlotItemView, PointerEventData> PointerEntered; //슬롯 아이템 포인터 진입 이벤트
-        public event Action<UnitSlotItemView, PointerEventData> PointerExited; //슬롯 아이템 포인터 이탈 이벤트
-        public event Action<UnitSlotItemView, PointerEventData> Dropped; //슬롯 아이템 드롭 이벤트
+        public event Action<UnitSlotItemView, PointerEventData> Clicked;
+        public event Action<UnitSlotItemView, PointerEventData> PointerEntered;
+        public event Action<UnitSlotItemView, PointerEventData> PointerExited;
+        public event Action<UnitSlotItemView, PointerEventData> Dropped;
 
         #endregion
 
@@ -48,6 +56,11 @@ namespace OzGameLab01.UI
         public void SetSlotIndex(int value)
         {
             slotIndex = Mathf.Max(0, value);
+        }
+
+        public void SetSlotType(UnitSlotType value)
+        {
+            slotType = value;
         }
 
         public void SetOccupied(bool value)
