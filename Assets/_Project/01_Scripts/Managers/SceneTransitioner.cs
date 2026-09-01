@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using Combat;
+using OzGameLab01.Combat;
 using OzGameLab01.Data;
 
 namespace OzGameLab01.Managers

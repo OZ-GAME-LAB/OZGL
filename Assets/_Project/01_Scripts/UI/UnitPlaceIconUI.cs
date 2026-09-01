@@ -3,13 +3,13 @@ using UnityEngine.UI;
 using OzGameLab01.Controllers;
 using UnityEngine.EventSystems;
 using OzGameLab01.Managers;
-using Combat; 
+using OzGameLab01.Combat;
 
 namespace OzGameLab01.UI
 {
     public class UnitPlaceIconUI : MonoBehaviour , IBeginDragHandler, IEndDragHandler, IDragHandler, IPointerClickHandler
     {
-        #region ÇÁ·ÎÅäÅ¸ÀÔ ¿ë ¼Ó¼º
+        #region ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¸ï¿½ï¿½ ï¿½ï¿½ ï¿½Ó¼ï¿½
         [SerializeField]
         private GameObject prototypeUnitPrefab;
         private Color _prototypeColor;
@@ -35,7 +35,7 @@ namespace OzGameLab01.UI
             _canvasGroup = GetComponent<CanvasGroup>();
             _unitPlaceIcon = GetComponent<Image>();
             _originalParent = transform.parent;
-            #region ÇÁ·ÎÅäÅ¸ÀÔ¿ë ÄÚµå
+            #region ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å¸ï¿½Ô¿ï¿½ ï¿½Úµï¿½
             _prototypeColor = Random.ColorHSV();
             _unitPlaceIcon.color = _prototypeColor;
             _unit = prototypeUnitPrefab.GetComponent<Unit>();
@@ -50,7 +50,7 @@ namespace OzGameLab01.UI
         {
             _formationManager = formationManager;
             _formationViewerManager = formationViewManager;
-            //ToDo : À¯´ÖÀÇ Á¤º¸ Áß¿¡ ÇÊ¿äÇÑ °Íµé ¿©±â¼­ ¼¼ÆÃ
+            //ToDo : ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ß¿ï¿½ ï¿½Ê¿ï¿½ï¿½ï¿½ ï¿½Íµï¿½ ï¿½ï¿½ï¿½â¼­ ï¿½ï¿½ï¿½ï¿½
         }
 
         public void OnBeginDrag(PointerEventData eventData)
@@ -98,7 +98,7 @@ namespace OzGameLab01.UI
 
             if(fieldSlot != null)
             {
-                //ÇØ´ç ½½·Ô¿¡ ÀÌ¹Ì ´Ù¸¥ ±â¹°ÀÌ ÀÖÀ» °æ¿ì ½º¿Ò.
+                //ï¿½Ø´ï¿½ ï¿½ï¿½ï¿½Ô¿ï¿½ ï¿½Ì¹ï¿½ ï¿½Ù¸ï¿½ ï¿½â¹°ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
                 if (!_formationManager.IsEmpty(fieldSlot.SlotIndex)) 
                 {
                     _formationManager.SwapUnit(prevSlotIndex, fieldSlot.SlotIndex, _unit);

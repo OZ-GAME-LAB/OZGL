@@ -1,4 +1,4 @@
-using Combat;
+using OzGameLab01.Combat;
 using OzGameLab01.Controllers;
 using OzGameLab01.UI;
 using UnityEngine;
@@ -16,26 +16,26 @@ namespace OzGameLab01.Managers
 
         private int _slotCount = 9;        //3x3
 
-        //unitIconÀ» ¹èÄ¡
+        //unitIconï¿½ï¿½ ï¿½ï¿½Ä¡
         public bool PlaceUnitIcon(UnitPlaceIconUI unitIcon, Transform fieldSlot)
         {
-            //¿¹¿ÜÃ³¸®
+            //ï¿½ï¿½ï¿½ï¿½Ã³ï¿½ï¿½
             if (unitIcon == null) return false;
             if (fieldSlot == null) return false;
 
-            //Á÷Á¢ÀûÀ¸·Î ¹èÄ¡ÇÏ´Â ±â´É
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½Ï´ï¿½ ï¿½ï¿½ï¿½
             SetUnitIconPosition(unitIcon, fieldSlot);
 
             return true;
         }
-        //µÎ ½½·ÔÀÇ unitIconÀ» ½º¿Ò
+        //ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ unitIconï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         public bool SwapUnitIcon(int fromSlot, int toSlot, UnitPlaceIconUI fromUnitIcon)
         {
-            //¿¹¿ÜÃ³¸®
+            //ï¿½ï¿½ï¿½ï¿½Ã³ï¿½ï¿½
             //if (!IsValidSlot(fromSlot) || !IsValidSlot(toSlot)) return false;
             if (fromSlot == toSlot) return false;
 
-            //½ÃÀÛÇÑ À¯´ÖÀÇ À§Ä¡°¡ À¯´Ö¸®½ºÆ® ÀÏ ¶§ 
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½ 
             if (fromSlot == -1)
             {
                 ReturnToListUnitIcon(GetUnitIcon(toSlot));
@@ -45,7 +45,7 @@ namespace OzGameLab01.Managers
 
                 return true;
             }
-            //½ÃÀÛÇÑ À¯´ÖÀÇ À§Ä¡°¡ ÇÊµå½½·Ô ÀÏ ¶§
+            //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Êµå½½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½
             
             UnitPlaceIconUI toSlotUnitIcon = GetUnitIcon(toSlot);
 
@@ -57,7 +57,7 @@ namespace OzGameLab01.Managers
 
             return true;
         }
-        //¸®½ºÆ®·Î unitIconµÇµ¹¸®±â
+        //ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ unitIconï¿½Çµï¿½ï¿½ï¿½ï¿½ï¿½
         public bool ReturnToListUnitIcon(UnitPlaceIconUI unitIcon)
         {
             if (unitIcon == null) return false;
@@ -66,19 +66,19 @@ namespace OzGameLab01.Managers
             unitIcon.SetSlotIndex(-1);
             return true;
         }
-        //Á÷Á¢ÀûÀ¸·Î unitIconÀ» ¿Å±â±â
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ unitIconï¿½ï¿½ ï¿½Å±ï¿½ï¿½
         private void SetUnitIconPosition(UnitPlaceIconUI unitIcon, Transform targetParent, bool isReturnList = false)
         {
             unitIcon.transform.SetParent(targetParent, false);
             if (!isReturnList) unitIcon.transform.localPosition = Vector2.zero;
 
         }
-        //½½·ÔÀÇ À¯È¿¼º °Ë»ç
+        //ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½È¿ï¿½ï¿½ ï¿½Ë»ï¿½
         private bool IsValidSlot(int slotIndex)
         {
             return slotIndex >= 0 && slotIndex < _slotCount;
         }
-        //ÇÊµå ½½·Ô¿¡ ÀÖ´Â unitIconÀ» ¹ÝÈ¯
+        //ï¿½Êµï¿½ ï¿½ï¿½ï¿½Ô¿ï¿½ ï¿½Ö´ï¿½ unitIconï¿½ï¿½ ï¿½ï¿½È¯
         private UnitPlaceIconUI GetUnitIcon(int targetIndex)
         {
             return fieldSlotRoot.GetChild(targetIndex).GetChild(0).GetComponent<UnitPlaceIconUI>();

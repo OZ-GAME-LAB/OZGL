@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-namespace Combat
+namespace OzGameLab01.Combat
 {
     public class RestartBattleButton : MonoBehaviour
     {
