@@ -53,6 +53,12 @@ namespace OzGameLab01.Data
         public static bool IsBossBattle { get; private set; }
 
         /// <summary>
+        /// 플레이어가 "턴 종료" 버튼을 눌러 지금까지 끝낸 턴 수입니다.
+        /// 행동력을 모두 소모한 것만으로는 증가하지 않습니다.
+        /// </summary>
+        public static int TurnCount { get; private set; }
+
+        /// <summary>
         /// 새로운 게임 진행 데이터를 생성합니다.
         /// 타이틀 화면에서 게임을 새로 시작할 때 호출합니다.
         /// </summary>
@@ -146,6 +152,19 @@ namespace OzGameLab01.Data
         }
 
         /// <summary>
+        /// 플레이어가 "턴 종료" 버튼을 눌렀을 때 호출합니다.
+        /// 누적 턴 수를 1 증가시킵니다.
+        /// </summary>
+        public static void AdvanceTurn()
+        {
+            EnsureActiveRun();
+
+            TurnCount++;
+
+            Debug.Log($"[BoardRunData] 턴 종료. TurnCount: {TurnCount}");
+        }
+
+        /// <summary>
         /// 현재 게임 진행 데이터를 모두 초기화합니다.
         ///
         /// 보스전 종료 후 결과 씬에서 타이틀로 이동할 때 호출합니다.
@@ -161,6 +180,8 @@ namespace OzGameLab01.Data
             CurrentBattlePosition = Vector2Int.zero;
             HasCurrentBattle = false;
             IsBossBattle = false;
+
+            TurnCount = 0;
 
             _completedBattlePositions.Clear();
         }
