@@ -1,7 +1,7 @@
 using UnityEngine;
 using OzGameLab01.Controllers;
 using System;
-using Combat;
+using OzGameLab01.Combat;
 
 namespace OzGameLab01.Managers
 {

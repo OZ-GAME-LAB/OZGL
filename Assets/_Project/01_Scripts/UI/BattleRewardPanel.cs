@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using Combat;
+using OzGameLab01.Combat;
 using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI

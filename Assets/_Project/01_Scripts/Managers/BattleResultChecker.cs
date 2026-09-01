@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
 
-namespace Combat
+namespace OzGameLab01.Combat
 {
     public class BattleResultChecker : MonoBehaviour
     {
