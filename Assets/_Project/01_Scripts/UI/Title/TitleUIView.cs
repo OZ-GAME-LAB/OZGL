@@ -11,7 +11,7 @@ namespace OzGameLab01.UI.Title
         [SerializeField] private Image titleVisual;
 
         [SerializeField] private Button startButton;
-        [SerializeField] private Button upgradeButton;
+        [SerializeField] private Button continueButton;
         [SerializeField] private Button settingsButton;
         [SerializeField] private Button exitButton;
 
@@ -32,7 +32,7 @@ namespace OzGameLab01.UI.Title
         #region Events
 
         public event Action StartRequested; //시작 버튼을 누르면 발생하는 이벤트
-        public event Action UpgradeRequested; //업그레이드 버튼을 누르면 발생하는 이벤트
+        public event Action ContinueRequested; //이어하기 버튼을 누르면 발생하는 이벤트
         public event Action ExitConfirmed; //종료 확인 버튼을 누르면 발생하는 이벤트
 
         #endregion
@@ -42,7 +42,7 @@ namespace OzGameLab01.UI.Title
         private void Awake()
         {
             startButton.onClick.AddListener(OnStartClicked);
-            upgradeButton.onClick.AddListener(OnUpgradeClicked);
+            continueButton.onClick.AddListener(OnContinueClicked);
             settingsButton.onClick.AddListener(OnSettingsClicked);
             exitButton.onClick.AddListener(OnExitClicked);
 
@@ -58,7 +58,7 @@ namespace OzGameLab01.UI.Title
         private void OnDestroy()
         {
             startButton.onClick.RemoveListener(OnStartClicked);
-            upgradeButton.onClick.RemoveListener(OnUpgradeClicked);
+            continueButton.onClick.RemoveListener(OnContinueClicked);
             settingsButton.onClick.RemoveListener(OnSettingsClicked);
             exitButton.onClick.RemoveListener(OnExitClicked);
 
@@ -105,18 +105,23 @@ namespace OzGameLab01.UI.Title
             exitConfirmView.Hide();
         }
 
+        public void SetContinueInteractable(bool isInteractable)
+        {
+            continueButton.interactable = isInteractable;
+        }
+
         #endregion
 
         #region Private Methods
-        
+
         private void OnStartClicked()
         {
             StartRequested?.Invoke();
         }
 
-        private void OnUpgradeClicked()
+        private void OnContinueClicked()
         {
-            UpgradeRequested?.Invoke();
+            ContinueRequested?.Invoke();
         }
 
         private void OnSettingsClicked()
