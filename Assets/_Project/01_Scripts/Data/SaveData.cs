@@ -4,21 +4,22 @@ using System.Collections.Generic;
 [System.Serializable]
 public class SaveData
 {
-    public List<UnitStuff> units;                   // ±â¹° º¸À¯ ÇöÈ²
-    public List<UnitPlacement> placementUnits;      // ±â¹° ¹èÄ¡ Á¤º¸
+    public List<UnitStuff> units;                   // ê¸°ë¬¼ ë³´ìœ  í˜„í™©
+    public List<UnitSaveEntry> unitSaveEntries;     // ê¸°ë¬¼ ë°°ì¹˜ ì •ë³´
+    public List<RelicSaveEntry> relicSaveEntries;   // ë³´ìœ  ìœ ë¬¼ ì •ë³´
 
-    public int lastChapter;                         // ÁøÇàÁßÀÌ´ø Ã©ÅÍ
-    public int posX;                                // Æ÷Áö¼Ç X°ª
-    public int posY;                                // Æ÷Áö¼Ç Y°ª
-    public long playTime;                           // ÇÃ·¹ÀÌÅ¸ÀÓ
+    public int lastChapter;                         // ì§„í–‰ì¤‘ì´ë˜ ì±•í„°
+    public int posX;                                // í¬ì§€ì…˜ Xê°’
+    public int posY;                                // í¬ì§€ì…˜ Yê°’
+    public long playTime;                           // í”Œë ˆì´íƒ€ì„
 
-    // ½Å±Ô À¯Àú ÃÊ±â°ª
+    // ì‹ ê·œ ìœ ì € ì´ˆê¸°ê°’
     public static SaveData CreateDefault()
     {
         return new SaveData
         {
             units = { },
-            placementUnits = { },
+            unitSaveEntries = { },
             lastChapter = 1,
             posX = 0,
             posY = 0,
@@ -35,8 +36,15 @@ public class UnitStuff
 }
 
 [System.Serializable]
-public class UnitPlacement
+public class UnitSaveEntry
 {
     public int unitId;
-    public int pos;
+    public int placeGrid;
+}
+
+[System.Serializable]
+public class RelicSaveEntry
+{
+    public int relicId;
+    public int relicIndex;
 }
