@@ -89,6 +89,8 @@ namespace OzGameLab01.Controllers
         /// </summary>
         public void EndTurn()
         {
+            HealAlliesWithRemainingActionPower();
+
             BoardRunData.AdvanceTurn();
 
             if (_nightInterval > 0 && BoardRunData.TurnCount % _nightInterval == 0)
@@ -97,6 +99,33 @@ namespace OzGameLab01.Controllers
             }
 
             UpdateTimeStatusHud();
+        }
+
+        /// <summary>
+        /// 턴 종료 시 남은 행동력으로 아군 유닛을 회복시킵니다.
+        ///
+        /// 실제 회복 효과는 아직 기획되지 않아
+        /// 그레이박스 단계에서는 콘솔 로그만 출력합니다.
+        /// </summary>
+        private void HealAlliesWithRemainingActionPower()
+        {
+            int remainingActionPower = _boardPlayerController != null
+                ? _boardPlayerController.CurrentDiceValue
+                : 0;
+
+            Debug.Log(
+                $"[BoardSceneController] 남은 행동력 {remainingActionPower}으로 아군을 회복합니다. " +
+                "(회복 효과 미정 - 추후 구현)", this);
+
+            if (_boardPlayerController != null)
+            {
+                _boardPlayerController.SetDiceValue(0);
+            }
+
+            if (DiceManager.Instance != null)
+            {
+                DiceManager.Instance.ResetTurnRoll();
+            }
         }
 
         /// <summary>
