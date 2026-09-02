@@ -22,9 +22,22 @@ namespace OzGameLab01.Controllers
         private MapNode _currentNode;
         private bool _isMoving = false;
 
-        // DiceManager 등 외부에서 상태를 확인하기 위한 프로퍼티 (읽기 전용)
+        // DiceManager 등 외부 시스템에서 현재 행동력을 확인하거나 변경하기 위한 프로퍼티
         public bool IsMoving => _isMoving;
-        public int CurrentDiceValue => _currentDiceValue;
+        public int CurrentDiceValue
+        {
+            get => _currentDiceValue;
+            set
+            {
+                // 행동력은 음수가 될 수 없으므로, 외부에서 잘못된 값이 들어와도 0으로 보정합니다.
+                _currentDiceValue = Mathf.Max(0, value);
+
+                // 외부 시스템에서 행동력을 변경한 시점을 추적할 수 있도록 변경 결과를 기록합니다.
+                Debug.Log(
+                    $"[BoardPlayerController] 현재 행동력 변경: " +
+                    $"{_currentDiceValue}", this);
+            }
+        }
 
         // ==================== 보드 도착 이벤트 추가 ====================
 
@@ -77,8 +90,8 @@ namespace OzGameLab01.Controllers
         // UI 버튼 등을 통해 주사위를 굴렸을 때 호출됩니다.
         public void SetDiceValue(int value)
         {
-            _currentDiceValue = value;
-            Debug.Log($"주사위 눈금: {value}");
+            // 행동력 변경 규칙을 한 곳에서 관리하기 위해 프로퍼티 setter를 사용합니다.
+            CurrentDiceValue = value;
         }
 
         /// <summary>
