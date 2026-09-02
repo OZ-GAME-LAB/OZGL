@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace Combat
+namespace OzGameLab01.Combat
 {
     public class AoeCircleVFX : MonoBehaviour
     {

@@ -8,10 +8,12 @@ namespace OzGameLab01.Managers
         public static DiceManager Instance { get; private set; }
 
         [Header("Dice Settings")]
-        [Tooltip("ÁÖ»çÀ§ÀÇ ÃÖ¼Ò ´«±İ")]
+        [Tooltip("ì£¼ì‚¬ìœ„ì˜ ìµœì†Œ ëˆˆê¸ˆ")]
         [SerializeField] private int _minDice = 1;
-        [Tooltip("ÁÖ»çÀ§ÀÇ ÃÖ´ë ´«±İ")]
+        [Tooltip("ì£¼ì‚¬ìœ„ì˜ ìµœëŒ€ ëˆˆê¸ˆ")]
         [SerializeField] private int _maxDice = 6;
+
+        private bool _hasRolledThisTurn;
 
         private void Awake()
         {
@@ -19,30 +21,47 @@ namespace OzGameLab01.Managers
             else Destroy(gameObject);
         }
 
-        // UI Äµ¹ö½ºÀÇ 'ÁÖ»çÀ§ ±¼¸®±â ¹öÆ°'ÀÇ OnClick ÀÌº¥Æ®¿¡ ÀÌ ÇÔ¼ö¸¦ ¿¬°áÇÏ¸é µË´Ï´Ù.
+        // UI ìº”ë²„ìŠ¤ì˜ 'ì£¼ì‚¬ìœ„ êµ´ë¦¬ê¸° ë²„íŠ¼'ì˜ OnClick ì´ë²¤íŠ¸ì— ì´ í•¨ìˆ˜ë¥¼ ì—°ê²°í•˜ë©´ ë©ë‹ˆë‹¤.
         public void RollDice()
         {
             if (BoardPlayerController.Instance == null)
             {
-                Debug.LogError("[DiceManager] BoardPlayerController¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù!");
+                Debug.LogError("[DiceManager] BoardPlayerControllerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
                 return;
             }
 
-            // ÇÃ·¹ÀÌ¾î°¡ ÀÌ¹Ì ÀÌµ¿ ÁßÀÌ°Å³ª, ±¼·Á³õÀº ÁÖ»çÀ§ ´«±İÀ» ¾ÆÁ÷ ¾È ½è´Ù¸é ¹«½Ã
+            // í•œ í„´ì— ì£¼ì‚¬ìœ„ëŠ” í•œ ë²ˆë§Œ êµ´ë¦´ ìˆ˜ ìˆìŠµë‹ˆë‹¤.
+            if (_hasRolledThisTurn)
+            {
+                Debug.LogWarning("[DiceManager] ì´ë²ˆ í„´ì—ëŠ” ì´ë¯¸ ì£¼ì‚¬ìœ„ë¥¼ êµ´ë ¸ìŠµë‹ˆë‹¤. í„´ì„ ì¢…ë£Œí•´ì•¼ ë‹¤ì‹œ êµ´ë¦´ ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
+                return;
+            }
+
+            // í”Œë ˆì´ì–´ê°€ ì´ë¯¸ ì´ë™ ì¤‘ì´ê±°ë‚˜, êµ´ë ¤ë†“ì€ ì£¼ì‚¬ìœ„ ëˆˆê¸ˆì„ ì•„ì§ ì•ˆ ì¼ë‹¤ë©´ ë¬´ì‹œ
             if (BoardPlayerController.Instance.IsMoving || BoardPlayerController.Instance.CurrentDiceValue > 0)
             {
-                Debug.LogWarning("[DiceManager] ¾ÆÁ÷ ÀÌÀü ÁÖ»çÀ§ °ªÀ» ¼Ò¸ğÇÏÁö ¾Ê¾Ò°Å³ª ÀÌµ¿ ÁßÀÔ´Ï´Ù.");
+                Debug.LogWarning("[DiceManager] ì•„ì§ ì´ì „ ì£¼ì‚¬ìœ„ ê°’ì„ ì†Œëª¨í•˜ì§€ ì•Šì•˜ê±°ë‚˜ ì´ë™ ì¤‘ì…ë‹ˆë‹¤.");
                 return;
             }
 
-            // ·£´ı °ª ÃßÃâ (Random.Range¿¡¼­ int¸¦ ¾µ ¶§ ÃÖ´ë°ªÀº Æ÷ÇÔµÇÁö ¾ÊÀ¸¹Ç·Î +1À» ÇØÁİ´Ï´Ù)
+            // ëœë¤ ê°’ ì¶”ì¶œ (Random.Rangeì—ì„œ intë¥¼ ì“¸ ë•Œ ìµœëŒ€ê°’ì€ í¬í•¨ë˜ì§€ ì•Šìœ¼ë¯€ë¡œ +1ì„ í•´ì¤ë‹ˆë‹¤)
             int result = Random.Range(_minDice, _maxDice + 1);
-            Debug.Log($"[DiceManager] ÁÖ»çÀ§¸¦ ±¼·È½À´Ï´Ù! ´«±İ: {result}");
+            Debug.Log($"[DiceManager] ì£¼ì‚¬ìœ„ë¥¼ êµ´ë ¸ìŠµë‹ˆë‹¤! ëˆˆê¸ˆ: {result}");
 
-            // ÃßÃâµÈ °ªÀ» ÇÃ·¹ÀÌ¾î ÄÁÆ®·Ñ·¯¿¡ Àü´ŞÇÏ¿© ÀÌµ¿ °¡´É »óÅÂ·Î ÀüÈ¯
+            // ì¶”ì¶œëœ ê°’ì„ í”Œë ˆì´ì–´ ì»¨íŠ¸ë¡¤ëŸ¬ì— ì „ë‹¬í•˜ì—¬ ì´ë™ ê°€ëŠ¥ ìƒíƒœë¡œ ì „í™˜
             BoardPlayerController.Instance.SetDiceValue(result);
 
-            // TODO: (¼±ÅÃ) 3D ÁÖ»çÀ§°¡ ±¼·¯°¡´Â ¿¬ÃâÀÌ³ª »ç¿îµå(SoundManager È£Ãâ)¸¦ ¿©±â¿¡ Ãß°¡ÇÕ´Ï´Ù.
+            _hasRolledThisTurn = true;
+
+            // TODO: (ì„ íƒ) 3D ì£¼ì‚¬ìœ„ê°€ êµ´ëŸ¬ê°€ëŠ” ì—°ì¶œì´ë‚˜ ì‚¬ìš´ë“œ(SoundManager í˜¸ì¶œ)ë¥¼ ì—¬ê¸°ì— ì¶”ê°€í•©ë‹ˆë‹¤.
+        }
+
+        /// <summary>
+        /// í„´ ì¢…ë£Œ ì‹œ í˜¸ì¶œí•©ë‹ˆë‹¤. ë‹¤ìŒ í„´ì— ë‹¤ì‹œ ì£¼ì‚¬ìœ„ë¥¼ êµ´ë¦´ ìˆ˜ ìˆë„ë¡ í—ˆìš©í•©ë‹ˆë‹¤.
+        /// </summary>
+        public void ResetTurnRoll()
+        {
+            _hasRolledThisTurn = false;
         }
     }
 }

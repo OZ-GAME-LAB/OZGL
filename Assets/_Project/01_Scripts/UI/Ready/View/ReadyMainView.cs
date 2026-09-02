@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -14,6 +15,11 @@ namespace OzGameLab01.UI
         [SerializeField] private Button settingsButton;
         [SerializeField] private Transform synergyContentRoot;
         [SerializeField] private Transform artifactContentRoot;
+
+        [SerializeField] private Button endTurnButton;
+        [SerializeField] private RectTransform clockHand;
+        [SerializeField] private TMP_Text currentTurnValueText;
+        [SerializeField] private TMP_Text bossRemainingTurnValueText;
 
         private readonly List<SynergyItemView> synergyItems = new List<SynergyItemView>();
         private readonly List<ArtifactInfoItemView> artifactItems = new List<ArtifactInfoItemView>();
@@ -35,6 +41,7 @@ namespace OzGameLab01.UI
 
         public event Action<ReadyMainView> UnitClicked; //유닛 버튼 클릭 이벤트
         public event Action<ReadyMainView> SettingsClicked; //설정 버튼 클릭 이벤트
+        public event Action<ReadyMainView> EndTurnClicked; //턴 종료 버튼 클릭 이벤트
 
         public event Action<SynergyItemView, PointerEventData> SynergyClicked; //시너지 아이템 클릭 이벤트
         public event Action<SynergyItemView, PointerEventData> SynergyPointerEntered; //시너지 아이템 포인터 진입 이벤트
@@ -43,6 +50,7 @@ namespace OzGameLab01.UI
         public event Action<ArtifactInfoItemView, PointerEventData> ArtifactClicked; //아이템 클릭 이벤트
         public event Action<ArtifactInfoItemView, PointerEventData> ArtifactPointerEntered; //아이템 포인터 진입 이벤트
         public event Action<ArtifactInfoItemView, PointerEventData> ArtifactPointerExited; //아이템 포인터 이탈 이벤트
+
 
         #endregion
 
@@ -197,6 +205,38 @@ namespace OzGameLab01.UI
             UnsubscribeArtifactItem(item);
         }
 
+        public void SetEndTurnInteractable(bool value)
+        {
+            if (endTurnButton != null)
+            {
+                endTurnButton.interactable = value;
+            }
+        }
+
+        public void SetCurrentTurn(int turn)
+        {
+            if (currentTurnValueText != null)
+            {
+                currentTurnValueText.text = turn.ToString();
+            }
+        }
+
+        public void SetBossRemainingTurn(int remainingTurns)
+        {
+            if (bossRemainingTurnValueText != null)
+            {
+                bossRemainingTurnValueText.text = remainingTurns.ToString();
+            }
+        }
+
+        public void SetClockHandAngle(float angle)
+        {
+            if (clockHand != null)
+            {
+                clockHand.localEulerAngles = new Vector3(0f, 0f, angle);
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -212,6 +252,11 @@ namespace OzGameLab01.UI
             {
                 settingsButton.onClick.AddListener(HandleSettingsClick);
             }
+
+            if (endTurnButton != null)
+            {
+                endTurnButton.onClick.AddListener(HandleEndTurnClick);
+            }
         }
 
         private void UnsubscribeButtons()
@@ -224,6 +269,11 @@ namespace OzGameLab01.UI
             if (settingsButton != null)
             {
                 settingsButton.onClick.RemoveListener(HandleSettingsClick);
+            }
+
+            if (endTurnButton != null)
+            {
+                endTurnButton.onClick.RemoveListener(HandleEndTurnClick);
             }
         }
 
@@ -327,6 +377,11 @@ namespace OzGameLab01.UI
         private void HandleSettingsClick()
         {
             SettingsClicked?.Invoke(this);
+        }
+
+        private void HandleEndTurnClick()
+        {
+            EndTurnClicked?.Invoke(this);
         }
 
         private void HandleSynergyClick(SynergyItemView item, PointerEventData eventData)

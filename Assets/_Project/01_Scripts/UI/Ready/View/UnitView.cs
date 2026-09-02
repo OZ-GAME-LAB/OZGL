@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -15,6 +16,15 @@ namespace OzGameLab01.UI
         [SerializeField] private Transform synergyContentRoot;
         [SerializeField] private Transform slotContentRoot;
 
+        [Header("Formation Areas")]
+        [SerializeField] private Transform battleFormationArea;
+        [SerializeField] private Transform supportFormationArea;
+        [SerializeField] private TMP_Text unitCountText;
+        [SerializeField] private TMP_Text supportUnitCountText;
+
+        [Header("Unit Detail")]
+        [SerializeField] private UnitDetailView unitDetailView;
+
         private readonly List<UnitItemView> unitItems = new List<UnitItemView>();
         private readonly List<UnitSlotItemView> slotItems = new List<UnitSlotItemView>();
         private readonly List<SynergyItemView> synergyItems = new List<SynergyItemView>();
@@ -28,10 +38,13 @@ namespace OzGameLab01.UI
         public Transform UnitContentRoot => unitContentRoot;
         public Transform SynergyContentRoot => synergyContentRoot;
         public Transform SlotContentRoot => slotContentRoot;
+        public Transform BattleFormationArea => battleFormationArea;
+        public Transform SupportFormationArea => supportFormationArea;
 
         public IReadOnlyList<UnitItemView> UnitItems => unitItems;
         public IReadOnlyList<UnitSlotItemView> SlotItems => slotItems;
         public IReadOnlyList<SynergyItemView> SynergyItems => synergyItems;
+        public UnitDetailView UnitDetailView => unitDetailView;
 
         public bool IsVisible => gameObject.activeSelf;
 
@@ -228,6 +241,45 @@ namespace OzGameLab01.UI
                 {
                     item.SetInteractable(interactable);
                 }
+            }
+        }
+
+        public void SetUnitCount(int currentCount, int maxCount)
+        {
+            if (unitCountText != null)
+            {
+                unitCountText.text = $"{currentCount} / {maxCount}";
+            }
+        }
+
+        public void SetSupportUnitCount(int currentCount, int maxCount)
+        {
+            if (supportUnitCountText != null)
+            {
+                supportUnitCountText.text = $"{currentCount} / {maxCount}";
+            }
+        }
+
+        public void SetSelectedUnitDetail(Sprite unitIcon,string unitName,IReadOnlyList<string> synergyNames,Sprite firstSkillIcon,string firstSkillDescription,Sprite secondSkillIcon,string secondSkillDescription,string conceptDescription)
+        {
+            if (unitDetailView == null)
+            {
+                return;
+            }
+
+            unitDetailView.SetUnitIcon(unitIcon);
+            unitDetailView.SetUnitName(unitName);
+            unitDetailView.SetSynergies(synergyNames);
+            unitDetailView.SetSkill(0, firstSkillIcon, firstSkillDescription);
+            unitDetailView.SetSkill(1, secondSkillIcon, secondSkillDescription);
+            unitDetailView.SetConceptDescription(conceptDescription);
+        }
+
+        public void ClearSelectedUnitDetail()
+        {
+            if (unitDetailView != null)
+            {
+                unitDetailView.ClearDetail();
             }
         }
 

@@ -1,7 +1,9 @@
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
+using OzGameLab01.UI;
 using OZGL.Map;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace OzGameLab01.Controllers
 {
@@ -19,6 +21,16 @@ namespace OzGameLab01.Controllers
         [Tooltip("플레이어 이동 완료 이벤트를 전달할 BoardPlayerController입니다.")]
         [SerializeField] private BoardPlayerController _boardPlayerController;
 
+        [Header("시간 시스템")]
+        [Tooltip("몇 턴마다 밤 시간이 되는지 설정합니다. (그레이박스 기본값: 3턴)")]
+        [SerializeField] private int _nightInterval = 3;
+        [Tooltip("행동력을 모두 소모한 뒤 눌러야 턴이 종료되는 버튼입니다.")]
+        [SerializeField] private Button _endTurnButton;
+        [Tooltip("밤 시간 도달을 알리는 팝업입니다. 비워두면 씬에서 자동으로 찾거나 새로 생성합니다.")]
+        [SerializeField] private NightEventPopupView _nightEventPopup;
+        [Tooltip("\"밤까지 N턴\"을 상시 표시하는 HUD입니다. 비워두면 씬에서 자동으로 찾거나 새로 생성합니다.")]
+        [SerializeField] private TimeStatusHUDView _timeStatusHud;
+
         private void Awake()
         {
             // Inspector 연결이 누락된 테스트 상황을 위한 보조 검색
@@ -27,14 +39,27 @@ namespace OzGameLab01.Controllers
                 _boardPlayerController = FindFirstObjectByType<BoardPlayerController>();
             }
 
-            if (_boardPlayerController != null)
+            if (_boardPlayerController == null)
             {
+                Debug.LogError("[BoardSceneController] BoardPlayerController를 찾을 수 없습니다.", this);
+
+                enabled = false;
                 return;
             }
 
-            Debug.LogError("[BoardSceneController] BoardPlayerController를 찾을 수 없습니다.", this);
+            if (_endTurnButton != null)
+            {
+                _endTurnButton.onClick.AddListener(EndTurn);
+            }
+            else
+            {
+                Debug.LogError("[BoardSceneController] 턴 종료 버튼이 연결되지 않았습니다.", this);
+            }
+        }
 
-            enabled = false;
+        private void Start()
+        {
+            UpdateTimeStatusHud();
         }
 
         private void OnEnable()
@@ -55,6 +80,101 @@ namespace OzGameLab01.Controllers
             }
 
             _boardPlayerController.PlayerArrived -= HandlePlayerArrived;
+        }
+
+        /// <summary>
+        /// "턴 종료" 버튼에서 호출합니다.
+        /// 행동력을 모두 소모한 것만으로는 턴이 끝나지 않고,
+        /// 이 버튼을 눌러야 비로소 한 턴이 지나갑니다.
+        /// </summary>
+        public void EndTurn()
+        {
+            HealAlliesWithRemainingActionPower();
+
+            BoardRunData.AdvanceTurn();
+
+            if (_nightInterval > 0 && BoardRunData.TurnCount % _nightInterval == 0)
+            {
+                ShowNightEvent();
+            }
+
+            UpdateTimeStatusHud();
+        }
+
+        /// <summary>
+        /// 턴 종료 시 남은 행동력으로 아군 유닛을 회복시킵니다.
+        ///
+        /// 실제 회복 효과는 아직 기획되지 않아
+        /// 그레이박스 단계에서는 콘솔 로그만 출력합니다.
+        /// </summary>
+        private void HealAlliesWithRemainingActionPower()
+        {
+            int remainingActionPower = _boardPlayerController != null
+                ? _boardPlayerController.CurrentDiceValue
+                : 0;
+
+            Debug.Log(
+                $"[BoardSceneController] 남은 행동력 {remainingActionPower}으로 아군을 회복합니다. " +
+                "(회복 효과 미정 - 추후 구현)", this);
+
+            if (_boardPlayerController != null)
+            {
+                _boardPlayerController.SetDiceValue(0);
+            }
+
+            if (DiceManager.Instance != null)
+            {
+                DiceManager.Instance.ResetTurnRoll();
+            }
+        }
+
+        /// <summary>
+        /// "밤까지 N턴" HUD 표시를 최신 턴 수 기준으로 갱신합니다.
+        /// </summary>
+        private void UpdateTimeStatusHud()
+        {
+            if (_nightInterval <= 0)
+            {
+                return;
+            }
+
+            if (_timeStatusHud == null)
+            {
+                _timeStatusHud = FindFirstObjectByType<TimeStatusHUDView>();
+            }
+
+            if (_timeStatusHud == null)
+            {
+                _timeStatusHud = new GameObject("TimeStatusHUD").AddComponent<TimeStatusHUDView>();
+            }
+
+            int turnsUntilNight = _nightInterval - (BoardRunData.TurnCount % _nightInterval);
+            _timeStatusHud.SetTurnsUntilNight(turnsUntilNight);
+        }
+
+        /// <summary>
+        /// 밤 시간 도달을 팝업으로 알립니다.
+        ///
+        /// 밤에 발생하는 실제 효과는 아직 기획되지 않아
+        /// 그레이박스 단계에서는 알림 팝업만 표시합니다.
+        /// </summary>
+        private void ShowNightEvent()
+        {
+            if (_nightEventPopup == null)
+            {
+                _nightEventPopup = FindFirstObjectByType<NightEventPopupView>();
+            }
+
+            if (_nightEventPopup == null)
+            {
+                _nightEventPopup = new GameObject("NightEventPopup").AddComponent<NightEventPopupView>();
+            }
+
+            Debug.Log(
+                $"[BoardSceneController] 밤 시간 도달. TurnCount: {BoardRunData.TurnCount}", this);
+
+            _nightEventPopup.Show(
+                $"{BoardRunData.TurnCount}턴째, 밤이 되었습니다.\n(발생 이벤트 미정 - 추후 구현)");
         }
 
         /// <summary>

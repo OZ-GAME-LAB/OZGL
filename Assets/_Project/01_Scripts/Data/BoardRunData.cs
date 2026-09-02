@@ -166,6 +166,19 @@ namespace OzGameLab01.Data
         }
 
         /// <summary>
+        /// 플레이어가 "턴 종료" 버튼을 눌렀을 때 호출합니다.
+        /// 누적 턴 수를 1 증가시킵니다.
+        /// </summary>
+        public static void AdvanceTurn()
+        {
+            EnsureActiveRun();
+
+            TurnCount++;
+
+            Debug.Log($"[BoardRunData] 턴 종료. TurnCount: {TurnCount}");
+        }
+
+        /// <summary>
         /// 현재 게임 진행 데이터를 모두 초기화합니다.
         ///
         /// 보스전 종료 후 결과 씬에서 타이틀로 이동할 때 호출합니다.
