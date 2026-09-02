@@ -1357,113 +1357,39 @@ MonoBehaviour:
   - slot:
       column: 0
       row: 0
-    unitId: 1
+    unitData: {fileID: 11400000, guid: 698d95557b7906e4ab6d949917886020, type: 2}
   - slot:
       column: 0
       row: 1
-    unitId: 3
+    unitData: {fileID: 11400000, guid: dfbbc9d6663d2104c90ceb8c558d1b05, type: 2}
   - slot:
       column: 0
       row: 2
-    unitId: 2
+    unitData: {fileID: 11400000, guid: e8f49eb709ff6d14495a23aef07db689, type: 2}
   - slot:
       column: 1
       row: 0
-    unitId: 5
+    unitData: {fileID: 11400000, guid: c55ee3b248989e5498bf9057f8339e44, type: 2}
   - slot:
       column: 1
       row: 1
-    unitId: 7
+    unitData: {fileID: 11400000, guid: f15fc12830b460e4d9c519352fb81a93, type: 2}
   - slot:
       column: 1
       row: 2
-    unitId: 6
+    unitData: {fileID: 11400000, guid: a027ee771cbd9be4287374bc64fb51b9, type: 2}
   - slot:
       column: 2
       row: 0
-    unitId: 9
+    unitData: {fileID: 11400000, guid: 92ab70d90c34d8a4c9da70cd0e3e852f, type: 2}
   - slot:
       column: 2
       row: 1
-    unitId: 11
+    unitData: {fileID: 11400000, guid: d8e74eb94d1dba745a6bec9cd951c5e2, type: 2}
   - slot:
       column: 2
       row: 2
-    unitId: 10
-  unitPrefabs:
-  - id: 1
-    prefab: {fileID: 1608710449723199639, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
-  - id: 2
-    prefab: {fileID: 1275035407388787211, guid: eb48ebaf53ab5d848ac8c2d9372dfe8f, type: 3}
-  - id: 3
-    prefab: {fileID: 1705110351518807171, guid: cabf5c3c5cdad8340af3439f79d52b11, type: 3}
-  - id: 4
-    prefab: {fileID: 1608710449723199639, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
-  - id: 5
-    prefab: {fileID: 1608710449723199639, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
-  - id: 6
-    prefab: {fileID: 1275035407388787211, guid: eb48ebaf53ab5d848ac8c2d9372dfe8f, type: 3}
-  - id: 7
-    prefab: {fileID: 1705110351518807171, guid: cabf5c3c5cdad8340af3439f79d52b11, type: 3}
-  - id: 8
-    prefab: {fileID: 1608710449723199639, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
-  - id: 9
-    prefab: {fileID: 1608710449723199639, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
-  - id: 10
-    prefab: {fileID: 1275035407388787211, guid: eb48ebaf53ab5d848ac8c2d9372dfe8f, type: 3}
-  - id: 11
-    prefab: {fileID: 1705110351518807171, guid: cabf5c3c5cdad8340af3439f79d52b11, type: 3}
-  - id: 12
-    prefab: {fileID: 1608710449723199639, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
-  unitTraits:
-  - id: 1
-    traits:
-    - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
-    - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}
-  - id: 2
-    traits:
-    - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
-    - {fileID: 11400000, guid: 004f39747a5dc194bbf130dd8796a3b7, type: 2}
-  - id: 3
-    traits:
-    - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
-    - {fileID: 11400000, guid: 27a3b77afd311b741be5033230c00a6d, type: 2}
-  - id: 4
-    traits:
-    - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
-    - {fileID: 11400000, guid: 27ccbb4fabaa96341850aed7226e56b6, type: 2}
-  - id: 5
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}
-  - id: 6
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 004f39747a5dc194bbf130dd8796a3b7, type: 2}
-  - id: 7
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 27a3b77afd311b741be5033230c00a6d, type: 2}
-  - id: 8
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 27ccbb4fabaa96341850aed7226e56b6, type: 2}
-  - id: 9
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}
-  - id: 10
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 004f39747a5dc194bbf130dd8796a3b7, type: 2}
-  - id: 11
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 27a3b77afd311b741be5033230c00a6d, type: 2}
-  - id: 12
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 27ccbb4fabaa96341850aed7226e56b6, type: 2}
+    unitData: {fileID: 11400000, guid: d67cab97f22525c4c80f6672968183f7, type: 2}
   synergyDefinitions:
   - {fileID: 11400000, guid: af215132e908c2643814c106db3e964d, type: 2}
   - {fileID: 11400000, guid: 3ad1f0f6f37579e4f992d8da4f9c9517, type: 2}
@@ -1730,7 +1656,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.BattleRewardPanel
   panel: {fileID: 1680929440}
-  cellsContainer: {fileID: 0}
+  rowsContainer: {fileID: 0}
   confirmButton: {fileID: 0}
   koreanFont: {fileID: 11400000, guid: 34968b8879e6e7a43876b01cf39c0c40, type: 2}
   fillAnimationDuration: 0.6
