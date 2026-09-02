@@ -92,13 +92,6 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        // UI 버튼 등을 통해 주사위를 굴렸을 때 호출됩니다.
-        public void SetDiceValue(int value)
-        {
-            // 행동력 변경 규칙을 한 곳에서 관리하기 위해 프로퍼티 setter를 사용합니다.
-            CurrentDiceValue = value;
-        }
-
         /// <summary>
         /// 남은 행동력 HUD 표시를 현재 값 기준으로 갱신합니다.
         /// </summary>

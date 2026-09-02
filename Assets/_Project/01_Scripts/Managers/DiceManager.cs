@@ -54,7 +54,7 @@ namespace OzGameLab01.Managers
             Debug.Log($"[DiceManager] 주사위를 굴렸습니다! 눈금: {result}");
 
             // 추출된 값을 플레이어 컨트롤러에 전달하여 이동 가능 상태로 전환
-            BoardPlayerController.Instance.SetDiceValue(result);
+            BoardPlayerController.Instance.CurrentDiceValue = result;
 
             _hasRolledThisTurn = true;
 
