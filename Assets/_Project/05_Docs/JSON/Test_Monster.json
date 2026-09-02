@@ -1,0 +1,34 @@
+{
+   "monsterList": [
+    {
+      "id": 1011,
+      "name": "1번 일반 몬스터",
+      "spriteAddress": "001_101",
+      "healthPoint": 20,
+      "attackPoint": 12,
+      "attackSpeed": 7,
+      "skillCooldown": 20,
+      "type": "normal"
+    },
+    {
+      "id": 1012,
+      "name": "2번 일반 몬스터",
+      "spriteAddress": "001_102",
+      "healthPoint": 60,
+      "attackPoint": 20,
+      "attackSpeed": 9,
+      "skillCooldown": 35,
+      "type": "normal"
+    },
+    {
+      "id": 1001,
+      "name": "1번 보스",
+      "spriteAddress": "001_01",
+      "healthPoint": 100,
+      "attackPoint": 200,
+      "attackSpeed": 5,
+      "skillCooldown": 15,
+      "type": "boss"
+    }
+  ]
+}
