@@ -53,10 +53,10 @@ namespace OzGameLab01.Data
         public static bool IsBossBattle { get; private set; }
 
         /// <summary>
-        /// 플레이어가 "턴 종료" 버튼을 눌러 지금까지 끝낸 턴 수입니다.
-        /// 행동력을 모두 소모한 것만으로는 증가하지 않습니다.
+        /// 가장 최근 턴 종료 시 사용하지 않고 남은 행동력입니다.
+        /// 현재 보드에서는 주사위 눈금을 행동력으로 사용합니다.
         /// </summary>
-        public static int TurnCount { get; private set; }
+        public static int UnusedActionPoints { get; private set; }
 
         /// <summary>
         /// 새로운 게임 진행 데이터를 생성합니다.
@@ -99,6 +99,20 @@ namespace OzGameLab01.Data
             HasPlayerPosition = true;
 
             Debug.Log($"[BoardRunData] 플레이어 위치를 저장했습니다. Position: {position}");
+        }
+
+        /// <summary>
+        /// 턴 종료 시 사용하지 않은 행동력을 저장합니다.
+        /// </summary>
+        public static void SaveUnusedActionPoints(int actionPoints)
+        {
+            EnsureActiveRun();
+
+            UnusedActionPoints = Mathf.Max(0, actionPoints);
+
+            Debug.Log(
+                $"[BoardRunData] 남은 행동력 저장: " +
+                $"{UnusedActionPoints}");
         }
 
         /// <summary>
@@ -181,7 +195,7 @@ namespace OzGameLab01.Data
             HasCurrentBattle = false;
             IsBossBattle = false;
 
-            TurnCount = 0;
+            UnusedActionPoints = 0;
 
             _completedBattlePositions.Clear();
         }
