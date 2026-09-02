@@ -109,3 +109,7 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+# 폰트 패키지는 git에 올리지 않고 공유 드라이브에서 개별 배포
+/Assets/_Project/04_Art/Fonts/MalgunGothic SDF.asset
+/Assets/_Project/04_Art/Fonts/MalgunGothic SDF.asset.meta
