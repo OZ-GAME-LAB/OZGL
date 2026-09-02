@@ -263,6 +263,7 @@ namespace OzGameLab01.Combat
 
         private void ApplySynergies()
         {
+            // 팀 전체에서 각 트레이트를 보유한 유닛 수를 센다 (시너지 발동 여부 판정용).
             Dictionary<SynergyTrait, int> traitCounts = new Dictionary<SynergyTrait, int>();
             foreach (int unitId in _allyFormation.Values)
             {
@@ -283,22 +284,33 @@ namespace OzGameLab01.Combat
                 }
             }
 
+            Dictionary<SynergyTrait, SynergyDefinition> definitionByTrait = new Dictionary<SynergyTrait, SynergyDefinition>();
             foreach (SynergyDefinition definition in synergyDefinitions)
             {
-                if (definition == null || definition.Trait == null)
+                if (definition != null && definition.Trait != null)
+                {
+                    definitionByTrait[definition.Trait] = definition;
+                }
+            }
+
+            // 발동된 시너지의 보너스는 해당 트레이트를 실제로 보유한 유닛에게만 적용한다.
+            foreach (KeyValuePair<SlotKey, int> kvp in _allyFormation)
+            {
+                Unit unit = _slotUnits[kvp.Key.column, (int)kvp.Key.row];
+                if (unit == null || !_unitTraitsById.TryGetValue(kvp.Value, out List<SynergyTrait> traits) || traits == null)
                 {
                     continue;
                 }
 
-                traitCounts.TryGetValue(definition.Trait, out int count);
-                if (!definition.TryGetActiveTier(count, out SynergyDefinition.Tier tier))
+                foreach (SynergyTrait trait in traits)
                 {
-                    continue;
-                }
+                    if (trait == null || !definitionByTrait.TryGetValue(trait, out SynergyDefinition definition))
+                    {
+                        continue;
+                    }
 
-                foreach (Unit unit in _slotUnits)
-                {
-                    if (unit != null)
+                    traitCounts.TryGetValue(trait, out int count);
+                    if (definition.TryGetActiveTier(count, out SynergyDefinition.Tier tier))
                     {
                         unit.ApplySynergyBonus(tier.hpMultiplier, tier.attackMultiplier);
                     }
