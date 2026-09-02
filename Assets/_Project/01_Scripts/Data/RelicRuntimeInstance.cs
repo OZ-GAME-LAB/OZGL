@@ -1,4 +1,5 @@
 using UnityEngine;
+using OzGameLab01.Interfaces;
 
 namespace OzGameLab01.Data
 {

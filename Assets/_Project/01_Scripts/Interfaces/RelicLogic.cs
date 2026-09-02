@@ -1,7 +1,7 @@
 using UnityEngine;
 using OzGameLab01.Data;
 
-namespace OzGameLab01.Data
+namespace OzGameLab01.Interfaces
 {
     /// <summary>
     /// 유물 로직 추상 클래스
