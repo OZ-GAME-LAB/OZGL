@@ -59,6 +59,12 @@ namespace OzGameLab01.Data
         public static int UnusedActionPoints { get; private set; }
 
         /// <summary>
+        /// 플레이어가 턴 종료 버튼을 눌러 완료한 누적 턴 수입니다.
+        /// 시간 및 밤 시스템에서 경과 턴을 계산하는 데 사용합니다.
+        /// </summary>
+        public static int TurnCount { get; private set; }
+
+        /// <summary>
         /// 새로운 게임 진행 데이터를 생성합니다.
         /// 타이틀 화면에서 게임을 새로 시작할 때 호출합니다.
         /// </summary>
@@ -196,6 +202,7 @@ namespace OzGameLab01.Data
             IsBossBattle = false;
 
             UnusedActionPoints = 0;
+            TurnCount = 0;
 
             _completedBattlePositions.Clear();
         }
