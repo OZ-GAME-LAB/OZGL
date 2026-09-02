@@ -3,10 +3,8 @@ using OzGameLab01.Controllers;
 
 namespace OzGameLab01.Managers
 {
-    public class DiceManager : MonoBehaviour
+    public class DiceManager : Singleton<DiceManager>
     {
-        public static DiceManager Instance { get; private set; }
-
         [Header("Dice Settings")]
         [Tooltip("주사위의 최소 눈금")]
         [SerializeField] private int _minDice = 1;
@@ -15,10 +13,17 @@ namespace OzGameLab01.Managers
 
         private bool _hasRolledThisTurn;
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (Instance == null) Instance = this;
-            else Destroy(gameObject);
+            // Singleton<T>는 DontDestroyOnLoad만 처리하고 중복 인스턴스를 파괴하지 않으므로,
+            // 보드 씬이 재로드되며 새로 배치된 인스턴스를 여기서 직접 정리합니다.
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            base.Awake();
         }
 
         // UI 캔버스의 '주사위 굴리기 버튼'의 OnClick 이벤트에 이 함수를 연결하면 됩니다.
