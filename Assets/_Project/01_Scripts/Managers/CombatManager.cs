@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Managers;
 
-namespace Combat
+namespace OzGameLab01.Combat
 {
     public class CombatManager : MonoBehaviour
     {
@@ -26,7 +26,21 @@ namespace Combat
         private struct SlotPlacement
         {
             public SlotKey slot;
-            public UnitData unitData;
+            public int unitId;
+        }
+
+        [System.Serializable]
+        private struct UnitPrefabEntry
+        {
+            public int id;
+            public GameObject prefab;
+        }
+
+        [System.Serializable]
+        private struct UnitTraitEntry
+        {
+            public int id;
+            public List<SynergyTrait> traits;
         }
 
         private const int SlotColumns = 3;
@@ -43,13 +57,21 @@ namespace Combat
         [SerializeField] private string enemyPrefabResourceName = "Characters/Enemy_Melee";
         [SerializeField] private float enemyScale = 3f;
 
-        [Tooltip("맵 씬에서 미리 정한 아군 배치. 슬롯(열+행)을 키로, 그 슬롯에 들어갈 유닛 클래스를 값으로 가짐.")]
+        [Tooltip("맵 씬에서 미리 정한 아군 배치. 슬롯(열+행)을 키로, 그 슬롯에 들어갈 유닛 id(GameDB 기준)를 값으로 가짐.")]
         [SerializeField] private List<SlotPlacement> allyFormation = new List<SlotPlacement>();
+
+        [Tooltip("유닛 id별 스폰 프리팹. GameDB의 UnitData.id와 매칭.")]
+        [SerializeField] private List<UnitPrefabEntry> unitPrefabs = new List<UnitPrefabEntry>();
+
+        [Tooltip("유닛 id별 시너지 트레이트. GameDB의 UnitData.id와 매칭.")]
+        [SerializeField] private List<UnitTraitEntry> unitTraits = new List<UnitTraitEntry>();
 
         [Tooltip("아군 배치의 트레이트 조합으로 발동 가능한 시너지 목록.")]
         [SerializeField] private List<SynergyDefinition> synergyDefinitions = new List<SynergyDefinition>();
 
-        private Dictionary<SlotKey, UnitData> _allyFormation;
+        private Dictionary<SlotKey, int> _allyFormation;
+        private Dictionary<int, GameObject> _unitPrefabsById;
+        private Dictionary<int, List<SynergyTrait>> _unitTraitsById;
         private readonly Unit[,] _slotUnits = new Unit[SlotColumns, SlotRows];
         private Unit _enemyUnit;
 
@@ -59,6 +81,8 @@ namespace Combat
         {
             Instance = this;
             BuildAllyFormation();
+            BuildUnitPrefabLookup();
+            BuildUnitTraitLookup();
             SpawnSlotMarkers();
             SpawnAllies();
             ApplySynergies();
@@ -67,10 +91,28 @@ namespace Combat
 
         private void BuildAllyFormation()
         {
-            _allyFormation = new Dictionary<SlotKey, UnitData>();
+            _allyFormation = new Dictionary<SlotKey, int>();
             foreach (SlotPlacement placement in allyFormation)
             {
-                _allyFormation[placement.slot] = placement.unitData;
+                _allyFormation[placement.slot] = placement.unitId;
+            }
+        }
+
+        private void BuildUnitPrefabLookup()
+        {
+            _unitPrefabsById = new Dictionary<int, GameObject>();
+            foreach (UnitPrefabEntry entry in unitPrefabs)
+            {
+                _unitPrefabsById[entry.id] = entry.prefab;
+            }
+        }
+
+        private void BuildUnitTraitLookup()
+        {
+            _unitTraitsById = new Dictionary<int, List<SynergyTrait>>();
+            foreach (UnitTraitEntry entry in unitTraits)
+            {
+                _unitTraitsById[entry.id] = entry.traits;
             }
         }
 
@@ -175,15 +217,15 @@ namespace Combat
                 return;
             }
 
-            foreach (KeyValuePair<SlotKey, UnitData> kvp in _allyFormation)
+            foreach (KeyValuePair<SlotKey, int> kvp in _allyFormation)
             {
-                if (kvp.Value == null || kvp.Value.UnitPrefab == null)
+                if (!_unitPrefabsById.TryGetValue(kvp.Value, out GameObject prefab) || prefab == null)
                 {
                     continue;
                 }
 
                 SlotKey slot = kvp.Key;
-                GameObject instance = Instantiate(kvp.Value.UnitPrefab, GetSlotPosition(slot.column, slot.row), Quaternion.identity, unitsRoot);
+                GameObject instance = Instantiate(prefab, GetSlotPosition(slot.column, slot.row), Quaternion.identity, unitsRoot);
                 _slotUnits[slot.column, (int)slot.row] = instance.GetComponent<Unit>();
             }
         }
@@ -222,14 +264,14 @@ namespace Combat
         private void ApplySynergies()
         {
             Dictionary<SynergyTrait, int> traitCounts = new Dictionary<SynergyTrait, int>();
-            foreach (UnitData unitData in _allyFormation.Values)
+            foreach (int unitId in _allyFormation.Values)
             {
-                if (unitData == null)
+                if (!_unitTraitsById.TryGetValue(unitId, out List<SynergyTrait> traits) || traits == null)
                 {
                     continue;
                 }
 
-                foreach (SynergyTrait trait in unitData.Traits)
+                foreach (SynergyTrait trait in traits)
                 {
                     if (trait == null)
                     {

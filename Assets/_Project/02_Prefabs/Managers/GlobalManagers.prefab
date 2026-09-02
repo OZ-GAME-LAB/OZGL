@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 6898488300569942261}
   - component: {fileID: 4413370296528165858}
   - component: {fileID: 8036404248846272864}
+  - component: {fileID: 4765515414941831763}
   m_Layer: 0
   m_Name: GlobalManagers
   m_TagString: Untagged
@@ -59,3 +60,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ebf8dd3ef56ef1c4fa1a5002cca0a14a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.CommonManager
+  _currentState: 0
+--- !u!114 &4765515414941831763
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4478891463764493965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 301cb0bafb1030249bdd2d1f3568f3c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.SceneTransitioner
+  fadeImage: {fileID: 0}
+  fadeDuration: 0.3

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
 
-namespace Combat
+namespace OzGameLab01.Combat
 {
     public class BattleResultChecker : MonoBehaviour
     {
@@ -80,11 +80,11 @@ namespace Combat
 
             if (SceneTransitioner.Instance != null)
             {
-                SceneTransitioner.Instance.LoadScene("MapScene");
+                SceneTransitioner.Instance.LoadScene("ProtoBoardScene");
             }
             else
             {
-                SceneManager.LoadScene("MapScene");
+                SceneManager.LoadScene("ProtoBoardScene");
             }
         }
     }

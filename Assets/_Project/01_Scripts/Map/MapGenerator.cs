@@ -1,3 +1,5 @@
+using OzGameLab01.Data;
+using OzGameLab01.Map;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,12 +15,12 @@ namespace OZGL.Map
         Shop,
         Elite,
         Boss,
-        Tree,          // Ãß°¡µÊ: ´ÙÁß ÇÁ¸®ÆÕ Áö¿ø ³ª¹«
-        Rock,          // Ãß°¡µÊ: ´ÙÁß ÇÁ¸®ÆÕ Áö¿ø ¹ÙÀ§
-        WaterPuddle,   // Ãß°¡µÊ: 1Ä­Â¥¸® ¹° ¿õµ¢ÀÌ
-        WaterStart,    // Ãß°¡µÊ: ¹° (½ÃÀÛÁ¡)
-        WaterBody,     // Ãß°¡µÊ: ´ÙÁß ÇÁ¸®ÆÕ Áö¿ø ¹° (¸öÅë)
-        WaterEnd       // Ãß°¡µÊ: ¹° (³¡Á¡)
+        Tree,
+        Rock,
+        WaterPuddle,
+        WaterStart,
+        WaterBody,
+        WaterEnd
     }
 
     public class MapNode
@@ -26,32 +28,39 @@ namespace OZGL.Map
         public Vector2Int Position;
         public NodeType Type;
         public List<MapNode> ConnectedNodes = new List<MapNode>();
-        public GameObject NodeView; // ½Ã°¢Àû Å¸ÀÏ ¿ÀºêÁ§Æ®
+        public GameObject NodeView;
     }
 
     public class MapGenerator : MonoBehaviour
     {
+        [Header("Theme Data")]
+        [Tooltip("í˜„ì¬ ìŠ¤í…Œì´ì§€ì— ë§ëŠ” í…Œë§ˆ ë°ì´í„°(SO)ë¥¼ ì—°ê²°í•´ì£¼ì„¸ìš”.")]
+        [SerializeField] private OZGL.Data.MapThemeData _currentTheme;
+
         [Header("Map Settings")]
         public int totalNodeCount = 70;
-
-        [Tooltip("Å¸ÀÏ °£ÀÇ ¹°¸®Àû ¹èÄ¡ °£°İ (±âº»°ª: 2)")]
         public float tileSpacing = 2.0f;
-
-        [Tooltip("¸Ê ÀüÃ¼°¡ »ı¼ºµÇ´Â µ¥ °É¸®´Â ÃÑ ¿¬Ãâ ½Ã°£ (ÃÊ ´ÜÀ§)")]
         public float animationDuration = 5.0f;
 
-        [Header("Obstacle Settings")]
-        [Tooltip("»ı¼ºÇÒ Àå¾Ö¹° ±ºÁı(µ¢¾î¸®)ÀÇ ÃÑ °³¼ö")]
-        public int obstacleClusterCount = 3;
-        [Tooltip("ÇÏ³ªÀÇ Àå¾Ö¹° ±ºÁıÀÌ Â÷ÁöÇÒ ÃÖ¼Ò Ä­ ¼ö")]
-        public int minObstacleClusterSize = 1;
-        [Tooltip("ÇÏ³ªÀÇ Àå¾Ö¹° ±ºÁıÀÌ Â÷ÁöÇÒ ÃÖ´ë Ä­ ¼ö")]
-        public int maxObstacleClusterSize = 4;
+        [Header("Tree Settings")]
+        public int treeClusterCount = 2;
+        public int minTreeClusterSize = 1;
+        public int maxTreeClusterSize = 3;
+
+        [Header("Rock Settings")]
+        public int rockClusterCount = 2;
+        public int minRockClusterSize = 1;
+        public int maxRockClusterSize = 4;
+
+        [Header("Water Settings")]
+        public int waterClusterCount = 1;
+        public int minWaterClusterSize = 1;
+        public int maxWaterClusterSize = 5;
 
         [Header("Tile Counts")]
         public int bossCount = 1;
-        public int minBossDistance = 5; // °°Àº º¸½º Å¸ÀÏ³¢¸®ÀÇ ÃÖ¼Ò °Å¸®
-        public int minBossDistanceFromStart = 4; // Ãß°¡µÊ: ½ÃÀÛÁ¡À¸·ÎºÎÅÍ º¸½º Å¸ÀÏÀÇ ÃÖ¼Ò °Å¸®
+        public int minBossDistance = 5;
+        public int minBossDistanceFromStart = 4;
 
         public int shopCount = 3;
         public int eliteCount = 3;
@@ -61,58 +70,171 @@ namespace OZGL.Map
         public int minShopDistance = 3;
         public int minEliteDistance = 3;
         public int minEventDistance = 2;
-        public int minBattleDistance = 1; // 1ÀÌ¸é ÀÎÁ¢ °¡´É, 2 ÀÌ»óÀÌ¸é ¶³¾îÁü
-
-        [Header("Prefabs (Type-specific)")]
-        [SerializeField] private GameObject _normalPrefab;
-        [SerializeField] private GameObject _bossPrefab;
-        [SerializeField] private GameObject _battlePrefab;
-        [SerializeField] private GameObject _eventPrefab;
-        [SerializeField] private GameObject _shopPrefab;
-        [SerializeField] private GameObject _elitePrefab;
-
-        [Header("Obstacle Prefabs (Randomized)")]
-        [Tooltip("µî·ÏµÈ ³ª¹« ÇÁ¸®ÆÕ Áß ÇÏ³ª¸¦ ¹«ÀÛÀ§·Î ¼±ÅÃÇÏ¿© »ı¼ºÇÕ´Ï´Ù.")]
-        [SerializeField] private List<GameObject> _treePrefabs;
-        [Tooltip("µî·ÏµÈ ¹ÙÀ§ ÇÁ¸®ÆÕ Áß ÇÏ³ª¸¦ ¹«ÀÛÀ§·Î ¼±ÅÃÇÏ¿© »ı¼ºÇÕ´Ï´Ù.")]
-        [SerializeField] private List<GameObject> _rockPrefabs;
-
-        [Header("Water Obstacle Prefabs")]
-        [Tooltip("1Ä­Â¥¸® µ¶¸³µÈ ¹° Å¸ÀÏ (¿õµ¢ÀÌ)")]
-        [SerializeField] private GameObject _waterPuddlePrefab;
-        [Tooltip("¿¬¼ÓµÈ ¹° Å¸ÀÏÀÇ ½ÃÀÛÁ¡")]
-        [SerializeField] private GameObject _waterStartPrefab;
-        [Tooltip("¿¬¼ÓµÈ ¹° Å¸ÀÏÀÇ Áß°£ ÁöÁ¡µé (¹«ÀÛÀ§ ¼±ÅÃ)")]
-        [SerializeField] private List<GameObject> _waterBodyPrefabs;
-        [Tooltip("¿¬¼ÓµÈ ¹° Å¸ÀÏÀÇ Á¾·á ÁöÁ¡")]
-        [SerializeField] private GameObject _waterEndPrefab;
+        public int minBattleDistance = 1;
 
         private Dictionary<Vector2Int, MapNode> _nodeDict = new Dictionary<Vector2Int, MapNode>();
         private List<MapNode> _allNodes = new List<MapNode>();
 
         private void Start()
         {
-            StartCoroutine(GenerateAndAnimateMap());
+            if (_currentTheme == null)
+            {
+                Debug.LogError("[MapGenerator] MapThemeDataê°€ í• ë‹¹ë˜ì§€ ì•Šì•„ ë§µì„ ìƒì„±í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤!");
+                return;
+            }
+
+            ValidatePrefabs();
+
+            // í…ŒìŠ¤íŠ¸ë¥¼ ìœ„í•´ Startì—ì„œ ë‘ í•¨ìˆ˜ë¥¼ ì—°ë‹¬ì•„ í˜¸ì¶œí•˜ì§€ë§Œ,
+            // ì‹¤ì œ ê²Œì„ì—ì„œëŠ” ë¡œë”©ì”¬ì—ì„œ GenerateMapData()ë¥¼, ë³¸ê²Œì„ ì”¬ ì§„ì… ì‹œ PlayMapAnimation()ì„ ë”°ë¡œ í˜¸ì¶œí•˜ì‹œë©´ ë©ë‹ˆë‹¤.
+            GenerateMapData();
+            PlayMapAnimation();
+        }
+
+        /// <summary>
+        /// í˜„ì¬ ê²Œì„ ì§„í–‰ì˜ Map Seedë¥¼ ì‚¬ìš©í•´ ë§µ ë°ì´í„°ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+        /// ì¼ë°˜ ì „íˆ¬ í›„ ë³´ë“œ ì”¬ìœ¼ë¡œ ëŒì•„ì™€ë„ ë™ì¼í•œ Seedë¥¼ ì‚¬ìš©í•˜ë¯€ë¡œ
+        /// ì´ì „ê³¼ ê°™ì€ êµ¬ì¡°ì™€ íƒ€ì¼ ë°°ì¹˜ë¡œ ë§µì´ ë³µì›ë©ë‹ˆë‹¤.
+        /// </summary>
+        public void GenerateMapData()
+        {
+            // ==================== ë³´ë“œ ì§„í–‰ ë°ì´í„° ì—°ë™ ====================
+
+            // ë³´ë“œ ì”¬ì„ ì§ì ‘ ì‹¤í–‰í•œ í…ŒìŠ¤íŠ¸ ìƒí™©ì—ì„œë„
+            // ì‚¬ìš©í•  ìˆ˜ ìˆëŠ” ê²Œì„ ì§„í–‰ ë°ì´í„°ê°€ ì¡´ì¬í•˜ë„ë¡ ë³´ì¥
+            BoardRunData.EnsureActiveRun();
+
+            // ë§µ ìƒì„±ì´ ë‹¤ë¥¸ ì‹œìŠ¤í…œì˜ ë¬´ì‘ìœ„ ê²°ê³¼ì— ì˜í–¥ì„ ì£¼ì§€ ì•Šë„ë¡
+            // í˜„ì¬ Unity Random ìƒíƒœë¥¼ ì„ì‹œë¡œ ë³´ê´€
+            Random.State previousRandomState = Random.state;
+
+            // ì €ì¥ëœ Seedë¥¼ ì ìš©í•˜ì—¬ ë™ì¼í•œ ë§µì„ ìƒì„±
+            Random.InitState(BoardRunData.MapSeed);
+
+            try
+            {
+                _nodeDict.Clear();
+                _allNodes.Clear();
+
+                GenerateLogicalShape();
+                AssignNodeTypes();
+            }
+            finally
+            {
+                // ë§µ ìƒì„± ì´ì „ì˜ Random ìƒíƒœ ë³µì›
+                Random.state = previousRandomState;
+            }
+
+            Debug.Log($"[MapGenerator] ë§µ ë°ì´í„° ìƒì„± ì™„ë£Œ | Seed: {BoardRunData.MapSeed}");
+
+            // ìƒì„±ëœ ë…¸ë“œ ë°ì´í„°ë¥¼ MapManagerì— ì „ë‹¬
+            if (OzGameLab01.Map.MapManager.Instance != null)
+            {
+                OzGameLab01.Map.MapManager.Instance.InitializeMapData(_nodeDict);
+            }
+            else
+            {
+                Debug.LogError("[MapGenerator] MapManagerë¥¼ ì°¾ì„ ìˆ˜ ì—†ì–´ ìƒì„±ëœ ë§µ ë°ì´í„°ë¥¼ ì „ë‹¬í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.", this);
+            }
+
+            // ==================== í”Œë ˆì´ì–´ ìœ„ì¹˜ ë³µì› ====================
+
+            if (OzGameLab01.Controllers.BoardPlayerController.Instance == null)
+            {
+                Debug.LogError("[MapGenerator] BoardPlayerControllerë¥¼ ì°¾ì„ ìˆ˜ ì—†ì–´ í”Œë ˆì´ì–´ ìœ„ì¹˜ë¥¼ ì„¤ì •í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.", this);
+
+                return;
+            }
+
+            // ì €ì¥ ìœ„ì¹˜ê°€ ìˆìœ¼ë©´ í•´ë‹¹ ìœ„ì¹˜ì—ì„œ ì‹œì‘í•˜ê³ ,
+            // ì²˜ìŒ ì‹œì‘í•œ ê²Œì„ì´ë©´ (0, 0) ì‹œì‘ ë…¸ë“œ ì‚¬ìš©
+            Vector2Int targetPosition = BoardRunData.HasPlayerPosition ? BoardRunData.PlayerPosition : Vector2Int.zero;
+
+            if (!_nodeDict.TryGetValue( targetPosition, out MapNode targetNode))
+            {
+                Debug.LogWarning(
+                    $"[MapGenerator] ì €ì¥ëœ í”Œë ˆì´ì–´ ìœ„ì¹˜ {targetPosition}ì„ " +
+                    "ìƒì„±ëœ ë§µì—ì„œ ì°¾ì„ ìˆ˜ ì—†ì–´ ì‹œì‘ ìœ„ì¹˜ë¡œ ë³µêµ¬í•©ë‹ˆë‹¤.", this);
+
+                targetPosition = Vector2Int.zero;
+
+                if (!_nodeDict.TryGetValue(targetPosition, out targetNode))
+                {
+                    Debug.LogError("[MapGenerator] ì‹œì‘ ë…¸ë“œë¥¼ ì°¾ì„ ìˆ˜ ì—†ì–´ í”Œë ˆì´ì–´ë¥¼ ë°°ì¹˜í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤.", this);
+
+                    return;
+                }
+
+                BoardRunData.SavePlayerPosition(targetPosition);
+            }
+
+            OzGameLab01.Controllers.BoardPlayerController.Instance
+                .SetupPlayer(targetNode);
+
+            Debug.Log($"[MapGenerator] í”Œë ˆì´ì–´ ë°°ì¹˜ ì™„ë£Œ | Position: {targetPosition}", this);
+        }
+
+
+        /* ë¦¬íŒ© ì „ / public void GenerateMapData()
+         
+        // ì™¸ë¶€(GameManager ë“±)ì—ì„œ ì¦‰ì‹œ ë§µ ë°ì´í„°ë§Œ ìƒì„±í•  ë•Œ í˜¸ì¶œí•˜ëŠ” public í•¨ìˆ˜
+        public void GenerateMapData()
+        {
+            _nodeDict.Clear();
+            _allNodes.Clear();
+
+            GenerateLogicalShape();
+            AssignNodeTypes();
+
+            Debug.Log("[MapGenerator] ë§µ ë°ì´í„° ìƒì„±ì´ ì™„ë£Œë˜ì—ˆìŠµë‹ˆë‹¤.");
+
+            // ---------------- [ì—°ë™ ì½”ë“œ ì¶”ê°€ ë¶€ë¶„] ----------------
+            // 1. MapManagerì— ìƒì„±ëœ ë…¸ë“œ ë”•ì…”ë„ˆë¦¬ë¥¼ í†µì§¸ë¡œ ë„˜ê²¨ ê¸¸ì°¾ê¸° ì‹œìŠ¤í…œì„ í™œì„±í™”í•©ë‹ˆë‹¤.
+            if (OzGameLab01.Map.MapManager.Instance != null)
+            {
+                OzGameLab01.Map.MapManager.Instance.InitializeMapData(_nodeDict);
+            }
+
+            // 2. í”Œë ˆì´ì–´ ì»¨íŠ¸ë¡¤ëŸ¬ì— ì‹œì‘ì (Vector2Int.zero) ë…¸ë“œë¥¼ ì „ë‹¬í•˜ì—¬ í”Œë ˆì´ì–´ í† í°ì„ ì„¸íŒ…í•©ë‹ˆë‹¤.
+            if (OzGameLab01.Controllers.BoardPlayerController.Instance != null && _nodeDict.ContainsKey(Vector2Int.zero))
+            {
+                OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(_nodeDict[Vector2Int.zero]);
+            }
+            // -------------------------------------------------------
+        }
+        */
+
+        // ì”¬ ì „í™˜ì´ ì™„ë£Œëœ í›„ íƒ€ì¼ íŒì—… ì—°ì¶œì„ ì‹œì‘í•  ë•Œ í˜¸ì¶œí•˜ëŠ” public í•¨ìˆ˜
+        public void PlayMapAnimation()
+        {
+            StartCoroutine(AnimateMapGeneration());
+        }
+
+        private void ValidatePrefabs()
+        {
+            if (_currentTheme.NormalPrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Normal í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.BossPrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Boss í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.BattlePrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Battle í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.EventPrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Event í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.ShopPrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Shop í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
+            if (_currentTheme.ElitePrefab == null) Debug.LogWarning("[MapGenerator] í•„ìˆ˜: Elite í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
         }
 
         private IEnumerator GenerateAndAnimateMap()
         {
             GenerateLogicalShape();
             AssignNodeTypes();
-            // ÆÄ¶ó¹ÌÅÍ¸¦ Á¦°ÅÇÏ°í ¸Å´ÏÀúÀÇ interval º¯¼ö¸¦ Á÷Á¢ ÂüÁ¶ÇÏµµ·Ï º¯°æ
             yield return StartCoroutine(AnimateMapGeneration());
         }
 
         private void GenerateLogicalShape()
         {
             Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
-
-            // 1. ½ÃÀÛ ³ëµå »ı¼º
             MapNode startNode = new MapNode { Position = Vector2Int.zero, Type = NodeType.Start };
+
             _nodeDict.Add(startNode.Position, startNode);
             _allNodes.Add(startNode);
 
-            // 2. ÁöÁ¤µÈ °³¼ö¸¸Å­ »¸¾î ³ª°¡¸ç ³ëµå »ı¼º
             while (_allNodes.Count < totalNodeCount)
             {
                 MapNode randomExistingNode = _allNodes[Random.Range(0, _allNodes.Count)];
@@ -121,14 +243,26 @@ namespace OZGL.Map
 
                 if (!_nodeDict.ContainsKey(newPos))
                 {
-                    // ±âº»°ªÀ» BattleÀÌ ¾Æ´Ñ Normal(ºó Å¸ÀÏ)·Î º¯°æ
                     MapNode newNode = new MapNode { Position = newPos, Type = NodeType.Normal };
-
-                    randomExistingNode.ConnectedNodes.Add(newNode);
-                    newNode.ConnectedNodes.Add(randomExistingNode);
 
                     _nodeDict.Add(newPos, newNode);
                     _allNodes.Add(newNode);
+
+                    // í•µì‹¬ ìˆ˜ì •: ë°©ê¸ˆ ìƒì„±ëœ ë…¸ë“œì˜ ìƒí•˜ì¢Œìš°ë¥¼ ëª¨ë‘ ê²€ì‚¬í•´ì„œ, 
+                    // ì¸ì ‘í•œ ìœ„ì¹˜ì— ì´ë¯¸ ë‹¤ë¥¸ ë…¸ë“œê°€ ìˆë‹¤ë©´ ì„œë¡œ ì™„ë²½í•˜ê²Œ ë‹¤ë¦¬(Edge)ë¥¼ ì—°ê²°í•´ì¤ë‹ˆë‹¤!
+                    foreach (Vector2Int dir in directions)
+                    {
+                        Vector2Int neighborPos = newPos + dir;
+                        if (_nodeDict.TryGetValue(neighborPos, out MapNode neighborNode))
+                        {
+                            // ì„œë¡œ ì—°ê²°ë˜ì–´ ìˆì§€ ì•Šë‹¤ë©´ ì–‘ë°©í–¥ìœ¼ë¡œ ê¸¸ì„ ëš«ì–´ì¤ë‹ˆë‹¤.
+                            if (!newNode.ConnectedNodes.Contains(neighborNode))
+                            {
+                                newNode.ConnectedNodes.Add(neighborNode);
+                                neighborNode.ConnectedNodes.Add(newNode);
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -136,40 +270,50 @@ namespace OZGL.Map
         private void AssignNodeTypes()
         {
             List<MapNode> availableNodes = new List<MapNode>(_allNodes);
-
-            // ½ÃÀÛ ³ëµå Á¦¿Ü
             availableNodes.RemoveAll(n => n.Type == NodeType.Start);
 
-            if (availableNodes.Count == 0)
-            {
-                Debug.LogWarning("Total Node Count°¡ ³Ê¹« ÀÛ½À´Ï´Ù.");
-                return;
-            }
+            if (availableNodes.Count == 0) return;
 
-            // 1. ±æÀ» ¸·´Â Àå¾Ö¹° ±ºÁı(Cluster)À» °¡Àå ¸ÕÀú ¸Ê¿¡ ¹èÄ¡ÇÕ´Ï´Ù.
             PlaceObstacleClusters(availableNodes);
 
-            // 2. Áß¿äµµ(Èñ±Íµµ)°¡ ³ôÀº Å¸ÀÏ ¼ø¼­´ë·Î °Å¸® Á¦¾àÀ» µÎ¸ç ¹èÄ¡ÇÕ´Ï´Ù.
             PlaceNodesOfType(NodeType.Boss, bossCount, minBossDistance, availableNodes, minBossDistanceFromStart);
             PlaceNodesOfType(NodeType.Shop, shopCount, minShopDistance, availableNodes);
             PlaceNodesOfType(NodeType.Elite, eliteCount, minEliteDistance, availableNodes);
             PlaceNodesOfType(NodeType.Event, eventCount, minEventDistance, availableNodes);
             PlaceNodesOfType(NodeType.Battle, battleCount, minBattleDistance, availableNodes);
-
-            // 3. ÇÒ´ç·®ÀÌ ³¡³­ ³ª¸ÓÁö ºóÄ­µéÀº LogicalShape¿¡¼­ ºÎ¿©ÇÑ ±âº»°ª(Normal)À» ±×´ë·Î À¯ÁöÇÕ´Ï´Ù.
         }
 
-        // Ãß°¡µÊ: ¿¬¼ÓµÈ Àå¾Ö¹° Å¸ÀÏÀ» ¹¶ÃÄ¼­ »ı¼ºÇÏ´Â ±ºÁıÈ­(Clustering) ¾Ë°í¸®Áò
         private void PlaceObstacleClusters(List<MapNode> availableNodes)
         {
-            for (int i = 0; i < obstacleClusterCount; i++)
+            // ë‚˜ë¬´ êµ°ì§‘ ë°°ì¹˜
+            if (_currentTheme.TreePrefabs != null && _currentTheme.TreePrefabs.Count > 0)
+            {
+                CreateCluster(availableNodes, treeClusterCount, minTreeClusterSize, maxTreeClusterSize, NodeType.Tree, false);
+            }
+
+            // ë°”ìœ„ êµ°ì§‘ ë°°ì¹˜
+            if (_currentTheme.RockPrefabs != null && _currentTheme.RockPrefabs.Count > 0)
+            {
+                CreateCluster(availableNodes, rockClusterCount, minRockClusterSize, maxRockClusterSize, NodeType.Rock, false);
+            }
+
+            // ë¬¼ êµ°ì§‘ ë°°ì¹˜
+            if (_currentTheme.WaterPuddlePrefab != null && _currentTheme.WaterStartPrefab != null &&
+                _currentTheme.WaterEndPrefab != null && _currentTheme.WaterBodyPrefabs != null &&
+                _currentTheme.WaterBodyPrefabs.Count > 0)
+            {
+                CreateCluster(availableNodes, waterClusterCount, minWaterClusterSize, maxWaterClusterSize, NodeType.WaterPuddle, true);
+            }
+        }
+
+        private void CreateCluster(List<MapNode> availableNodes, int count, int minSize, int maxSize, NodeType baseType, bool isWater)
+        {
+            for (int i = 0; i < count; i++)
             {
                 if (availableNodes.Count == 0) break;
 
-                // ÀÌ¹ø ±ºÁıÀÌ °¡Áú ¹«ÀÛÀ§ Å©±â °áÁ¤
-                int targetSize = Random.Range(minObstacleClusterSize, maxObstacleClusterSize + 1);
-
-                // ±ºÁıÀÇ Áß½É(Seed)ÀÌ µÉ ³ëµå¸¦ ¹«ÀÛÀ§·Î ¼±ÅÃ
+                // ì¸ìŠ¤í™í„°ì—ì„œ min, maxë¥¼ 1ë¡œ ì£¼ë©´ ë¬´ì¡°ê±´ targetSizeëŠ” 1ì´ ë¨
+                int targetSize = Random.Range(minSize, maxSize + 1);
                 MapNode seed = availableNodes[Random.Range(0, availableNodes.Count)];
 
                 List<MapNode> cluster = new List<MapNode>();
@@ -179,7 +323,6 @@ namespace OZGL.Map
                 queue.Enqueue(seed);
                 visited.Add(seed);
 
-                // BFS(³Êºñ ¿ì¼± Å½»ö)¸¦ ÅëÇØ ÀÎÁ¢ÇÑ ³ëµåµéÀ» Ã£¾Æ ±ºÁı Å©±â¸¸Å­ È®Àå
                 while (queue.Count > 0 && cluster.Count < targetSize)
                 {
                     MapNode current = queue.Dequeue();
@@ -187,9 +330,8 @@ namespace OZGL.Map
                     if (availableNodes.Contains(current))
                     {
                         cluster.Add(current);
-                        availableNodes.Remove(current); // ´Ù¸¥ Å¸ÀÏÀÌ ¹èÄ¡µÇÁö ¾Êµµ·Ï °¡¿ë ¸ñ·Ï¿¡¼­ Á¦°Å
+                        availableNodes.Remove(current);
 
-                        // ÀÚ¿¬½º·¯¿î ÇüÅÂ(ºñÁ¤Çü)·Î ÆÛÁ®³ª°¡µµ·Ï ÀÎÁ¢ ³ëµå ¸ñ·ÏÀ» ¼¯À½
                         List<MapNode> neighbors = new List<MapNode>(current.ConnectedNodes);
                         ShuffleList(neighbors);
 
@@ -204,47 +346,31 @@ namespace OZGL.Map
                     }
                 }
 
-                // --- Å¬·¯½ºÅÍ ¼öÁı ¿Ï·á ÈÄ Å¸ÀÏ Á¾·ù(³ª¹«, ¹ÙÀ§, ¹°) °áÁ¤ ¹× Àû¿ë ---
                 if (cluster.Count > 0)
                 {
-                    // 0: Tree, 1: Rock, 2: Water
-                    int obstacleCategory = Random.Range(0, 3);
-
-                    if (obstacleCategory == 0)
+                    if (!isWater)
                     {
-                        foreach (var node in cluster) node.Type = NodeType.Tree;
-                    }
-                    else if (obstacleCategory == 1)
-                    {
-                        foreach (var node in cluster) node.Type = NodeType.Rock;
+                        foreach (var node in cluster) node.Type = baseType;
                     }
                     else
                     {
-                        // °­/È£¼ö/¿õµ¢ÀÌ Áö´ÉÇü ÇÒ´ç ¾Ë°í¸®Áò
+                        // í´ëŸ¬ìŠ¤í„° í¬ê¸°ê°€ 1ì´ë©´ ë¬´ì¡°ê±´ 'ì›…ë©ì´(WaterPuddle)' ì²˜ë¦¬
                         if (cluster.Count == 1)
                         {
                             cluster[0].Type = NodeType.WaterPuddle;
                         }
                         else
                         {
-                            // seed(ÃÖÃÊ Å½»ö ½ÃÀÛÁ¡)´Â WaterStart
+                            // 2ì¹¸ ì´ìƒì´ë©´ ì‹œì‘, ëª¸í†µ, ëì ìœ¼ë¡œ êµ¬ë¶„í•˜ì—¬ í˜¸ìˆ˜/ê°• í˜•íƒœ ì™„ì„±
                             cluster[0].Type = NodeType.WaterStart;
-
-                            // BFS·Î °¡Àå ¸¶Áö¸·¿¡ µµ´ŞÇÑ ³ëµå´Â WaterEnd
                             cluster[cluster.Count - 1].Type = NodeType.WaterEnd;
-
-                            // ±× »çÀÌ¸¦ ÀÕ´Â Áß°£ ³ëµåµéÀº WaterBody
-                            for (int j = 1; j < cluster.Count - 1; j++)
-                            {
-                                cluster[j].Type = NodeType.WaterBody;
-                            }
+                            for (int j = 1; j < cluster.Count - 1; j++) cluster[j].Type = NodeType.WaterBody;
                         }
                     }
                 }
             }
         }
 
-        // ¸®½ºÆ®¸¦ ¹«ÀÛÀ§·Î ¼¯´Â À¯Æ¿¸®Æ¼ ÇÔ¼ö (Fisher-Yates Shuffle)
         private void ShuffleList<T>(List<T> list)
         {
             for (int i = list.Count - 1; i > 0; i--)
@@ -256,8 +382,13 @@ namespace OZGL.Map
             }
         }
 
-        // ¼ÅÇÃ¹é ´ë½Å °Å¸® Á¦¾à ÇÒ´ç ¾Ë°í¸®ÁòÀ» ¸ğµç Å¸ÀÏÀÌ »ç¿ëÇÒ ¼ö ÀÖµµ·Ï ÇÔ¼ö·Î ºĞ¸®Çß½À´Ï´Ù.
-        // minDistanceFromStart ¸Å°³º¯¼ö¸¦ Ãß°¡ÇÏ¿© ½ÃÀÛÁ¡°úÀÇ °Å¸® Á¦¾àÀ» ¼±ÅÃÀûÀ¸·Î Àû¿ëÇÒ ¼ö ÀÖ°Ô Çß½À´Ï´Ù.
+        private bool IsObstacle(NodeType type)
+        {
+            return type == NodeType.Tree || type == NodeType.Rock ||
+                   type == NodeType.WaterPuddle || type == NodeType.WaterStart ||
+                   type == NodeType.WaterBody || type == NodeType.WaterEnd;
+        }
+
         private void PlaceNodesOfType(NodeType type, int count, int minDistance, List<MapNode> availableNodes, int minDistanceFromStart = 0)
         {
             List<MapNode> placedNodes = new List<MapNode>();
@@ -269,33 +400,43 @@ namespace OZGL.Map
             {
                 attempts++;
                 MapNode candidate = availableNodes[Random.Range(0, availableNodes.Count)];
+                bool isValid = true;
 
-                bool isValidDistance = true;
-
-                if (minDistanceFromStart > 0)
+                // 1. ê³ ë¦½ ë°©ì§€ ê²€ì‚¬: ì£¼ë³€ì— ì´ë™ ê°€ëŠ¥í•œ íƒ€ì¼ì´ ìµœì†Œ 1ê°œëŠ” ìˆì–´ì•¼ í•¨
+                int walkableNeighbors = 0;
+                foreach (MapNode neighbor in candidate.ConnectedNodes)
                 {
-                    // ½ÃÀÛ ³ëµåÀÇ ÁÂÇ¥´Â Ç×»ó (0,0)ÀÌ¹Ç·Î Àı´ë°ªÀÇ ÇÕÀ¸·Î ¸ÇÇØÆ° °Å¸®¸¦ ±¸ÇÕ´Ï´Ù.
-                    int distFromStart = Mathf.Abs(candidate.Position.x) + Mathf.Abs(candidate.Position.y);
-                    if (distFromStart < minDistanceFromStart)
-                    {
-                        isValidDistance = false;
-                    }
+                    if (!IsObstacle(neighbor.Type)) walkableNeighbors++;
                 }
 
-                if (isValidDistance)
+                if (walkableNeighbors == 0)
+                {
+                    isValid = false; // 4ë©´ì´ ëª¨ë‘ ë§‰í˜€ìˆìœ¼ë©´ íƒˆë½
+                }
+
+                // 2. ì‹œì‘ì ìœ¼ë¡œë¶€í„°ì˜ ìµœì†Œ ê±°ë¦¬ ê²€ì‚¬
+                if (isValid && minDistanceFromStart > 0)
+                {
+                    int distFromStart = Mathf.Abs(candidate.Position.x) + Mathf.Abs(candidate.Position.y);
+                    if (distFromStart < minDistanceFromStart) isValid = false;
+                }
+
+                // 3. ë™ì¢… íƒ€ì¼ ê°„ì˜ ê±°ë¦¬ ê²€ì‚¬
+                if (isValid)
                 {
                     foreach (MapNode placed in placedNodes)
                     {
                         int distance = Mathf.Abs(candidate.Position.x - placed.Position.x) + Mathf.Abs(candidate.Position.y - placed.Position.y);
                         if (distance < minDistance)
                         {
-                            isValidDistance = false;
+                            isValid = false;
                             break;
                         }
                     }
                 }
 
-                if (isValidDistance)
+                // ëª¨ë“  ê²€ì‚¬ë¥¼ í†µê³¼í–ˆì„ ë•Œë§Œ ë°°ì¹˜
+                if (isValid)
                 {
                     candidate.Type = type;
                     placedNodes.Add(candidate);
@@ -304,17 +445,15 @@ namespace OZGL.Map
                 }
             }
 
-            // ±âÈ¹ÀÚ°¡ ¼³Á¤ÇÑ ¼öÄ¡(¸Ê Å©±â´Â ÀÛÀºµ¥ ÀüÅõ Å¸ÀÏÀ» ³Ê¹« ¸¹ÀÌ ¿ä±¸ÇÒ °æ¿ì µî)ÀÇ ¿À·ù¸¦ Ã£¾Æ³»±â À§ÇÑ ¹æ¾î ÄÚµå
             if (currentCount < count)
             {
-                Debug.LogWarning($"[MapGenerator] {type} Å¸ÀÏÀ» ¸ñÇ¥Ä¡({count}°³)¸¸Å­ ¹èÄ¡ÇÏÁö ¸øÇß½À´Ï´Ù. (¹èÄ¡µÊ: {currentCount}°³) - ¸ÊÀÇ ÃÑ ³ëµå ¼ö¸¦ ´Ã¸®°Å³ª ÃÖ¼Ò °Å¸®¸¦ ÁÙÀÌ¼¼¿ä.");
+                Debug.LogWarning($"[MapGenerator] {type} íƒ€ì¼ì„ ëª©í‘œì¹˜({count}ê°œ)ë§Œí¼ ë°°ì¹˜í•˜ì§€ ëª»í–ˆìŠµë‹ˆë‹¤. (ë°°ì¹˜ë¨: {currentCount}ê°œ)");
             }
         }
 
         private IEnumerator AnimateMapGeneration()
         {
-            // ÀüÃ¼ ¾Ö´Ï¸ŞÀÌ¼Ç ½Ã°£À» ³ëµå °³¼ö·Î ³ª´©¾î ÀÌÀüÃ³·³ ºÎµå·´°Ô ÆÛÁ®³ª°¡´Â ¿¬Ãâ º¹±¸
-            float delayPerNode = animationDuration / totalNodeCount;
+           float delayPerNode = animationDuration / totalNodeCount;
             WaitForSeconds wait = new WaitForSeconds(delayPerNode);
 
             Queue<MapNode> queue = new Queue<MapNode>();
@@ -327,24 +466,28 @@ namespace OZGL.Map
             while (queue.Count > 0)
             {
                 MapNode currentNode = queue.Dequeue();
-
-                // 1. Å¸ÀÔ¿¡ ¸Â´Â ÇÁ¸®ÆÕ °¡Á®¿À±â
                 GameObject targetPrefab = GetPrefabForType(currentNode.Type);
-
-                // ¾ÈÀü ÀåÄ¡: ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾ÒÀ» °æ¿ì °æ°í Ãâ·Â
+                
                 if (targetPrefab == null)
                 {
-                    Debug.LogWarning($"[MapGenerator] {currentNode.Type} Å¸ÀÔÀÇ ÇÁ¸®ÆÕÀÌ ÀÎ½ºÆåÅÍ¿¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
-                    continue;
+                    targetPrefab = _currentTheme.NormalPrefab;
+                    if (targetPrefab == null) continue; 
                 }
 
-                // ±âÈ¹ÀÚ°¡ ¼³Á¤ÇÑ tileSpacing º¯¼ö¸¦ °öÇÏ¿© ¹°¸®ÀûÀÎ ¿ùµå ÁÂÇ¥ °áÁ¤
                 Vector3 worldPos = new Vector3(currentNode.Position.x * tileSpacing, 0, currentNode.Position.y * tileSpacing);
-
-                // 2. ÇÁ¸®ÆÕ ÀÎ½ºÅÏ½ºÈ­
                 currentNode.NodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, this.transform);
+                
+                // íƒ€ì¼ ì´ˆê¸°í™” (ìƒ‰ìƒ ë° ë…¸ë“œ ì •ë³´ ì €ì¥)
+                TileView tileView = currentNode.NodeView.GetComponent<TileView>();
+                if (tileView != null)
+                {
+                    tileView.Init(currentNode);
+                }
+                else
+                {
+                    Debug.LogWarning($"[MapGenerator] {currentNode.Type} íƒ€ì¼ í”„ë¦¬íŒ¹ì— TileView ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤!");
+                }
 
-                // 3. ½ºÄÉÀÏ ¾÷ ¾Ö´Ï¸ŞÀÌ¼Ç ½ÇÇà (0.5ÃÊ µ¿¾È)
                 StartCoroutine(ScaleUpNode(currentNode.NodeView.transform, 0.5f));
 
                 yield return wait;
@@ -365,29 +508,25 @@ namespace OZGL.Map
             switch (type)
             {
                 case NodeType.Start:
-                case NodeType.Normal:
-                    return _normalPrefab;
-                case NodeType.Boss: return _bossPrefab;
-                case NodeType.Shop: return _shopPrefab;
-                case NodeType.Event: return _eventPrefab;
-                case NodeType.Elite: return _elitePrefab;
-                case NodeType.Battle: return _battlePrefab;
+                case NodeType.Normal: return _currentTheme.NormalPrefab;
+                case NodeType.Boss: return _currentTheme.BossPrefab;
+                case NodeType.Shop: return _currentTheme.ShopPrefab;
+                case NodeType.Event: return _currentTheme.EventPrefab;
+                case NodeType.Elite: return _currentTheme.ElitePrefab;
+                case NodeType.Battle: return _currentTheme.BattlePrefab;
 
-                // »õ·Î¿î Àå¾Ö¹° Å¸ÀÔ ¹İÈ¯ ·ÎÁ÷ Àû¿ë
-                case NodeType.Tree: return GetRandomPrefab(_treePrefabs, _normalPrefab);
-                case NodeType.Rock: return GetRandomPrefab(_rockPrefabs, _normalPrefab);
+                case NodeType.Tree: return GetRandomPrefab(_currentTheme.TreePrefabs, _currentTheme.NormalPrefab);
+                case NodeType.Rock: return GetRandomPrefab(_currentTheme.RockPrefabs, _currentTheme.NormalPrefab);
 
-                // ¹° Å¸ÀÔ ÇÒ´ç (ÇÒ´çµÇÁö ¾Ê¾ÒÀ» °æ¿ì ¿¡·¯ ¹æÁö¸¦ À§ÇØ ±âº» Å¸ÀÏ ¹İÈ¯)
-                case NodeType.WaterPuddle: return _waterPuddlePrefab != null ? _waterPuddlePrefab : _normalPrefab;
-                case NodeType.WaterStart: return _waterStartPrefab != null ? _waterStartPrefab : _normalPrefab;
-                case NodeType.WaterEnd: return _waterEndPrefab != null ? _waterEndPrefab : _normalPrefab;
-                case NodeType.WaterBody: return GetRandomPrefab(_waterBodyPrefabs, _normalPrefab);
+                case NodeType.WaterPuddle: return _currentTheme.WaterPuddlePrefab != null ? _currentTheme.WaterPuddlePrefab : _currentTheme.NormalPrefab;
+                case NodeType.WaterStart: return _currentTheme.WaterStartPrefab != null ? _currentTheme.WaterStartPrefab : _currentTheme.NormalPrefab;
+                case NodeType.WaterEnd: return _currentTheme.WaterEndPrefab != null ? _currentTheme.WaterEndPrefab : _currentTheme.NormalPrefab;
+                case NodeType.WaterBody: return GetRandomPrefab(_currentTheme.WaterBodyPrefabs, _currentTheme.NormalPrefab);
 
-                default: return _normalPrefab;
+                default: return _currentTheme.NormalPrefab;
             }
         }
 
-        // ¸®½ºÆ®¿¡¼­ ¹«ÀÛÀ§ ÇÁ¸®ÆÕÀ» ¾ÈÀüÇÏ°Ô ¹İÈ¯ÇÏ´Â ÇïÆÛ ÇÔ¼ö
         private GameObject GetRandomPrefab(List<GameObject> prefabs, GameObject fallback)
         {
             if (prefabs == null || prefabs.Count == 0) return fallback;
@@ -397,35 +536,20 @@ namespace OZGL.Map
         private IEnumerator ScaleUpNode(Transform nodeTransform, float duration)
         {
             float time = 0f;
-
-            // ÇÁ¸®ÆÕ¿¡ ¼³Á¤µÈ ±âº» ½ºÄÉÀÏ °ªÀ» ¸ñÇ¥°ªÀ¸·Î ÀúÀå
             Vector3 targetScale = nodeTransform.localScale;
-
-            // ½ÃÀÛ ½ºÄÉÀÏÀ» 0À¸·Î ÃÊ±âÈ­
             nodeTransform.localScale = Vector3.zero;
 
             while (time < duration)
             {
-                // ¾Ö´Ï¸ŞÀÌ¼Ç µµÁß ¾ÀÀÌ º¯°æµÇ°Å³ª Å¸ÀÏÀÌ »èÁ¦µÉ °æ¿ì¸¦ ´ëºñÇÑ ¹æ¾î ÄÚµå
                 if (nodeTransform == null) yield break;
-
                 time += Time.deltaTime;
-
-                // ¼±Çü ÁøÇà·ü (0.0 ~ 1.0)
                 float t = time / duration;
-
-                // ºÎµå·¯¿î È®ÀåÀ» À§ÇÑ Ease-Out °è»ê½Ä Àû¿ë (Ã³À½¿£ ºü¸£°í ³¡¿¡¼± ´À¸®°Ô)
                 float easeOutT = t * (2f - t);
-
                 nodeTransform.localScale = Vector3.Lerp(Vector3.zero, targetScale, easeOutT);
                 yield return null;
             }
 
-            // ·çÇÁ Á¾·á ÈÄ ¸ñÇ¥ ½ºÄÉÀÏ·Î Á¤È®È÷ ¸ÂÃã
-            if (nodeTransform != null)
-            {
-                nodeTransform.localScale = targetScale;
-            }
+            if (nodeTransform != null) nodeTransform.localScale = targetScale;
         }
     }
 }

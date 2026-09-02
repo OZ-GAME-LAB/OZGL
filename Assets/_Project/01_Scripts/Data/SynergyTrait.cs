@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Combat
+namespace OzGameLab01.Combat
 {
     [CreateAssetMenu(fileName = "SynergyTrait", menuName = "Combat/Synergy Trait")]
     public class SynergyTrait : ScriptableObject

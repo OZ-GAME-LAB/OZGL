@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5cb70e69399fc44f881993bb35235c8, type: 3}
+  m_Name: Chapter1
+  m_EditorClassIdentifier: Assembly-CSharp::OZGL.Data.MapThemeData
+  NormalPrefab: {fileID: 3575520010445509818, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+  BossPrefab: {fileID: 4607070878859336425, guid: b3308cfd4075b6b4c871fd3052b822c4, type: 3}
+  BattlePrefab: {fileID: 3818873648761647536, guid: e4ce07350acc1af4d927bbb04c2d5fca, type: 3}
+  EventPrefab: {fileID: 91718390391217005, guid: 123936827043c1a4ba9aba176fac559f, type: 3}
+  ShopPrefab: {fileID: 889529249090256097, guid: ecf1cdc1380edb8489b447e8bd90cfed, type: 3}
+  ElitePrefab: {fileID: 8694107122199768055, guid: 2f83f1cb377a39a46b806b140f70a5c5, type: 3}
+  TreePrefabs:
+  - {fileID: 3143168772291780686, guid: 882a9e63de52f8342b57c857696310cc, type: 3}
+  RockPrefabs:
+  - {fileID: 4852910354743614755, guid: fd91717dce2e5c646a6b89695ca2b07c, type: 3}
+  WaterPuddlePrefab: {fileID: 0}
+  WaterStartPrefab: {fileID: 0}
+  WaterBodyPrefabs: []
+  WaterEndPrefab: {fileID: 0}

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Managers;
 
-namespace Combat
+namespace OzGameLab01.Combat
 {
     public class Unit : MonoBehaviour
     {
