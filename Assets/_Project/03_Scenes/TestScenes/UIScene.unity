@@ -411,10 +411,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 853595471872055950, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
-      propertyPath: slotType
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 890833200375110301, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_Name
       value: ReadyUI
@@ -475,10 +471,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5598575549847563594, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
-      propertyPath: slotType
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 7988132679588851369, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -493,6 +485,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7988132679588851369, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8632330161072541515, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9052454263588617922, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
