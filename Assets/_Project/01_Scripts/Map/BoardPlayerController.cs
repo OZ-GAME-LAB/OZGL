@@ -1,4 +1,5 @@
 using System;
+using OzGameLab01.Data;
 using OzGameLab01.Map;
 using OZGL.Map;
 using System.Collections;
@@ -78,6 +79,33 @@ namespace OzGameLab01.Controllers
         {
             _currentDiceValue = value;
             Debug.Log($"주사위 눈금: {value}");
+        }
+
+        /// <summary>
+        /// 현재 턴을 종료하고 사용하지 않은 행동력을 저장합니다.
+        /// </summary>
+        public bool EndTurn()
+        {
+            if (_isMoving)
+            {
+                Debug.LogWarning(
+                    "[BoardPlayerController] 이동 중에는 턴을 종료할 수 없습니다.");
+                return false;
+            }
+
+            int unusedActionPoints = Mathf.Max(0, _currentDiceValue);
+            BoardRunData.SaveUnusedActionPoints(unusedActionPoints);
+
+            _currentDiceValue = 0;
+            _currentHoveredTile?.ResetHighlight();
+            _currentHoveredTile = null;
+            _validPath = null;
+
+            Debug.Log(
+                $"[BoardPlayerController] 턴 종료 | " +
+                $"남은 행동력: {unusedActionPoints}", this);
+
+            return true;
         }
 
         public void OnTileHovered(TileView tile)
