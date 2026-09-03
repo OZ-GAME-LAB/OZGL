@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OzGameLab01.Combat;
 using OzGameLab01.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,7 +12,6 @@ namespace OzGameLab01.Controllers
     /// </summary>
     public class UnitFormationController : MonoBehaviour
     {
-        private const int TestUnitCount = 5;
         private const int BattleSlotCount = 9;
         private const int MaxBattleUnitCount = 4;
         private const int SupportSlotCount = 2;
@@ -26,6 +26,10 @@ namespace OzGameLab01.Controllers
         [SerializeField]
         [Tooltip("보유 유닛 목록 생성에 사용할 원본 아이템")]
         private UnitItemView unitItemTemplate;
+
+        [SerializeField]
+        [Tooltip("보유 유닛 목록의 원본 데이터. CombatManager와 동일한 id 체계를 공유합니다.")]
+        private UnitRosterData rosterData;
 
         private readonly List<UnitData> testUnitDataList = new List<UnitData>();
 
@@ -81,6 +85,11 @@ namespace OzGameLab01.Controllers
         /// </summary>
         public bool CanStartBattle => battleUnitCount >= 1;
 
+        /// <summary>
+        /// 보유 유닛 목록의 원본 데이터입니다. UnitFormationCombatLink가 프리팹 조회에 공유합니다.
+        /// </summary>
+        public UnitRosterData RosterData => rosterData;
+
         private void Awake()
         {
             formationCombatLink = GetComponent<UnitFormationCombatLink>();
@@ -93,7 +102,7 @@ namespace OzGameLab01.Controllers
 
         private void Start()
         {
-            CreateTestUnitData();
+            LoadRosterUnitData();
             CreateUnitItems();
             UpdateUnitCount();
         }
@@ -139,58 +148,36 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 임시로 사용할 서로 다른 테스트 유닛 5명의 데이터를 생성합니다.
+        /// UnitRosterData(CombatManager와 공유하는 id 체계)를 기준으로 보유 유닛 데이터를 생성합니다.
+        /// 표시용 이름은 프리팹 이름을 사용합니다(실제 캐릭터 이름 데이터가 아직 없어 그레이박스로 대체).
         /// </summary>
-        private void CreateTestUnitData()
+        private void LoadRosterUnitData()
         {
             testUnitDataList.Clear();
 
-            testUnitDataList.Add(CreateUnitData(
-                1001, "Test Unit 01", 100, 10, 5, 3, 0, 10, 5));
-
-            testUnitDataList.Add(CreateUnitData(
-                1002, "Test Unit 02", 110, 12, 7, 4, 0, 9, 6));
-
-            testUnitDataList.Add(CreateUnitData(
-                1003, "Test Unit 03", 90, 15, 10, 5, 2, 12, 7));
-
-            testUnitDataList.Add(CreateUnitData(
-                1004, "Test Unit 04", 130, 8, 4, 8, 0, 7, 4));
-
-            testUnitDataList.Add(CreateUnitData(
-                1005, "Test Unit 05", 95, 14, 8, 6, 3, 11, 8));
-        }
-
-        /// <summary>
-        /// 테스트용 유닛 데이터를 생성합니다.
-        /// </summary>
-        private UnitData CreateUnitData(
-            int id,
-            string unitName,
-            int healthPoint,
-            int attackPoint,
-            int criticalRate,
-            int dodgeRate,
-            int bloodDrain,
-            int attackSpeed,
-            int skillCooldown)
-        {
-            return new UnitData
+            if (rosterData == null)
             {
-                id = id,
-                name = unitName,
-                healthPoint = healthPoint,
-                attackPoint = attackPoint,
-                criticalRate = criticalRate,
-                dodgeRate = dodgeRate,
-                bloodDrain = bloodDrain,
-                attackSpeed = attackSpeed,
-                skillCooldown = skillCooldown
-            };
+                //Debug.LogError("[UnitFormationController] UnitRosterData가 연결되지 않았습니다.", this);
+                return;
+            }
+
+            foreach (UnitRosterData.UnitPrefabEntry entry in rosterData.UnitPrefabs)
+            {
+                if (entry.prefab == null)
+                {
+                    continue;
+                }
+
+                testUnitDataList.Add(new UnitData
+                {
+                    id = entry.id,
+                    name = entry.prefab.name
+                });
+            }
         }
 
         /// <summary>
-        /// 테스트 유닛 데이터에 대응하는 보유 유닛 아이템을 생성합니다.
+        /// 보유 유닛 데이터에 대응하는 보유 유닛 아이템을 생성합니다.
         /// </summary>
         private void CreateUnitItems()
         {
@@ -209,36 +196,46 @@ namespace OzGameLab01.Controllers
             unitDataByItem.Clear();
             unitItemTemplate.gameObject.SetActive(false);
 
-            for (int i = 0; i < TestUnitCount; i++)
+            for (int i = 0; i < testUnitDataList.Count; i++)
             {
                 UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
 
                 unitItem.name = $"Unit_Item_{i + 1:00}";
-                unitItem.SetIconColor(GetTestUnitColor(i));
+
+                SpriteRenderer unitSpriteRenderer = FindUnitSpriteRenderer(testUnitDataList[i].id);
+                unitItem.SetIcon(unitSpriteRenderer != null ? unitSpriteRenderer.sprite : null);
+                unitItem.SetIconColor(unitSpriteRenderer != null ? unitSpriteRenderer.color : Color.white);
                 unitItem.SetSelected(false);
                 unitItem.gameObject.SetActive(true);
 
-                unitDataByItem.Add( unitItem, testUnitDataList[i]);
+                unitDataByItem.Add(unitItem, testUnitDataList[i]);
 
                 unitView.RegisterUnitItem(unitItem);
             }
         }
 
         /// <summary>
-        /// 테스트 유닛을 구분하기 위한 임시 색상을 반환합니다.
+        /// 유닛 id에 대응하는 전투 프리팹의 SpriteRenderer를 반환합니다.
+        /// 아이콘의 스프라이트와 트레이트 색상(빨강/파랑/노랑 틴트)을 함께 가져오는 데 씁니다.
         /// </summary>
-        private Color GetTestUnitColor(int index)
+        private SpriteRenderer FindUnitSpriteRenderer(int unitId)
         {
-            Color[] colors =
+            if (rosterData == null)
             {
-                new Color(0.65f, 0.25f, 0.90f),
-                new Color(0.20f, 0.75f, 0.80f),
-                new Color(0.45f, 0.80f, 0.40f),
-                new Color(0.85f, 0.30f, 0.45f),
-                new Color(0.95f, 0.75f, 0.25f)
-            };
+                return null;
+            }
 
-            return colors[index];
+            foreach (UnitRosterData.UnitPrefabEntry entry in rosterData.UnitPrefabs)
+            {
+                if (entry.id != unitId || entry.prefab == null)
+                {
+                    continue;
+                }
+
+                return entry.prefab.GetComponentInChildren<SpriteRenderer>();
+            }
+
+            return null;
         }
 
         /// <summary>

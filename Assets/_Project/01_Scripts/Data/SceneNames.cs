@@ -23,7 +23,7 @@ namespace OzGameLab01.Data
         /// <summary>
         /// 주사위와 타일 이벤트가 진행되는 보드 씬입니다.
         /// </summary>
-        public const string Board = "ProtoBoardScene";
+        public const string Board = "02_MainGame";
 
         /// <summary>
         /// 일반 전투와 보스 전투가 진행되는 전투 씬입니다.

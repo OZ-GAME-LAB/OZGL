@@ -32,6 +32,10 @@ namespace OzGameLab01.Controllers
         [Tooltip("\"밤까지 N턴\"을 상시 표시하는 HUD입니다. 비워두면 씬에서 자동으로 찾거나 새로 생성합니다.")]
         [SerializeField] private TimeStatusHUDView _timeStatusHud;
 
+        [Header("전투 편성 확인")]
+        [Tooltip("전투 시작 전 최소 편성 인원을 확인할 유닛 편성 컨트롤러입니다. 비워두면 씬에서 자동으로 찾습니다.")]
+        [SerializeField] private UnitFormationController _unitFormationController;
+
         // ==================== 외부 시스템 통지용 이벤트 ====================
 
         /// <summary>
@@ -69,6 +73,11 @@ namespace OzGameLab01.Controllers
             else
             {
                 Debug.LogError("[BoardSceneController] 턴 종료 버튼이 연결되지 않았습니다.", this);
+            }
+
+            if (_unitFormationController == null)
+            {
+                _unitFormationController = FindFirstObjectByType<UnitFormationController>(FindObjectsInactive.Include);
             }
         }
 
@@ -178,6 +187,32 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
+        /// 전투 진입 전 최소 편성 인원(1명 이상)을 확인합니다.
+        /// 편성 컨트롤러를 찾을 수 없으면 확인 없이 통과시킵니다.
+        /// </summary>
+        private bool EnsureCanStartBattle()
+        {
+            if (_unitFormationController == null || _unitFormationController.CanStartBattle)
+            {
+                return true;
+            }
+
+            if (_nightEventPopup == null)
+            {
+                _nightEventPopup = FindFirstObjectByType<NightEventPopupView>();
+            }
+
+            if (_nightEventPopup == null)
+            {
+                _nightEventPopup = new GameObject("NightEventPopup").AddComponent<NightEventPopupView>();
+            }
+
+            _nightEventPopup.Show("전투 유닛을 1명 이상 편성해야 전투를 시작할 수 있습니다.");
+
+            return false;
+        }
+
+        /// <summary>
         /// 뒤로가기 버튼을 통해 타이틀 씬으로 이동합니다.
         /// 보드에서 타이틀로 돌아가는 것은 현재 게임 포기로 판단하여
         /// 저장된 보드 진행 데이터를 초기화합니다.
@@ -252,6 +287,8 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            if (!EnsureCanStartBattle()) return;
+
             if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
             // BeginBattle 호출 시 isElite 값을 넘겨줌
             BoardRunData.BeginBattle(battleNode.Position, false, isElite);
@@ -267,6 +304,8 @@ namespace OzGameLab01.Controllers
         /// </summary>
         private void HandleBossNode(MapNode bossNode)
         {
+            if (!EnsureCanStartBattle()) return;
+
             if (!TryGetSceneTransitioner(out SceneTransitioner transitioner))
             {
                 return;

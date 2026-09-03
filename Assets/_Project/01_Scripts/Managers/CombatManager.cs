@@ -80,10 +80,17 @@ namespace OzGameLab01.Combat
             BuildAllyFormation();
             BuildUnitPrefabLookup();
             BuildUnitTraitLookup();
-            SpawnAllies();
+            bool spawnedFromPlacement = SpawnAllies();
             ApplySynergies();
             PopulateSynergyPanel();
-            PopulateUnitInfoPanel();
+
+            // 배치 데이터로 스폰했다면 BattleFormationInfoController가 유닛 정보 패널을
+            // 실제 편성 기준으로 채운다. 인스펙터 폴백 편성일 때만 여기서 직접 채운다.
+            if (!spawnedFromPlacement)
+            {
+                PopulateUnitInfoPanel();
+            }
+
             SpawnEnemy();
         }
 
@@ -170,7 +177,13 @@ namespace OzGameLab01.Combat
             return units;
         }
 
-        private void SpawnAllies()
+        /// <summary>
+        /// 아군을 스폰합니다. 유닛 편성 화면에서 넘어온 배치 데이터(AllyFormationSlots)가
+        /// 있으면 그것을 사용하고, 없으면 인스펙터에 지정된 allyFormation으로 대체합니다.
+        /// 배치 데이터를 사용했는지 여부를 반환합니다(하단 유닛 정보 패널을
+        /// BattleFormationInfoController가 채울지, 여기서 채울지 판단하는 데 씁니다).
+        /// </summary>
+        private bool SpawnAllies()
         {
             Unit[] placedUnits = SceneTransitioner.AllyFormationSlots;
             bool hasPlacementData = false;
@@ -189,7 +202,7 @@ namespace OzGameLab01.Combat
             if (hasPlacementData)
             {
                 SpawnAlliesFromPlacement(placedUnits);
-                return;
+                return true;
             }
 
             foreach (KeyValuePair<SlotKey, int> kvp in _allyFormation)
@@ -205,6 +218,8 @@ namespace OzGameLab01.Combat
                 unit.SetVisualsVisible(false);
                 _slotUnits[slot.column, (int)slot.row] = unit;
             }
+
+            return false;
         }
 
         private void SpawnAlliesFromPlacement(Unit[] placedUnits)

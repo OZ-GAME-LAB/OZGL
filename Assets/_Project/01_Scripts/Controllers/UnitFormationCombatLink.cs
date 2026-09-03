@@ -30,21 +30,6 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        [Serializable]
-        private sealed class UnitPrefabLink
-        {
-            [SerializeField]
-            [Tooltip("유닛 데이터의 ID")]
-            private int unitId;
-
-            [SerializeField]
-            [Tooltip("해당 ID에 대응하는 실제 전투 유닛 프리팹")]
-            private Unit unitPrefab;
-
-            public int UnitId => unitId;
-            public Unit UnitPrefab => unitPrefab;
-        }
-
         private const int BattleSlotCount = 9;
 
         private const int SupportSlotCount = 2;
@@ -57,10 +42,6 @@ namespace OzGameLab01.Controllers
         [SerializeField]
         [Tooltip("유닛 배치 정보를 관리하는 컨트롤러")]
         private UnitFormationController formationController;
-
-        [SerializeField]
-        [Tooltip("유닛 ID와 실제 전투 프리팹의 연결 목록")]
-        private List<UnitPrefabLink> unitPrefabLinks = new List<UnitPrefabLink>();
 
         public static IReadOnlyList<TransferredUnit> BattleUnits => battleUnits;
 
@@ -170,11 +151,18 @@ namespace OzGameLab01.Controllers
 
         private Unit FindUnitPrefab(int unitId)
         {
-            foreach (UnitPrefabLink prefabLink in unitPrefabLinks)
+            UnitRosterData rosterData = formationController != null ? formationController.RosterData : null;
+
+            if (rosterData == null)
             {
-                if (prefabLink != null && prefabLink.UnitId == unitId)
+                return null;
+            }
+
+            foreach (UnitRosterData.UnitPrefabEntry entry in rosterData.UnitPrefabs)
+            {
+                if (entry.id == unitId && entry.prefab != null)
                 {
-                    return prefabLink.UnitPrefab;
+                    return entry.prefab.GetComponent<Unit>();
                 }
             }
 

@@ -1204,6 +1204,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.UnitFormationController
   unitView: {fileID: 7490831117867674770}
   unitItemTemplate: {fileID: 8567529937442773360}
+  rosterData: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
 --- !u!114 &4148731172614570253
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1217,17 +1218,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.UnitFormationCombatLink
   formationController: {fileID: 3482646927137003859}
-  unitPrefabLinks:
-  - unitId: 1001
-    unitPrefab: {fileID: 2689710761108048144, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
-  - unitId: 1002
-    unitPrefab: {fileID: 3878534168403017122, guid: eb48ebaf53ab5d848ac8c2d9372dfe8f, type: 3}
-  - unitId: 1003
-    unitPrefab: {fileID: 6429099342497177574, guid: cabf5c3c5cdad8340af3439f79d52b11, type: 3}
-  - unitId: 1004
-    unitPrefab: {fileID: 2689710761108048144, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
-  - unitId: 1005
-    unitPrefab: {fileID: 2689710761108048144, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
 --- !u!1 &3110768678311358083
 GameObject:
   m_ObjectHideFlags: 0
