@@ -18,7 +18,7 @@ namespace OzGameLab01.Data
         {
             Data = data;
 
-            //Logic = RelicFactory.CreateLogic(data.relicLogic);
+            Logic = RelicFactory.CreateLogic(data.relicLogic);
             Logic?.Initialize(Data, this);
         }
 

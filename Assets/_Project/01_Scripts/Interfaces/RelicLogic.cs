@@ -12,6 +12,7 @@ namespace OzGameLab01.Interfaces
         public RelicData Data { get; private set; }
         public RelicRuntimeInstance Runtime { get; private set; }
 
+        // 
         public virtual void Initialize(RelicData data, RelicRuntimeInstance runtime)
         {
             Data = data;
@@ -22,4 +23,15 @@ namespace OzGameLab01.Interfaces
         public virtual void OnAttack() { }          // 전투 페이즈에서 공격 시 적용 메서드
         public virtual void OnDiceRolled() { }      // 주사위를 굴릴 때 적용 메서드
     }
+
+    // 모든 유닛 공격력 +1
+    public class AllUnitAtkPlusOne : RelicLogic
+    {
+        public override void OnEquip()
+        {
+            
+        }
+    }
+
+
 }
