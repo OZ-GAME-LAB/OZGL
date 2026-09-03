@@ -29,20 +29,6 @@ namespace OzGameLab01.Combat
             public int unitId;
         }
 
-        [System.Serializable]
-        private struct UnitPrefabEntry
-        {
-            public int id;
-            public GameObject prefab;
-        }
-
-        [System.Serializable]
-        private struct UnitTraitEntry
-        {
-            public int id;
-            public List<SynergyTrait> traits;
-        }
-
         private const int SlotColumns = 3;
         private const int SlotRows = 3;
 
@@ -60,14 +46,8 @@ namespace OzGameLab01.Combat
         [Tooltip("맵 씬에서 미리 정한 아군 배치. 슬롯(열+행)을 키로, 그 슬롯에 들어갈 유닛 id(GameDB 기준)를 값으로 가짐.")]
         [SerializeField] private List<SlotPlacement> allyFormation = new List<SlotPlacement>();
 
-        [Tooltip("유닛 id별 스폰 프리팹. GameDB의 UnitData.id와 매칭.")]
-        [SerializeField] private List<UnitPrefabEntry> unitPrefabs = new List<UnitPrefabEntry>();
-
-        [Tooltip("유닛 id별 시너지 트레이트. GameDB의 UnitData.id와 매칭.")]
-        [SerializeField] private List<UnitTraitEntry> unitTraits = new List<UnitTraitEntry>();
-
-        [Tooltip("아군 배치의 트레이트 조합으로 발동 가능한 시너지 목록.")]
-        [SerializeField] private List<SynergyDefinition> synergyDefinitions = new List<SynergyDefinition>();
+        [Tooltip("유닛 id별 프리팹/트레이트, 시너지 발동 정의. 로스터 준비 화면과 공유하는 데이터입니다.")]
+        [SerializeField] private UnitRosterData rosterData;
 
         private Dictionary<SlotKey, int> _allyFormation;
         private Dictionary<int, GameObject> _unitPrefabsById;
@@ -101,7 +81,12 @@ namespace OzGameLab01.Combat
         private void BuildUnitPrefabLookup()
         {
             _unitPrefabsById = new Dictionary<int, GameObject>();
-            foreach (UnitPrefabEntry entry in unitPrefabs)
+            if (rosterData == null)
+            {
+                return;
+            }
+
+            foreach (UnitRosterData.UnitPrefabEntry entry in rosterData.UnitPrefabs)
             {
                 _unitPrefabsById[entry.id] = entry.prefab;
             }
@@ -110,7 +95,12 @@ namespace OzGameLab01.Combat
         private void BuildUnitTraitLookup()
         {
             _unitTraitsById = new Dictionary<int, List<SynergyTrait>>();
-            foreach (UnitTraitEntry entry in unitTraits)
+            if (rosterData == null)
+            {
+                return;
+            }
+
+            foreach (UnitRosterData.UnitTraitEntry entry in rosterData.UnitTraits)
             {
                 _unitTraitsById[entry.id] = entry.traits;
             }
@@ -285,11 +275,14 @@ namespace OzGameLab01.Combat
             }
 
             Dictionary<SynergyTrait, SynergyDefinition> definitionByTrait = new Dictionary<SynergyTrait, SynergyDefinition>();
-            foreach (SynergyDefinition definition in synergyDefinitions)
+            if (rosterData != null)
             {
-                if (definition != null && definition.Trait != null)
+                foreach (SynergyDefinition definition in rosterData.SynergyDefinitions)
                 {
-                    definitionByTrait[definition.Trait] = definition;
+                    if (definition != null && definition.Trait != null)
+                    {
+                        definitionByTrait[definition.Trait] = definition;
+                    }
                 }
             }
 
