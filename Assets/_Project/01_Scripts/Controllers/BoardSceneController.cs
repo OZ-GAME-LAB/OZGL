@@ -216,56 +216,47 @@ namespace OzGameLab01.Controllers
             }
 
             // 모든 타일에서 마지막 도착 위치 저장
-            BoardRunData.SavePlayerPosition( arrivedNode.Position);
+            BoardRunData.SavePlayerPosition(arrivedNode.Position);
 
             switch (arrivedNode.Type)
             {
                 case NodeType.Battle:
-                    HandleBattleNode(arrivedNode);
+                    HandleBattleNode(arrivedNode, false); // 일반 전투
                     break;
-
+                case NodeType.Elite:
+                    HandleBattleNode(arrivedNode, true);  // 엘리트 전투로 전달!
+                    break;
                 case NodeType.Boss:
                     HandleBossNode(arrivedNode);
                     break;
-
                 default:
                     Debug.Log(
-                        $"[BoardSceneController] 타일 도착 | " +
-                        $"Position: {arrivedNode.Position}, " +
-                        $"Type: {arrivedNode.Type}",
-                        this);
+                      $"[BoardSceneController] 타일 도착 | " +
+                      $"Position: {arrivedNode.Position}, " +
+                      $"Type: {arrivedNode.Type}",
+                      this);
                     break;
             }
         }
+
 
         /// <summary>
         /// 일반 전투 타일 도착을 처리합니다.
         /// 이미 완료한 전투 타일이라면 다시 전투를 시작하지 않습니다.
         /// </summary>
-        private void HandleBattleNode(MapNode battleNode)
+        private void HandleBattleNode(MapNode battleNode, bool isElite)
         {
-            if (BoardRunData.IsBattleCompleted(
-                    battleNode.Position))
+            if (BoardRunData.IsBattleCompleted(battleNode.Position))
             {
-                Debug.Log(
-                    $"[BoardSceneController] 이미 완료한 전투 타일입니다. " +
-                    $"Position: {battleNode.Position}", this);
-
+                Debug.Log($"[BoardSceneController] 이미 완료한 전투 타일입니다. " + $"Position: {battleNode.Position}", this);
                 return;
             }
 
-            if (!TryGetSceneTransitioner(
-                    out SceneTransitioner transitioner))
-            {
-                return;
-            }
+            if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
+            // BeginBattle 호출 시 isElite 값을 넘겨줌
+            BoardRunData.BeginBattle(battleNode.Position, false, isElite);
 
-            // 일반 전투 정보와 복귀 위치 저장
-            BoardRunData.BeginBattle(battleNode.Position, false);
-
-            Debug.Log(
-                $"[BoardSceneController] 일반 전투 씬으로 이동합니다. " +
-                $"Position: {battleNode.Position}", this);
+            Debug.Log($"[BoardSceneController] 일반 전투 씬으로 이동합니다. " + $"Position: {battleNode.Position}", this);
 
             transitioner.LoadCombatScene();
         }
