@@ -28,7 +28,7 @@ namespace OzGameLab01.Data
         /// <summary>
         /// 일반 전투와 보스 전투가 진행되는 전투 씬입니다.
         /// </summary>
-        public const string Combat = "ProtoCombatScene";
+        public const string Combat = "03_Combat";
 
         public const string Boss = "ProtoBossScene";
 

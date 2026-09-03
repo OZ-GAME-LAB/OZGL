@@ -23,6 +23,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/_Project/03_Scenes/ProtoScenes/ProtoBossScene.unity
     guid: fcd1af58c33f4e94d9122b2621d70ec1
+  - enabled: 1
+    path: Assets/_Project/03_Scenes/03_Combat/03_Combat.unity
+    guid: 53673db293ffb9540b44e877d8f6772b
   m_configObjects:
     com.unity.addressableassets: {fileID: 11400000, guid: 56826bbc7c958004a9a19982627a6fd6, type: 2}
     com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}

@@ -211,6 +211,76 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &377783531 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3746613562160561807, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+  m_PrefabInstance: {fileID: 1295932623}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f86c7136c6f9ac147b80f733b72a47db, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Settings.SettingsView
+--- !u!1 &404384625
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 404384627}
+  - component: {fileID: 404384626}
+  m_Layer: 0
+  m_Name: CombatSceneController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &404384626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404384625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd2873171cd63c04ba61ae2143c45aae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.CombatSceneController
+  _battleMainView: {fileID: 942720974}
+  _resultView: {fileID: 1916613595}
+  _settingsView: {fileID: 377783531}
+  _surrenderPopup: {fileID: 1391918161}
+--- !u!4 &404384627
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404384625}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &942720974 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6807820556739330719, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+  m_PrefabInstance: {fileID: 1295932623}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b73acf30a8e9e124dba1e152f4e7413e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Battle.BattleMainView
 --- !u!1001 &1032302330
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -630,6 +700,17 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 2877259615996179313, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
   m_PrefabInstance: {fileID: 1295932623}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1391918161 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4210677471832606645, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+  m_PrefabInstance: {fileID: 1295932623}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c39752074637d9d4dac6bd4797c5175c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.ConfirmPopupView
 --- !u!114 &1500866315 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7655263387132080910, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
@@ -738,6 +819,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &1916613595 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3107832858776373449, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+  m_PrefabInstance: {fileID: 1295932623}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e04ba5f8b5c4841a9b995889968467, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Battle.BattleResultView
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -746,3 +838,4 @@ SceneRoots:
   - {fileID: 1812225100}
   - {fileID: 1032302330}
   - {fileID: 1295932623}
+  - {fileID: 404384627}
