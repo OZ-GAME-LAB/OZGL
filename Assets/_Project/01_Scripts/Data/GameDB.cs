@@ -12,40 +12,40 @@ public interface IDataList<T>
 
 public class GameDB<T, TList> where TList : IDataList<T>
 {
-    // Dictionary<int, T>    ->   ID °ªÀÎ int, µ¥ÀÌÅÍ °ª ±× ÀÚÃ¼ÀÎ T
-    // ID ±â¹İ µ¥ÀÌÅÍ µñ¼Å³Ê¸®
+    // Dictionary<int, T>    ->   ID ê°’ì¸ int, ë°ì´í„° ê°’ ê·¸ ìì²´ì¸ T
+    // ID ê¸°ë°˜ ë°ì´í„° ë”•ì…”ë„ˆë¦¬
     private Dictionary<int, T> _dataDict = new Dictionary<int, T>();
 
     /// <summary>
-    /// °ÔÀÓ ºÎÆÃ ½Ã ÁÖ¼Ò ±â¹İ µ¥ÀÌÅÍº£ÀÌ½º ºÒ·¯¿À±â
+    /// ê²Œì„ ë¶€íŒ… ì‹œ ì£¼ì†Œ ê¸°ë°˜ ë°ì´í„°ë² ì´ìŠ¤ ë¶ˆëŸ¬ì˜¤ê¸°
     /// </summary>
-    /// <param name="address"> Json ÆÄÀÏ ÁÖ¼Ò </param>
+    /// <param name="address"> Json íŒŒì¼ ì£¼ì†Œ </param>
     /// <returns></returns>
     public async Task LoadAsync(string address)
     {
-        // 1. ¾îµå·¹¼­ºí ÁÖ¼Ò ±â¹İ JsonÆÄÀÏ Ã£±â
+        // 1. ì–´ë“œë ˆì„œë¸” ì£¼ì†Œ ê¸°ë°˜ JsoníŒŒì¼ ì°¾ê¸°
         var handle = Addressables.LoadAssetAsync<TextAsset>(address);
         TextAsset jsonFile = await handle.Task;
 
         if (jsonFile == null) return;
         string jsonText = jsonFile.text;
 
-        // 2. ºñµ¿±â·Î µ¥ÀÌÅÍº£ÀÌ½º ±¸¼º
+        // 2. ë¹„ë™ê¸°ë¡œ ë°ì´í„°ë² ì´ìŠ¤ êµ¬ì„±
         await Task.Run(() =>
         {
-            // Json ¿ªÁ÷·ÄÈ­
+            // Json ì—­ì§ë ¬í™”
             TList list = JsonConvert.DeserializeObject<TList>(jsonText);
 
             if (list == null) return;
 
-            // µ¥ÀÌÅÍ À¯È¿¼º °Ë»ç
+            // ë°ì´í„° ìœ íš¨ì„± ê²€ì‚¬
             FieldInfo idFieldInfo = typeof(T).GetField("id");
             if (idFieldInfo == null)
             {
                 return;
             }
 
-            // µ¥ÀÌÅÍº£ÀÌ½º ±¸¼º
+            // ë°ì´í„°ë² ì´ìŠ¤ êµ¬ì„±
             _dataDict.Clear();
             foreach (var item in list.GetList())
             {
@@ -57,15 +57,15 @@ public class GameDB<T, TList> where TList : IDataList<T>
             }
         });
 
-        // ¾îµå·¹¼­ºí ÇÚµé ½ÇÇà
+        // ì–´ë“œë ˆì„œë¸” í•¸ë“¤ ì‹¤í–‰
         Addressables.Release(handle);
     }
 
     /// <summary>
-    /// ID ±â¹İ µ¥ÀÌÅÍ ¹İÈ¯
+    /// ID ê¸°ë°˜ ë°ì´í„° ë°˜í™˜
     /// </summary>
-    /// <param name="id"> °¡Á®¿Ã µ¥ÀÌÅÍÀÇ ID °ª </param>
-    /// <returns> Ã£°íÀÚ ÇÏ´Â µ¥ÀÌÅÍ °ª </returns>
+    /// <param name="id"> ê°€ì ¸ì˜¬ ë°ì´í„°ì˜ ID ê°’ </param>
+    /// <returns> ì°¾ê³ ì í•˜ëŠ” ë°ì´í„° ê°’ </returns>
     public T Get(int id)
     {
         if (_dataDict.TryGetValue(id, out T value)) return value;
@@ -73,8 +73,8 @@ public class GameDB<T, TList> where TList : IDataList<T>
     }
 
     /// <summary>
-    /// ¸ğµç µ¥ÀÌÅÍ ºÒ·¯¿À±â
+    /// ëª¨ë“  ë°ì´í„° ë¶ˆëŸ¬ì˜¤ê¸°
     /// </summary>
-    /// <returns> µ¥ÀÌÅÍº£ÀÌ½º ³» ¸ğµç µ¥ÀÌÅÍ ¸®½ºÆ® </returns>
+    /// <returns> ë°ì´í„°ë² ì´ìŠ¤ ë‚´ ëª¨ë“  ë°ì´í„° ë¦¬ìŠ¤íŠ¸ </returns>
     public List<T> GetAll() => new List<T>(_dataDict.Values);
 }
