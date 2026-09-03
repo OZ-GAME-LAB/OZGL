@@ -1532,7 +1532,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9100cecb7b0f96a4daaa74bc73668613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Test.UnitPlaceTestManager
-  unitPlaceSystemPanelPrefab: {fileID: 4548006100862220392, guid: 9d8d08d9ed5f0e34ba0633d66413f3cf, type: 3}
+  unitPlaceSystemPanelPrefab: {fileID: 2920205859989645890, guid: 181c9aa2d9c0c0941b57ecb28dc40a28, type: 3}
   mapCanvas: {fileID: 1864005339}
 --- !u!1 &1994458663
 GameObject:
