@@ -8,20 +8,20 @@ namespace OzGameLab01.Test
     {
         [SerializeField]
         private UnitPlaceManager unitPlaceSystemPanelPrefab;
-        private UnitPlaceManager unitPlaceSystemPanel;
+        private UnitPlaceManager _unitPlaceSystemPanel;
         [SerializeField]
         private Canvas mapCanvas;
 
         private void Awake()
         {
-            unitPlaceSystemPanel = Instantiate(unitPlaceSystemPanelPrefab,mapCanvas.transform,false);
-            unitPlaceSystemPanel.transform.localPosition = Vector3.zero;
-            unitPlaceSystemPanel.gameObject.SetActive(false);
+            _unitPlaceSystemPanel = Instantiate(unitPlaceSystemPanelPrefab,mapCanvas.transform,false);
+            _unitPlaceSystemPanel.transform.localPosition = Vector3.zero;
+            _unitPlaceSystemPanel.gameObject.SetActive(false);
         }
 
         public void OnUnitPlaceSystem()
         {
-            unitPlaceSystemPanel.gameObject.SetActive(true);
+            _unitPlaceSystemPanel.gameObject.SetActive(true);
         }
     }
 }
