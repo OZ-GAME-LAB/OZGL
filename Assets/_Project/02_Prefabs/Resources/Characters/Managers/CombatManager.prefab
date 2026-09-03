@@ -63,36 +63,22 @@ MonoBehaviour:
   - slot:
       column: 0
       row: 1
-    unitId: 3
-  - slot:
-      column: 0
-      row: 2
-    unitId: 2
-  - slot:
-      column: 1
-      row: 0
-    unitId: 5
-  - slot:
-      column: 1
-      row: 1
-    unitId: 7
-  - slot:
-      column: 1
-      row: 2
     unitId: 6
   - slot:
-      column: 2
+      column: 1
       row: 0
-    unitId: 9
-  - slot:
-      column: 2
-      row: 1
     unitId: 11
   - slot:
-      column: 2
-      row: 2
-    unitId: 10
+      column: 1
+      row: 1
+    unitId: 4
   rosterData: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
+  synergyPanelRoot: {fileID: 0}
+  synergyItemTemplate: {fileID: 0}
+  synergyActiveColor: {r: 1, g: 1, b: 1, a: 1}
+  synergyInactiveColor: {r: 1, g: 1, b: 1, a: 0.4}
+  battleUnitInfoView: {fileID: 0}
+  supportFormation: 0800000009000000
 --- !u!1 &5232707624466829553
 GameObject:
   m_ObjectHideFlags: 0

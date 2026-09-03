@@ -65,6 +65,9 @@ namespace OzGameLab01.Combat
         [Tooltip("화면 하단에 현재 전투 중인 아군을 표시하는 패널입니다.")]
         [SerializeField] private BattleUnitInfoView battleUnitInfoView;
 
+        [Tooltip("전투에 직접 참여하지 않는 서브 유닛 id 목록. 전투 그리드에는 스폰되지 않고 하단 UI에만 표시됩니다.")]
+        [SerializeField] private List<int> supportFormation = new List<int>();
+
         private Dictionary<SlotKey, int> _allyFormation;
         private Dictionary<int, GameObject> _unitPrefabsById;
         private Dictionary<int, List<SynergyTrait>> _unitTraitsById;
@@ -410,6 +413,28 @@ namespace OzGameLab01.Combat
                 {
                     item.SetUnitName(prefab.name);
                 }
+            }
+
+            foreach (int unitId in supportFormation)
+            {
+                if (!_unitPrefabsById.TryGetValue(unitId, out GameObject prefab) || prefab == null)
+                {
+                    continue;
+                }
+
+                SupportUnitInfoItemView item = battleUnitInfoView.CreateSupportUnitInfoItem();
+                if (item == null)
+                {
+                    continue;
+                }
+
+                SpriteRenderer spriteRenderer = prefab.GetComponentInChildren<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    item.SetPortrait(spriteRenderer.sprite);
+                }
+
+                item.SetUnitName(prefab.name);
             }
         }
 
