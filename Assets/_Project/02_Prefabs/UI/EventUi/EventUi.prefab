@@ -31,9 +31,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 7341634115783958706}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 960, y: -600}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -200}
   m_SizeDelta: {x: 1920, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &9152920698124612566
@@ -384,7 +384,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 50}
+  m_SizeDelta: {x: 550, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3853608338011607949
 CanvasRenderer:
@@ -1359,6 +1359,7 @@ GameObject:
   m_Component:
   - component: {fileID: 576300207169925741}
   - component: {fileID: 2599459832272954032}
+  - component: {fileID: 7155524704347658056}
   m_Layer: 0
   m_Name: EventUi
   m_TagString: Untagged
@@ -1375,7 +1376,7 @@ RectTransform:
   m_GameObject: {fileID: 6880439430386520786}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.7777778, y: 1.7777778, z: 1.7777778}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6949210538409776083}
@@ -1386,7 +1387,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2599459832272954032
@@ -1408,6 +1409,30 @@ MonoBehaviour:
   choiceButtonPrefab: {fileID: 5210905250746118847, guid: ba87736e0145c144dbdf4e7e2b7e1946, type: 3}
   actionButtonPrefab: {fileID: 5018876570960597052, guid: 736bc9e68cd7ead49971bbe99cb156b6, type: 3}
   eventViewCanvasGroup: {fileID: 7430702293198676656}
+--- !u!114 &7155524704347658056
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6880439430386520786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5410d7e5c9be9d54e8365da781278024, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.ChoiceEventManager
+  eventTitleTxt: {fileID: 0}
+  eventDialogTxt: {fileID: 0}
+  choiceArea: {fileID: 7407865000633747387}
+  choicePrefab: {fileID: 9014682470215004950, guid: ba87736e0145c144dbdf4e7e2b7e1946, type: 3}
+  actionPrefab: {fileID: 9075945919751357883, guid: 736bc9e68cd7ead49971bbe99cb156b6, type: 3}
+  eventUIView: {fileID: 2599459832272954032}
+  testChoiceEvents:
+  - {fileID: 11400000, guid: 7e92f108f9ef49d4d97893c2de6215d5, type: 2}
+  - {fileID: 11400000, guid: ab50b9a0a17a11f4482e3cdddf2f8cf3, type: 2}
+  - {fileID: 11400000, guid: c02bd15c9bda0634c877000015df1104, type: 2}
+  - {fileID: 11400000, guid: bed29eeefeb159c4abce8f13921304df, type: 2}
+  testNextEventSO: {fileID: 11400000, guid: 834c279fcd992bf44a4401f5865ffde3, type: 2}
 --- !u!1 &7490045068334050397
 GameObject:
   m_ObjectHideFlags: 0

@@ -17,10 +17,12 @@ MonoBehaviour:
   eventDialog: You found a suspicious shadow.
   choices:
   - choiceIndex: 0
+    choiceSprite: {fileID: 0}
     choiceDialog: get close
-    resultCategory: 3
+    choiceCategory: 3
     resultTargetID: 31
   - choiceIndex: 1
+    choiceSprite: {fileID: 0}
     choiceDialog: ignore
-    resultCategory: 6
+    choiceCategory: 7
     resultTargetID: -1

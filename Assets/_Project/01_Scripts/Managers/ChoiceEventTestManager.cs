@@ -15,7 +15,8 @@ namespace OzGameLab01.Test
 
         private void Awake()
         {
-            _choiceEventPanel = Instantiate(choiceEventPrefab, mapCanvas.transform, false);
+            //_choiceEventPanel = Instantiate(choiceEventPrefab, mapCanvas.transform, false);
+            _choiceEventPanel = Instantiate(choiceEventPrefab);
             _choiceEventPanel.transform.localPosition = Vector3.zero;
             _choiceEventPanel.gameObject.SetActive(false);
         }

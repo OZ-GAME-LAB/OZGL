@@ -17,6 +17,7 @@ MonoBehaviour:
   eventDialog: you base on the attack.
   choices:
   - choiceIndex: 0
+    choiceSprite: {fileID: 0}
     choiceDialog: ready!
-    resultCategory: 2
+    choiceCategory: 2
     resultTargetID: 0
