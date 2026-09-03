@@ -1,6 +1,7 @@
 using System;
 using OzGameLab01.Data;
 using OzGameLab01.Map;
+using OzGameLab01.UI;
 using OZGL.Map;
 using System.Collections;
 using System.Collections.Generic;
@@ -19,6 +20,8 @@ namespace OzGameLab01.Controllers
 
         [Header("Player State")]
         [SerializeField] private int _currentDiceValue = 0;
+        [Tooltip("남은 행동력을 상시 표시하는 HUD입니다. 비워두면 씬에서 자동으로 찾거나 새로 생성합니다.")]
+        [SerializeField] private ActionPowerHUDView _actionPowerHud;
         private MapNode _currentNode;
         private bool _isMoving = false;
 
@@ -36,6 +39,8 @@ namespace OzGameLab01.Controllers
                 Debug.Log(
                     $"[BoardPlayerController] 현재 행동력 변경: " +
                     $"{_currentDiceValue}", this);
+
+                RefreshActionPowerHud();
             }
         }
 
@@ -87,11 +92,22 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        // UI 버튼 등을 통해 주사위를 굴렸을 때 호출됩니다.
-        public void SetDiceValue(int value)
+        /// <summary>
+        /// 남은 행동력 HUD 표시를 현재 값 기준으로 갱신합니다.
+        /// </summary>
+        private void RefreshActionPowerHud()
         {
-            // 행동력 변경 규칙을 한 곳에서 관리하기 위해 프로퍼티 setter를 사용합니다.
-            CurrentDiceValue = value;
+            if (_actionPowerHud == null)
+            {
+                _actionPowerHud = FindFirstObjectByType<ActionPowerHUDView>();
+            }
+
+            if (_actionPowerHud == null)
+            {
+                _actionPowerHud = new GameObject("ActionPowerHUD").AddComponent<ActionPowerHUDView>();
+            }
+
+            _actionPowerHud.SetActionPower(_currentDiceValue);
         }
 
         /// <summary>
@@ -109,7 +125,7 @@ namespace OzGameLab01.Controllers
             int unusedActionPoints = Mathf.Max(0, _currentDiceValue);
             BoardRunData.SaveUnusedActionPoints(unusedActionPoints);
 
-            _currentDiceValue = 0;
+            CurrentDiceValue = 0;
             _currentHoveredTile?.ResetHighlight();
             _currentHoveredTile = null;
             _validPath = null;
@@ -199,7 +215,7 @@ namespace OzGameLab01.Controllers
 
                 transform.position = targetPos;
                 _currentNode = node;
-                _currentDiceValue--; // 한 칸 갈 때마다 주사위 소모 (UI 업데이트 로직 추가 필요)
+                CurrentDiceValue--; // 한 칸 갈 때마다 주사위 소모
             }
 
             _isMoving = false;

@@ -1,0 +1,126 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &156691275583828989
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7404062802079038445}
+  - component: {fileID: 4304981792502521584}
+  m_Layer: 0
+  m_Name: CombatManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7404062802079038445
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 156691275583828989}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 636346463687936712}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4304981792502521584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 156691275583828989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab9f26703fd94625b53035f7e1678862, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CombatManager
+  unitsRoot: {fileID: 636346463687936712}
+  gridOrigin: {x: -4.5, y: -1.2, z: 0}
+  columnSpacing: 1.2
+  rowSpacing: 1.2
+  slotMarkerSize: 0.9
+  slotMarkerLineWidth: 0.03
+  slotMarkerColor: {r: 1, g: 1, b: 1, a: 0.25}
+  enemyPosition: {x: 4.5, y: 0, z: 0}
+  enemyPrefabResourceName: Characters/Enemy_Melee
+  enemyScale: 3
+  allyFormation:
+  - slot:
+      column: 0
+      row: 0
+    unitId: 1
+  - slot:
+      column: 0
+      row: 1
+    unitId: 3
+  - slot:
+      column: 0
+      row: 2
+    unitId: 2
+  - slot:
+      column: 1
+      row: 0
+    unitId: 5
+  - slot:
+      column: 1
+      row: 1
+    unitId: 7
+  - slot:
+      column: 1
+      row: 2
+    unitId: 6
+  - slot:
+      column: 2
+      row: 0
+    unitId: 9
+  - slot:
+      column: 2
+      row: 1
+    unitId: 11
+  - slot:
+      column: 2
+      row: 2
+    unitId: 10
+  rosterData: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
+--- !u!1 &5232707624466829553
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 636346463687936712}
+  m_Layer: 0
+  m_Name: Units
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &636346463687936712
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5232707624466829553}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7404062802079038445}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}

@@ -1,3 +1,4 @@
+using System;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
@@ -30,6 +31,20 @@ namespace OzGameLab01.Controllers
         [SerializeField] private NightEventPopupView _nightEventPopup;
         [Tooltip("\"밤까지 N턴\"을 상시 표시하는 HUD입니다. 비워두면 씬에서 자동으로 찾거나 새로 생성합니다.")]
         [SerializeField] private TimeStatusHUDView _timeStatusHud;
+
+        // ==================== 외부 시스템 통지용 이벤트 ====================
+
+        /// <summary>
+        /// 턴이 실제로 종료되었을 때 발생합니다. 종료 시점에 남아 있던 행동력을 전달합니다.
+        /// 유닛 회복 등 실제 효과는 아직 기획되지 않아, 여기서는 이벤트 발생까지만 담당합니다.
+        /// </summary>
+        public event Action<int> TurnEnded;
+
+        /// <summary>
+        /// 밤 시간에 도달했을 때 발생합니다. 도달 시점의 누적 턴 수를 전달합니다.
+        /// 실제 밤 이벤트 효과는 아직 기획되지 않아, 팝업 알림과 별개로 이벤트만 발생시킵니다.
+        /// </summary>
+        public event Action<int> NightReached;
 
         private void Awake()
         {
@@ -86,10 +101,20 @@ namespace OzGameLab01.Controllers
         /// "턴 종료" 버튼에서 호출합니다.
         /// 행동력을 모두 소모한 것만으로는 턴이 끝나지 않고,
         /// 이 버튼을 눌러야 비로소 한 턴이 지나갑니다.
+        ///
+        /// 남은 행동력 저장은 BoardPlayerController.EndTurn()이 담당하며,
+        /// 이동 중이라 턴을 끝낼 수 없는 경우 여기서도 진행을 멈춥니다.
         /// </summary>
         public void EndTurn()
         {
-            HealAlliesWithRemainingActionPower();
+            if (_boardPlayerController == null || !_boardPlayerController.EndTurn())
+            {
+                return;
+            }
+
+            DiceManager.Instance.ResetTurnRoll();
+
+            TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
 
             BoardRunData.AdvanceTurn();
 
@@ -99,33 +124,6 @@ namespace OzGameLab01.Controllers
             }
 
             UpdateTimeStatusHud();
-        }
-
-        /// <summary>
-        /// 턴 종료 시 남은 행동력으로 아군 유닛을 회복시킵니다.
-        ///
-        /// 실제 회복 효과는 아직 기획되지 않아
-        /// 그레이박스 단계에서는 콘솔 로그만 출력합니다.
-        /// </summary>
-        private void HealAlliesWithRemainingActionPower()
-        {
-            int remainingActionPower = _boardPlayerController != null
-                ? _boardPlayerController.CurrentDiceValue
-                : 0;
-
-            Debug.Log(
-                $"[BoardSceneController] 남은 행동력 {remainingActionPower}으로 아군을 회복합니다. " +
-                "(회복 효과 미정 - 추후 구현)", this);
-
-            if (_boardPlayerController != null)
-            {
-                _boardPlayerController.SetDiceValue(0);
-            }
-
-            if (DiceManager.Instance != null)
-            {
-                DiceManager.Instance.ResetTurnRoll();
-            }
         }
 
         /// <summary>
@@ -175,6 +173,8 @@ namespace OzGameLab01.Controllers
 
             _nightEventPopup.Show(
                 $"{BoardRunData.TurnCount}턴째, 밤이 되었습니다.\n(발생 이벤트 미정 - 추후 구현)");
+
+            NightReached?.Invoke(BoardRunData.TurnCount);
         }
 
         /// <summary>
