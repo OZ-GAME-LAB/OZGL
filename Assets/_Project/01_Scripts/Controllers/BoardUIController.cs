@@ -44,5 +44,50 @@ namespace OzGameLab01.Controllers
             if (inventoryView != null) inventoryView.SetActive(false);
             if (settingsView != null) settingsView.SetActive(false);
         }
+        [Header("Settings")]
+        [Tooltip("주사위를 굴린 후 창이 자동으로 닫히기까지의 지연 시간(초)")]
+        public float rollViewCloseDelay = 1.0f;
+
+        private void Start()
+        {
+            // 주사위 굴림 이벤트를 구독합니다.
+            if (Managers.DiceManager.Instance != null)
+            {
+                Managers.DiceManager.Instance.OnDiceRolled += HandleDiceRolled;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            // 메모리 누수를 방지하기 위해 이벤트를 구독 해제합니다.
+            if (Managers.DiceManager.Instance != null)
+            {
+                Managers.DiceManager.Instance.OnDiceRolled -= HandleDiceRolled;
+            }
+        }
+
+        /// <summary>
+        /// 주사위를 굴렸을 때 DiceManager로부터 호출됩니다.
+        /// </summary>
+        private void HandleDiceRolled(int diceValue)
+        {
+            // 주사위 뷰가 켜져있다면 지정된 시간 후에 닫는 코루틴을 시작합니다.
+            if (rollView != null && rollView.activeSelf)
+            {
+                StartCoroutine(CloseRollViewRoutine());
+            }
+        }
+
+        private System.Collections.IEnumerator CloseRollViewRoutine()
+        {
+            // 인스펙터에서 설정한 시간만큼 대기합니다.
+            yield return new WaitForSeconds(rollViewCloseDelay);
+            
+            // 대기가 끝나면 주사위 창을 닫습니다.
+            if (rollView != null)
+            {
+                rollView.SetActive(false);
+            }
+        }
     }
 }
