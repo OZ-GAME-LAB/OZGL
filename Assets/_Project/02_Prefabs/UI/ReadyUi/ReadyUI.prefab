@@ -878,6 +878,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3877654095061327960}
   - component: {fileID: 2524853163238417039}
+  - component: {fileID: 4352720173462588587}
   m_Layer: 0
   m_Name: ReadyUI
   m_TagString: Untagged
@@ -922,6 +923,19 @@ MonoBehaviour:
   tooltipView: {fileID: 5500711136452734499}
   settingsView: {fileID: 8882724361652597815}
   confirmPopupView: {fileID: 7446212169707785465}
+--- !u!114 &4352720173462588587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890833200375110301}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 49f8c9161352d904e813c9f472ebe296, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.ReadyUIController
+  readySceneView: {fileID: 2524853163238417039}
 --- !u!1 &988142459097614873
 GameObject:
   m_ObjectHideFlags: 0
