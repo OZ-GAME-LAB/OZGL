@@ -1,8 +1,3 @@
-/*
- * [핵심 알고리즘 요약: 펄린 노이즈 기반 우선순위 BFS (Perlin-guided Priority BFS)]
- * - 펄린 노이즈 지형 점수와 외곽 감쇠(Radial Falloff), 중앙 코어(Core) 가산점을 결합합니다.
- * - 점수가 높은 곳부터 채워나가며, 안정적인 중앙 대륙과 유기적이고 둥근 해안선을 가진 섬 형태의 맵을 보장합니다.
- */
 using OzGameLab01.Data;
 using OzGameLab01.Map;
 using System.Collections;
@@ -11,31 +6,41 @@ using UnityEngine;
 
 namespace OZGL.Map
 {
+    public enum NodeType
+    {
+        Normal,
+        Start,
+        Battle,
+        Event,
+        Shop,
+        Elite,
+        Boss,
+        Tree,
+        Rock,
+        WaterPuddle,
+        WaterStart,
+        WaterBody,
+        WaterEnd
+    }
+
+    public class MapNode
+    {
+        public Vector2Int Position;
+        public NodeType Type;
+        public List<MapNode> ConnectedNodes = new List<MapNode>();
+        public GameObject NodeView;
+    }
+
     public class MapGenerator : MonoBehaviour
     {
         [Header("Theme Data")]
         [Tooltip("현재 스테이지에 맞는 테마 데이터(SO)를 연결해주세요.")]
         [SerializeField] private OZGL.Data.MapThemeData _currentTheme;
 
-        [Header("Map Size Settings")]
-        [Tooltip("최종적으로 남길 타일(노드)의 목표 개수")]
-        public int totalNodeCount = 150;
-        [Tooltip("대륙이 뻗어나갈 수 있는 최대 반경 (둥근 형태 유도 및 보이지 않는 벽)")]
-        public float maxRadius = 25f;
-
-        [Header("Rendering Settings")]
-        [Tooltip("타일 간의 간격")]
+        [Header("Map Settings")]
+        public int totalNodeCount = 70;
         public float tileSpacing = 2.0f;
-        [Tooltip("맵 전체 생성 애니메이션 재생 시간")]
         public float animationDuration = 5.0f;
-
-        [Header("Continent Shape Settings")]
-        [Tooltip("지형의 구불구불한 정도 (작을수록 큼지막한 덩어리 대륙이 됨)")]
-        public float noiseScale = 0.15f;
-        [Tooltip("가장자리로 갈수록 깎아내는 강도 (섬 모양 유도)")]
-        [Range(0f, 1.5f)] public float edgeFalloffStrength = 0.8f;
-        [Tooltip("맵 중앙이 휑하게 비는 것을 막기 위해 강제로 채워넣을 뼈대(코어) 반경")]
-        public float coreRadius = 4f;
 
         [Header("Tree Settings")]
         public int treeClusterCount = 2;
@@ -69,25 +74,41 @@ namespace OZGL.Map
 
         private Dictionary<Vector2Int, MapNode> _nodeDict = new Dictionary<Vector2Int, MapNode>();
         private List<MapNode> _allNodes = new List<MapNode>();
-        public IReadOnlyDictionary<Vector2Int, MapNode> NodeDict => _nodeDict;
 
         private void Start()
         {
             if (_currentTheme == null)
             {
-                Debug.LogError("[MapGenerator3] MapThemeData가 할당되지 않아 맵을 생성할 수 없습니다!");
+                Debug.LogError("[MapGenerator] MapThemeData가 할당되지 않아 맵을 생성할 수 없습니다!");
                 return;
             }
 
             ValidatePrefabs();
+
+            // 테스트를 위해 Start에서 두 함수를 연달아 호출하지만,
+            // 실제 게임에서는 로딩씬에서 GenerateMapData()를, 본게임 씬 진입 시 PlayMapAnimation()을 따로 호출하시면 됩니다.
             GenerateMapData();
             PlayMapAnimation();
         }
 
+        /// <summary>
+        /// 현재 게임 진행의 Map Seed를 사용해 맵 데이터를 생성합니다.
+        /// 일반 전투 후 보드 씬으로 돌아와도 동일한 Seed를 사용하므로
+        /// 이전과 같은 구조와 타일 배치로 맵이 복원됩니다.
+        /// </summary>
         public void GenerateMapData()
         {
+            // ==================== 보드 진행 데이터 연동 ====================
+
+            // 보드 씬을 직접 실행한 테스트 상황에서도
+            // 사용할 수 있는 게임 진행 데이터가 존재하도록 보장
             BoardRunData.EnsureActiveRun();
+
+            // 맵 생성이 다른 시스템의 무작위 결과에 영향을 주지 않도록
+            // 현재 Unity Random 상태를 임시로 보관
             Random.State previousRandomState = Random.state;
+
+            // 저장된 Seed를 적용하여 동일한 맵을 생성
             Random.InitState(BoardRunData.MapSeed);
 
             try
@@ -100,37 +121,90 @@ namespace OZGL.Map
             }
             finally
             {
+                // 맵 생성 이전의 Random 상태 복원
                 Random.state = previousRandomState;
             }
 
-            Debug.Log($"[MapGenerator3] 대륙 맵 생성 완료 | Seed: {BoardRunData.MapSeed} | 최종 노드 수: {_allNodes.Count}");
+            Debug.Log($"[MapGenerator] 맵 데이터 생성 완료 | Seed: {BoardRunData.MapSeed}");
 
+            // 생성된 노드 데이터를 MapManager에 전달
+            if (OzGameLab01.Map.MapManager.Instance != null)
+            {
+                OzGameLab01.Map.MapManager.Instance.InitializeMapData(_nodeDict);
+            }
+            else
+            {
+                Debug.LogError("[MapGenerator] MapManager를 찾을 수 없어 생성된 맵 데이터를 전달하지 못했습니다.", this);
+            }
+
+            // ==================== 플레이어 위치 복원 ====================
+
+            if (OzGameLab01.Controllers.BoardPlayerController.Instance == null)
+            {
+                Debug.LogError("[MapGenerator] BoardPlayerController를 찾을 수 없어 플레이어 위치를 설정하지 못했습니다.", this);
+
+                return;
+            }
+
+            // 저장 위치가 있으면 해당 위치에서 시작하고,
+            // 처음 시작한 게임이면 (0, 0) 시작 노드 사용
+            Vector2Int targetPosition = BoardRunData.HasPlayerPosition ? BoardRunData.PlayerPosition : Vector2Int.zero;
+
+            if (!_nodeDict.TryGetValue( targetPosition, out MapNode targetNode))
+            {
+                Debug.LogWarning(
+                    $"[MapGenerator] 저장된 플레이어 위치 {targetPosition}을 " +
+                    "생성된 맵에서 찾을 수 없어 시작 위치로 복구합니다.", this);
+
+                targetPosition = Vector2Int.zero;
+
+                if (!_nodeDict.TryGetValue(targetPosition, out targetNode))
+                {
+                    Debug.LogError("[MapGenerator] 시작 노드를 찾을 수 없어 플레이어를 배치하지 못했습니다.", this);
+
+                    return;
+                }
+
+                BoardRunData.SavePlayerPosition(targetPosition);
+            }
+
+            OzGameLab01.Controllers.BoardPlayerController.Instance
+                .SetupPlayer(targetNode);
+
+            Debug.Log($"[MapGenerator] 플레이어 배치 완료 | Position: {targetPosition}", this);
+        }
+
+
+        /* 리팩 전 / public void GenerateMapData()
+         
+        // 외부(GameManager 등)에서 즉시 맵 데이터만 생성할 때 호출하는 public 함수
+        public void GenerateMapData()
+        {
+            _nodeDict.Clear();
+            _allNodes.Clear();
+
+            GenerateLogicalShape();
+            AssignNodeTypes();
+
+            Debug.Log("[MapGenerator] 맵 데이터 생성이 완료되었습니다.");
+
+            // ---------------- [연동 코드 추가 부분] ----------------
+            // 1. MapManager에 생성된 노드 딕셔너리를 통째로 넘겨 길찾기 시스템을 활성화합니다.
             if (OzGameLab01.Map.MapManager.Instance != null)
             {
                 OzGameLab01.Map.MapManager.Instance.InitializeMapData(_nodeDict);
             }
 
-            if (OzGameLab01.Controllers.BoardPlayerController.Instance == null) return;
-
-            Vector2Int targetPosition = BoardRunData.HasPlayerPosition ? BoardRunData.PlayerPosition : Vector2Int.zero;
-
-            if (!_nodeDict.TryGetValue(targetPosition, out MapNode targetNode))
+            // 2. 플레이어 컨트롤러에 시작점(Vector2Int.zero) 노드를 전달하여 플레이어 토큰을 세팅합니다.
+            if (OzGameLab01.Controllers.BoardPlayerController.Instance != null && _nodeDict.ContainsKey(Vector2Int.zero))
             {
-                targetPosition = GetStartNodePosition();
-                if (!_nodeDict.TryGetValue(targetPosition, out targetNode)) return;
-                BoardRunData.SavePlayerPosition(targetPosition);
+                OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(_nodeDict[Vector2Int.zero]);
             }
-
-            OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(targetNode);
+            // -------------------------------------------------------
         }
+        */
 
-        private Vector2Int GetStartNodePosition()
-        {
-            foreach (var node in _allNodes)
-                if (node.Type == NodeType.Start) return node.Position;
-            return Vector2Int.zero;
-        }
-
+        // 씬 전환이 완료된 후 타일 팝업 연출을 시작할 때 호출하는 public 함수
         public void PlayMapAnimation()
         {
             StartCoroutine(AnimateMapGeneration());
@@ -138,156 +212,98 @@ namespace OZGL.Map
 
         private void ValidatePrefabs()
         {
-            if (_currentTheme.NormalPrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Normal");
-            if (_currentTheme.BossPrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Boss");
-            if (_currentTheme.BattlePrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Battle");
+            if (_currentTheme.NormalPrefab == null) Debug.LogWarning("[MapGenerator] 필수: Normal 프리팹이 할당되지 않았습니다!");
+            if (_currentTheme.BossPrefab == null) Debug.LogWarning("[MapGenerator] 필수: Boss 프리팹이 할당되지 않았습니다!");
+            if (_currentTheme.BattlePrefab == null) Debug.LogWarning("[MapGenerator] 필수: Battle 프리팹이 할당되지 않았습니다!");
+            if (_currentTheme.EventPrefab == null) Debug.LogWarning("[MapGenerator] 필수: Event 프리팹이 할당되지 않았습니다!");
+            if (_currentTheme.ShopPrefab == null) Debug.LogWarning("[MapGenerator] 필수: Shop 프리팹이 할당되지 않았습니다!");
+            if (_currentTheme.ElitePrefab == null) Debug.LogWarning("[MapGenerator] 필수: Elite 프리팹이 할당되지 않았습니다!");
+        }
+
+        private IEnumerator GenerateAndAnimateMap()
+        {
+            GenerateLogicalShape();
+            AssignNodeTypes();
+            yield return StartCoroutine(AnimateMapGeneration());
         }
 
         private void GenerateLogicalShape()
         {
             Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+            MapNode startNode = new MapNode { Position = Vector2Int.zero, Type = NodeType.Start };
 
-            float offsetX = Random.Range(-10000f, 10000f);
-            float offsetY = Random.Range(-10000f, 10000f);
-
-            Vector2Int startPos = Vector2Int.zero;
-            MapNode startNode = new MapNode { Position = startPos, Type = NodeType.Start };
-            _nodeDict.Add(startPos, startNode);
+            _nodeDict.Add(startNode.Position, startNode);
             _allNodes.Add(startNode);
 
-            List<Vector2Int> candidates = new List<Vector2Int>();
-            foreach (Vector2Int dir in directions)
+            while (_allNodes.Count < totalNodeCount)
             {
-                candidates.Add(startPos + dir);
-            }
+                MapNode randomExistingNode = _allNodes[Random.Range(0, _allNodes.Count)];
+                Vector2Int randomDir = directions[Random.Range(0, directions.Length)];
+                Vector2Int newPos = randomExistingNode.Position + randomDir;
 
-            while (_allNodes.Count < totalNodeCount && candidates.Count > 0)
-            {
-                int bestIndex = -1;
-                float bestScore = float.MinValue;
-
-                for (int i = 0; i < candidates.Count; i++)
+                if (!_nodeDict.ContainsKey(newPos))
                 {
-                    Vector2Int pos = candidates[i];
+                    MapNode newNode = new MapNode { Position = newPos, Type = NodeType.Normal };
 
-                    float distFromCenter = Vector2.Distance(Vector2.zero, pos);
-
-                    if (distFromCenter > maxRadius)
-                        continue;
-
-                    float pX = pos.x * noiseScale + offsetX;
-                    float pY = pos.y * noiseScale + offsetY;
-                    float noiseVal = Mathf.PerlinNoise(pX, pY);
-                    float falloff = Mathf.Clamp01(distFromCenter / maxRadius);
-
-                    // [핵심 로직] 지정한 코어 반경(coreRadius) 안쪽은 노이즈 점수를 무시하고 엄청난 가산점(+10점)을 부여하여 무조건 꽉 채웁니다!
-                    float coreBonus = (distFromCenter <= coreRadius) ? 10f : 0f;
-                    float score = noiseVal - (falloff * edgeFalloffStrength) + coreBonus;
-
-                    if (score > bestScore)
-                    {
-                        bestScore = score;
-                        bestIndex = i;
-                    }
-                }
-
-                if (bestIndex == -1) break;
-
-                Vector2Int bestPos = candidates[bestIndex];
-                candidates.RemoveAt(bestIndex);
-
-                if (!_nodeDict.ContainsKey(bestPos))
-                {
-                    MapNode newNode = new MapNode { Position = bestPos, Type = NodeType.Normal };
-                    _nodeDict.Add(bestPos, newNode);
+                    _nodeDict.Add(newPos, newNode);
                     _allNodes.Add(newNode);
 
+                    // 핵심 수정: 방금 생성된 노드의 상하좌우를 모두 검사해서, 
+                    // 인접한 위치에 이미 다른 노드가 있다면 서로 완벽하게 다리(Edge)를 연결해줍니다!
                     foreach (Vector2Int dir in directions)
                     {
-                        Vector2Int neighborPos = bestPos + dir;
-
-                        if (_nodeDict.TryGetValue(neighborPos, out MapNode neighbor))
+                        Vector2Int neighborPos = newPos + dir;
+                        if (_nodeDict.TryGetValue(neighborPos, out MapNode neighborNode))
                         {
-                            if (!newNode.ConnectedNodes.Contains(neighbor))
-                                newNode.ConnectedNodes.Add(neighbor);
-                            if (!neighbor.ConnectedNodes.Contains(newNode))
-                                neighbor.ConnectedNodes.Add(newNode);
-                        }
-                        else
-                        {
-                            if (!candidates.Contains(neighborPos))
-                                candidates.Add(neighborPos);
+                            // 서로 연결되어 있지 않다면 양방향으로 길을 뚫어줍니다.
+                            if (!newNode.ConnectedNodes.Contains(neighborNode))
+                            {
+                                newNode.ConnectedNodes.Add(neighborNode);
+                                neighborNode.ConnectedNodes.Add(newNode);
+                            }
                         }
                     }
                 }
             }
         }
 
-        // 맵의 모든 타일이 시작점으로부터 몇 걸음 떨어져 있는지(Depth) 저장할 캐시
-        private Dictionary<MapNode, int> _nodeDepths = new Dictionary<MapNode, int>();
         private void AssignNodeTypes()
         {
             List<MapNode> availableNodes = new List<MapNode>(_allNodes);
             availableNodes.RemoveAll(n => n.Type == NodeType.Start);
+
             if (availableNodes.Count == 0) return;
-            // 1. 장애물 먼저 배치 (이후 거리를 잴 때 길을 막기 위함)
+
             PlaceObstacleClusters(availableNodes);
-            // 2. Start 타일을 찾고, 맵 전체의 걸음 수(Depth)를 단 한 번 계산하여 캐싱
-            MapNode startNode = null;
-            foreach (var node in _allNodes)
-                if (node.Type == NodeType.Start) { startNode = node; break; }
-            CalculateAllNodeDepths(startNode);
-            // 3. 타일 배치 (isSequential 옵션을 true로 주면 순차적으로 더 깊은 곳에 스폰됨)
-            // 최종 보스: 순차 배치 켬 (점점 깊은 곳)
-            //PlaceNodesOfType(NodeType.Boss, bossCount, minBossDistance, availableNodes, minBossDistanceFromStart, true);
 
-            // 삭제 예정이라 하셨지만 일단 둡니다.
-            PlaceNodesOfType(NodeType.Shop, shopCount, minShopDistance, availableNodes, 0, false);
-
-            // 엘리트: 순차 배치 켬! (엘리트1 -> 2 -> 3 순으로 맵의 더 깊은 곳으로 강제 전진)
-            //PlaceNodesOfType(NodeType.Elite, eliteCount, minEliteDistance, availableNodes, minEliteDistance, true);
-
-            PlaceNodesOfType(NodeType.Event, eventCount, minEventDistance, availableNodes, 0, false);
-            PlaceNodesOfType(NodeType.Battle, battleCount, minBattleDistance, availableNodes, 0, false);
+            PlaceNodesOfType(NodeType.Boss, bossCount, minBossDistance, availableNodes, minBossDistanceFromStart);
+            PlaceNodesOfType(NodeType.Shop, shopCount, minShopDistance, availableNodes);
+            PlaceNodesOfType(NodeType.Elite, eliteCount, minEliteDistance, availableNodes);
+            PlaceNodesOfType(NodeType.Event, eventCount, minEventDistance, availableNodes);
+            PlaceNodesOfType(NodeType.Battle, battleCount, minBattleDistance, availableNodes);
         }
-
-        // Start 타일로부터 맵 전체로 퍼져나가며 모든 타일의 '실제 도달 걸음 수'를 기록합니다.
-        private void CalculateAllNodeDepths(MapNode startNode)
-        {
-            _nodeDepths.Clear();
-            if (startNode == null) return;
-            Queue<MapNode> queue = new Queue<MapNode>();
-            queue.Enqueue(startNode);
-            _nodeDepths[startNode] = 0;
-            while (queue.Count > 0)
-            {
-                MapNode curr = queue.Dequeue();
-                int currentDepth = _nodeDepths[curr];
-                foreach (MapNode neighbor in curr.ConnectedNodes)
-                {
-                    if (IsObstacle(neighbor.Type)) continue;
-                    if (!_nodeDepths.ContainsKey(neighbor))
-                    {
-                        _nodeDepths[neighbor] = currentDepth + 1;
-                        queue.Enqueue(neighbor);
-                    }
-                }
-            }
-        }
-
 
         private void PlaceObstacleClusters(List<MapNode> availableNodes)
         {
+            // 나무 군집 배치
             if (_currentTheme.TreePrefabs != null && _currentTheme.TreePrefabs.Count > 0)
+            {
                 CreateCluster(availableNodes, treeClusterCount, minTreeClusterSize, maxTreeClusterSize, NodeType.Tree, false);
+            }
 
+            // 바위 군집 배치
             if (_currentTheme.RockPrefabs != null && _currentTheme.RockPrefabs.Count > 0)
+            {
                 CreateCluster(availableNodes, rockClusterCount, minRockClusterSize, maxRockClusterSize, NodeType.Rock, false);
+            }
 
+            // 물 군집 배치
             if (_currentTheme.WaterPuddlePrefab != null && _currentTheme.WaterStartPrefab != null &&
                 _currentTheme.WaterEndPrefab != null && _currentTheme.WaterBodyPrefabs != null &&
                 _currentTheme.WaterBodyPrefabs.Count > 0)
+            {
                 CreateCluster(availableNodes, waterClusterCount, minWaterClusterSize, maxWaterClusterSize, NodeType.WaterPuddle, true);
+            }
         }
 
         private void CreateCluster(List<MapNode> availableNodes, int count, int minSize, int maxSize, NodeType baseType, bool isWater)
@@ -296,6 +312,7 @@ namespace OZGL.Map
             {
                 if (availableNodes.Count == 0) break;
 
+                // 인스펙터에서 min, max를 1로 주면 무조건 targetSize는 1이 됨
                 int targetSize = Random.Range(minSize, maxSize + 1);
                 MapNode seed = availableNodes[Random.Range(0, availableNodes.Count)];
 
@@ -337,12 +354,14 @@ namespace OZGL.Map
                     }
                     else
                     {
+                        // 클러스터 크기가 1이면 무조건 '웅덩이(WaterPuddle)' 처리
                         if (cluster.Count == 1)
                         {
                             cluster[0].Type = NodeType.WaterPuddle;
                         }
                         else
                         {
+                            // 2칸 이상이면 시작, 몸통, 끝점으로 구분하여 호수/강 형태 완성
                             cluster[0].Type = NodeType.WaterStart;
                             cluster[cluster.Count - 1].Type = NodeType.WaterEnd;
                             for (int j = 1; j < cluster.Count - 1; j++) cluster[j].Type = NodeType.WaterBody;
@@ -370,47 +389,53 @@ namespace OZGL.Map
                    type == NodeType.WaterBody || type == NodeType.WaterEnd;
         }
 
-        private void PlaceNodesOfType(NodeType type, int count, int minDistance, List<MapNode> availableNodes, int minDistanceFromStart = 0, bool isSequential = false)
+        private void PlaceNodesOfType(NodeType type, int count, int minDistance, List<MapNode> availableNodes, int minDistanceFromStart = 0)
         {
             List<MapNode> placedNodes = new List<MapNode>();
             int currentCount = 0;
             int maxAttempts = 1000;
             int attempts = 0;
+
             while (currentCount < count && availableNodes.Count > 0 && attempts < maxAttempts)
             {
                 attempts++;
                 MapNode candidate = availableNodes[Random.Range(0, availableNodes.Count)];
                 bool isValid = true;
-                // 1. 고립 검사 (사방이 막혔는지)
+
+                // 1. 고립 방지 검사: 주변에 이동 가능한 타일이 최소 1개는 있어야 함
                 int walkableNeighbors = 0;
                 foreach (MapNode neighbor in candidate.ConnectedNodes)
                 {
                     if (!IsObstacle(neighbor.Type)) walkableNeighbors++;
                 }
-                if (walkableNeighbors == 0) isValid = false;
-                // 2. 점진적 깊이(Depth) 검사 (미리 계산해둔 캐시 사용)
+
+                if (walkableNeighbors == 0)
+                {
+                    isValid = false; // 4면이 모두 막혀있으면 탈락
+                }
+
+                // 2. 시작점으로부터의 최소 거리 검사
+                if (isValid && minDistanceFromStart > 0)
+                {
+                    int distFromStart = Mathf.Abs(candidate.Position.x) + Mathf.Abs(candidate.Position.y);
+                    if (distFromStart < minDistanceFromStart) isValid = false;
+                }
+
+                // 3. 동종 타일 간의 거리 검사
                 if (isValid)
                 {
-                    if (_nodeDepths.TryGetValue(candidate, out int candidateDepth))
+                    foreach (MapNode placed in placedNodes)
                     {
-                        // 순차 배치(isSequential)가 켜져 있으면, 배치될 때마다 요구 거리가 증가합니다!
-                        int requiredDepth = minDistanceFromStart;
-                        if (isSequential)
+                        int distance = Mathf.Abs(candidate.Position.x - placed.Position.x) + Mathf.Abs(candidate.Position.y - placed.Position.y);
+                        if (distance < minDistance)
                         {
-                            requiredDepth += (currentCount * minDistance);
+                            isValid = false;
+                            break;
                         }
-                        if (candidateDepth < requiredDepth) isValid = false;
-                    }
-                    else
-                    {
-                        isValid = false; // 아예 도달 불가능한 타일
                     }
                 }
-                // 3. 동종 타일 간의 최소 거리 확보 (서로 뭉치지 않게 BFS 탐색)
-                if (isValid && placedNodes.Count > 0)
-                {
-                    isValid = CheckDistanceToPlacedNodes(candidate, placedNodes, minDistance);
-                }
+
+                // 모든 검사를 통과했을 때만 배치
                 if (isValid)
                 {
                     candidate.Type = type;
@@ -419,68 +444,22 @@ namespace OZGL.Map
                     currentCount++;
                 }
             }
+
             if (currentCount < count)
             {
-                Debug.LogWarning($"[MapGenerator3] {type} 타일을 목표치({count}개)만큼 배치하지 못했습니다. (배치됨: {currentCount}개)");
+                Debug.LogWarning($"[MapGenerator] {type} 타일을 목표치({count}개)만큼 배치하지 못했습니다. (배치됨: {currentCount}개)");
             }
         }
-        // 특정 노드(candidate)에서 이미 배치된 타일들(placedNodes)까지의 거리가 허용 반경 내에 있는지 BFS로 검사
-        private bool CheckDistanceToPlacedNodes(MapNode candidate, List<MapNode> placedNodes, int minDistance)
-        {
-            if (minDistance <= 0) return true;
-            Queue<MapNode> queue = new Queue<MapNode>();
-            Dictionary<MapNode, int> distances = new Dictionary<MapNode, int>();
-            queue.Enqueue(candidate);
-            distances[candidate] = 0;
-            while (queue.Count > 0)
-            {
-                MapNode current = queue.Dequeue();
-                int currentDist = distances[current];
-                // 이미 배치된 타일과 너무 가까우면 탈락
-                if (placedNodes.Contains(current) && currentDist < minDistance)
-                {
-                    return false;
-                }
-                // 최소 거리만큼 벌어졌음이 확인되면 이 방향은 안전함 (탐색 중지)
-                if (currentDist >= minDistance) continue;
-                foreach (MapNode neighbor in current.ConnectedNodes)
-                {
-                    if (IsObstacle(neighbor.Type)) continue;
-                    if (!distances.ContainsKey(neighbor))
-                    {
-                        distances[neighbor] = currentDist + 1;
-                        queue.Enqueue(neighbor);
-                    }
-                }
-            }
-            return true;
-        }
-        
 
         private IEnumerator AnimateMapGeneration()
         {
-            float delayPerNode = animationDuration / Mathf.Max(1, _allNodes.Count);
+           float delayPerNode = animationDuration / totalNodeCount;
             WaitForSeconds wait = new WaitForSeconds(delayPerNode);
 
             Queue<MapNode> queue = new Queue<MapNode>();
             HashSet<MapNode> visited = new HashSet<MapNode>();
 
-            MapNode startNode = null;
-            foreach (var node in _allNodes)
-            {
-                if (node.Type == NodeType.Start)
-                {
-                    startNode = node;
-                    break;
-                }
-            }
-
-            if (startNode == null)
-            {
-                Debug.LogError("[MapGenerator3] Start 타일 누락!");
-                yield break;
-            }
-
+            MapNode startNode = _nodeDict[Vector2Int.zero];
             queue.Enqueue(startNode);
             visited.Add(startNode);
 
@@ -488,18 +467,26 @@ namespace OZGL.Map
             {
                 MapNode currentNode = queue.Dequeue();
                 GameObject targetPrefab = GetPrefabForType(currentNode.Type);
-
+                
                 if (targetPrefab == null)
                 {
                     targetPrefab = _currentTheme.NormalPrefab;
-                    if (targetPrefab == null) continue;
+                    if (targetPrefab == null) continue; 
                 }
 
                 Vector3 worldPos = new Vector3(currentNode.Position.x * tileSpacing, 0, currentNode.Position.y * tileSpacing);
                 currentNode.NodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, this.transform);
-
+                
+                // 타일 초기화 (색상 및 노드 정보 저장)
                 TileView tileView = currentNode.NodeView.GetComponent<TileView>();
-                if (tileView != null) tileView.Init(currentNode);
+                if (tileView != null)
+                {
+                    tileView.Init(currentNode);
+                }
+                else
+                {
+                    Debug.LogWarning($"[MapGenerator] {currentNode.Type} 타일 프리팹에 TileView 컴포넌트가 없습니다!");
+                }
 
                 StartCoroutine(ScaleUpNode(currentNode.NodeView.transform, 0.5f));
 
@@ -563,18 +550,6 @@ namespace OZGL.Map
             }
 
             if (nodeTransform != null) nodeTransform.localScale = targetScale;
-        }
-
-        public void ReplaceTileVisual(MapNode node)
-        {
-            if (node.NodeView != null) Destroy(node.NodeView); // 기존 평범한 타일 모델 삭제
-            GameObject targetPrefab = GetPrefabForType(node.Type);
-            if (targetPrefab == null) targetPrefab = _currentTheme.NormalPrefab;
-            Vector3 worldPos = new Vector3(node.Position.x * tileSpacing, 0, node.Position.y * tileSpacing);
-            node.NodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, this.transform);
-
-            TileView tileView = node.NodeView.GetComponent<TileView>();
-            if (tileView != null) tileView.Init(node);
         }
     }
 }
