@@ -1101,6 +1101,7 @@ GameObject:
   - component: {fileID: 7476732551333275834}
   - component: {fileID: 7490831117867674770}
   - component: {fileID: 3482646927137003859}
+  - component: {fileID: 4148731172614570253}
   m_Layer: 0
   m_Name: UnitView
   m_TagString: Untagged
@@ -1203,6 +1204,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.UnitFormationController
   unitView: {fileID: 7490831117867674770}
   unitItemTemplate: {fileID: 8567529937442773360}
+--- !u!114 &4148731172614570253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2920205859989645890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aad29dc8c9cf814e931599c39d245bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.UnitFormationCombatLink
+  formationController: {fileID: 3482646927137003859}
+  unitPrefabLinks:
+  - unitId: 1001
+    unitPrefab: {fileID: 2689710761108048144, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
+  - unitId: 1002
+    unitPrefab: {fileID: 3878534168403017122, guid: eb48ebaf53ab5d848ac8c2d9372dfe8f, type: 3}
+  - unitId: 1003
+    unitPrefab: {fileID: 6429099342497177574, guid: cabf5c3c5cdad8340af3439f79d52b11, type: 3}
+  - unitId: 1004
+    unitPrefab: {fileID: 2689710761108048144, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
+  - unitId: 1005
+    unitPrefab: {fileID: 2689710761108048144, guid: a0049aa0c99fc7e44a0a7dbacd7b1e46, type: 3}
 --- !u!1 &3110768678311358083
 GameObject:
   m_ObjectHideFlags: 0

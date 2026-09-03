@@ -47,6 +47,8 @@ namespace OzGameLab01.Controllers
         private int dragOriginSiblingIndex = -1;
         private bool dragDropHandled;
 
+        private UnitFormationCombatLink formationCombatLink;
+
         /// <summary>
         /// 현재 배치 화면에 연결된 테스트 유닛 데이터를 반환합니다.
         /// </summary>
@@ -78,6 +80,11 @@ namespace OzGameLab01.Controllers
         /// 전투 유닛이 한 명 이상 배치되었는지 반환합니다.
         /// </summary>
         public bool CanStartBattle => battleUnitCount >= 1;
+
+        private void Awake()
+        {
+            formationCombatLink = GetComponent<UnitFormationCombatLink>();
+        }
 
         private void OnEnable()
         {
@@ -244,11 +251,15 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            int battleSlotIndex =FindBattleSlotIndex(unitItem);
+            int battleSlotIndex = FindBattleSlotIndex(unitItem);
 
             if (battleSlotIndex >= 0)
             {
-                RemoveBattleUnit(battleSlotIndex);
+                if (RemoveBattleUnit(battleSlotIndex))
+                {
+                    SaveFormation();
+                }
+
                 return;
             }
 
@@ -256,11 +267,18 @@ namespace OzGameLab01.Controllers
 
             if (supportSlotIndex >= 0)
             {
-                RemoveSupportUnit(supportSlotIndex);
+                if (RemoveSupportUnit(supportSlotIndex))
+                {
+                    SaveFormation();
+                }
+
                 return;
             }
 
-            PlaceUnitInFirstEmptyBattleSlot(unitItem);
+            if (PlaceUnitInFirstEmptyBattleSlot(unitItem))
+            {
+                SaveFormation();
+            }
         }
 
         /// <summary>
@@ -331,14 +349,15 @@ namespace OzGameLab01.Controllers
             if (targetSlot.IsBattleSlot)
             {
                 dragDropHandled = TryDropOnBattleSlot(draggingUnitItem, targetSlot);
-
-                return;
+            }
+            else if (targetSlot.IsSupportSlot)
+            {
+                dragDropHandled = TryDropOnSupportSlot(draggingUnitItem, targetSlot);
             }
 
-            if (targetSlot.IsSupportSlot)
+            if (dragDropHandled)
             {
-                dragDropHandled =
-                    TryDropOnSupportSlot(draggingUnitItem, targetSlot);
+                SaveFormation();
             }
         }
 
@@ -985,6 +1004,17 @@ namespace OzGameLab01.Controllers
             dragDropHandled = false;
         }
 
+        /// <summary>
+        /// 현재 전투 및 서브 유닛 편성을 전투 씬 전달 데이터에 저장합니다.
+        /// </summary>
+        private void SaveFormation()
+        {
+            if (formationCombatLink != null)
+            {
+                formationCombatLink.SaveFormation();
+            }
+        }
+
         private bool IsValidBattleSlot(int slotIndex)
         {
             return slotIndex >= 0 && slotIndex < BattleSlotCount;
@@ -1040,6 +1070,32 @@ namespace OzGameLab01.Controllers
             }
 
             return supportUnitData[slotIndex];
+        }
+
+        /// <summary>
+        /// 전투 슬롯에 배치된 유닛 아이템을 반환합니다.
+        /// </summary>
+        public UnitItemView GetBattleUnitItem(int slotIndex)
+        {
+            if (!IsValidBattleSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return battleUnitItems[slotIndex];
+        }
+
+        /// <summary>
+        /// 서브 슬롯에 배치된 유닛 아이템을 반환합니다.
+        /// </summary>
+        public UnitItemView GetSupportUnitItem(int slotIndex)
+        {
+            if (!IsValidSupportSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return supportUnitItems[slotIndex];
         }
     }
 }

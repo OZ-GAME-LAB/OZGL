@@ -38,9 +38,6 @@ namespace OzGameLab01.Combat
         [SerializeField] private Vector3 gridOrigin = new Vector3(-4.5f, -1.2f, 0f);
         [SerializeField] private float columnSpacing = 1.2f;
         [SerializeField] private float rowSpacing = 1.2f;
-        [SerializeField] private float slotMarkerSize = 0.9f;
-        [SerializeField] private float slotMarkerLineWidth = 0.03f;
-        [SerializeField] private Color slotMarkerColor = new Color(1f, 1f, 1f, 0.25f);
         [SerializeField] private Vector3 enemyPosition = new Vector3(4.5f, 0f, 0f);
         [SerializeField] private string enemyPrefabResourceName = "Characters/Enemy_Melee";
         [SerializeField] private float enemyScale = 3f;
@@ -83,7 +80,6 @@ namespace OzGameLab01.Combat
             BuildAllyFormation();
             BuildUnitPrefabLookup();
             BuildUnitTraitLookup();
-            SpawnSlotMarkers();
             SpawnAllies();
             ApplySynergies();
             PopulateSynergyPanel();
@@ -174,39 +170,6 @@ namespace OzGameLab01.Combat
             return units;
         }
 
-        private void SpawnSlotMarkers()
-        {
-            for (int column = 0; column < SlotColumns; column++)
-            {
-                CreateSlotMarker(GetSlotPosition(column, SlotRow.Front));
-                CreateSlotMarker(GetSlotPosition(column, SlotRow.Mid));
-                CreateSlotMarker(GetSlotPosition(column, SlotRow.Back));
-            }
-        }
-
-        private void CreateSlotMarker(Vector3 position)
-        {
-            GameObject marker = new GameObject("SlotMarker");
-            marker.transform.SetParent(unitsRoot);
-            marker.transform.position = position;
-
-            LineRenderer lineRenderer = marker.AddComponent<LineRenderer>();
-            lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-            lineRenderer.useWorldSpace = false;
-            lineRenderer.loop = true;
-            lineRenderer.positionCount = 4;
-            lineRenderer.widthMultiplier = slotMarkerLineWidth;
-            lineRenderer.startColor = slotMarkerColor;
-            lineRenderer.endColor = slotMarkerColor;
-            lineRenderer.sortingOrder = -1;
-
-            float half = slotMarkerSize * 0.5f;
-            lineRenderer.SetPosition(0, new Vector3(-half, -half, 0f));
-            lineRenderer.SetPosition(1, new Vector3(-half, half, 0f));
-            lineRenderer.SetPosition(2, new Vector3(half, half, 0f));
-            lineRenderer.SetPosition(3, new Vector3(half, -half, 0f));
-        }
-
         private void SpawnAllies()
         {
             Unit[] placedUnits = SceneTransitioner.AllyFormationSlots;
@@ -238,7 +201,9 @@ namespace OzGameLab01.Combat
 
                 SlotKey slot = kvp.Key;
                 GameObject instance = Instantiate(prefab, GetSlotPosition(slot.column, slot.row), Quaternion.identity, unitsRoot);
-                _slotUnits[slot.column, (int)slot.row] = instance.GetComponent<Unit>();
+                Unit unit = instance.GetComponent<Unit>();
+                unit.SetVisualsVisible(false);
+                _slotUnits[slot.column, (int)slot.row] = unit;
             }
         }
 
@@ -254,7 +219,9 @@ namespace OzGameLab01.Combat
 
                 SlotKey slot = PlacementIndexToSlotKey(placementIndex);
                 GameObject instance = Instantiate(placedUnit.gameObject, GetSlotPosition(slot.column, slot.row), Quaternion.identity, unitsRoot);
-                _slotUnits[slot.column, (int)slot.row] = instance.GetComponent<Unit>();
+                Unit unit = instance.GetComponent<Unit>();
+                unit.SetVisualsVisible(false);
+                _slotUnits[slot.column, (int)slot.row] = unit;
             }
         }
 

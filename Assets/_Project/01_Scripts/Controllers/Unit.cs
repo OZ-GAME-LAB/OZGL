@@ -117,6 +117,23 @@ namespace OzGameLab01.Combat
             skillAttack.damage *= attackMultiplier;
         }
 
+        /// <summary>
+        /// 스프라이트, 이름표, 체력바 등 화면 표시를 전환합니다.
+        /// 전투 로직(타겟팅, 데미지, All 리스트)은 그대로 유지한 채 화면 표시만 끕니다.
+        /// </summary>
+        public void SetVisualsVisible(bool visible)
+        {
+            foreach (Renderer childRenderer in GetComponentsInChildren<Renderer>(true))
+            {
+                childRenderer.enabled = visible;
+            }
+
+            if (healthBar != null)
+            {
+                healthBar.gameObject.SetActive(visible);
+            }
+        }
+
         private Unit ResolveTarget()
         {
             return team == Team.Ally ? CombatManager.Instance.EnemyUnit : CombatManager.Instance.ResolveAllyTarget();
