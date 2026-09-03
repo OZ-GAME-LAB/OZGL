@@ -3680,6 +3680,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5088444585181347527}
   - component: {fileID: 3483375574023889761}
+  - component: {fileID: 7210065112047344975}
   m_Layer: 0
   m_Name: BattleUI
   m_TagString: Untagged
@@ -3721,6 +3722,19 @@ MonoBehaviour:
   mainView: {fileID: 6807820556739330719}
   rewardView: {fileID: 3701334436659265835}
   resultView: {fileID: 3107832858776373449}
+--- !u!114 &7210065112047344975
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8968617604256643433}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 08a83dab393e7b54ab5d9ab0f9b78bbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BattleFormationInfoController
+  battleUIView: {fileID: 3483375574023889761}
 --- !u!1 &8974790116459510008
 GameObject:
   m_ObjectHideFlags: 0

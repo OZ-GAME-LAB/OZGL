@@ -1101,6 +1101,7 @@ GameObject:
   - component: {fileID: 7476732551333275834}
   - component: {fileID: 7490831117867674770}
   - component: {fileID: 3482646927137003859}
+  - component: {fileID: 6153368479699891312}
   m_Layer: 0
   m_Name: UnitView
   m_TagString: Untagged
@@ -1203,6 +1204,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.UnitFormationController
   unitView: {fileID: 7490831117867674770}
   unitItemTemplate: {fileID: 8567529937442773360}
+--- !u!114 &6153368479699891312
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2920205859989645890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aed614dda05cccd45bba6ad9dfe83409, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.UnitFormationCombatLink
+  formationController: {fileID: 3482646927137003859}
+  unitPrefabLinks: []
+  combatSceneName: 03_Combat
 --- !u!1 &3110768678311358083
 GameObject:
   m_ObjectHideFlags: 0
