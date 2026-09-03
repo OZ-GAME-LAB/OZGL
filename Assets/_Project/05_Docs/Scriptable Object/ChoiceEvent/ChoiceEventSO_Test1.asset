@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdaac6197b15a3841aa800100e7065d8, type: 3}
+  m_Name: ChoiceEventSO_Test1
+  m_EditorClassIdentifier: Assembly-CSharp::ChoiceEventSO
+  id: 1
+  eventTitle: Choice Event_1
+  eventDialog: Dialog 0000000000000000000000
+  choices:
+  - choiceIndex: 0
+    choiceDialog: 'relic [0]'
+    resultCategory: 0
+    resultTargetID: 0
+  - choiceIndex: 1
+    choiceDialog: 'relic [1]'
+    resultCategory: 0
+    resultTargetID: 1
+  - choiceIndex: 2
+    choiceDialog: 'unit [0]'
+    resultCategory: 1
+    resultTargetID: 0
