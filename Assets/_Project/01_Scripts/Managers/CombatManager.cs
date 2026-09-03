@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
+using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Combat
 {
@@ -60,6 +61,10 @@ namespace OzGameLab01.Combat
         [Tooltip("보유 중이지만 아직 발동하지 않은 시너지 아이템 색상입니다.")]
         [SerializeField] private Color synergyInactiveColor = new Color(1f, 1f, 1f, 0.4f);
 
+        [Header("유닛 정보 UI")]
+        [Tooltip("화면 하단에 현재 전투 중인 아군을 표시하는 패널입니다.")]
+        [SerializeField] private BattleUnitInfoView battleUnitInfoView;
+
         private Dictionary<SlotKey, int> _allyFormation;
         private Dictionary<int, GameObject> _unitPrefabsById;
         private Dictionary<int, List<SynergyTrait>> _unitTraitsById;
@@ -79,6 +84,7 @@ namespace OzGameLab01.Combat
             SpawnAllies();
             ApplySynergies();
             PopulateSynergyPanel();
+            PopulateUnitInfoPanel();
             SpawnEnemy();
         }
 
@@ -335,6 +341,11 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            for (int i = synergyPanelRoot.childCount - 1; i >= 0; i--)
+            {
+                Destroy(synergyPanelRoot.GetChild(i).gameObject);
+            }
+
             foreach (SynergyDefinition definition in rosterData.SynergyDefinitions)
             {
                 if (definition == null || definition.Trait == null)
@@ -358,6 +369,47 @@ namespace OzGameLab01.Combat
                 item.SetTitle(definition.Trait.DisplayName);
                 item.SetStackText(stackText);
                 item.SetBackgroundColor(isActive ? synergyActiveColor : synergyInactiveColor);
+            }
+        }
+
+        /// <summary>
+        /// 화면 하단 유닛 정보 패널에 현재 전투 중인 아군을 표시합니다.
+        /// 초상화는 스폰된 유닛의 SpriteRenderer에서, 이름은 프리팹 이름에서 가져옵니다
+        /// (유닛 표시 이름 데이터가 아직 없어 그레이박스로 대체).
+        /// </summary>
+        private void PopulateUnitInfoPanel()
+        {
+            if (battleUnitInfoView == null)
+            {
+                return;
+            }
+
+            battleUnitInfoView.ClearUnitInfoItems();
+
+            foreach (KeyValuePair<SlotKey, int> kvp in _allyFormation)
+            {
+                Unit unit = _slotUnits[kvp.Key.column, (int)kvp.Key.row];
+                if (unit == null)
+                {
+                    continue;
+                }
+
+                BattleUnitInfoItemView item = battleUnitInfoView.CreateBattleUnitInfoItem();
+                if (item == null)
+                {
+                    continue;
+                }
+
+                SpriteRenderer spriteRenderer = unit.GetComponentInChildren<SpriteRenderer>();
+                if (spriteRenderer != null)
+                {
+                    item.SetPortrait(spriteRenderer.sprite);
+                }
+
+                if (_unitPrefabsById.TryGetValue(kvp.Value, out GameObject prefab) && prefab != null)
+                {
+                    item.SetUnitName(prefab.name);
+                }
             }
         }
 
