@@ -65,15 +65,6 @@ namespace OzGameLab01.Data
         public static int TurnCount { get; private set; }
 
         /// <summary>
-        /// 플레이어가 중간보스(엘리트 타일)를 몇이나 처치했는지 알기위한 값입니다.
-        /// 순차적으로 엘리트타일과 보스타일을 생성하여 절차적 생성을 통해 엘리트타일과 보스 타일을
-        /// 생성할 때 대비 진행하던 방향의 역방향으로 플레이어가 진행하는것을 방지하고 플레이어의 이동동선을 자연스럽게 유도하는데 사용됩니다.
-        /// </summary>
-        public static int DefeatedElitesCount { get; private set; }
-        public static bool IsEliteBattle { get; private set; }
-        public static event System.Action OnBattleCompleted; // 전투 종료 알림 이벤트
-
-        /// <summary>
         /// 새로운 게임 진행 데이터를 생성합니다.
         /// 타이틀 화면에서 게임을 새로 시작할 때 호출합니다.
         /// </summary>
@@ -133,13 +124,16 @@ namespace OzGameLab01.Data
         /// <summary>
         /// 보드에서 발생한 전투 정보를 저장합니다.
         /// </summary>
-        public static void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false)
+        public static void BeginBattle(
+            Vector2Int battlePosition,
+            bool isBossBattle)
         {
             EnsureActiveRun();
+
             CurrentBattlePosition = battlePosition;
             HasCurrentBattle = true;
             IsBossBattle = isBossBattle;
-            IsEliteBattle = isEliteBattle; // 엘리트전 여부 기록
+
             SavePlayerPosition(battlePosition);
 
             Debug.Log(
@@ -155,15 +149,18 @@ namespace OzGameLab01.Data
         /// </summary>
         public static void CompleteCurrentBattle()
         {
-            if (!HasCurrentBattle) return;
+            if (!HasCurrentBattle)
+            {
+                return;
+            }
 
-            if (!IsBossBattle) _completedBattlePositions.Add(CurrentBattlePosition);
-            if (IsEliteBattle) DefeatedElitesCount++; // 엘리트를 잡았으면 카운트 증가!
+            if (!IsBossBattle)
+            {
+                _completedBattlePositions.Add(CurrentBattlePosition);
+            }
+
             HasCurrentBattle = false;
             IsBossBattle = false;
-            IsEliteBattle = false;
-
-            OnBattleCompleted?.Invoke(); // 목표 매니저에게 알림 전송!
         }
 
         /// <summary>
@@ -208,8 +205,6 @@ namespace OzGameLab01.Data
             TurnCount = 0;
 
             _completedBattlePositions.Clear();
-
-            DefeatedElitesCount = 0;
         }
 
         /// <summary>
