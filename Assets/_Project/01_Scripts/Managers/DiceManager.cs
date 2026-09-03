@@ -12,6 +12,8 @@ namespace OzGameLab01.Managers
         [SerializeField] private int _maxDice = 6;
 
         private bool _hasRolledThisTurn;
+        
+        public event System.Action<int> OnDiceRolled;
 
         protected override void Awake()
         {
@@ -57,6 +59,9 @@ namespace OzGameLab01.Managers
             BoardPlayerController.Instance.CurrentDiceValue = result;
 
             _hasRolledThisTurn = true;
+
+            // 주사위를 굴렸다는 이벤트를 발생시킵니다 (UI 컨트롤러 등이 이를 듣고 창을 닫을 수 있음)
+            OnDiceRolled?.Invoke(result);
 
             // TODO: (선택) 3D 주사위가 굴러가는 연출이나 사운드(SoundManager 호출)를 여기에 추가합니다.
         }
