@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Managers;
+using OzGameLab01.UI;
 
 namespace OzGameLab01.Combat
 {
@@ -49,9 +50,20 @@ namespace OzGameLab01.Combat
         [Tooltip("유닛 id별 프리팹/트레이트, 시너지 발동 정의. 로스터 준비 화면과 공유하는 데이터입니다.")]
         [SerializeField] private UnitRosterData rosterData;
 
+        [Header("시너지 UI")]
+        [Tooltip("시너지 표시 아이템이 배치될 부모입니다.")]
+        [SerializeField] private Transform synergyPanelRoot;
+        [Tooltip("시너지 한 개를 표시하는 아이템 원본입니다.")]
+        [SerializeField] private SynergyItemView synergyItemTemplate;
+        [Tooltip("발동 중인 시너지 아이템 색상입니다.")]
+        [SerializeField] private Color synergyActiveColor = Color.white;
+        [Tooltip("보유 중이지만 아직 발동하지 않은 시너지 아이템 색상입니다.")]
+        [SerializeField] private Color synergyInactiveColor = new Color(1f, 1f, 1f, 0.4f);
+
         private Dictionary<SlotKey, int> _allyFormation;
         private Dictionary<int, GameObject> _unitPrefabsById;
         private Dictionary<int, List<SynergyTrait>> _unitTraitsById;
+        private Dictionary<SynergyTrait, int> _traitCounts;
         private readonly Unit[,] _slotUnits = new Unit[SlotColumns, SlotRows];
         private Unit _enemyUnit;
 
@@ -66,6 +78,7 @@ namespace OzGameLab01.Combat
             SpawnSlotMarkers();
             SpawnAllies();
             ApplySynergies();
+            PopulateSynergyPanel();
             SpawnEnemy();
         }
 
@@ -254,7 +267,7 @@ namespace OzGameLab01.Combat
         private void ApplySynergies()
         {
             // 팀 전체에서 각 트레이트를 보유한 유닛 수를 센다 (시너지 발동 여부 판정용).
-            Dictionary<SynergyTrait, int> traitCounts = new Dictionary<SynergyTrait, int>();
+            _traitCounts = new Dictionary<SynergyTrait, int>();
             foreach (int unitId in _allyFormation.Values)
             {
                 if (!_unitTraitsById.TryGetValue(unitId, out List<SynergyTrait> traits) || traits == null)
@@ -269,8 +282,8 @@ namespace OzGameLab01.Combat
                         continue;
                     }
 
-                    traitCounts.TryGetValue(trait, out int count);
-                    traitCounts[trait] = count + 1;
+                    _traitCounts.TryGetValue(trait, out int count);
+                    _traitCounts[trait] = count + 1;
                 }
             }
 
@@ -302,12 +315,49 @@ namespace OzGameLab01.Combat
                         continue;
                     }
 
-                    traitCounts.TryGetValue(trait, out int count);
+                    _traitCounts.TryGetValue(trait, out int count);
                     if (definition.TryGetActiveTier(count, out SynergyDefinition.Tier tier))
                     {
                         unit.ApplySynergyBonus(tier.hpMultiplier, tier.attackMultiplier);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// 보유 중인(카운트 1 이상) 시너지를 패널에 표시합니다.
+        /// 발동 중인 시너지와 아직 발동하지 않은 시너지를 색상으로 구분합니다.
+        /// </summary>
+        private void PopulateSynergyPanel()
+        {
+            if (rosterData == null || synergyPanelRoot == null || synergyItemTemplate == null)
+            {
+                return;
+            }
+
+            foreach (SynergyDefinition definition in rosterData.SynergyDefinitions)
+            {
+                if (definition == null || definition.Trait == null)
+                {
+                    continue;
+                }
+
+                _traitCounts.TryGetValue(definition.Trait, out int count);
+                if (count <= 0)
+                {
+                    continue;
+                }
+
+                bool isActive = definition.TryGetActiveTier(count, out _);
+                string stackText = definition.TryGetNextThreshold(count, out int nextThreshold)
+                    ? $"{count}/{nextThreshold}"
+                    : count.ToString();
+
+                SynergyItemView item = Instantiate(synergyItemTemplate, synergyPanelRoot);
+                item.gameObject.SetActive(true);
+                item.SetTitle(definition.Trait.DisplayName);
+                item.SetStackText(stackText);
+                item.SetBackgroundColor(isActive ? synergyActiveColor : synergyInactiveColor);
             }
         }
 

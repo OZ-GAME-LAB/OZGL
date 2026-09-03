@@ -35,5 +35,26 @@ namespace OzGameLab01.Combat
 
             return found;
         }
+
+        /// <summary>
+        /// 다음 티어가 발동되는 데 필요한 보유 수를 반환합니다.
+        /// 이미 최고 티어에 도달했다면 false를 반환합니다.
+        /// </summary>
+        public bool TryGetNextThreshold(int unitCount, out int nextThreshold)
+        {
+            bool found = false;
+            nextThreshold = int.MaxValue;
+
+            foreach (Tier tier in tiers)
+            {
+                if (tier.requiredCount > unitCount && tier.requiredCount < nextThreshold)
+                {
+                    nextThreshold = tier.requiredCount;
+                    found = true;
+                }
+            }
+
+            return found;
+        }
     }
 }
