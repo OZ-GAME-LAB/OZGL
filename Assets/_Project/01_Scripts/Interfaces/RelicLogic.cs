@@ -24,6 +24,17 @@ namespace OzGameLab01.Interfaces
         public virtual void OnDiceRolled() { }      // 주사위를 굴릴 때 적용 메서드
     }
 
+    public interface IAttackTriggerRelic
+    {
+        void OnAttack();
+    }
+
+    public interface IDiceTriggerRelic
+    {
+        void OnDiceRolled();
+    }
+
+    #region 로직 모음
     // 모든 유닛 공격력 +1
     public class AllUnitAtkPlusOne : RelicLogic
     {
@@ -33,5 +44,12 @@ namespace OzGameLab01.Interfaces
         }
     }
 
-
+    public class EnemyHitOneDamage : RelicLogic, IAttackTriggerRelic
+    {
+        public override void OnAttack()
+        {
+            base.OnAttack();
+        }
+    }
+    #endregion
 }
