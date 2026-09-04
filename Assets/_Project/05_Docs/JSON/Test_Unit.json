@@ -1,0 +1,46 @@
+{
+   "monsterList": [
+    {
+      "id": 2001,
+      "name": "testUnit1",
+      "spriteAddress": "001_101",
+      "healthPoint": 20,
+      "attackPoint": 3,
+      "criticalRate": 6,
+      "dodgeRate": 7,
+      "bloodDrain": 12,
+      "attackSpeed": 7,
+      "skillCooldown": 20,
+      "attackKey": "normalAttack",
+      "skillKey": "superPass"
+    },
+    {
+      "id": 2002,
+      "name": "superTestUnit",
+      "spriteAddress": "001_102",
+      "healthPoint": 30,
+      "attackPoint": 20,
+      "criticalRate": 0,
+      "dodgeRate": 10,
+      "bloodDrain": 3,
+      "attackSpeed": 9,
+      "skillCooldown": 35,
+      "attackKey": "normalAttack",
+      "skillKey": "Bash"
+    },
+    {
+      "id": 2003,
+      "name": "AmagingTestUnit",
+      "spriteAddress": "001_01",
+      "healthPoint": 15,
+      "attackPoint": 8,
+      "criticalRate": 3,
+      "dodgeRate": 5,
+      "bloodDrain": 0,
+      "attackSpeed": 5,
+      "skillCooldown": 15,
+      "attackKey": "FireBall",
+      "skillKey": "MeteorStrike"
+    }
+  ]
+}
