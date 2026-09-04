@@ -50,8 +50,11 @@ namespace OzGameLab01.Controllers
 
             if(_eventUIPanel == null)
             {
-                _eventUIPanel = FindFirstObjectByType<ChoiceEventManager>();
-                _eventUIPanel.gameObject.SetActive(false);
+                _eventUIPanel = FindFirstObjectByType<ChoiceEventManager>(FindObjectsInactive.Include);
+                if (_eventUIPanel != null)
+                {
+                    _eventUIPanel.gameObject.SetActive(false);
+                }
             }
 
             // [수정] 이제 버튼 클릭 처리는 BoardUIController가 전담합니다.
