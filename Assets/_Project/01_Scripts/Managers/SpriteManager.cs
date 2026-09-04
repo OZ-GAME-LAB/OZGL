@@ -12,14 +12,13 @@ namespace OzGameLab01.Managers
 
         /// <summary>
         /// === 초기 로딩 시퀀스에서 호출 ===
-        /// 모든 스프라이트 비동기 일괄 로드 및 캐싱
+        /// 모든 스프라이트 비동기 일괄 로드 및 캐싱 (나중에 추가 예정)
         /// </summary>
-        /// <returns></returns>
         public static async Task LoadAllSpritesAsync()
         {
             await Task.WhenAll(
                 PreloadSpritesByLabelAsync("")
-                );
+            );
         }
 
         /// <summary>
@@ -56,6 +55,11 @@ namespace OzGameLab01.Managers
             }
         }
 
+        /// <summary>
+        /// 어드레서블 주소 기반 스프라이트 반환
+        /// (캐시 미존재 시 개별 로드)
+        /// </summary>
+        /// <param name="spriteAddress">검색할 스프라이트 어드레서블 주소</param>
         public static async Task<Sprite> GetSpriteAsync(string spriteAddress)
         {
             // 전달 주소값 없으면 null 반환
@@ -71,7 +75,7 @@ namespace OzGameLab01.Managers
                 return cachedSprite;
             }
 
-            // 2. 어드레서블 비동기 로드 실행
+            // 2. 어드레서블 비동기 로드 실행 (초기에 캐싱되지 않은 경우)
             AsyncOperationHandle<Sprite> handle = Addressables.LoadAssetAsync<Sprite>(spriteAddress);
             Sprite loadedSprite = await handle.Task;
 
@@ -84,6 +88,14 @@ namespace OzGameLab01.Managers
             // 3. 그 외 없으면 로드 실패
             Debug.LogError($"[SpriteManager] 스프라이트 로드 실패: {spriteAddress}");
             return null;
+        }
+
+        /// <summary>
+        /// 메모리 정리 시 스프라이트 캐시 초기화
+        /// </summary>
+        public static void ClearCache()
+        {
+            _spriteDict.Clear();
         }
     }
 }
