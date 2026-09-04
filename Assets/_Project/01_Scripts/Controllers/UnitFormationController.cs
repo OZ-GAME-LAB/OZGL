@@ -152,31 +152,35 @@ namespace OzGameLab01.Controllers
         private void LoadRosterUnitData()
         {
             testUnitDataList.Clear();
-
-            if (rosterData == null)
+            // [수정됨] 이제 씬 전환 시에도 파괴되지 않는 전역 인벤토리에서 유닛 목록을 가져옵니다!
+            if (Managers.PlayerInventoryManager.Instance != null)
             {
-                //Debug.LogError("[UnitFormationController] UnitRosterData가 연결되지 않았습니다.", this);
-                return;
-            }
-
-            foreach (UnitData source in rosterData.UnitStats)
-            {
-                if (source == null)
+                foreach (UnitData source in Managers.PlayerInventoryManager.Instance.OwnedUnits)
                 {
-                    continue;
+                    if (source == null)
+                    {
+                        continue;
+                    }
+                    testUnitDataList.Add(new UnitData
+                    {
+                        id = source.id,
+                        name = source.name,
+                        spriteAddress = source.spriteAddress,
+                        healthPoint = source.healthPoint,
+                        attackPoint = source.attackPoint,
+                        criticalRate = source.criticalRate,
+                        dodgeRate = source.dodgeRate,
+                        bloodDrain = source.bloodDrain,
+                        attackSpeed = source.attackSpeed,
+                        skillCooldown = source.skillCooldown,
+                        attackKey = source.attackKey,
+                        skillKey = source.skillKey
+                    });
                 }
-
-                testUnitDataList.Add(new UnitData
-                {
-                    id = source.id,
-                    name = source.name,
-                    healthPoint = source.healthPoint,
-                    attackPoint = source.attackPoint,
-                    basicAttackCooldown = source.basicAttackCooldown,
-                    skillCooldown = source.skillCooldown,
-                    color = source.color,
-                    skillType = source.skillType
-                });
+            }
+            else
+            {
+                Debug.LogWarning("[UnitFormationController] PlayerInventoryManager를 씬에서 찾을 수 없습니다. (매니저 오브젝트를 생성해주세요!)", this);
             }
         }
 
