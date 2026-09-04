@@ -69,7 +69,7 @@ namespace OzGameLab01.Controllers
 
             SaveTransferredUnits();
 
-            SceneTransitioner.AllyFormationSlots = CreateCombatFormation();
+            SceneTransitioner.AllyFormationData = CreateCombatFormation();
 
             Debug.Log("[UnitFormationCombatLink] 최신 유닛 편성을 저장했습니다.", this);
         }
@@ -119,54 +119,23 @@ namespace OzGameLab01.Controllers
                 color);
         }
 
-        private Unit[] CreateCombatFormation()
+        /// <summary>
+        /// 전투 슬롯에 배치된 유닛의 UnitData를 그대로 전달합니다.
+        /// 아군은 공용 프리팹 하나를 이 데이터로 Configure()하여 스폰하므로,
+        /// id별 프리팹을 따로 찾을 필요가 없습니다.
+        /// </summary>
+        private UnitData[] CreateCombatFormation()
         {
-            Unit[] combatFormation = new Unit[BattleSlotCount];
+            UnitData[] combatFormation = new UnitData[BattleSlotCount];
 
             for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
             {
                 TransferredUnit transferredUnit = battleUnits[slotIndex];
 
-                if (transferredUnit == null || transferredUnit.Data == null)
-                {
-                    continue;
-                }
-
-                Unit unitPrefab = FindUnitPrefab(transferredUnit.Data.id);
-
-                if (unitPrefab == null)
-                {
-                    Debug.LogWarning(
-                        $"[UnitFormationCombatLink] ID {transferredUnit.Data.id}에 " +
-                        $"연결된 전투 프리팹이 없습니다. Slot: {slotIndex}", this);
-
-                    continue;
-                }
-
-                combatFormation[slotIndex] = unitPrefab;
+                combatFormation[slotIndex] = transferredUnit?.Data;
             }
 
             return combatFormation;
-        }
-
-        private Unit FindUnitPrefab(int unitId)
-        {
-            UnitRosterData rosterData = formationController != null ? formationController.RosterData : null;
-
-            if (rosterData == null)
-            {
-                return null;
-            }
-
-            foreach (UnitRosterData.UnitPrefabEntry entry in rosterData.UnitPrefabs)
-            {
-                if (entry.id == unitId && entry.prefab != null)
-                {
-                    return entry.prefab.GetComponent<Unit>();
-                }
-            }
-
-            return null;
         }
 
         private static void ClearTransferredUnits()
@@ -180,7 +149,7 @@ namespace OzGameLab01.Controllers
         private static void ResetOnPlayStart()
         {
             ClearTransferredUnits();
-            SceneTransitioner.AllyFormationSlots = null;
+            SceneTransitioner.AllyFormationData = null;
         }
     }
 }

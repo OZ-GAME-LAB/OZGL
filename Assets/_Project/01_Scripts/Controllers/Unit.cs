@@ -107,6 +107,25 @@ namespace OzGameLab01.Combat
             }
         }
 
+        /// <summary>
+        /// 공용 아군 프리팹을 UnitData 기준으로 설정합니다.
+        /// Awake()가 이 값들을 읽어 초기화하므로, 프리팹을 비활성 상태로 Instantiate한 뒤
+        /// 활성화하기 전에 호출해야 합니다.
+        /// </summary>
+        public void Configure(UnitData data)
+        {
+            skillType = data.skillType;
+            maxHP = data.healthPoint;
+            basicAttack.damage = data.attackPoint;
+            basicAttack.cooldown = data.basicAttackCooldown;
+            skillAttack.cooldown = data.skillCooldown;
+
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = data.color;
+            }
+        }
+
         public void ApplySynergyBonus(float hpMultiplier, float attackMultiplier)
         {
             maxHP *= hpMultiplier;

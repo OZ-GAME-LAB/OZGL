@@ -49,12 +49,10 @@ MonoBehaviour:
   gridOrigin: {x: -4.5, y: -1.2, z: 0}
   columnSpacing: 1.2
   rowSpacing: 1.2
-  slotMarkerSize: 0.9
-  slotMarkerLineWidth: 0.03
-  slotMarkerColor: {r: 1, g: 1, b: 1, a: 0.25}
   enemyPosition: {x: 4.5, y: 0, z: 0}
   enemyPrefabResourceName: Characters/Enemy_Melee
   enemyScale: 3
+  allyTemplatePrefab: {fileID: 1608710449723199639, guid: 029ad7777ac8ace4bb5444feb35b6365, type: 3}
   allyFormation:
   - slot:
       column: 0

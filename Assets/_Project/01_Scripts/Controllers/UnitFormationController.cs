@@ -31,6 +31,10 @@ namespace OzGameLab01.Controllers
         [Tooltip("보유 유닛 목록의 원본 데이터. CombatManager와 동일한 id 체계를 공유합니다.")]
         private UnitRosterData rosterData;
 
+        [SerializeField]
+        [Tooltip("보유 유닛 아이콘에 쓰이는 공용 스프라이트. 모든 아군이 같은 스프라이트를 색상만 다르게 사용합니다.")]
+        private Sprite unitIconSprite;
+
         private readonly List<UnitData> testUnitDataList = new List<UnitData>();
 
         private readonly Dictionary<UnitItemView, UnitData> unitDataByItem = new Dictionary<UnitItemView, UnitData>();
@@ -84,11 +88,6 @@ namespace OzGameLab01.Controllers
         /// 전투 유닛이 한 명 이상 배치되었는지 반환합니다.
         /// </summary>
         public bool CanStartBattle => battleUnitCount >= 1;
-
-        /// <summary>
-        /// 보유 유닛 목록의 원본 데이터입니다. UnitFormationCombatLink가 프리팹 조회에 공유합니다.
-        /// </summary>
-        public UnitRosterData RosterData => rosterData;
 
         private void Awake()
         {
@@ -149,7 +148,6 @@ namespace OzGameLab01.Controllers
 
         /// <summary>
         /// UnitRosterData(CombatManager와 공유하는 id 체계)를 기준으로 보유 유닛 데이터를 생성합니다.
-        /// 표시용 이름은 프리팹 이름을 사용합니다(실제 캐릭터 이름 데이터가 아직 없어 그레이박스로 대체).
         /// </summary>
         private void LoadRosterUnitData()
         {
@@ -161,17 +159,23 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            foreach (UnitRosterData.UnitPrefabEntry entry in rosterData.UnitPrefabs)
+            foreach (UnitData source in rosterData.UnitStats)
             {
-                if (entry.prefab == null)
+                if (source == null)
                 {
                     continue;
                 }
 
                 testUnitDataList.Add(new UnitData
                 {
-                    id = entry.id,
-                    name = entry.prefab.name
+                    id = source.id,
+                    name = source.name,
+                    healthPoint = source.healthPoint,
+                    attackPoint = source.attackPoint,
+                    basicAttackCooldown = source.basicAttackCooldown,
+                    skillCooldown = source.skillCooldown,
+                    color = source.color,
+                    skillType = source.skillType
                 });
             }
         }
@@ -202,9 +206,8 @@ namespace OzGameLab01.Controllers
 
                 unitItem.name = $"Unit_Item_{i + 1:00}";
 
-                SpriteRenderer unitSpriteRenderer = FindUnitSpriteRenderer(testUnitDataList[i].id);
-                unitItem.SetIcon(unitSpriteRenderer != null ? unitSpriteRenderer.sprite : null);
-                unitItem.SetIconColor(unitSpriteRenderer != null ? unitSpriteRenderer.color : Color.white);
+                unitItem.SetIcon(unitIconSprite);
+                unitItem.SetIconColor(testUnitDataList[i].color);
                 unitItem.SetSelected(false);
                 unitItem.gameObject.SetActive(true);
 
@@ -212,30 +215,6 @@ namespace OzGameLab01.Controllers
 
                 unitView.RegisterUnitItem(unitItem);
             }
-        }
-
-        /// <summary>
-        /// 유닛 id에 대응하는 전투 프리팹의 SpriteRenderer를 반환합니다.
-        /// 아이콘의 스프라이트와 트레이트 색상(빨강/파랑/노랑 틴트)을 함께 가져오는 데 씁니다.
-        /// </summary>
-        private SpriteRenderer FindUnitSpriteRenderer(int unitId)
-        {
-            if (rosterData == null)
-            {
-                return null;
-            }
-
-            foreach (UnitRosterData.UnitPrefabEntry entry in rosterData.UnitPrefabs)
-            {
-                if (entry.id != unitId || entry.prefab == null)
-                {
-                    continue;
-                }
-
-                return entry.prefab.GetComponentInChildren<SpriteRenderer>();
-            }
-
-            return null;
         }
 
         /// <summary>

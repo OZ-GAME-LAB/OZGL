@@ -13,10 +13,16 @@ namespace OzGameLab01.Managers
         public static int MapTileIndex = 0;
 
         /// <summary>
-        /// UnitPlaceScene의 FormationManager가 채우는 배치 결과(인덱스 0-8, 3x3 row-major).
-        /// CombatManager.SpawnAllies()가 이 데이터가 있으면 우선 사용하고, 비어 있으면 인스펙터 allyFormation으로 폴백한다.
+        /// UnitPlaceScene의 FormationManager(레거시, 프로덕션 미사용)가 채우는 배치 결과입니다.
+        /// CombatManager는 더 이상 이 필드를 읽지 않습니다 - 실제 배치 전달은 AllyFormationData를 사용합니다.
         /// </summary>
         public static Unit[] AllyFormationSlots;
+
+        /// <summary>
+        /// 유닛 편성 화면(UnitFormationCombatLink)이 채우는 배치 결과(인덱스 0-8, 3x3 row-major).
+        /// CombatManager.SpawnAllies()가 이 데이터가 있으면 우선 사용하고, 비어 있으면 인스펙터 allyFormation으로 폴백한다.
+        /// </summary>
+        public static UnitData[] AllyFormationData;
 
         /// <summary>
         /// ProtoBoardScene에서 CombatScene으로 진입하기 직전의 보드 위치(MapNode.Position).

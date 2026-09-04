@@ -12,31 +12,187 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05b2781fd6de81346983d4c8a9b95fae, type: 3}
   m_Name: UnitRosterData
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.UnitRosterData
-  unitPrefabs:
+  unitStats:
   - id: 1
-    prefab: {fileID: 1608710449723199639, guid: c5aa2af2f51b40f4facd3063caaef647, type: 3}
+    name: Ally_Sword_Red
+    spriteAddress: 
+    healthPoint: 160
+    attackPoint: 8
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 0.9
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
+    skillType: 0
   - id: 2
-    prefab: {fileID: 1275035407388787211, guid: 33bac335de8498c499cc41ae4a21e8c4, type: 3}
+    name: Ally_Bow_Red
+    spriteAddress: 
+    healthPoint: 110
+    attackPoint: 6
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 1.1
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
+    skillType: 1
   - id: 3
-    prefab: {fileID: 1705110351518807171, guid: 9ec1da8c6111d4b459abc7376a62d580, type: 3}
+    name: Ally_Staff_Red
+    spriteAddress: 
+    healthPoint: 110
+    attackPoint: 13
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 1.1
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
+    skillType: 2
   - id: 4
-    prefab: {fileID: 1608710449723199639, guid: 2bf485137184f7141af43cacc3195de1, type: 3}
+    name: Ally_Rogue_Red
+    spriteAddress: 
+    healthPoint: 160
+    attackPoint: 8
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 0.9
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
+    skillType: 0
   - id: 5
-    prefab: {fileID: 1608710449723199639, guid: 83f09a193f28cdf4c9587a6332f458ba, type: 3}
+    name: Ally_Sword_Blue
+    spriteAddress: 
+    healthPoint: 160
+    attackPoint: 8
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 0.9
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
+    skillType: 0
   - id: 6
-    prefab: {fileID: 1275035407388787211, guid: 18cb5c16cbfe31a448ee4da8016c8068, type: 3}
+    name: Ally_Bow_Blue
+    spriteAddress: 
+    healthPoint: 110
+    attackPoint: 6
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 1.1
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
+    skillType: 1
   - id: 7
-    prefab: {fileID: 1705110351518807171, guid: 1ae7f0713012c744e9f64a9ff7d408f5, type: 3}
+    name: Ally_Staff_Blue
+    spriteAddress: 
+    healthPoint: 110
+    attackPoint: 13
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 1.1
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
+    skillType: 2
   - id: 8
-    prefab: {fileID: 1608710449723199639, guid: 845eb2182ad8d3240a24d0f3d675353f, type: 3}
+    name: Ally_Rogue_Blue
+    spriteAddress: 
+    healthPoint: 160
+    attackPoint: 8
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 0.9
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
+    skillType: 0
   - id: 9
-    prefab: {fileID: 1608710449723199639, guid: abdbff0db9653914ca52897676ebbbac, type: 3}
+    name: Ally_Sword_Yellow
+    spriteAddress: 
+    healthPoint: 160
+    attackPoint: 8
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 0.9
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
+    skillType: 0
   - id: 10
-    prefab: {fileID: 1275035407388787211, guid: d20254cafc606dc47860295d3aa0130f, type: 3}
+    name: Ally_Bow_Yellow
+    spriteAddress: 
+    healthPoint: 110
+    attackPoint: 6
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 1.1
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
+    skillType: 1
   - id: 11
-    prefab: {fileID: 1705110351518807171, guid: c233e7e4ae361ff49b589303fa18d305, type: 3}
+    name: Ally_Staff_Yellow
+    spriteAddress: 
+    healthPoint: 110
+    attackPoint: 13
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 1.1
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
+    skillType: 2
   - id: 12
-    prefab: {fileID: 1608710449723199639, guid: 0441566713fc0f24089d71051ac6759b, type: 3}
+    name: Ally_Rogue_Yellow
+    spriteAddress: 
+    healthPoint: 160
+    attackPoint: 8
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 0.9
+    skillCooldown: 4
+    attackKey: 
+    skillKey: 
+    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
+    skillType: 0
   unitTraits:
   - id: 1
     traits:

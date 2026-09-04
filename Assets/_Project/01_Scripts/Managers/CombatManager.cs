@@ -42,6 +42,9 @@ namespace OzGameLab01.Combat
         [SerializeField] private string enemyPrefabResourceName = "Characters/Enemy_Melee";
         [SerializeField] private float enemyScale = 3f;
 
+        [Tooltip("모든 아군이 공유하는 프리팹입니다. Instantiate 후 UnitData로 Configure()하여 실제 유닛으로 만듭니다. 프리팹 루트는 비활성 상태여야 합니다(Configure가 Awake보다 먼저 실행되어야 하므로).")]
+        [SerializeField] private GameObject allyTemplatePrefab;
+
         [Tooltip("맵 씬에서 미리 정한 아군 배치. 슬롯(열+행)을 키로, 그 슬롯에 들어갈 유닛 id(GameDB 기준)를 값으로 가짐.")]
         [SerializeField] private List<SlotPlacement> allyFormation = new List<SlotPlacement>();
 
@@ -66,7 +69,7 @@ namespace OzGameLab01.Combat
         [SerializeField] private List<int> supportFormation = new List<int>();
 
         private Dictionary<SlotKey, int> _allyFormation;
-        private Dictionary<int, GameObject> _unitPrefabsById;
+        private Dictionary<int, UnitData> _unitDataById;
         private Dictionary<int, List<SynergyTrait>> _unitTraitsById;
         private Dictionary<SynergyTrait, int> _traitCounts;
         private readonly Unit[,] _slotUnits = new Unit[SlotColumns, SlotRows];
@@ -78,7 +81,7 @@ namespace OzGameLab01.Combat
         {
             Instance = this;
             BuildAllyFormation();
-            BuildUnitPrefabLookup();
+            BuildUnitStatLookup();
             BuildUnitTraitLookup();
             bool spawnedFromPlacement = SpawnAllies();
             ApplySynergies();
@@ -103,17 +106,17 @@ namespace OzGameLab01.Combat
             }
         }
 
-        private void BuildUnitPrefabLookup()
+        private void BuildUnitStatLookup()
         {
-            _unitPrefabsById = new Dictionary<int, GameObject>();
+            _unitDataById = new Dictionary<int, UnitData>();
             if (rosterData == null)
             {
                 return;
             }
 
-            foreach (UnitRosterData.UnitPrefabEntry entry in rosterData.UnitPrefabs)
+            foreach (UnitData data in rosterData.UnitStats)
             {
-                _unitPrefabsById[entry.id] = entry.prefab;
+                _unitDataById[data.id] = data;
             }
         }
 
@@ -178,18 +181,18 @@ namespace OzGameLab01.Combat
         }
 
         /// <summary>
-        /// 아군을 스폰합니다. 유닛 편성 화면에서 넘어온 배치 데이터(AllyFormationSlots)가
+        /// 아군을 스폰합니다. 유닛 편성 화면에서 넘어온 배치 데이터(AllyFormationData)가
         /// 있으면 그것을 사용하고, 없으면 인스펙터에 지정된 allyFormation으로 대체합니다.
         /// 배치 데이터를 사용했는지 여부를 반환합니다(하단 유닛 정보 패널을
         /// BattleFormationInfoController가 채울지, 여기서 채울지 판단하는 데 씁니다).
         /// </summary>
         private bool SpawnAllies()
         {
-            Unit[] placedUnits = SceneTransitioner.AllyFormationSlots;
+            UnitData[] placedUnits = SceneTransitioner.AllyFormationData;
             bool hasPlacementData = false;
             if (placedUnits != null)
             {
-                foreach (Unit placedUnit in placedUnits)
+                foreach (UnitData placedUnit in placedUnits)
                 {
                     if (placedUnit != null)
                     {
@@ -207,37 +210,52 @@ namespace OzGameLab01.Combat
 
             foreach (KeyValuePair<SlotKey, int> kvp in _allyFormation)
             {
-                if (!_unitPrefabsById.TryGetValue(kvp.Value, out GameObject prefab) || prefab == null)
+                if (!_unitDataById.TryGetValue(kvp.Value, out UnitData data) || data == null)
                 {
                     continue;
                 }
 
                 SlotKey slot = kvp.Key;
-                GameObject instance = Instantiate(prefab, GetSlotPosition(slot.column, slot.row), Quaternion.identity, unitsRoot);
-                Unit unit = instance.GetComponent<Unit>();
-                unit.SetVisualsVisible(false);
-                _slotUnits[slot.column, (int)slot.row] = unit;
+                _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
             }
 
             return false;
         }
 
-        private void SpawnAlliesFromPlacement(Unit[] placedUnits)
+        private void SpawnAlliesFromPlacement(UnitData[] placedUnits)
         {
             for (int placementIndex = 0; placementIndex < placedUnits.Length; placementIndex++)
             {
-                Unit placedUnit = placedUnits[placementIndex];
-                if (placedUnit == null)
+                UnitData data = placedUnits[placementIndex];
+                if (data == null)
                 {
                     continue;
                 }
 
                 SlotKey slot = PlacementIndexToSlotKey(placementIndex);
-                GameObject instance = Instantiate(placedUnit.gameObject, GetSlotPosition(slot.column, slot.row), Quaternion.identity, unitsRoot);
-                Unit unit = instance.GetComponent<Unit>();
-                unit.SetVisualsVisible(false);
-                _slotUnits[slot.column, (int)slot.row] = unit;
+                _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
             }
+        }
+
+        /// <summary>
+        /// 공용 아군 프리팹을 비활성 상태로 Instantiate하여 UnitData로 Configure()한 뒤 활성화합니다.
+        /// (Awake()가 Configure()에서 설정한 값을 읽어 초기화하므로 순서가 중요합니다.)
+        /// </summary>
+        private Unit SpawnAllyUnit(UnitData data, Vector3 position)
+        {
+            if (allyTemplatePrefab == null)
+            {
+                Debug.LogError("[CombatManager] allyTemplatePrefab이 연결되지 않았습니다.", this);
+                return null;
+            }
+
+            GameObject instance = Instantiate(allyTemplatePrefab, position, Quaternion.identity, unitsRoot);
+            Unit unit = instance.GetComponent<Unit>();
+            unit.Configure(data);
+            instance.SetActive(true);
+            unit.SetVisualsVisible(false);
+
+            return unit;
         }
 
         // UnitPlaceScene 배치 그리드(인덱스 0-8, row-major: row=idx/3 위→아래, col=idx%3 왼쪽→오른쪽)를
@@ -359,8 +377,7 @@ namespace OzGameLab01.Combat
 
         /// <summary>
         /// 화면 하단 유닛 정보 패널에 현재 전투 중인 아군을 표시합니다.
-        /// 초상화는 스폰된 유닛의 SpriteRenderer에서, 이름은 프리팹 이름에서 가져옵니다
-        /// (유닛 표시 이름 데이터가 아직 없어 그레이박스로 대체).
+        /// 초상화는 스폰된 유닛의 SpriteRenderer에서, 이름은 UnitData에서 가져옵니다.
         /// </summary>
         private void PopulateUnitInfoPanel()
         {
@@ -391,15 +408,19 @@ namespace OzGameLab01.Combat
                     item.SetPortrait(spriteRenderer.sprite);
                 }
 
-                if (_unitPrefabsById.TryGetValue(kvp.Value, out GameObject prefab) && prefab != null)
+                if (_unitDataById.TryGetValue(kvp.Value, out UnitData data) && data != null)
                 {
-                    item.SetUnitName(prefab.name);
+                    item.SetUnitName(data.name);
                 }
             }
 
+            Sprite allyIconSprite = allyTemplatePrefab != null
+                ? allyTemplatePrefab.GetComponentInChildren<SpriteRenderer>(true)?.sprite
+                : null;
+
             foreach (int unitId in supportFormation)
             {
-                if (!_unitPrefabsById.TryGetValue(unitId, out GameObject prefab) || prefab == null)
+                if (!_unitDataById.TryGetValue(unitId, out UnitData data) || data == null)
                 {
                     continue;
                 }
@@ -410,13 +431,13 @@ namespace OzGameLab01.Combat
                     continue;
                 }
 
-                SpriteRenderer spriteRenderer = prefab.GetComponentInChildren<SpriteRenderer>();
-                if (spriteRenderer != null)
+                item.SetPortrait(allyIconSprite);
+                if (item.PortraitImage != null)
                 {
-                    item.SetPortrait(spriteRenderer.sprite);
+                    item.PortraitImage.color = data.color;
                 }
 
-                item.SetUnitName(prefab.name);
+                item.SetUnitName(data.name);
             }
         }
 
