@@ -289,6 +289,7 @@ GameObject:
   - component: {fileID: 7898797564367425509}
   - component: {fileID: 162884615813773936}
   - component: {fileID: 5210905250746118847}
+  - component: {fileID: 9014682470215004950}
   m_Layer: 0
   m_Name: EventChoiceButton
   m_TagString: Untagged
@@ -397,7 +398,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7898797564367425509}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9014682470215004950}
+        m_TargetAssemblyTypeName: OzGameLab01.UI.EventChoiceUI, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &5210905250746118847
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -405,7 +418,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8282477529149709784}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 77c8ff4c52be0c345b653a47e102f6b6, type: 3}
   m_Name: 
@@ -414,6 +427,21 @@ MonoBehaviour:
   iconRoot: {fileID: 9202476677317278603}
   iconImage: {fileID: 6823780924535884667}
   choiceText: {fileID: 3272079335974580828}
+--- !u!114 &9014682470215004950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8282477529149709784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 257869544a2a4ca4db60c3cf14b0c2c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.EventChoiceUI
+  choiceImg: {fileID: 6823780924535884667}
+  choiceDialog: {fileID: 3272079335974580828}
+  eventChoiceIndex: 0
 --- !u!1 &9202476677317278603
 GameObject:
   m_ObjectHideFlags: 0

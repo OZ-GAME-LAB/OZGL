@@ -15,10 +15,16 @@ namespace OzGameLab01.UI
         public int eventChoiceIndex;
 
         public event Action<int> OnChoice;
-        public bool SetEventChoiceUI(EventChoice choiceSO)
+        public bool SetEventChoiceUI(EventChoice eventChoice)
         {
-            //choiceImg
-            choiceDialog.text = choiceSO.ChoiceDialog;
+            choiceImg.sprite = eventChoice.ChoiceSprite;
+            choiceDialog.text = eventChoice.ChoiceDialog;
+
+            return true;
+        }
+        public bool SetEventActionUI(EventChoice eventAction)
+        {
+            choiceDialog.text = eventAction.ChoiceDialog;
 
             return true;
         }

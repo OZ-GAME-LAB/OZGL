@@ -13,13 +13,14 @@ GameObject:
   - component: {fileID: 3172391538606773765}
   - component: {fileID: 3233196508863464740}
   - component: {fileID: 5018876570960597052}
+  - component: {fileID: 9075945919751357883}
   m_Layer: 0
   m_Name: EventActionButton
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &5356037896804548537
 RectTransform:
   m_ObjectHideFlags: 0
@@ -121,8 +122,34 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3172391538606773765}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 9075945919751357883}
+        m_TargetAssemblyTypeName: OzGameLab01.UI.EventChoiceUI, Assembly-CSharp
+        m_MethodName: OnClick
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &5018876570960597052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269973368548940448}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b2f1fc30beff59940a6caaa8b2018edb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.EventActionButtonView
+  button: {fileID: 3233196508863464740}
+  labelText: {fileID: 6581467973170595052}
+--- !u!114 &9075945919751357883
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -131,11 +158,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 269973368548940448}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b2f1fc30beff59940a6caaa8b2018edb, type: 3}
+  m_Script: {fileID: 11500000, guid: 257869544a2a4ca4db60c3cf14b0c2c7, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.EventActionButtonView
-  button: {fileID: 3233196508863464740}
-  labelText: {fileID: 6581467973170595052}
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.EventChoiceUI
+  choiceImg: {fileID: 0}
+  choiceDialog: {fileID: 6581467973170595052}
+  eventChoiceIndex: 0
 --- !u!1 &3423595898088720671
 GameObject:
   m_ObjectHideFlags: 0

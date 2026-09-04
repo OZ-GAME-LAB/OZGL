@@ -14,17 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ChoiceEventSO
   id: 1
   eventTitle: Choice Event_1
-  eventDialog: Dialog 0000000000000000000000
+  eventDialog: Choice Relic Or Unit
   choices:
   - choiceIndex: 0
+    choiceSprite: {fileID: 21300000, guid: 4662ca441ed90dd41a54cc75a2e02006, type: 3}
     choiceDialog: 'relic [0]'
-    resultCategory: 0
+    choiceCategory: 0
     resultTargetID: 0
   - choiceIndex: 1
+    choiceSprite: {fileID: 21300000, guid: 8ad8a0b8e173e9a48896a786ebc86686, type: 3}
     choiceDialog: 'relic [1]'
-    resultCategory: 0
+    choiceCategory: 0
     resultTargetID: 1
   - choiceIndex: 2
+    choiceSprite: {fileID: 21300000, guid: fcb33d8208f87364e9e2993e42a077a0, type: 3}
     choiceDialog: 'unit [0]'
-    resultCategory: 1
+    choiceCategory: 0
     resultTargetID: 0
