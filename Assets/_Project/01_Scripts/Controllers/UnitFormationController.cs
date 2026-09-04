@@ -393,7 +393,7 @@ namespace OzGameLab01.Controllers
                 return true;
             }
 
-            if (sourceIndex < 0 &&targetUnitItem == null)
+            if (sourceIndex < 0 && targetUnitItem == null)
             {
                 return PlaceUnitInEmptyBattleSlot(unitItem, draggedUnitData, targetSlot);
             }
@@ -446,7 +446,7 @@ namespace OzGameLab01.Controllers
         /// <summary>
         /// 전투 유닛을 비어 있는 다른 전투 슬롯으로 이동합니다.
         /// </summary>
-        private bool MoveBattleUnitToEmptySlot(UnitItemView unitItem, UnitData unitData, 
+        private bool MoveBattleUnitToEmptySlot(UnitItemView unitItem, UnitData unitData,
             int sourceIndex, UnitSlotItemView targetSlot)
         {
             UnitSlotItemView sourceSlot = FindSlot(UnitSlotType.Battle, sourceIndex);
@@ -474,10 +474,10 @@ namespace OzGameLab01.Controllers
         /// 전투 슬롯의 기존 유닛을 보유 목록 유닛으로 교체합니다.
         /// </summary>
         private bool ReplaceBattleUnit(
-            UnitItemView unitItem, 
-            UnitData unitData, 
+            UnitItemView unitItem,
+            UnitData unitData,
             UnitItemView targetUnitItem,
-            int targetIndex, 
+            int targetIndex,
             UnitSlotItemView targetSlot)
         {
             MoveUnitItemToList(targetUnitItem);
@@ -495,7 +495,7 @@ namespace OzGameLab01.Controllers
         /// <summary>
         /// 두 전투 슬롯에 배치된 유닛의 위치를 교체합니다.
         /// </summary>
-        private bool SwapBattleUnits( 
+        private bool SwapBattleUnits(
             UnitItemView unitItem,
             UnitData unitData,
             UnitItemView targetUnitItem,
@@ -1095,4 +1095,6 @@ namespace OzGameLab01.Controllers
             return supportUnitItems[slotIndex];
         }
     }
+
+
 }
