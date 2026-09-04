@@ -3732,7 +3732,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 08a83dab393e7b54ab5d9ab0f9b78bbb, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BattleFormationInfoController
   battleUIView: {fileID: 3483375574023889761}
 --- !u!1 &8974790116459510008

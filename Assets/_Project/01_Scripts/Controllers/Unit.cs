@@ -107,6 +107,25 @@ namespace OzGameLab01.Combat
             }
         }
 
+        /// <summary>
+        /// 공용 아군 프리팹을 UnitData 기준으로 설정합니다.
+        /// Awake()가 이 값들을 읽어 초기화하므로, 프리팹을 비활성 상태로 Instantiate한 뒤
+        /// 활성화하기 전에 호출해야 합니다.
+        /// </summary>
+        public void Configure(UnitData data)
+        {
+            skillType = data.skillType;
+            maxHP = data.healthPoint;
+            basicAttack.damage = data.attackPoint;
+            basicAttack.cooldown = data.basicAttackCooldown;
+            skillAttack.cooldown = data.skillCooldown;
+
+            if (spriteRenderer != null)
+            {
+                spriteRenderer.color = data.color;
+            }
+        }
+
         public void ApplySynergyBonus(float hpMultiplier, float attackMultiplier)
         {
             maxHP *= hpMultiplier;
@@ -115,6 +134,23 @@ namespace OzGameLab01.Combat
 
             basicAttack.damage *= attackMultiplier;
             skillAttack.damage *= attackMultiplier;
+        }
+
+        /// <summary>
+        /// 스프라이트, 이름표, 체력바 등 화면 표시를 전환합니다.
+        /// 전투 로직(타겟팅, 데미지, All 리스트)은 그대로 유지한 채 화면 표시만 끕니다.
+        /// </summary>
+        public void SetVisualsVisible(bool visible)
+        {
+            foreach (Renderer childRenderer in GetComponentsInChildren<Renderer>(true))
+            {
+                childRenderer.enabled = visible;
+            }
+
+            if (healthBar != null)
+            {
+                healthBar.gameObject.SetActive(visible);
+            }
         }
 
         private Unit ResolveTarget()

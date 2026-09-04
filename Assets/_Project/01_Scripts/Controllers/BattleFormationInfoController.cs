@@ -20,7 +20,7 @@ namespace OzGameLab01.Controllers
         [SerializeField]
         [Tooltip("배틀 UI 전체 화면을 관리하는 View")]
         private BattleUIView battleUIView;
-               
+
         private readonly List<GameObject> createdSlotIcons = new List<GameObject>();
 
         private void Start()

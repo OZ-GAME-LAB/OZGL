@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OzGameLab01.Combat;
 using OzGameLab01.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -11,7 +12,6 @@ namespace OzGameLab01.Controllers
     /// </summary>
     public class UnitFormationController : MonoBehaviour
     {
-        private const int TestUnitCount = 5;
         private const int BattleSlotCount = 9;
         private const int MaxBattleUnitCount = 4;
         private const int SupportSlotCount = 2;
@@ -26,6 +26,14 @@ namespace OzGameLab01.Controllers
         [SerializeField]
         [Tooltip("보유 유닛 목록 생성에 사용할 원본 아이템")]
         private UnitItemView unitItemTemplate;
+
+        [SerializeField]
+        [Tooltip("보유 유닛 목록의 원본 데이터. CombatManager와 동일한 id 체계를 공유합니다.")]
+        private UnitRosterData rosterData;
+
+        [SerializeField]
+        [Tooltip("보유 유닛 아이콘에 쓰이는 공용 스프라이트. 모든 아군이 같은 스프라이트를 색상만 다르게 사용합니다.")]
+        private Sprite unitIconSprite;
 
         private readonly List<UnitData> testUnitDataList = new List<UnitData>();
 
@@ -48,7 +56,6 @@ namespace OzGameLab01.Controllers
         private bool dragDropHandled;
 
         private UnitFormationCombatLink formationCombatLink;
-
 
         /// <summary>
         /// 현재 배치 화면에 연결된 테스트 유닛 데이터를 반환합니다.
@@ -94,7 +101,7 @@ namespace OzGameLab01.Controllers
 
         private void Start()
         {
-            CreateTestUnitData();
+            LoadRosterUnitData();
             CreateUnitItems();
             UpdateUnitCount();
         }
@@ -140,58 +147,41 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 임시로 사용할 서로 다른 테스트 유닛 5명의 데이터를 생성합니다.
+        /// UnitRosterData(CombatManager와 공유하는 id 체계)를 기준으로 보유 유닛 데이터를 생성합니다.
         /// </summary>
-        private void CreateTestUnitData()
+        private void LoadRosterUnitData()
         {
             testUnitDataList.Clear();
 
-            testUnitDataList.Add(CreateUnitData(
-                1001, "Test Unit 01", 100, 10, 5, 3, 0, 10, 5));
-
-            testUnitDataList.Add(CreateUnitData(
-                1002, "Test Unit 02", 110, 12, 7, 4, 0, 9, 6));
-
-            testUnitDataList.Add(CreateUnitData(
-                1003, "Test Unit 03", 90, 15, 10, 5, 2, 12, 7));
-
-            testUnitDataList.Add(CreateUnitData(
-                1004, "Test Unit 04", 130, 8, 4, 8, 0, 7, 4));
-
-            testUnitDataList.Add(CreateUnitData(
-                1005, "Test Unit 05", 95, 14, 8, 6, 3, 11, 8));
-        }
-
-        /// <summary>
-        /// 테스트용 유닛 데이터를 생성합니다.
-        /// </summary>
-        private UnitData CreateUnitData(
-            int id,
-            string unitName,
-            int healthPoint,
-            int attackPoint,
-            int criticalRate,
-            int dodgeRate,
-            int bloodDrain,
-            int attackSpeed,
-            int skillCooldown)
-        {
-            return new UnitData
+            if (rosterData == null)
             {
-                id = id,
-                name = unitName,
-                healthPoint = healthPoint,
-                attackPoint = attackPoint,
-                criticalRate = criticalRate,
-                dodgeRate = dodgeRate,
-                bloodDrain = bloodDrain,
-                attackSpeed = attackSpeed,
-                skillCooldown = skillCooldown
-            };
+                //Debug.LogError("[UnitFormationController] UnitRosterData가 연결되지 않았습니다.", this);
+                return;
+            }
+
+            foreach (UnitData source in rosterData.UnitStats)
+            {
+                if (source == null)
+                {
+                    continue;
+                }
+
+                testUnitDataList.Add(new UnitData
+                {
+                    id = source.id,
+                    name = source.name,
+                    healthPoint = source.healthPoint,
+                    attackPoint = source.attackPoint,
+                    basicAttackCooldown = source.basicAttackCooldown,
+                    skillCooldown = source.skillCooldown,
+                    color = source.color,
+                    skillType = source.skillType
+                });
+            }
         }
 
         /// <summary>
-        /// 테스트 유닛 데이터에 대응하는 보유 유닛 아이템을 생성합니다.
+        /// 보유 유닛 데이터에 대응하는 보유 유닛 아이템을 생성합니다.
         /// </summary>
         private void CreateUnitItems()
         {
@@ -210,12 +200,14 @@ namespace OzGameLab01.Controllers
             unitDataByItem.Clear();
             unitItemTemplate.gameObject.SetActive(false);
 
-            for (int i = 0; i < TestUnitCount; i++)
+            for (int i = 0; i < testUnitDataList.Count; i++)
             {
                 UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
 
                 unitItem.name = $"Unit_Item_{i + 1:00}";
-                unitItem.SetIconColor(GetTestUnitColor(i));
+
+                unitItem.SetIcon(unitIconSprite);
+                unitItem.SetIconColor(testUnitDataList[i].color);
                 unitItem.SetSelected(false);
                 unitItem.gameObject.SetActive(true);
 
@@ -223,23 +215,6 @@ namespace OzGameLab01.Controllers
 
                 unitView.RegisterUnitItem(unitItem);
             }
-        }
-
-        /// <summary>
-        /// 테스트 유닛을 구분하기 위한 임시 색상을 반환합니다.
-        /// </summary>
-        private Color GetTestUnitColor(int index)
-        {
-            Color[] colors =
-            {
-                new Color(0.65f, 0.25f, 0.90f),
-                new Color(0.20f, 0.75f, 0.80f),
-                new Color(0.45f, 0.80f, 0.40f),
-                new Color(0.85f, 0.30f, 0.45f),
-                new Color(0.95f, 0.75f, 0.25f)
-            };
-
-            return colors[index];
         }
 
         /// <summary>

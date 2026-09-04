@@ -30,22 +30,8 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        [Serializable]
-        private sealed class UnitPrefabLink
-        {
-            [SerializeField]
-            [Tooltip("유닛 데이터의 ID")]
-            private int unitId;
-
-            [SerializeField]
-            [Tooltip("해당 ID에 대응하는 실제 전투 유닛 프리팹")]
-            private Unit unitPrefab;
-
-            public int UnitId => unitId;
-            public Unit UnitPrefab => unitPrefab;
-        }
-
         private const int BattleSlotCount = 9;
+
         private const int SupportSlotCount = 2;
 
         private static readonly TransferredUnit[] battleUnits = new TransferredUnit[BattleSlotCount];
@@ -56,10 +42,6 @@ namespace OzGameLab01.Controllers
         [SerializeField]
         [Tooltip("유닛 배치 정보를 관리하는 컨트롤러")]
         private UnitFormationController formationController;
-
-        [SerializeField]
-        [Tooltip("유닛 ID와 실제 전투 프리팹의 연결 목록")]
-        private List<UnitPrefabLink> unitPrefabLinks = new List<UnitPrefabLink>();
 
         public static IReadOnlyList<TransferredUnit> BattleUnits => battleUnits;
 
@@ -87,7 +69,7 @@ namespace OzGameLab01.Controllers
 
             SaveTransferredUnits();
 
-            SceneTransitioner.AllyFormationSlots = CreateCombatFormation();
+            SceneTransitioner.AllyFormationData = CreateCombatFormation();
 
             Debug.Log("[UnitFormationCombatLink] 최신 유닛 편성을 저장했습니다.", this);
         }
@@ -137,47 +119,23 @@ namespace OzGameLab01.Controllers
                 color);
         }
 
-        private Unit[] CreateCombatFormation()
+        /// <summary>
+        /// 전투 슬롯에 배치된 유닛의 UnitData를 그대로 전달합니다.
+        /// 아군은 공용 프리팹 하나를 이 데이터로 Configure()하여 스폰하므로,
+        /// id별 프리팹을 따로 찾을 필요가 없습니다.
+        /// </summary>
+        private UnitData[] CreateCombatFormation()
         {
-            Unit[] combatFormation = new Unit[BattleSlotCount];
+            UnitData[] combatFormation = new UnitData[BattleSlotCount];
 
             for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
             {
                 TransferredUnit transferredUnit = battleUnits[slotIndex];
 
-                if (transferredUnit == null || transferredUnit.Data == null)
-                {
-                    continue;
-                }
-
-                Unit unitPrefab = FindUnitPrefab(transferredUnit.Data.id);
-
-                if (unitPrefab == null)
-                {
-                    Debug.LogWarning(
-                        $"[UnitFormationCombatLink] ID {transferredUnit.Data.id}에 " +
-                        $"연결된 전투 프리팹이 없습니다. Slot: {slotIndex}", this);
-
-                    continue;
-                }
-
-                combatFormation[slotIndex] = unitPrefab;
+                combatFormation[slotIndex] = transferredUnit?.Data;
             }
 
             return combatFormation;
-        }
-
-        private Unit FindUnitPrefab(int unitId)
-        {
-            foreach (UnitPrefabLink prefabLink in unitPrefabLinks)
-            {
-                if (prefabLink != null && prefabLink.UnitId == unitId)
-                {
-                    return prefabLink.UnitPrefab;
-                }
-            }
-
-            return null;
         }
 
         private static void ClearTransferredUnits()
@@ -191,7 +149,7 @@ namespace OzGameLab01.Controllers
         private static void ResetOnPlayStart()
         {
             ClearTransferredUnits();
-            SceneTransitioner.AllyFormationSlots = null;
+            SceneTransitioner.AllyFormationData = null;
         }
     }
 }

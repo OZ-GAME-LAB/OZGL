@@ -1204,6 +1204,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.UnitFormationController
   unitView: {fileID: 7490831117867674770}
   unitItemTemplate: {fileID: 8567529937442773360}
+  rosterData: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
+  unitIconSprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
 --- !u!114 &6153368479699891312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1217,8 +1219,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.UnitFormationCombatLink
   formationController: {fileID: 3482646927137003859}
-  unitPrefabLinks: []
-  combatSceneName: 03_Combat
 --- !u!1 &3110768678311358083
 GameObject:
   m_ObjectHideFlags: 0
