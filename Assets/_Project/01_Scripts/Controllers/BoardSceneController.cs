@@ -189,7 +189,7 @@ namespace OzGameLab01.Controllers
             if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
 
             BoardRunData.BeginBattle(bossNode.Position, true);
-            transitioner.LoadBossScene();
+            transitioner.LoadCombatScene();
         }
 
         private bool TryGetSceneTransitioner(out SceneTransitioner transitioner)
