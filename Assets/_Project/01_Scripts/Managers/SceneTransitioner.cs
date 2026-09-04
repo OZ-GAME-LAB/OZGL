@@ -219,18 +219,18 @@ namespace OzGameLab01.Managers
         /// <summary>
         /// 임시 보스 전투 씬으로 이동합니다.
         /// </summary>
-        public void LoadBossScene()
-        {
-            LoadScene(SceneNames.Boss);
-        }
+        //public void LoadBossScene()
+        //{
+        //    LoadScene(SceneNames.Boss);
+        //}
 
         /// <summary>
         /// 결과 씬으로 이동합니다.
         /// </summary>
-        public void LoadResultScene()
-        {
-            LoadScene(SceneNames.Result);
-        }
+        //public void LoadResultScene()
+        //{
+        //    LoadScene(SceneNames.Result);
+        // }
 
         private IEnumerator LoadSceneRoutine(string sceneName)
         {
