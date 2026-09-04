@@ -27,7 +27,7 @@ namespace OzGameLab01.Controllers
         [SerializeField] private UnitFormationController _unitFormationController;
 
         [Header("Event UI")]
-        public GameObject eventUIPanel;
+        public ChoiceEventManager eventUIPanel;
 
         // ==================== 외부 시스템 통지용 이벤트 ====================
 
@@ -155,7 +155,11 @@ namespace OzGameLab01.Controllers
                 case NodeType.Elite: HandleBattleNode(arrivedNode, true); break;
                 case NodeType.Boss: HandleBossNode(arrivedNode); break;
                 case NodeType.Event:
-                    if (eventUIPanel != null) eventUIPanel.SetActive(true);
+                    if (eventUIPanel != null)
+                    {
+                        eventUIPanel.gameObject.SetActive(true);
+                        eventUIPanel.RandomEventOpenTest();
+                    }
                     break;
             }
         }
