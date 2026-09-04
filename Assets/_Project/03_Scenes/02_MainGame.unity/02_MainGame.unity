@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -1574,8 +1574,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 332ec179d01e4ca4687fd19649f3b8f1, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.PlayerInventoryManager
+  startingRoster: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
 --- !u!4 &1212898610
 Transform:
   m_ObjectHideFlags: 0
@@ -1722,7 +1723,7 @@ MonoBehaviour:
   _nightEventPopup: {fileID: 0}
   _timeStatusHud: {fileID: 0}
   _unitFormationController: {fileID: 0}
-  eventUIPanel: {fileID: 756050371}
+  _eventUIPanel: {fileID: 0}
 --- !u!4 &1575848855
 Transform:
   m_ObjectHideFlags: 0
@@ -2362,17 +2363,31 @@ MonoBehaviour:
   waterClusterCount: 1
   minWaterClusterSize: 1
   maxWaterClusterSize: 5
+  forceUnitAtStart: 1
   bossCount: 1
   minBossDistance: 5
   minBossDistanceFromStart: 30
+  maxBossDistanceFromStart: 999
   shopCount: 0
-  eliteCount: 0
-  eventCount: 8
-  battleCount: 40
   minShopDistance: 3
+  minShopDistFromStart: 0
+  maxShopDistFromStart: 999
+  eliteCount: 0
   minEliteDistance: 15
+  minEliteDistFromStart: 0
+  maxEliteDistFromStart: 999
+  eventCount: 8
   minEventDistance: 2
+  minEventDistFromStart: 0
+  maxEventDistFromStart: 999
+  battleCount: 40
   minBattleDistance: 3
+  minBattleDistFromStart: 0
+  maxBattleDistFromStart: 999
+  unitAcquisitionCount: 2
+  minUnitAcquisitionDistance: 4
+  minUnitAcquisitionDistFromStart: 2
+  maxUnitAcquisitionDistFromStart: 999
 --- !u!4 &1930314712
 Transform:
   m_ObjectHideFlags: 0
