@@ -27,7 +27,7 @@ namespace OzGameLab01.Controllers
         [SerializeField] private UnitFormationController _unitFormationController;
 
         [Header("Event UI")]
-        public ChoiceEventManager eventUIPanel;
+        [SerializeField] private ChoiceEventManager _eventUIPanel;
 
         // ==================== 외부 시스템 통지용 이벤트 ====================
 
@@ -46,6 +46,12 @@ namespace OzGameLab01.Controllers
                 Debug.LogError("[BoardSceneController] BoardPlayerController를 찾을 수 없습니다.", this);
                 enabled = false;
                 return;
+            }
+
+            if(_eventUIPanel == null)
+            {
+                _eventUIPanel = FindFirstObjectByType<ChoiceEventManager>();
+                _eventUIPanel.gameObject.SetActive(false);
             }
 
             // [수정] 이제 버튼 클릭 처리는 BoardUIController가 전담합니다.
@@ -155,10 +161,10 @@ namespace OzGameLab01.Controllers
                 case NodeType.Elite: HandleBattleNode(arrivedNode, true); break;
                 case NodeType.Boss: HandleBossNode(arrivedNode); break;
                 case NodeType.Event:
-                    if (eventUIPanel != null)
+                    if (_eventUIPanel != null)
                     {
-                        eventUIPanel.gameObject.SetActive(true);
-                        eventUIPanel.RandomEventOpenTest();
+                        _eventUIPanel.gameObject.SetActive(true);
+                        _eventUIPanel.RandomEventOpenTest();
                     }
                     break;
             }
