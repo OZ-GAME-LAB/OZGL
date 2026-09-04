@@ -52,20 +52,42 @@ namespace OZGL.Map
         public int minWaterClusterSize = 1;
         public int maxWaterClusterSize = 5;
 
-        [Header("Tile Counts")]
+        // --- [수정됨] 시작 동선 설계 및 최소/최대 거리 변수 세팅 ---
+        [Header("Start Sequence Settings")]
+        [Tooltip("시작 타일의 3면을 바위로 막고, 1면에 유닛 획득 타일을 확정 배치하여 초반 획득을 강제합니다.")]
+        public bool forceUnitAtStart = true;
+
+        [Header("Tile Counts & Distances")]
         public int bossCount = 1;
         public int minBossDistance = 5;
         public int minBossDistanceFromStart = 4;
+        public int maxBossDistanceFromStart = 999; // 최대 거리 추가됨
 
         public int shopCount = 3;
-        public int eliteCount = 3;
-        public int eventCount = 8;
-        public int battleCount = 15;
-
         public int minShopDistance = 3;
+        public int minShopDistFromStart = 0;
+        public int maxShopDistFromStart = 999; // 최대 거리 추가됨
+
+        public int eliteCount = 3;
         public int minEliteDistance = 3;
+        public int minEliteDistFromStart = 0;
+        public int maxEliteDistFromStart = 999; // 최대 거리 추가됨
+
+        public int eventCount = 8;
         public int minEventDistance = 2;
+        public int minEventDistFromStart = 0;
+        public int maxEventDistFromStart = 999; // 최대 거리 추가됨
+
+        public int battleCount = 15;
         public int minBattleDistance = 1;
+        public int minBattleDistFromStart = 0;
+        public int maxBattleDistFromStart = 999; // 최대 거리 추가됨
+
+        public int unitAcquisitionCount = 2;
+        public int minUnitAcquisitionDistance = 4;
+        public int minUnitAcquisitionDistFromStart = 2;
+        public int maxUnitAcquisitionDistFromStart = 999; // 유닛 획득 타일 설정 추가됨
+        // --------------------------------------------------------
 
         private Dictionary<Vector2Int, MapNode> _nodeDict = new Dictionary<Vector2Int, MapNode>();
         private List<MapNode> _allNodes = new List<MapNode>();
@@ -225,30 +247,61 @@ namespace OZGL.Map
 
         // 맵의 모든 타일이 시작점으로부터 몇 걸음 떨어져 있는지(Depth) 저장할 캐시
         private Dictionary<MapNode, int> _nodeDepths = new Dictionary<MapNode, int>();
+
         private void AssignNodeTypes()
         {
             List<MapNode> availableNodes = new List<MapNode>(_allNodes);
             availableNodes.RemoveAll(n => n.Type == NodeType.Start);
             if (availableNodes.Count == 0) return;
+
             // 1. 장애물 먼저 배치 (이후 거리를 잴 때 길을 막기 위함)
             PlaceObstacleClusters(availableNodes);
+
             // 2. Start 타일을 찾고, 맵 전체의 걸음 수(Depth)를 단 한 번 계산하여 캐싱
             MapNode startNode = null;
             foreach (var node in _allNodes)
                 if (node.Type == NodeType.Start) { startNode = node; break; }
+
+            // [추가됨] 강제 시작 동선 셋팅 (시작 타일 3면 차단, 1면 유닛 확정 획득)
+            if (forceUnitAtStart && startNode != null)
+            {
+                List<MapNode> neighbors = new List<MapNode>(startNode.ConnectedNodes);
+                if (neighbors.Count > 0)
+                {
+                    // 연결된 타일 중 1개를 랜덤으로 골라 유닛 획득 타일로 만듭니다.
+                    MapNode unitNode = neighbors[Random.Range(0, neighbors.Count)];
+                    unitNode.Type = NodeType.UnitAcquisition;
+                    availableNodes.Remove(unitNode);
+
+                    // 나머지 연결된 시작점 주변 타일들은 장애물(바위)로 막아버립니다.
+                    foreach (MapNode n in neighbors)
+                    {
+                        if (n != unitNode && n.Type == NodeType.Normal)
+                        {
+                            n.Type = NodeType.Rock;
+                            availableNodes.Remove(n);
+                        }
+                    }
+                }
+            }
+
             CalculateAllNodeDepths(startNode);
+
             // 3. 타일 배치 (isSequential 옵션을 true로 주면 순차적으로 더 깊은 곳에 스폰됨)
             // 최종 보스: 순차 배치 켬 (점점 깊은 곳)
-            //PlaceNodesOfType(NodeType.Boss, bossCount, minBossDistance, availableNodes, minBossDistanceFromStart, true);
+            //PlaceNodesOfType(NodeType.Boss, bossCount, minBossDistance, availableNodes, minBossDistanceFromStart, maxBossDistanceFromStart, true);
+
+            // [추가됨] 랜덤 유닛 획득 타일 배치
+            PlaceNodesOfType(NodeType.UnitAcquisition, unitAcquisitionCount, minUnitAcquisitionDistance, availableNodes, minUnitAcquisitionDistFromStart, maxUnitAcquisitionDistFromStart, false);
 
             // 삭제 예정이라 하셨지만 일단 둡니다.
-            PlaceNodesOfType(NodeType.Shop, shopCount, minShopDistance, availableNodes, 0, false);
+            PlaceNodesOfType(NodeType.Shop, shopCount, minShopDistance, availableNodes, minShopDistFromStart, maxShopDistFromStart, false);
 
             // 엘리트: 순차 배치 켬! (엘리트1 -> 2 -> 3 순으로 맵의 더 깊은 곳으로 강제 전진)
-            //PlaceNodesOfType(NodeType.Elite, eliteCount, minEliteDistance, availableNodes, minEliteDistance, true);
+            //PlaceNodesOfType(NodeType.Elite, eliteCount, minEliteDistance, availableNodes, minEliteDistFromStart, maxEliteDistFromStart, true);
 
-            PlaceNodesOfType(NodeType.Event, eventCount, minEventDistance, availableNodes, 0, false);
-            PlaceNodesOfType(NodeType.Battle, battleCount, minBattleDistance, availableNodes, 0, false);
+            PlaceNodesOfType(NodeType.Event, eventCount, minEventDistance, availableNodes, minEventDistFromStart, maxEventDistFromStart, false);
+            PlaceNodesOfType(NodeType.Battle, battleCount, minBattleDistance, availableNodes, minBattleDistFromStart, maxBattleDistFromStart, false);
         }
 
         // Start 타일로부터 맵 전체로 퍼져나가며 모든 타일의 '실제 도달 걸음 수'를 기록합니다.
@@ -370,7 +423,8 @@ namespace OZGL.Map
                    type == NodeType.WaterBody || type == NodeType.WaterEnd;
         }
 
-        private void PlaceNodesOfType(NodeType type, int count, int minDistance, List<MapNode> availableNodes, int minDistanceFromStart = 0, bool isSequential = false)
+        // [수정됨] 파라미터에 maxDistanceFromStart 가 추가되었습니다.
+        private void PlaceNodesOfType(NodeType type, int count, int minDistance, List<MapNode> availableNodes, int minDistanceFromStart = 0, int maxDistanceFromStart = 999, bool isSequential = false)
         {
             List<MapNode> placedNodes = new List<MapNode>();
             int currentCount = 0;
@@ -381,6 +435,7 @@ namespace OZGL.Map
                 attempts++;
                 MapNode candidate = availableNodes[Random.Range(0, availableNodes.Count)];
                 bool isValid = true;
+
                 // 1. 고립 검사 (사방이 막혔는지)
                 int walkableNeighbors = 0;
                 foreach (MapNode neighbor in candidate.ConnectedNodes)
@@ -388,6 +443,7 @@ namespace OZGL.Map
                     if (!IsObstacle(neighbor.Type)) walkableNeighbors++;
                 }
                 if (walkableNeighbors == 0) isValid = false;
+
                 // 2. 점진적 깊이(Depth) 검사 (미리 계산해둔 캐시 사용)
                 if (isValid)
                 {
@@ -399,18 +455,22 @@ namespace OZGL.Map
                         {
                             requiredDepth += (currentCount * minDistance);
                         }
-                        if (candidateDepth < requiredDepth) isValid = false;
+
+                        // [추가됨] 타일이 허용된 범위를 벗어나는지 (너무 가깝거나 너무 멀지 않은지) 검사합니다.
+                        if (candidateDepth < requiredDepth || candidateDepth > maxDistanceFromStart) isValid = false;
                     }
                     else
                     {
                         isValid = false; // 아예 도달 불가능한 타일
                     }
                 }
+
                 // 3. 동종 타일 간의 최소 거리 확보 (서로 뭉치지 않게 BFS 탐색)
                 if (isValid && placedNodes.Count > 0)
                 {
                     isValid = CheckDistanceToPlacedNodes(candidate, placedNodes, minDistance);
                 }
+
                 if (isValid)
                 {
                     candidate.Type = type;
@@ -424,6 +484,7 @@ namespace OZGL.Map
                 Debug.LogWarning($"[MapGenerator3] {type} 타일을 목표치({count}개)만큼 배치하지 못했습니다. (배치됨: {currentCount}개)");
             }
         }
+
         // 특정 노드(candidate)에서 이미 배치된 타일들(placedNodes)까지의 거리가 허용 반경 내에 있는지 BFS로 검사
         private bool CheckDistanceToPlacedNodes(MapNode candidate, List<MapNode> placedNodes, int minDistance)
         {
@@ -455,7 +516,7 @@ namespace OZGL.Map
             }
             return true;
         }
-        
+
 
         private IEnumerator AnimateMapGeneration()
         {
@@ -527,6 +588,7 @@ namespace OZGL.Map
                 case NodeType.Event: return _currentTheme.EventPrefab;
                 case NodeType.Elite: return _currentTheme.ElitePrefab;
                 case NodeType.Battle: return _currentTheme.BattlePrefab;
+                case NodeType.UnitAcquisition: return _currentTheme.UnitAcquisitionPrefab != null ? _currentTheme.UnitAcquisitionPrefab : _currentTheme.NormalPrefab; // [추가됨] 유닛 획득 타일
 
                 case NodeType.Tree: return GetRandomPrefab(_currentTheme.TreePrefabs, _currentTheme.NormalPrefab);
                 case NodeType.Rock: return GetRandomPrefab(_currentTheme.RockPrefabs, _currentTheme.NormalPrefab);
