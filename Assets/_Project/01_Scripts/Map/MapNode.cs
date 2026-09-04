@@ -17,8 +17,10 @@ namespace OZGL.Map
         WaterPuddle,
         WaterStart,
         WaterBody,
-        WaterEnd
+        WaterEnd,
+        UnitAcquisition // [추가됨] 유닛 획득 타일
     }
+
 
     public class MapNode
     {

@@ -16,8 +16,9 @@ MonoBehaviour:
   BossPrefab: {fileID: 4607070878859336425, guid: b3308cfd4075b6b4c871fd3052b822c4, type: 3}
   BattlePrefab: {fileID: 3818873648761647536, guid: e4ce07350acc1af4d927bbb04c2d5fca, type: 3}
   EventPrefab: {fileID: 91718390391217005, guid: 123936827043c1a4ba9aba176fac559f, type: 3}
-  ShopPrefab: {fileID: 889529249090256097, guid: ecf1cdc1380edb8489b447e8bd90cfed, type: 3}
+  ShopPrefab: {fileID: 0}
   ElitePrefab: {fileID: 8694107122199768055, guid: 2f83f1cb377a39a46b806b140f70a5c5, type: 3}
+  UnitAcquisitionPrefab: {fileID: 889529249090256097, guid: ecf1cdc1380edb8489b447e8bd90cfed, type: 3}
   TreePrefabs:
   - {fileID: 3143168772291780686, guid: 882a9e63de52f8342b57c857696310cc, type: 3}
   RockPrefabs:

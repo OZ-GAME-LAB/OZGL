@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace OZGL.Data
 {
-    // 유니티 프로젝트 창 우클릭(Create) 메뉴에서 데이터를 생성할 수 있도록 속성 추가
+    // 우클릭 에셋 창 크리에이트(Create) 메뉴에 항목을 띄워주는 속성 추가
     [CreateAssetMenu(fileName = "NewMapTheme", menuName = "OZGL/Data/MapTheme")]
     public class MapThemeData : ScriptableObject
     {
@@ -14,14 +14,15 @@ namespace OZGL.Data
         public GameObject EventPrefab;
         public GameObject ShopPrefab;
         public GameObject ElitePrefab;
+        public GameObject UnitAcquisitionPrefab; // [추가됨] 유닛 획득 타일 프리팹
 
         [Header("장애물 타일")]
-        [Tooltip("비워두면 맵 생성 시 해당 장애물 생성 로직을 무시합니다.")]
+        [Tooltip("배열에 여러 개를 넣으면 랜덤으로 선택합니다.")]
         public List<GameObject> TreePrefabs;
         public List<GameObject> RockPrefabs;
 
-        [Header("웅덩이, 호수 생성 시스템")]
-        [Tooltip("4가지 물 프리팹 중 하나라도 누락되면 물 지형을 생성하지 않습니다.")]
+        [Header("강, 호수 등 수계")]
+        [Tooltip("4개 타일 중 최소 하나는 비어있지 않아야 합니다.")]
         public GameObject WaterPuddlePrefab;
         public GameObject WaterStartPrefab;
         public List<GameObject> WaterBodyPrefabs;
