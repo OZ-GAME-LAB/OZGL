@@ -35,6 +35,19 @@ namespace OzGameLab01.Controllers
         [Tooltip("보유 유닛 아이콘에 쓰이는 공용 스프라이트. 모든 아군이 같은 스프라이트를 색상만 다르게 사용합니다.")]
         private Sprite unitIconSprite;
 
+        [Header("시너지 UI")]
+        [SerializeField]
+        [Tooltip("시너지 한 개를 표시하는 아이템 원본입니다. UnitView.SynergyContentRoot의 비활성 자식(템플릿)을 그대로 연결합니다.")]
+        private SynergyItemView synergyItemTemplate;
+
+        [SerializeField]
+        [Tooltip("발동 중인 시너지 아이템 색상입니다.")]
+        private Color synergyActiveColor = Color.white;
+
+        [SerializeField]
+        [Tooltip("보유 중이지만 아직 발동하지 않은 시너지 아이템 색상입니다.")]
+        private Color synergyInactiveColor = new Color(1f, 1f, 1f, 0.4f);
+
         private readonly List<UnitData> testUnitDataList = new List<UnitData>();
 
         private readonly Dictionary<UnitItemView, UnitData> unitDataByItem = new Dictionary<UnitItemView, UnitData>();
@@ -56,6 +69,8 @@ namespace OzGameLab01.Controllers
         private bool dragDropHandled;
 
         private UnitFormationCombatLink formationCombatLink;
+
+        private Dictionary<int, List<SynergyTrait>> unitTraitsById;
 
         /// <summary>
         /// 현재 배치 화면에 연결된 테스트 유닛 데이터를 반환합니다.
@@ -102,6 +117,7 @@ namespace OzGameLab01.Controllers
         private void Start()
         {
             LoadRosterUnitData();
+            BuildUnitTraitLookup();
             CreateUnitItems();
             UpdateUnitCount();
         }
@@ -177,6 +193,24 @@ namespace OzGameLab01.Controllers
                     color = source.color,
                     skillType = source.skillType
                 });
+            }
+        }
+
+        /// <summary>
+        /// CombatManager와 공유하는 유닛 id별 시너지 트레이트를 읽어 둡니다.
+        /// </summary>
+        private void BuildUnitTraitLookup()
+        {
+            unitTraitsById = new Dictionary<int, List<SynergyTrait>>();
+
+            if (rosterData == null)
+            {
+                return;
+            }
+
+            foreach (UnitRosterData.UnitTraitEntry entry in rosterData.UnitTraits)
+            {
+                unitTraitsById[entry.id] = entry.traits;
             }
         }
 
@@ -967,6 +1001,104 @@ namespace OzGameLab01.Controllers
             unitView.SetUnitCount(battleUnitCount, MaxBattleUnitCount);
 
             unitView.SetSupportUnitCount(supportUnitCount, SupportSlotCount);
+
+            RefreshSynergyPanel();
+        }
+
+        /// <summary>
+        /// 현재 전투 슬롯에 배치된 유닛 기준으로 시너지 보유 현황을 다시 계산해 표시합니다.
+        /// 발동 수가 높은 시너지가 먼저 오도록 정렬합니다.
+        /// </summary>
+        private void RefreshSynergyPanel()
+        {
+            if (rosterData == null || unitView == null || unitView.SynergyContentRoot == null || synergyItemTemplate == null)
+            {
+                return;
+            }
+
+            Dictionary<SynergyTrait, int> traitCounts = BuildTraitCounts();
+
+            Transform panelRoot = unitView.SynergyContentRoot;
+            for (int i = panelRoot.childCount - 1; i >= 0; i--)
+            {
+                Transform child = panelRoot.GetChild(i);
+
+                if (child == synergyItemTemplate.transform)
+                {
+                    continue;
+                }
+
+                Destroy(child.gameObject);
+            }
+
+            List<SynergyDefinition> sortedDefinitions = new List<SynergyDefinition>(rosterData.SynergyDefinitions);
+            sortedDefinitions.Sort((a, b) => GetTraitCount(traitCounts, b).CompareTo(GetTraitCount(traitCounts, a)));
+
+            foreach (SynergyDefinition definition in sortedDefinitions)
+            {
+                if (definition == null || definition.Trait == null)
+                {
+                    continue;
+                }
+
+                int count = GetTraitCount(traitCounts, definition);
+                if (count <= 0)
+                {
+                    continue;
+                }
+
+                bool isActive = definition.TryGetActiveTier(count, out _);
+                string stackText = definition.TryGetNextThreshold(count, out int nextThreshold)
+                    ? $"{count}/{nextThreshold}"
+                    : count.ToString();
+
+                SynergyItemView item = Instantiate(synergyItemTemplate, panelRoot);
+                item.gameObject.SetActive(true);
+                item.SetTitle(definition.Trait.DisplayName);
+                item.SetStackText(stackText);
+                item.SetBackgroundColor(isActive ? synergyActiveColor : synergyInactiveColor);
+            }
+        }
+
+        /// <summary>
+        /// 현재 전투 슬롯에 배치된 유닛들의 트레이트 보유 수를 센다.
+        /// (서브 슬롯 유닛은 CombatManager와 마찬가지로 시너지 계산에서 제외한다.)
+        /// </summary>
+        private Dictionary<SynergyTrait, int> BuildTraitCounts()
+        {
+            Dictionary<SynergyTrait, int> traitCounts = new Dictionary<SynergyTrait, int>();
+
+            foreach (UnitData data in battleUnitData)
+            {
+                if (data == null || !unitTraitsById.TryGetValue(data.id, out List<SynergyTrait> traits) || traits == null)
+                {
+                    continue;
+                }
+
+                foreach (SynergyTrait trait in traits)
+                {
+                    if (trait == null)
+                    {
+                        continue;
+                    }
+
+                    traitCounts.TryGetValue(trait, out int count);
+                    traitCounts[trait] = count + 1;
+                }
+            }
+
+            return traitCounts;
+        }
+
+        private static int GetTraitCount(Dictionary<SynergyTrait, int> traitCounts, SynergyDefinition definition)
+        {
+            if (definition == null || definition.Trait == null)
+            {
+                return 0;
+            }
+
+            traitCounts.TryGetValue(definition.Trait, out int count);
+            return count;
         }
 
         /// <summary>
