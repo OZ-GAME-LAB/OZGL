@@ -166,7 +166,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
+  m_Name:
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -385,9 +385,25 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 1155921273090291151, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1155921273090291151, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 1155921273090291151, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 90
+      objectReference: {fileID: 0}
     - target: {fileID: 1223840930512090240, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1792544508099939396, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -35
       objectReference: {fileID: 0}
     - target: {fileID: 1817075866432939802, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1705,6 +1721,7 @@ MonoBehaviour:
   _nightInterval: 3
   _nightEventPopup: {fileID: 0}
   _timeStatusHud: {fileID: 0}
+  _unitFormationController: {fileID: 0}
   eventUIPanel: {fileID: 756050371}
 --- !u!4 &1575848855
 Transform:
