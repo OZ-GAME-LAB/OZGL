@@ -69,6 +69,7 @@ namespace OzGameLab01.Combat
         [SerializeField] private List<int> supportFormation = new List<int>();
 
         private Dictionary<SlotKey, int> _allyFormation;
+        private Dictionary<SlotKey, int> _spawnedFormation;
         private Dictionary<int, UnitData> _unitDataById;
         private Dictionary<int, List<SynergyTrait>> _unitTraitsById;
         private Dictionary<SynergyTrait, int> _traitCounts;
@@ -188,6 +189,8 @@ namespace OzGameLab01.Combat
         /// </summary>
         private bool SpawnAllies()
         {
+            _spawnedFormation = new Dictionary<SlotKey, int>();
+
             UnitData[] placedUnits = SceneTransitioner.AllyFormationData;
             bool hasPlacementData = false;
             if (placedUnits != null)
@@ -217,6 +220,7 @@ namespace OzGameLab01.Combat
 
                 SlotKey slot = kvp.Key;
                 _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
+                _spawnedFormation[slot] = kvp.Value;
             }
 
             return false;
@@ -234,6 +238,7 @@ namespace OzGameLab01.Combat
 
                 SlotKey slot = PlacementIndexToSlotKey(placementIndex);
                 _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
+                _spawnedFormation[slot] = data.id;
             }
         }
 
@@ -276,8 +281,10 @@ namespace OzGameLab01.Combat
         private void ApplySynergies()
         {
             // 팀 전체에서 각 트레이트를 보유한 유닛 수를 센다 (시너지 발동 여부 판정용).
+            // 인스펙터 폴백 편성이 아니라 실제로 스폰된 편성(_spawnedFormation)을 기준으로 삼아야
+            // 배치 화면에서 넘어온 편성에도 시너지가 정상 반영된다.
             _traitCounts = new Dictionary<SynergyTrait, int>();
-            foreach (int unitId in _allyFormation.Values)
+            foreach (int unitId in _spawnedFormation.Values)
             {
                 if (!_unitTraitsById.TryGetValue(unitId, out List<SynergyTrait> traits) || traits == null)
                 {
@@ -309,7 +316,7 @@ namespace OzGameLab01.Combat
             }
 
             // 발동된 시너지의 보너스는 해당 트레이트를 실제로 보유한 유닛에게만 적용한다.
-            foreach (KeyValuePair<SlotKey, int> kvp in _allyFormation)
+            foreach (KeyValuePair<SlotKey, int> kvp in _spawnedFormation)
             {
                 Unit unit = _slotUnits[kvp.Key.column, (int)kvp.Key.row];
                 if (unit == null || !_unitTraitsById.TryGetValue(kvp.Value, out List<SynergyTrait> traits) || traits == null)
@@ -349,14 +356,18 @@ namespace OzGameLab01.Combat
                 Destroy(synergyPanelRoot.GetChild(i).gameObject);
             }
 
-            foreach (SynergyDefinition definition in rosterData.SynergyDefinitions)
+            // 발동 수가 높은 시너지가 먼저 오도록 정렬한다.
+            List<SynergyDefinition> sortedDefinitions = new List<SynergyDefinition>(rosterData.SynergyDefinitions);
+            sortedDefinitions.Sort((a, b) => GetTraitCount(b).CompareTo(GetTraitCount(a)));
+
+            foreach (SynergyDefinition definition in sortedDefinitions)
             {
                 if (definition == null || definition.Trait == null)
                 {
                     continue;
                 }
 
-                _traitCounts.TryGetValue(definition.Trait, out int count);
+                int count = GetTraitCount(definition);
                 if (count <= 0)
                 {
                     continue;
@@ -375,6 +386,17 @@ namespace OzGameLab01.Combat
             }
         }
 
+        private int GetTraitCount(SynergyDefinition definition)
+        {
+            if (definition == null || definition.Trait == null)
+            {
+                return 0;
+            }
+
+            _traitCounts.TryGetValue(definition.Trait, out int count);
+            return count;
+        }
+
         /// <summary>
         /// 화면 하단 유닛 정보 패널에 현재 전투 중인 아군을 표시합니다.
         /// 초상화는 스폰된 유닛의 SpriteRenderer에서, 이름은 UnitData에서 가져옵니다.
@@ -388,7 +410,7 @@ namespace OzGameLab01.Combat
 
             battleUnitInfoView.ClearUnitInfoItems();
 
-            foreach (KeyValuePair<SlotKey, int> kvp in _allyFormation)
+            foreach (KeyValuePair<SlotKey, int> kvp in _spawnedFormation)
             {
                 Unit unit = _slotUnits[kvp.Key.column, (int)kvp.Key.row];
                 if (unit == null)

@@ -1206,6 +1206,9 @@ MonoBehaviour:
   unitItemTemplate: {fileID: 8567529937442773360}
   rosterData: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
   unitIconSprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
+  synergyItemTemplate: {fileID: 5778413487992268189}
+  synergyActiveColor: {r: 1, g: 1, b: 1, a: 1}
+  synergyInactiveColor: {r: 1, g: 1, b: 1, a: 0.4}
 --- !u!114 &6153368479699891312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5453,3 +5456,14 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 3633599859358780338, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
   m_PrefabInstance: {fileID: 8732433466573811508}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &5778413487992268189 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 2963044796329331369, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
+  m_PrefabInstance: {fileID: 8732433466573811508}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ab787be6aa7e2874ea951d4ccacadbbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.SynergyItemView
