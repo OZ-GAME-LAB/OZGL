@@ -343,7 +343,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -478, y: 276}
+  m_AnchoredPosition: {x: -478, y: 240}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1646687116
@@ -656,7 +656,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9100cecb7b0f96a4daaa74bc73668613, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Test.UnitPlaceTestManager
-  unitPlaceSystemPanelPrefab: {fileID: 4548006100862220392, guid: 9d8d08d9ed5f0e34ba0633d66413f3cf, type: 3}
+  unitPlaceSystemPanelPrefab: {fileID: 0}
   mapCanvas: {fileID: 1673086099}
 --- !u!114 &2141001516
 MonoBehaviour:
@@ -670,7 +670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6f069b3fd4301342b438bfb33480b47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Test.ChoiceEventTestManager
-  choiceEventPrefab: {fileID: 6972387121174971301, guid: 2b0e6a338aa511940b63f3c31eed112b, type: 3}
+  choiceEventPrefab: {fileID: 7155524704347658056, guid: 9a5983a58812cc84b8db0a2f40d212a1, type: 3}
   mapCanvas: {fileID: 1673086099}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
