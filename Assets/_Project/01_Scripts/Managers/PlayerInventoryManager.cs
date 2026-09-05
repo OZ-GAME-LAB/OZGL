@@ -26,13 +26,6 @@ namespace OzGameLab01.Managers
         protected override void Awake()
         {
             base.Awake();
-
-            // 임시: 매니저가 처음 생성될 때 기본 테스트 유닛 5개를 지급합니다.
-            // 나중에 유닛 획득 타일을 밟아서 얻는 진짜 로직이 완성되면 이 if문을 삭제하시면 됩니다!
-            if (_ownedUnits.Count == 0)
-            {
-                InitializeStartingUnits();
-            }
         }
 
         /// <summary>
@@ -56,32 +49,11 @@ namespace OzGameLab01.Managers
             Debug.Log("[PlayerInventoryManager] 인벤토리가 초기화되었습니다.");
         }
 
-        private void InitializeStartingUnits()
-        {
-            // 임시: UnitRosterData(CombatManager/UnitFormationController와 공유하는 id·트레이트 체계)에서
-            // 시작 유닛을 그대로 지급합니다. 나중에 유닛 획득 타일을 밟아서 얻는 진짜 로직이 완성되면 이 메서드는 삭제하시면 됩니다!
-            if (startingRoster == null)
-            {
-                Debug.LogWarning("[PlayerInventoryManager] startingRoster(UnitRosterData)가 연결되지 않아 시작 유닛을 지급할 수 없습니다.", this);
-                return;
-            }
-
-            foreach (UnitData source in startingRoster.UnitStats)
-            {
-                if (source == null)
-                {
-                    continue;
-                }
-
-                AddUnit(CloneUnitData(source));
-            }
-        }
-
         /// <summary>
         /// UnitRosterData가 들고 있는 원본 UnitData를 그대로 참조하면 인벤토리 쪽에서
         /// 값을 바꿀 때 로스터 에셋까지 같이 바뀌므로, 별도 인스턴스로 복제해서 지급합니다.
         /// </summary>
-        private static UnitData CloneUnitData(UnitData source)
+        public static UnitData CloneUnitData(UnitData source)
         {
             return new UnitData
             {

@@ -53,6 +53,11 @@ namespace OzGameLab01.Data
         public static bool IsBossBattle { get; private set; }
 
         /// <summary>
+        /// 보스가 처치되었는지 여부를 나타냅니다. (임시 엔딩 확인용)
+        /// </summary>
+        public static bool IsBossDefeated { get; private set; }
+
+        /// <summary>
         /// 가장 최근 턴 종료 시 사용하지 않고 남은 행동력입니다.
         /// 현재 보드에서는 주사위 눈금을 행동력으로 사용합니다.
         /// </summary>
@@ -157,13 +162,25 @@ namespace OzGameLab01.Data
         {
             if (!HasCurrentBattle) return;
 
-            if (!IsBossBattle) _completedBattlePositions.Add(CurrentBattlePosition);
-            if (IsEliteBattle) DefeatedElitesCount++; // 엘리트를 잡았으면 카운트 증가!
+            if (!IsBossBattle) 
+            {
+                _completedBattlePositions.Add(CurrentBattlePosition);
+            }
+            else 
+            {
+                IsBossDefeated = true; // [추가] 보스 처치 플래그 설정
+                UnityEngine.Debug.Log("<color=yellow>=========================================</color>");
+                UnityEngine.Debug.Log("<color=green><b>보스처치 게임종료</b></color>");
+                UnityEngine.Debug.Log("<color=yellow>=========================================</color>");
+            }
+
+            if (IsEliteBattle) DefeatedElitesCount++; // 엘리트전 카운트 증가!
+            
             HasCurrentBattle = false;
             IsBossBattle = false;
             IsEliteBattle = false;
 
-            OnBattleCompleted?.Invoke(); // 목표 매니저에게 알림 전송!
+            OnBattleCompleted?.Invoke(); // 목표 매니저 알림 이벤트!
         }
 
         /// <summary>
@@ -203,6 +220,7 @@ namespace OzGameLab01.Data
             CurrentBattlePosition = Vector2Int.zero;
             HasCurrentBattle = false;
             IsBossBattle = false;
+            IsBossDefeated = false; // [추가] 보스 처치 상태 초기화
 
             UnusedActionPoints = 0;
             TurnCount = 0;

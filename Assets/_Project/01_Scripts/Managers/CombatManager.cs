@@ -248,17 +248,31 @@ namespace OzGameLab01.Combat
         /// </summary>
         private Unit SpawnAllyUnit(UnitData data, Vector3 position)
         {
-            if (allyTemplatePrefab == null)
+            GameObject prefabToSpawn = null;
+
+            // 1. UnitData의 spriteAddress를 기반으로 Resources/Characters/ 폴더에서 프리팹을 찾습니다.
+            if (!string.IsNullOrEmpty(data.spriteAddress))
             {
-                Debug.LogError("[CombatManager] allyTemplatePrefab이 연결되지 않았습니다.", this);
+                prefabToSpawn = Resources.Load<GameObject>($"Characters/{data.spriteAddress}");
+            }
+
+            // 2. 만약 해당 이름의 프리팹이 없다면 기존의 공용 템플릿 프리팹을 사용합니다.
+            if (prefabToSpawn == null)
+            {
+                prefabToSpawn = allyTemplatePrefab;
+            }
+
+            if (prefabToSpawn == null)
+            {
+                Debug.LogError($"[CombatManager] 아군 프리팹을 찾을 수 없습니다! (spriteAddress: {data.spriteAddress})", this);
                 return null;
             }
 
-            GameObject instance = Instantiate(allyTemplatePrefab, position, Quaternion.identity, unitsRoot);
+            GameObject instance = Instantiate(prefabToSpawn, position, Quaternion.identity, unitsRoot);
             Unit unit = instance.GetComponent<Unit>();
             unit.Configure(data);
             instance.SetActive(true);
-            unit.SetVisualsVisible(false);
+            // unit.SetVisualsVisible(false); // 버그 원인: 렌더러를 끄고 다시 켜는 코드가 없어서 투명해짐
 
             return unit;
         }

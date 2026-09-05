@@ -15,9 +15,9 @@ MonoBehaviour:
   unitStats:
   - id: 1
     name: Ally_Sword_Red
-    spriteAddress: 
+    spriteAddress: Ally_Sword
     healthPoint: 160
-    attackPoint: 8
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -30,9 +30,9 @@ MonoBehaviour:
     skillType: 0
   - id: 2
     name: Ally_Bow_Red
-    spriteAddress: 
+    spriteAddress: Ally_Bow
     healthPoint: 110
-    attackPoint: 6
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -45,9 +45,9 @@ MonoBehaviour:
     skillType: 1
   - id: 3
     name: Ally_Staff_Red
-    spriteAddress: 
+    spriteAddress: Ally_Staff
     healthPoint: 110
-    attackPoint: 13
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -62,7 +62,7 @@ MonoBehaviour:
     name: Ally_Rogue_Red
     spriteAddress: 
     healthPoint: 160
-    attackPoint: 8
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -75,8 +75,8 @@ MonoBehaviour:
     skillType: 0
   - id: 5
     name: Ally_Sword_Blue
-    spriteAddress: 
-    healthPoint: 160
+    spriteAddress: Ally_Sword
+    healthPoint: 500
     attackPoint: 8
     criticalRate: 0
     dodgeRate: 0
@@ -90,9 +90,9 @@ MonoBehaviour:
     skillType: 0
   - id: 6
     name: Ally_Bow_Blue
-    spriteAddress: 
-    healthPoint: 110
-    attackPoint: 6
+    spriteAddress: Ally_Bow
+    healthPoint: 500
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -105,9 +105,9 @@ MonoBehaviour:
     skillType: 1
   - id: 7
     name: Ally_Staff_Blue
-    spriteAddress: 
+    spriteAddress: Ally_Staff
     healthPoint: 110
-    attackPoint: 13
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -122,7 +122,7 @@ MonoBehaviour:
     name: Ally_Rogue_Blue
     spriteAddress: 
     healthPoint: 160
-    attackPoint: 8
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -135,9 +135,9 @@ MonoBehaviour:
     skillType: 0
   - id: 9
     name: Ally_Sword_Yellow
-    spriteAddress: 
+    spriteAddress: Ally_Sword
     healthPoint: 160
-    attackPoint: 8
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -150,9 +150,9 @@ MonoBehaviour:
     skillType: 0
   - id: 10
     name: Ally_Bow_Yellow
-    spriteAddress: 
+    spriteAddress: Ally_Bow
     healthPoint: 110
-    attackPoint: 6
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -165,9 +165,9 @@ MonoBehaviour:
     skillType: 1
   - id: 11
     name: Ally_Staff_Yellow
-    spriteAddress: 
+    spriteAddress: Ally_Staff
     healthPoint: 110
-    attackPoint: 13
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
     name: Ally_Rogue_Yellow
     spriteAddress: 
     healthPoint: 160
-    attackPoint: 8
+    attackPoint: 500
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
