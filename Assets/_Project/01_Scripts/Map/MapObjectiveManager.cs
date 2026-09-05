@@ -10,9 +10,13 @@ public class MapObjectiveManager : MonoBehaviour
     public MapGenerator mapGenerator;
     public GameObject highlightPrefab;
 
-    [Header("설정")]
-    public int maxElites = 3;
+    [Header("스폰 거리 설정")]
     public int minSpawnDistance = 10;
+    // [추가됨] 너무 멀리 스폰되지 않도록 제한하는 최대 거리
+    public int maxSpawnDistance = 999;
+
+    [Header("진행도 설정")]
+    public int maxElites = 3;
 
     private GameObject _currentHighlight;
 
@@ -63,23 +67,24 @@ public class MapObjectiveManager : MonoBehaviour
 
         MapNode targetNode = null;
 
-        // 3. 거리 조건 완화: 10칸 밖이 없으면 9칸, 8칸... 계속 줄여나가며 필사적으로 스폰할 타일을 찾아냄!
+        // 3. 거리 조건 완화: 최소 거리 조건에 맞는 타일이 없으면 9칸, 8칸... 계속 줄여나가며 찾아냄!
+        // (단, maxSpawnDistance 이내여야 함)
         for (int dist = minSpawnDistance; dist >= 1; dist--)
         {
-            targetNode = FindValidSpawnNode(startNode, dist);
+            targetNode = FindValidSpawnNode(startNode, dist, maxSpawnDistance);
             if (targetNode != null) break;
         }
 
         if (targetNode == null)
         {
-            Debug.LogError("[MapObjectiveManager] 맵에 빈 타일(Normal)이 하나도 없어 스폰에 실패했습니다!");
+            Debug.LogError("[MapObjectiveManager] 맵에 조건에 맞는 빈 타일(Normal)이 하나도 없어 스폰에 실패했습니다!");
             return;
         }
 
         // 논리적 타입 변경
         targetNode.Type = targetType;
 
-        // 시각적 모델 교체
+        // 시각적 모델 교체 (MapThemeData에 설정된 프리팹을 자동으로 가져옴)
         mapGenerator.ReplaceTileVisual(targetNode);
 
         // 하이라이트 생성
@@ -93,7 +98,8 @@ public class MapObjectiveManager : MonoBehaviour
         Debug.Log($"[MapObjectiveManager] 퀘스트 목표({targetType}) 등장 성공! 위치: {targetNode.Position}");
     }
 
-    private MapNode FindValidSpawnNode(MapNode startNode, int minDistance)
+    // [수정됨] maxDistance 매개변수가 추가되었습니다.
+    private MapNode FindValidSpawnNode(MapNode startNode, int minDistance, int maxDistance)
     {
         Queue<MapNode> queue = new Queue<MapNode>();
         Dictionary<MapNode, int> distances = new Dictionary<MapNode, int>();
@@ -107,7 +113,10 @@ public class MapObjectiveManager : MonoBehaviour
             MapNode current = queue.Dequeue();
             int currentDist = distances[current];
 
-            if (currentDist >= minDistance && current.Type == NodeType.Normal)
+            // 최대 거리를 초과하면 더 이상 깊게 탐색할 필요가 없으므로 가지치기(Cut-off) 합니다.
+            if (currentDist > maxDistance) continue;
+
+            if (currentDist >= minDistance && currentDist <= maxDistance && current.Type == NodeType.Normal)
             {
                 validCandidates.Add(current);
             }

@@ -120,12 +120,26 @@ namespace OzGameLab01.Controllers
             BuildUnitTraitLookup();
             CreateUnitItems();
             UpdateUnitCount();
+            // [추가됨] 게임 도중 전역 인벤토리에 새 유닛이 추가되면, 즉시 감지하여 UI에 반영하도록 이벤트 구독
+            if (Managers.PlayerInventoryManager.Instance != null)
+            {
+                Managers.PlayerInventoryManager.Instance.OnUnitAdded += AddNewUnitItem;
+            }
         }
 
         private void OnDisable()
         {
             UnsubscribeViewEvents();
             ClearDragState();
+        }
+
+        // [추가됨] 씬이 넘어가거나 오브젝트가 파괴될 때 메모리 누수를 막기 위한 이벤트 구독 해제
+        private void OnDestroy()
+        {
+            if (Managers.PlayerInventoryManager.Instance != null)
+            {
+                Managers.PlayerInventoryManager.Instance.OnUnitAdded -= AddNewUnitItem;
+            }
         }
 
         /// <summary>
@@ -1208,6 +1222,44 @@ namespace OzGameLab01.Controllers
             }
 
             return supportUnitItems[slotIndex];
+        }
+
+        // [추가됨] 새 유닛을 얻었을 때 편성창(하단 목록)에 아이템을 즉시 1개 추가해주는 함수
+        private void AddNewUnitItem(UnitData source)
+        {
+            if (source == null || unitItemTemplate == null || unitView == null) return;
+            // 1. 편성창 전용 독립 데이터로 복사하여 내부 리스트에 추가
+            UnitData newData = new UnitData
+            {
+                id = source.id,
+                name = source.name,
+                spriteAddress = source.spriteAddress,
+                healthPoint = source.healthPoint,
+                attackPoint = source.attackPoint,
+                criticalRate = source.criticalRate,
+                dodgeRate = source.dodgeRate,
+                bloodDrain = source.bloodDrain,
+                attackSpeed = source.attackSpeed,
+                skillCooldown = source.skillCooldown,
+                attackKey = source.attackKey,
+                skillKey = source.skillKey,
+                color = source.color,
+                skillType = source.skillType
+            };
+            testUnitDataList.Add(newData);
+            // 2. UI 아이템(프리팹) 1개 새로 생성 후 셋팅
+            UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
+            unitItem.name = $"Unit_Item_{testUnitDataList.Count:00}";
+
+            unitItem.SetIcon(unitIconSprite);
+            unitItem.SetIconColor(newData.color);
+            unitItem.SetSelected(false);
+            unitItem.gameObject.SetActive(true);
+            // 3. 컨트롤러가 관리하는 딕셔너리와 View에 등록
+            unitDataByItem.Add(unitItem, newData);
+            unitView.RegisterUnitItem(unitItem);
+            // 4. 시너지나 카운트 갱신
+            UpdateUnitCount();
         }
     }
 
