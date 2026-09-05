@@ -58,6 +58,7 @@ public class MapObjectiveManager : MonoBehaviour
 
     public void SpawnNextObjective()
     {
+        if (BoardRunData.IsBossDefeated) return; // [추가] 보스를 이미 처치했다면 스폰 중지
         if (BoardRunData.DefeatedElitesCount > maxElites) return;
 
         NodeType targetType = (BoardRunData.DefeatedElitesCount == maxElites) ? NodeType.Boss : NodeType.Elite;
@@ -138,7 +139,19 @@ public class MapObjectiveManager : MonoBehaviour
         }
 
         if (validCandidates.Count > 0)
-            return validCandidates[Random.Range(0, validCandidates.Count)];
+        {
+            // 맵의 '깊은 곳'으로 향하도록 유도 (스타트 지점 0,0에서 가장 먼 노드를 우선순위로 정렬)
+            validCandidates.Sort((a, b) =>
+            {
+                int distA = a.Position.x + a.Position.y;
+                int distB = b.Position.x + b.Position.y;
+                return distB.CompareTo(distA); // 내림차순 (가장 먼 곳이 0번 인덱스)
+            });
+
+            // 가장 먼 곳 위주로 선택하되, 약간의 무작위성을 위해 상위 3개 중 하나를 고름
+            int maxIndex = UnityEngine.Mathf.Min(3, validCandidates.Count);
+            return validCandidates[UnityEngine.Random.Range(0, maxIndex)];
+        }
 
         return null;
     }
