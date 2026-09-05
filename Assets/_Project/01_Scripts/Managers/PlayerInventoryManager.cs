@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using OzGameLab01.Combat;
 
 namespace OzGameLab01.Managers
 {
@@ -10,6 +11,9 @@ namespace OzGameLab01.Managers
     /// </summary>
     public class PlayerInventoryManager : Singleton<PlayerInventoryManager>
     {
+        [Tooltip("게임 시작 시 임시로 지급할 시작 유닛의 원본 데이터. CombatManager/UnitFormationController와 동일한 로스터(UnitRosterData)를 사용해야 id·트레이트가 어긋나지 않습니다.")]
+        [SerializeField] private UnitRosterData startingRoster;
+
         private readonly List<UnitData> _ownedUnits = new List<UnitData>();
 
         /// <summary>
@@ -54,12 +58,49 @@ namespace OzGameLab01.Managers
 
         private void InitializeStartingUnits()
         {
-            // UI에 임시로 띄워줄 테스트 유닛들
-            AddUnit(new UnitData { id = 1001, name = "Test Unit 01", healthPoint = 100, attackPoint = 10, criticalRate = 5, dodgeRate = 3, bloodDrain = 0, attackSpeed = 10, skillCooldown = 5 });
-            AddUnit(new UnitData { id = 1002, name = "Test Unit 02", healthPoint = 110, attackPoint = 12, criticalRate = 7, dodgeRate = 4, bloodDrain = 0, attackSpeed = 9, skillCooldown = 6 });
-            AddUnit(new UnitData { id = 1003, name = "Test Unit 03", healthPoint = 90, attackPoint = 15, criticalRate = 10, dodgeRate = 5, bloodDrain = 2, attackSpeed = 12, skillCooldown = 7 });
-            AddUnit(new UnitData { id = 1004, name = "Test Unit 04", healthPoint = 130, attackPoint = 8, criticalRate = 4, dodgeRate = 8, bloodDrain = 0, attackSpeed = 7, skillCooldown = 4 });
-            AddUnit(new UnitData { id = 1005, name = "Test Unit 05", healthPoint = 95, attackPoint = 14, criticalRate = 8, dodgeRate = 6, bloodDrain = 3, attackSpeed = 11, skillCooldown = 8 });
+            // 임시: UnitRosterData(CombatManager/UnitFormationController와 공유하는 id·트레이트 체계)에서
+            // 시작 유닛을 그대로 지급합니다. 나중에 유닛 획득 타일을 밟아서 얻는 진짜 로직이 완성되면 이 메서드는 삭제하시면 됩니다!
+            if (startingRoster == null)
+            {
+                Debug.LogWarning("[PlayerInventoryManager] startingRoster(UnitRosterData)가 연결되지 않아 시작 유닛을 지급할 수 없습니다.", this);
+                return;
+            }
+
+            foreach (UnitData source in startingRoster.UnitStats)
+            {
+                if (source == null)
+                {
+                    continue;
+                }
+
+                AddUnit(CloneUnitData(source));
+            }
+        }
+
+        /// <summary>
+        /// UnitRosterData가 들고 있는 원본 UnitData를 그대로 참조하면 인벤토리 쪽에서
+        /// 값을 바꿀 때 로스터 에셋까지 같이 바뀌므로, 별도 인스턴스로 복제해서 지급합니다.
+        /// </summary>
+        private static UnitData CloneUnitData(UnitData source)
+        {
+            return new UnitData
+            {
+                id = source.id,
+                name = source.name,
+                spriteAddress = source.spriteAddress,
+                healthPoint = source.healthPoint,
+                attackPoint = source.attackPoint,
+                criticalRate = source.criticalRate,
+                dodgeRate = source.dodgeRate,
+                bloodDrain = source.bloodDrain,
+                attackSpeed = source.attackSpeed,
+                basicAttackCooldown = source.basicAttackCooldown,
+                skillCooldown = source.skillCooldown,
+                attackKey = source.attackKey,
+                skillKey = source.skillKey,
+                color = source.color,
+                skillType = source.skillType
+            };
         }
     }
 }

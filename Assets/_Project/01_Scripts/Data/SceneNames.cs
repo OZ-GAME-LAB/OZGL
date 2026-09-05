@@ -18,7 +18,7 @@ namespace OzGameLab01.Data
         /// <summary>
         /// 게임 시작과 종료 후 돌아오는 타이틀 씬입니다.
         /// </summary>
-        public const string Title = "ProtoTitle";
+        public const string Title = "01_Title";
 
         /// <summary>
         /// 주사위와 타일 이벤트가 진행되는 보드 씬입니다.
@@ -30,12 +30,12 @@ namespace OzGameLab01.Data
         /// </summary>
         public const string Combat = "03_Combat";
 
-        public const string Boss = "ProtoBossScene";
+        //public const string Boss = "ProtoBossScene";
 
         /// <summary>
         /// 최종 승리 또는 패배를 표시하는 결과 씬입니다.
         /// </summary>
-        public const string Result = "ProtoResult";
+        //public const string Result = "ProtoResult";
 
         
     }
