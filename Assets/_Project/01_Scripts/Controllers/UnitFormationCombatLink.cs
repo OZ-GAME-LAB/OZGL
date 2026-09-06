@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using OzGameLab01.Combat;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using UnityEngine;
@@ -51,6 +50,30 @@ namespace OzGameLab01.Controllers
         public static IReadOnlyList<int> SavedBattleUnitIds => savedBattleUnitIds;
         public static IReadOnlyList<int> SavedSupportUnitIds => savedSupportUnitIds;
         public static bool HasSavedFormation => hasSavedFormation;
+
+        /// <summary>
+        /// 저장된 전투 슬롯에 유닛이 한 명 이상 있는지 반환합니다.
+        /// </summary>
+        public static bool HasSavedBattleUnit
+        {
+            get
+            {
+                if (!hasSavedFormation)
+                {
+                    return false;
+                }
+
+                for (int slotIndex = 0; slotIndex < savedBattleUnitIds.Length; slotIndex++)
+                {
+                    if (savedBattleUnitIds[slotIndex] >= 0)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
 
         private void Awake()
         {
