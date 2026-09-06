@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using OzGameLab01.Combat;
+using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,6 +13,13 @@ namespace OzGameLab01.Controllers
     /// </summary>
     public class UnitFormationController : MonoBehaviour
     {
+        [System.Serializable]
+        private struct UnitIconEntry
+        {
+            public int unitId;
+            public Sprite icon;
+        }
+
         private const int BattleSlotCount = 9;
         private const int MaxBattleUnitCount = 4;
         private const int SupportSlotCount = 2;
@@ -34,6 +42,9 @@ namespace OzGameLab01.Controllers
         [SerializeField]
         [Tooltip("보유 유닛 아이콘에 쓰이는 공용 스프라이트. 모든 아군이 같은 스프라이트를 색상만 다르게 사용합니다.")]
         private Sprite unitIconSprite;
+
+        [SerializeField]
+        private List<UnitIconEntry> unitIcons = new List<UnitIconEntry>();
 
         [Header("시너지 UI")]
         [SerializeField]
@@ -119,8 +130,9 @@ namespace OzGameLab01.Controllers
             LoadRosterUnitData();
             BuildUnitTraitLookup();
             CreateUnitItems();
+            RestorePersistedFormation();
             UpdateUnitCount();
-            // [추가됨] 게임 도중 전역 인벤토리에 새 유닛이 추가되면, 즉시 감지하여 UI에 반영하도록 이벤트 구독
+
             if (Managers.PlayerInventoryManager.Instance != null)
             {
                 Managers.PlayerInventoryManager.Instance.OnUnitAdded += AddNewUnitItem;
@@ -133,7 +145,6 @@ namespace OzGameLab01.Controllers
             ClearDragState();
         }
 
-        // [추가됨] 씬이 넘어가거나 오브젝트가 파괴될 때 메모리 누수를 막기 위한 이벤트 구독 해제
         private void OnDestroy()
         {
             if (Managers.PlayerInventoryManager.Instance != null)
@@ -191,21 +202,23 @@ namespace OzGameLab01.Controllers
                     {
                         continue;
                     }
-                    testUnitDataList.Add(new UnitData
-                    {
-                        id = source.id,
-                        name = source.name,
-                        spriteAddress = source.spriteAddress,
-                        healthPoint = source.healthPoint,
-                        attackPoint = source.attackPoint,
-                        criticalRate = source.criticalRate,
-                        dodgeRate = source.dodgeRate,
-                        bloodDrain = source.bloodDrain,
-                        attackSpeed = source.attackSpeed,
-                        skillCooldown = source.skillCooldown,
-                        attackKey = source.attackKey,
-                        skillKey = source.skillKey
-                    });
+                    // testUnitDataList.Add(new UnitData
+                    // {
+                    //     id = source.id,
+                    //     name = source.name,
+                    //     spriteAddress = source.spriteAddress,
+                    //     healthPoint = source.healthPoint,
+                    //     attackPoint = source.attackPoint,
+                    //     criticalRate = source.criticalRate,
+                    //     dodgeRate = source.dodgeRate,
+                    //     bloodDrain = source.bloodDrain,
+                    //     attackSpeed = source.attackSpeed,
+                    //     skillCooldown = source.skillCooldown,
+                    //     attackKey = source.attackKey,
+                    //     skillKey = source.skillKey
+                    // });
+                    // 누락된 필드까지 포함한 로스터 원본 데이터를 id 기준으로 복제합니다.
+                    testUnitDataList.Add(CloneCanonicalUnitData(source));
                 }
             }
             else
@@ -258,7 +271,9 @@ namespace OzGameLab01.Controllers
 
                 unitItem.name = $"Unit_Item_{i + 1:00}";
 
-                unitItem.SetIcon(unitIconSprite);
+                // unitItem.SetIcon(unitIconSprite);
+                // UnitData.id에 연결된 PrivateAssets 아이콘을 우선 사용
+                unitItem.SetIcon(GetUnitIcon(testUnitDataList[i]));
                 unitItem.SetIconColor(testUnitDataList[i].color);
                 unitItem.SetSelected(false);
                 unitItem.gameObject.SetActive(true);
@@ -267,6 +282,139 @@ namespace OzGameLab01.Controllers
 
                 unitView.RegisterUnitItem(unitItem);
             }
+        }
+
+        /// <summary>
+        /// 저장된 인벤토리 객체가 일부 필드를 잃었더라도 id 기준 로스터 원본으로 UI/전투 데이터를 복원합니다.
+        /// </summary>
+        private UnitData CloneCanonicalUnitData(UnitData ownedUnit)
+        {
+            if (ownedUnit == null)
+            {
+                return null;
+            }
+
+            if (rosterData != null)
+            {
+                foreach (UnitData rosterUnit in rosterData.UnitStats)
+                {
+                    if (rosterUnit != null && rosterUnit.id == ownedUnit.id)
+                    {
+                        return PlayerInventoryManager.CloneUnitData(rosterUnit);
+                    }
+                }
+            }
+
+            // 로스터에 없는 런타임 유닛은 기존 인벤토리 데이터를 복사해 유지 
+            return PlayerInventoryManager.CloneUnitData(ownedUnit);
+        }
+
+        /// <summary>
+        /// 씬이 교체되어 UnitFormationController가 다시 생성되어도 정적 전달 데이터에서 UI 배치를 복원합니다.
+        /// </summary>
+        private void RestorePersistedFormation()
+        {
+            if (unitView == null)
+            {
+                return;
+            }
+
+            bool restoredAnyUnit = false;
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> savedBattleUnits =
+                UnitFormationCombatLink.BattleUnits;
+
+            for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
+            {
+                // UnitData savedData = savedBattleUnits[slotIndex]?.Data;
+                // 저장된 슬롯 ID를 우선 사용하고 구버전 전달 데이터는 폴백으로 유지 
+                int savedUnitId = UnitFormationCombatLink.HasSavedFormation
+                    ? UnitFormationCombatLink.SavedBattleUnitIds[slotIndex]
+                    : savedBattleUnits[slotIndex]?.Data?.id ?? -1;
+                UnitData savedData = savedBattleUnits[slotIndex]?.Data;
+                if (savedData == null && SceneTransitioner.AllyFormationData != null &&
+                    slotIndex < SceneTransitioner.AllyFormationData.Length)
+                {
+                    savedData = SceneTransitioner.AllyFormationData[slotIndex];
+                }
+
+                UnitItemView unitItem = savedUnitId >= 0
+                    ? FindUnplacedUnitItemById(savedUnitId)
+                    : FindUnplacedUnitItem(savedData);
+                UnitSlotItemView slot = FindSlot(UnitSlotType.Battle, slotIndex);
+                if (unitItem != null && slot != null && PlaceUnitInEmptyBattleSlot(unitItem, unitDataByItem[unitItem], slot))
+                {
+                    restoredAnyUnit = true;
+                }
+            }
+
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> savedSupportUnits =
+                UnitFormationCombatLink.SupportUnits;
+
+            for (int slotIndex = 0; slotIndex < SupportSlotCount; slotIndex++)
+            {
+                UnitData savedData = savedSupportUnits[slotIndex]?.Data;
+                int savedUnitId = UnitFormationCombatLink.HasSavedFormation
+                    ? UnitFormationCombatLink.SavedSupportUnitIds[slotIndex]
+                    : savedData?.id ?? -1;
+                UnitItemView unitItem = savedUnitId >= 0
+                    ? FindUnplacedUnitItemById(savedUnitId)
+                    : FindUnplacedUnitItem(savedData);
+                UnitSlotItemView slot = FindSlot(UnitSlotType.Support, slotIndex);
+                if (unitItem != null && slot != null && PlaceUnitInEmptySupportSlot(unitItem, unitDataByItem[unitItem], slot))
+                {
+                    restoredAnyUnit = true;
+                }
+            }
+
+            if (restoredAnyUnit)
+            {
+                // 새 씬에서 생성된 UnitItemView와 아이콘 참조까지 최신 전달 데이터로 다시 저장 
+                SaveFormation();
+                Debug.Log("[UnitFormationController] 이전 전투 및 서브 유닛 배치를 복원했습니다.", this);
+            }
+        }
+
+        /// <summary>
+        /// 동일 id 유닛이 여러 개여도 아직 어느 슬롯에도 놓이지 않은 UI 아이템을 하나씩 찾습니다.
+        /// </summary>
+        private UnitItemView FindUnplacedUnitItem(UnitData savedData)
+        {
+            if (savedData == null)
+            {
+                return null;
+            }
+
+            foreach (KeyValuePair<UnitItemView, UnitData> pair in unitDataByItem)
+            {
+                if (pair.Key == null || pair.Value == null || pair.Value.id != savedData.id)
+                {
+                    continue;
+                }
+
+                if (FindBattleSlotIndex(pair.Key) < 0 && FindSupportSlotIndex(pair.Key) < 0)
+                {
+                    return pair.Key;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 저장된 UnitData 참조 대신 불변 ID로 현재 인벤토리의 미배치 아이템을 찾습니다.
+        /// </summary>
+        private UnitItemView FindUnplacedUnitItemById(int unitId)
+        {
+            foreach (KeyValuePair<UnitItemView, UnitData> pair in unitDataByItem)
+            {
+                if (pair.Key != null && pair.Value != null && pair.Value.id == unitId &&
+                    FindBattleSlotIndex(pair.Key) < 0 && FindSupportSlotIndex(pair.Key) < 0)
+                {
+                    return pair.Key;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -871,9 +1019,16 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            RectTransform unitRect = unitItem.RectTransform;
+            // RectTransform unitRect = unitItem.RectTransform;
+            // RectTransform slotRect = slotItem.RectTransform;
+            // Slot_00 원본 프리팹의 참조가 비어 있어도 각 오브젝트 자신의 RectTransform을 사용
+            RectTransform unitRect = unitItem.RectTransform != null
+                ? unitItem.RectTransform
+                : unitItem.transform as RectTransform;
 
-            RectTransform slotRect = slotItem.RectTransform;
+            RectTransform slotRect = slotItem.RectTransform != null
+                ? slotItem.RectTransform
+                : slotItem.transform as RectTransform;
 
             if (unitRect == null || slotRect == null)
             {
@@ -881,12 +1036,18 @@ namespace OzGameLab01.Controllers
             }
 
             unitRect.SetParent(slotRect, false);
-            unitRect.anchorMin = new Vector2(0.5f, 0.5f);
-            unitRect.anchorMax = new Vector2(0.5f, 0.5f);
+            // unitRect.anchorMin = new Vector2(0.5f, 0.5f);
+            // unitRect.anchorMax = new Vector2(0.5f, 0.5f);
+            // unitRect.anchoredPosition = Vector2.zero;
+            // unitRect.sizeDelta = slotRect.rect.size;
+            // 슬롯 크기를 복사하지 않고 부모 슬롯 전체에 stretch하여 레이아웃 계산 이후에도 자동으로 맞춤
+            unitRect.anchorMin = Vector2.zero;
+            unitRect.anchorMax = Vector2.one;
             unitRect.pivot = new Vector2(0.5f, 0.5f);
             unitRect.anchoredPosition = Vector2.zero;
+            unitRect.offsetMin = Vector2.zero;
+            unitRect.offsetMax = Vector2.zero;
             unitRect.localScale = Vector3.one;
-            unitRect.sizeDelta = slotRect.rect.size;
         }
 
         /// <summary>
@@ -899,7 +1060,11 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            RectTransform unitRect = unitItem.RectTransform;
+            // RectTransform unitRect = unitItem.RectTransform;
+            // Inspector 참조가 비어 있는 UnitItem도 자신의 RectTransform으로 목록에 복귀
+            RectTransform unitRect = unitItem.RectTransform != null
+                ? unitItem.RectTransform
+                : unitItem.transform as RectTransform;
 
             if (unitRect == null)
             {
@@ -1251,7 +1416,8 @@ namespace OzGameLab01.Controllers
             UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
             unitItem.name = $"Unit_Item_{testUnitDataList.Count:00}";
 
-            unitItem.SetIcon(unitIconSprite);
+            // unitItem.SetIcon(unitIconSprite);
+            unitItem.SetIcon(GetUnitIcon(newData));
             unitItem.SetIconColor(newData.color);
             unitItem.SetSelected(false);
             unitItem.gameObject.SetActive(true);
@@ -1261,7 +1427,25 @@ namespace OzGameLab01.Controllers
             // 4. 시너지나 카운트 갱신
             UpdateUnitCount();
         }
+
+        /// <summary>
+        /// 유닛별 아이콘을 id로 찾고, 등록되지 않은 유닛은 기존 공용 아이콘으로 폴백합니다.
+        /// </summary>
+        private Sprite GetUnitIcon(UnitData unitData)
+        {
+            if (unitData != null)
+            {
+                for (int index = 0; index < unitIcons.Count; index++)
+                {
+                    UnitIconEntry entry = unitIcons[index];
+                    if (entry.unitId == unitData.id && entry.icon != null)
+                    {
+                        return entry.icon;
+                    }
+                }
+            }
+
+            return unitIconSprite;
+        }
     }
-
-
 }
