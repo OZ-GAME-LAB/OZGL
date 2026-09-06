@@ -2,6 +2,7 @@ using UnityEngine;
 using TMPro;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
+using OZGL.Map;
 
 namespace OzGameLab01.Controllers
 {
@@ -17,12 +18,19 @@ namespace OzGameLab01.Controllers
         public TextMeshProUGUI resultText;
         public TextMeshProUGUI warningText;
 
+        [Header("Locate")]
+        public MapRouteDirector mapRouteDirector;
+        public BoardCameraController boardCameraController;
+
         [Header("Settings")]
         public float rollViewCloseDelay = 1.0f;
         public float warningTextDuration = 2.0f;
 
         private void Start()
         {
+            if (mapRouteDirector == null) mapRouteDirector = FindFirstObjectByType<MapRouteDirector>();
+            if (boardCameraController == null) boardCameraController = FindFirstObjectByType<BoardCameraController>();
+
             if (Managers.DiceManager.Instance != null)
                 Managers.DiceManager.Instance.OnDiceRolled += HandleDiceRolled;
 
@@ -35,6 +43,7 @@ namespace OzGameLab01.Controllers
                 {
                     readySceneView.MainView.UnitClicked += HandleUnitButtonClicked;
                     readySceneView.MainView.SettingsClicked += HandleSettingsButtonClicked;
+                    readySceneView.MainView.LocateClicked += HandleLocateButtonClicked;
                     readySceneView.MainView.EndTurnClicked += HandleEndTurnButtonClicked;
 
                     // [수정됨] 시작할 때 "현재 플레이 중인 턴(경과 턴 + 1)"을 표시합니다.
@@ -46,7 +55,7 @@ namespace OzGameLab01.Controllers
                 if (readySceneView.SettingsView != null)
                 {
                     readySceneView.SettingsView.BackClicked += HandleSettingsBackClicked;
-                    readySceneView.SettingsView.ReturnToMainClicked += HandleSettingsBackClicked;
+                    readySceneView.SettingsView.ReturnToMainClicked += HandleReturnToTitleClicked;
                 }
 
                 if (readySceneView.UnitView != null)
@@ -76,13 +85,14 @@ namespace OzGameLab01.Controllers
                 {
                     readySceneView.MainView.UnitClicked -= HandleUnitButtonClicked;
                     readySceneView.MainView.SettingsClicked -= HandleSettingsButtonClicked;
+                    readySceneView.MainView.LocateClicked -= HandleLocateButtonClicked;
                     readySceneView.MainView.EndTurnClicked -= HandleEndTurnButtonClicked;
                 }
 
                 if (readySceneView.SettingsView != null)
                 {
                     readySceneView.SettingsView.BackClicked -= HandleSettingsBackClicked;
-                    readySceneView.SettingsView.ReturnToMainClicked -= HandleSettingsBackClicked;
+                    readySceneView.SettingsView.ReturnToMainClicked -= HandleReturnToTitleClicked;
                 }
 
                 if (readySceneView.UnitView != null)
@@ -135,6 +145,30 @@ namespace OzGameLab01.Controllers
             readySceneView.ShowSettingsView();
         }
 
+        private void HandleLocateButtonClicked(ReadyMainView view)
+        {
+            if (mapRouteDirector == null)
+            {
+                mapRouteDirector = FindFirstObjectByType<MapRouteDirector>();
+            }
+
+            if (boardCameraController == null)
+            {
+                boardCameraController = FindFirstObjectByType<BoardCameraController>();
+            }
+
+            MapNode objective = mapRouteDirector != null
+                ? mapRouteDirector.CurrentObjective
+                : null;
+
+            if (objective?.NodeView == null || boardCameraController == null)
+            {
+                return;
+            }
+
+            boardCameraController.Locate(objective.NodeView.transform);
+        }
+
         private void HandleEndTurnButtonClicked(ReadyMainView view)
         {
             if (Managers.DiceManager.Instance != null && !Managers.DiceManager.Instance.HasRolledThisTurn)
@@ -152,6 +186,11 @@ namespace OzGameLab01.Controllers
         private void HandleSettingsBackClicked(OzGameLab01.UI.Settings.SettingsView view)
         {
             if (readySceneView != null) readySceneView.HideSettingsView();
+        }
+
+        private void HandleReturnToTitleClicked(OzGameLab01.UI.Settings.SettingsView view)
+        {
+            boardSceneController?.ReturnToTitle();
         }
 
         private void HandleUnitCloseClicked(UnitView view)

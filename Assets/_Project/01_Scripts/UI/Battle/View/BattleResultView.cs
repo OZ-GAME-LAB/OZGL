@@ -110,6 +110,20 @@ namespace OzGameLab01.UI.Battle
             }
         }
 
+        public void SetEndBattleButtonText(string value)
+        {
+            if (endBattleButton == null)
+            {
+                return;
+            }
+
+            TMP_Text buttonText = endBattleButton.GetComponentInChildren<TMP_Text>(true);
+            if (buttonText != null)
+            {
+                buttonText.text = value ?? string.Empty;
+            }
+        }
+
         public DpsInfoItemView CreateDpsInfoItem()
         {
             if (dpsInfoItemPrefab == null || dpsListRoot == null)

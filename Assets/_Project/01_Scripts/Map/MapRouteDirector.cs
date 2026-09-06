@@ -67,10 +67,7 @@ namespace OZGL.Map
 
         private void Awake()
         {
-            if (mapGenerator == null)
-            {
-                mapGenerator = FindFirstObjectByType<MapGenerator>();
-            }
+            ResolveActiveMapGenerator();
         }
 
         private void OnEnable()
@@ -87,11 +84,27 @@ namespace OZGL.Map
         {
             while (mapGenerator == null || mapGenerator.NodeDict.Count == 0)
             {
+                ResolveActiveMapGenerator();
                 yield return null;
             }
 
-            yield return new WaitForSeconds(mapGenerator.animationDuration + objectiveSpawnDelay);
+            // 전투 복귀에서는 MapGenerator가 타일을 즉시 복원하므로 연출 시간만큼 기다리지 않습니다.
+            if (mapGenerator.UsedInitialGenerationAnimation)
+            {
+                yield return new WaitForSeconds(mapGenerator.animationDuration + objectiveSpawnDelay);
+            }
+
             RefreshNextObjective();
+        }
+
+        private void ResolveActiveMapGenerator()
+        {
+            if (mapGenerator != null && mapGenerator.isActiveAndEnabled)
+            {
+                return;
+            }
+
+            mapGenerator = FindFirstObjectByType<MapGenerator>();
         }
 
         private void HandleBattleCompleted()

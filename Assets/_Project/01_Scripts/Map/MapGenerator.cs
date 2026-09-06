@@ -93,8 +93,17 @@ namespace OZGL.Map
         private List<MapNode> _allNodes = new List<MapNode>();
         public IReadOnlyDictionary<Vector2Int, MapNode> NodeDict => _nodeDict;
 
-        private void Start()
+        /// <summary>
+        /// 이번 보드 씬 진입에서 맵 생성 연출을 재생하는지 여부입니다.
+        /// MapRouteDirector가 최초 목표 배치 대기 여부를 판단할 때 사용합니다.
+        /// </summary>
+        public bool UsedInitialGenerationAnimation { get; private set; }
+
+        protected virtual void Start()
         {
+            // GenerateMapData()가 활성 런을 보장하기 전에 확인해야 첫 진입을 올바르게 구분할 수 있습니다.
+            UsedInitialGenerationAnimation = !BoardRunData.HasActiveRun;
+
             if (_currentTheme == null)
             {
                 Debug.LogError("[MapGenerator3] MapThemeData가 할당되지 않아 맵을 생성할 수 없습니다!");
@@ -103,7 +112,15 @@ namespace OZGL.Map
 
             ValidatePrefabs();
             GenerateMapData();
-            PlayMapAnimation();
+
+            if (UsedInitialGenerationAnimation)
+            {
+                PlayMapAnimation();
+            }
+            else
+            {
+                CreateMapImmediately();
+            }
         }
 
         public void GenerateMapData()
@@ -119,6 +136,7 @@ namespace OZGL.Map
 
                 GenerateLogicalShape();
                 AssignNodeTypes();
+                ApplyPostGenerationRules();
             }
             finally
             {
@@ -156,6 +174,31 @@ namespace OZGL.Map
         public void PlayMapAnimation()
         {
             StartCoroutine(AnimateMapGeneration());
+        }
+
+        /// <summary>
+        /// 기본 생성이 끝난 뒤 파생 생성기가 추가 규칙을 적용할 수 있는 확장 지점입니다.
+        /// 기본 생성기는 별도 보정을 수행하지 않습니다.
+        /// </summary>
+        protected virtual void ApplyPostGenerationRules()
+        {
+        }
+
+        /// <summary>
+        /// 파생 생성기가 생성된 논리 노드를 읽고 타입을 보정할 때 사용합니다.
+        /// </summary>
+        protected IReadOnlyList<MapNode> AllNodes => _allNodes;
+
+        /// <summary>
+        /// 전투 씬에서 보드로 복귀할 때, 동일한 Seed로 복원한 맵의 타일을
+        /// 생성 연출 없이 즉시 표시합니다.
+        /// </summary>
+        private void CreateMapImmediately()
+        {
+            foreach (MapNode node in _allNodes)
+            {
+                CreateNodeView(node, false);
+            }
         }
 
         private void ValidatePrefabs()
@@ -416,7 +459,7 @@ namespace OZGL.Map
             }
         }
 
-        private bool IsObstacle(NodeType type)
+        protected static bool IsObstacle(NodeType type)
         {
             return type == NodeType.Tree || type == NodeType.Rock ||
                    type == NodeType.WaterPuddle || type == NodeType.WaterStart ||
@@ -548,21 +591,7 @@ namespace OZGL.Map
             while (queue.Count > 0)
             {
                 MapNode currentNode = queue.Dequeue();
-                GameObject targetPrefab = GetPrefabForType(currentNode.Type);
-
-                if (targetPrefab == null)
-                {
-                    targetPrefab = _currentTheme.NormalPrefab;
-                    if (targetPrefab == null) continue;
-                }
-
-                Vector3 worldPos = new Vector3(currentNode.Position.x * tileSpacing, 0, currentNode.Position.y * tileSpacing);
-                currentNode.NodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, this.transform);
-
-                TileView tileView = currentNode.NodeView.GetComponent<TileView>();
-                if (tileView != null) tileView.Init(currentNode);
-
-                StartCoroutine(ScaleUpNode(currentNode.NodeView.transform, 0.5f));
+                CreateNodeView(currentNode, true);
 
                 yield return wait;
 
@@ -574,6 +603,34 @@ namespace OZGL.Map
                         queue.Enqueue(neighbor);
                     }
                 }
+            }
+        }
+
+        private void CreateNodeView(MapNode node, bool animateScale)
+        {
+            GameObject targetPrefab = GetPrefabForType(node.Type) ?? _currentTheme.NormalPrefab;
+
+            if (targetPrefab == null)
+            {
+                return;
+            }
+
+            Vector3 worldPos = new Vector3(
+                node.Position.x * tileSpacing,
+                0f,
+                node.Position.y * tileSpacing);
+
+            node.NodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, transform);
+
+            TileView tileView = node.NodeView.GetComponent<TileView>();
+            if (tileView != null)
+            {
+                tileView.Init(node);
+            }
+
+            if (animateScale)
+            {
+                StartCoroutine(ScaleUpNode(node.NodeView.transform, 0.5f));
             }
         }
 
@@ -629,14 +686,13 @@ namespace OZGL.Map
 
         public void ReplaceTileVisual(MapNode node)
         {
-            if (node.NodeView != null) Destroy(node.NodeView); // 기존 평범한 타일 모델 삭제
-            GameObject targetPrefab = GetPrefabForType(node.Type);
-            if (targetPrefab == null) targetPrefab = _currentTheme.NormalPrefab;
-            Vector3 worldPos = new Vector3(node.Position.x * tileSpacing, 0, node.Position.y * tileSpacing);
-            node.NodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, this.transform);
+            if (node == null)
+            {
+                return;
+            }
 
-            TileView tileView = node.NodeView.GetComponent<TileView>();
-            if (tileView != null) tileView.Init(node);
+            if (node.NodeView != null) Destroy(node.NodeView); // 기존 평범한 타일 모델 삭제
+            CreateNodeView(node, false);
         }
     }
 }

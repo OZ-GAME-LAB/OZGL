@@ -16,7 +16,11 @@ namespace OzGameLab01.Controllers
         public event Action<bool> OnBattleResolved;
 
         private bool _resolved;
+        private bool _wasBossBattle;
+        private bool _victory;
+
         public bool IsResolved => _resolved;
+        public bool IsBossVictory => _wasBossBattle && _victory;
 
         private void Update()
         {
@@ -63,6 +67,8 @@ namespace OzGameLab01.Controllers
             if (_resolved) return;
 
             _resolved = true;
+            _wasBossBattle = BoardRunData.HasCurrentBattle && BoardRunData.IsBossBattle;
+            _victory = victory;
             Time.timeScale = 0f;
 
             if (victory)
@@ -95,6 +101,30 @@ namespace OzGameLab01.Controllers
 
             Time.timeScale = 1f;
             transitioner.LoadBoardScene();
+        }
+
+        /// <summary>
+        /// 보스전 승리 후 현재 게임 진행을 종료하고 타이틀 씬으로 이동합니다.
+        /// </summary>
+        public void ReturnToTitle()
+        {
+            SceneTransitioner transitioner = SceneTransitioner.Instance;
+
+            if (transitioner == null)
+            {
+                Debug.LogError("[CombatSceneController] SceneTransitioner를 찾을 수 없습니다.", this);
+                return;
+            }
+
+            if (transitioner.IsTransitioning)
+            {
+                Debug.LogWarning("[CombatSceneController] 이미 씬 전환 중입니다.", this);
+                return;
+            }
+
+            Time.timeScale = 1f;
+            BoardRunData.Clear();
+            transitioner.LoadTitleScene();
         }
     }
 }
