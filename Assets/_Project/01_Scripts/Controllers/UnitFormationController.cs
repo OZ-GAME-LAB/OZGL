@@ -113,7 +113,10 @@ namespace OzGameLab01.Controllers
         /// <summary>
         /// 전투 유닛이 한 명 이상 배치되었는지 반환합니다.
         /// </summary>
-        public bool CanStartBattle => battleUnitCount >= 1;
+        // public bool CanStartBattle => battleUnitCount >= 1;
+
+        // [수정]비활성 UnitView가 아직 초기화되지 않았어도 저장된 전투 편성으로 진입을 허용합니다.
+        public bool CanStartBattle => battleUnitCount >= 1 || UnitFormationCombatLink.HasSavedBattleUnit;
 
         private void Awake()
         {
