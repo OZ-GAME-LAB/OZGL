@@ -170,7 +170,7 @@ namespace OzGameLab01.Controllers
 
         private void HandleReturnToMainClicked(SettingsView view)
         {
-            surrenderPopup?.Show("항복하고 보드로 돌아가시겠습니까?");
+            surrenderPopup?.Show("Would you like to surrender and return to the board?");
         }
 
         private void HandleSurrenderConfirmClicked(ConfirmPopupView popup)
@@ -218,7 +218,7 @@ namespace OzGameLab01.Controllers
                             var option = battleUIView.RewardView.CreateRewardOption();
                             if (option != null)
                             {
-                                option.SetDescription($"[임시 보상 {i + 1}] 전투 승리 보상입니다.");
+                                option.SetDescription($"[Temporary{i + 1}] his is the battle victory reward");
                             }
                         }
                     }
@@ -230,8 +230,8 @@ namespace OzGameLab01.Controllers
                     // 패배 시 바로 결과 창(ResultView)을 띄웁니다.
                     if (battleUIView.ResultView != null)
                     {
-                        battleUIView.ResultView.SetResultText("패배...");
-                        battleUIView.ResultView.SetOptionalMessage("다음 기회에...");
+                        battleUIView.ResultView.SetResultText("Defeat...");
+                        battleUIView.ResultView.SetOptionalMessage("Better luck next time...");
                     }
                     battleUIView.ShowResultView();
                 }
@@ -245,11 +245,11 @@ namespace OzGameLab01.Controllers
             {
                 if (battleUIView.ResultView != null)
                 {
-                    battleUIView.ResultView.SetResultText("승리!");
+                    battleUIView.ResultView.SetResultText("Victory!");
                     
                     // 선택한 보상의 설명을 결과창에 표기
-                    string selectedDesc = option.DescriptionText != null ? option.DescriptionText.text : "보상";
-                    battleUIView.ResultView.SetOptionalMessage($"획득: {selectedDesc}");
+                    string selectedDesc = option.DescriptionText != null ? option.DescriptionText.text : "Reward";
+                    battleUIView.ResultView.SetOptionalMessage($"Obtained: {selectedDesc}");
                 }
                 
                 battleUIView.ShowResultView();

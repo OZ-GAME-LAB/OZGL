@@ -61,14 +61,14 @@ namespace OzGameLab01.Combat
                 }
                 else
                 {
-                    resultText.text = "승리!";
+                    resultText.text = "victory!";
                     resultPanel.SetActive(true);
                 }
             }
             else if (!allyAlive)
             {
                 _resolved = true;
-                resultText.text = "패배...";
+                resultText.text = "defeat...";
                 resultPanel.SetActive(true);
                 Time.timeScale = 0f;
             }

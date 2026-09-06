@@ -118,7 +118,7 @@ namespace OzGameLab01.Controllers
             if (_nightEventPopup == null) _nightEventPopup = FindFirstObjectByType<NightEventPopupView>();
             if (_nightEventPopup == null) _nightEventPopup = new GameObject("NightEventPopup").AddComponent<NightEventPopupView>();
 
-            _nightEventPopup.Show($"{BoardRunData.TurnCount}턴째, 밤이 되었습니다.\n(발생 이벤트 미정)");
+            _nightEventPopup.Show($"{BoardRunData.TurnCount}Turn, Night has arrived.\n(Undecided event)");
             NightReached?.Invoke(BoardRunData.TurnCount);
         }
 
@@ -143,7 +143,7 @@ namespace OzGameLab01.Controllers
                 _nightEventPopup = new GameObject("NightEventPopup").AddComponent<NightEventPopupView>();
             }
 
-            _nightEventPopup.Show("전투 유닛을 1명 이상 편성해야 전투를 시작할 수 있습니다.");
+            _nightEventPopup.Show("To start a battle, you must place at least one combat unit.");
 
             return false;
         }
@@ -242,7 +242,7 @@ namespace OzGameLab01.Controllers
                 // 4. 밤 이벤트용 범용 알림UI를 활용해서 획득 안내창을 띄웁니다.
                 if (_nightEventPopup == null) _nightEventPopup = FindFirstObjectByType<NightEventPopupView>();
                 if (_nightEventPopup == null) _nightEventPopup = new GameObject("NightEventPopup").AddComponent<NightEventPopupView>();
-                _nightEventPopup.Show($"신규 유닛 획득!\n[{acquiredUnit.name}]\n(현재 {PlayerInventoryManager.Instance.OwnedUnits.Count}명 보유)");
+                _nightEventPopup.Show($"New Unit Acquired!\n[{acquiredUnit.name}]\n(Currently {PlayerInventoryManager.Instance.OwnedUnits.Count} units owned)");
             }
             else
             {

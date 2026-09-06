@@ -26,7 +26,7 @@ namespace OzGameLab01.Managers
 
             if (pauseButtonLabel != null)
             {
-                pauseButtonLabel.text = _isPaused ? "재개" : "일시정지";
+                pauseButtonLabel.text = _isPaused ? "Continue" : "Paused";
             }
         }
     }
