@@ -13,6 +13,7 @@ namespace OzGameLab01.UI
         [Header("References")]
         [SerializeField] private Button unitButton;
         [SerializeField] private Button settingsButton;
+        [SerializeField] private Button locateButton;
         [SerializeField] private Transform synergyContentRoot;
         [SerializeField] private Transform artifactContentRoot;
 
@@ -30,6 +31,7 @@ namespace OzGameLab01.UI
 
         public Button UnitButton => unitButton;
         public Button SettingsButton => settingsButton;
+        public Button LocateButton => locateButton;
 
         public Transform SynergyContentRoot => synergyContentRoot;
         public Transform ArtifactContentRoot => artifactContentRoot;
@@ -41,6 +43,7 @@ namespace OzGameLab01.UI
 
         public event Action<ReadyMainView> UnitClicked; //유닛 버튼 클릭 이벤트
         public event Action<ReadyMainView> SettingsClicked; //설정 버튼 클릭 이벤트
+        public event Action<ReadyMainView> LocateClicked; //목표 위치 확인 버튼 클릭 이벤트
         public event Action<ReadyMainView> EndTurnClicked; //턴 종료 버튼 클릭 이벤트
 
         public event Action<SynergyItemView, PointerEventData> SynergyClicked; //시너지 아이템 클릭 이벤트
@@ -253,6 +256,11 @@ namespace OzGameLab01.UI
                 settingsButton.onClick.AddListener(HandleSettingsClick);
             }
 
+            if (locateButton != null)
+            {
+                locateButton.onClick.AddListener(HandleLocateClick);
+            }
+
             if (endTurnButton != null)
             {
                 endTurnButton.onClick.AddListener(HandleEndTurnClick);
@@ -269,6 +277,11 @@ namespace OzGameLab01.UI
             if (settingsButton != null)
             {
                 settingsButton.onClick.RemoveListener(HandleSettingsClick);
+            }
+
+            if (locateButton != null)
+            {
+                locateButton.onClick.RemoveListener(HandleLocateClick);
             }
 
             if (endTurnButton != null)
@@ -377,6 +390,11 @@ namespace OzGameLab01.UI
         private void HandleSettingsClick()
         {
             SettingsClicked?.Invoke(this);
+        }
+
+        private void HandleLocateClick()
+        {
+            LocateClicked?.Invoke(this);
         }
 
         private void HandleEndTurnClick()
