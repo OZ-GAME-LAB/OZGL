@@ -27,7 +27,9 @@ namespace OzGameLab01.UI
 
         #region Properties
 
-        public RectTransform RectTransform => rectTransform;
+        // public RectTransform RectTransform => rectTransform;
+        // [수정] 일부 Slot_00 프리팹 인스턴스에 직렬화 참조가 없어도 자신의 RectTransform을 반환
+        public RectTransform RectTransform => rectTransform != null ? rectTransform : transform as RectTransform;
         public Image SlotIcon => slotIcon;
 
         public int SlotIndex => slotIndex;

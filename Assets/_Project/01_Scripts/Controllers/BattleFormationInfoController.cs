@@ -97,7 +97,12 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                CreateSlotIcon(slotView.UnitAnchor, unit, slotIndex);
+                // CreateSlotIcon(slotView.UnitAnchor, unit, slotIndex);
+                // [수정] : CombatManager가 실제 Unit과 연결된 이미지를 이미 만들었다면 중복 아이콘을 생성하지 않습니다.
+                if (slotView.UnitAnchor.Find($"BattleCombatUnit_{slotIndex:00}") == null)
+                {
+                    CreateSlotIcon(slotView.UnitAnchor, unit, slotIndex);
+                }
             }
         }
 

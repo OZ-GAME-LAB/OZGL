@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
+using OzGameLab01.Controllers;
 
 namespace OzGameLab01.Combat
 {
@@ -45,6 +47,9 @@ namespace OzGameLab01.Combat
         [Tooltip("모든 아군이 공유하는 프리팹입니다. Instantiate 후 UnitData로 Configure()하여 실제 유닛으로 만듭니다. 프리팹 루트는 비활성 상태여야 합니다(Configure가 Awake보다 먼저 실행되어야 하므로).")]
         [SerializeField] private GameObject allyTemplatePrefab;
 
+        [Header("플레이어 전투 슬롯")]
+        [SerializeField] private BattleMainView battleMainView;
+
         [Tooltip("맵 씬에서 미리 정한 아군 배치. 슬롯(열+행)을 키로, 그 슬롯에 들어갈 유닛 id(GameDB 기준)를 값으로 가짐.")]
         [SerializeField] private List<SlotPlacement> allyFormation = new List<SlotPlacement>();
 
@@ -75,12 +80,31 @@ namespace OzGameLab01.Combat
         private Dictionary<SynergyTrait, int> _traitCounts;
         private readonly Unit[,] _slotUnits = new Unit[SlotColumns, SlotRows];
         private Unit _enemyUnit;
+        private UIProjectilePool _uiProjectilePool;
 
         public Unit EnemyUnit => _enemyUnit;
 
         private void Awake()
         {
             Instance = this;
+            //  씬/프리팹에서 직접 연결하지 못한 경우 비활성 BattleUI까지 포함해 자동으로 찾기
+            if (battleMainView == null)
+            {
+                battleMainView = FindFirstObjectByType<BattleMainView>(FindObjectsInactive.Include);
+            }
+            // BattleMainView 아래에 런타임 투사체 풀은 한번만 생성 
+            if (battleMainView != null)
+            {
+                _uiProjectilePool = battleMainView.GetComponentInChildren<UIProjectilePool>(true);
+                if (_uiProjectilePool == null)
+                {
+                    GameObject poolObject =
+                        new GameObject("UIProjectilePool", typeof(RectTransform), typeof(UIProjectilePool));
+                    poolObject.transform.SetParent(battleMainView.transform, false);
+                    poolObject.transform.SetAsLastSibling();
+                    _uiProjectilePool = poolObject.GetComponent<UIProjectilePool>();
+                }
+            }
             BuildAllyFormation();
             BuildUnitStatLookup();
             BuildUnitTraitLookup();
@@ -219,7 +243,10 @@ namespace OzGameLab01.Combat
                 }
 
                 SlotKey slot = kvp.Key;
-                _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
+                // _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
+                // [수정] Inspector 폴백 편성도 대응하는 PlayerSlot의 UnitAnchor 아래에 생성합니다.
+                int placementIndex = SlotKeyToPlacementIndex(slot);
+                _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnitInPlayerSlot(data, placementIndex);
                 _spawnedFormation[slot] = kvp.Value;
             }
 
@@ -237,9 +264,132 @@ namespace OzGameLab01.Combat
                 }
 
                 SlotKey slot = PlacementIndexToSlotKey(placementIndex);
-                _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
+                // _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
+                // [수정] : 02_MainGame 편성 인덱스와 같은 PlayerSlot UnitAnchor 아래에 생성합니다.
+                _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnitInPlayerSlot(data, placementIndex);
                 _spawnedFormation[slot] = data.id;
             }
+        }
+
+        /// <summary>
+        /// 편성 인덱스(0~8)에 대응하는 PlayerSlotItemView의 UnitAnchor 아래에 실제 Unit 프리팹을 생성합니다.
+        /// </summary>
+        /// <returns></returns>
+        private Unit SpawnAllyUnitInPlayerSlot(UnitData data, int placementIndex)
+        {
+            if (battleMainView == null)
+            {
+                Debug.LogError("[CombatManager] BattleMainView가 연결되지 않아 플레이어 슬롯에 유닛을 생성할 수 없습니다.", this);
+                return null;
+            }
+
+            IReadOnlyList<PlayerSlotItemView> slotViews = battleMainView.PlayerSlotViews;
+            if (placementIndex < 0 || placementIndex >= slotViews.Count)
+            {
+                Debug.LogError($"[CombatManager] 편성 인덱스 {placementIndex}에 대응하는 PlayerSlot이 없습니다.", this);
+                return null;
+            }
+
+            PlayerSlotItemView slotView = slotViews[placementIndex];
+            if (slotView == null || slotView.UnitAnchor == null)
+            {
+                Debug.LogError($"[CombatManager] PlayerSlot {placementIndex}의 UnitAnchor가 연결되지 않았습니다.", this);
+                return null;
+            }
+
+            GameObject prefabToSpawn = LoadAllyPrefab(data);
+            if (prefabToSpawn == null)
+            {
+                return null;
+            }
+
+            GameObject instance = Instantiate(prefabToSpawn, slotView.UnitAnchor, false);
+            instance.name = $"{prefabToSpawn.name}_{placementIndex:00}";
+            instance.transform.localPosition = Vector3.zero;
+            instance.transform.localRotation = Quaternion.identity;
+            instance.transform.localScale = Vector3.one;
+
+            Unit unit = instance.GetComponent<Unit>();
+            if (unit == null)
+            {
+                Debug.LogError($"[CombatManager] '{prefabToSpawn.name}' 루트에 Unit 컴포넌트가 없습니다.", instance);
+                Destroy(instance);
+                return null;
+            }
+
+            unit.Configure(data);
+            Sprite unitSprite = instance.GetComponentInChildren<SpriteRenderer>(true)?.sprite;
+            if (unitSprite == null)
+            {
+                unitSprite = GetTransferredUnitSprite(placementIndex);
+            }
+            Image combatImage = CreateCombatImage(slotView.UnitAnchor, $"BattleCombatUnit_{placementIndex:00}", unitSprite, Color.white);
+            unit.BindCombatUI(slotView.UnitAnchor as RectTransform, combatImage, _uiProjectilePool);
+            unit.SetVisualsVisible(false);
+            instance.SetActive(true);
+            return unit;
+        }
+
+        /// <summary>
+        /// 메인보드에서 전달된 유닛 아이콘을 편성 인덱스로 찾습니다.
+        /// </summary>
+        private static Sprite GetTransferredUnitSprite(int placementIndex)
+        {
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> units = UnitFormationCombatLink.BattleUnits;
+            if (placementIndex < 0 || placementIndex >= units.Count || units[placementIndex] == null)
+            {
+                return null;
+            }
+
+            return units[placementIndex].Sprite;
+        }
+
+        /// <summary>
+        /// 전투 UnitAnchor 전체를 채우는 유닛 이미지를 생성합니다.
+        /// </summary>
+        private static Image CreateCombatImage(Transform anchor, string objectName, Sprite sprite, Color color)
+        {
+            GameObject imageObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            RectTransform rect = imageObject.GetComponent<RectTransform>();
+            rect.SetParent(anchor, false);
+            rect.anchorMin = Vector2.zero;
+            rect.anchorMax = Vector2.one;
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+            rect.localScale = Vector3.one;
+
+            Image image = imageObject.GetComponent<Image>();
+            image.sprite = sprite;
+            image.color = color;
+            image.preserveAspect = true;
+            image.raycastTarget = false;
+            image.enabled = sprite != null;
+            return image;
+        }
+
+        /// <summary>
+        /// UnitData의 주소에 맞는 아군 전투 프리팹을 불러옵니다.
+        /// </summary>
+        private GameObject LoadAllyPrefab(UnitData data)
+        {
+            GameObject prefabToSpawn = null;
+            if (data != null && !string.IsNullOrEmpty(data.spriteAddress))
+            {
+                prefabToSpawn = Resources.Load<GameObject>($"Characters/{data.spriteAddress}");
+            }
+
+            if (prefabToSpawn == null)
+            {
+                prefabToSpawn = allyTemplatePrefab;
+            }
+
+            if (prefabToSpawn == null)
+            {
+                Debug.LogError($"[CombatManager] 아군 프리팹을 찾을 수 없습니다. " +
+                    $"(spriteAddress: {data?.spriteAddress})", this);
+            }
+
+            return prefabToSpawn;
         }
 
         /// <summary>
@@ -290,6 +440,16 @@ namespace OzGameLab01.Combat
                 column = (SlotColumns - 1) - placeRow,
                 row = (SlotRow)((SlotColumns - 1) - placeCol)
             };
+        }
+
+        /// <summary>
+        /// Inspector 폴백 SlotKey를 BattleMainView.PlayerSlotViews의 0~8 인덱스로 역변환합니다.
+        /// </summary>
+        private static int SlotKeyToPlacementIndex(SlotKey slot)
+        {
+            int placeRow = (SlotColumns - 1) - slot.column;
+            int placeCol = (SlotRows - 1) - (int)slot.row;
+            return placeRow * SlotColumns + placeCol;
         }
 
         private void ApplySynergies()
@@ -494,6 +654,23 @@ namespace OzGameLab01.Combat
             enemyInstance.transform.localPosition = Vector3.zero;
             enemyInstance.transform.localRotation = Quaternion.identity;
             _enemyUnit = enemyInstance.GetComponent<Unit>();
+
+            // [추가]적도 BattleUI의 EnemyUnitAnchor에 표시하고 아군 투사체의 UI 도착점으로 사용
+            if (_enemyUnit != null && battleMainView != null && battleMainView.EnemyCombatArea != null)
+            {
+                Transform enemyAnchor = battleMainView.EnemyCombatArea.Find("EnemyUnitAnchor");
+                if (enemyAnchor == null)
+                {
+                    enemyAnchor = battleMainView.EnemyCombatArea;
+                }
+
+                SpriteRenderer enemyRenderer = enemyInstance.GetComponentInChildren<SpriteRenderer>(true);
+                Sprite enemySprite = enemyRenderer != null ? enemyRenderer.sprite : null;
+                Color enemyColor = enemyRenderer != null ? enemyRenderer.color : Color.white;
+                Image enemyImage = CreateCombatImage(enemyAnchor, "BattleCombatEnemy", enemySprite, enemyColor);
+                _enemyUnit.BindCombatUI(enemyAnchor as RectTransform, enemyImage, _uiProjectilePool);
+                _enemyUnit.SetVisualsVisible(false);
+            }
         }
 
         private Vector3 GetSlotPosition(int column, SlotRow row)
