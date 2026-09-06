@@ -193,7 +193,14 @@ namespace OzGameLab01.Controllers
         {
             if (combatSceneController != null)
             {
-                combatSceneController.ReturnToBoard();
+                if (combatSceneController.IsBossVictory)
+                {
+                    combatSceneController.ReturnToTitle();
+                }
+                else
+                {
+                    combatSceneController.ReturnToBoard();
+                }
             }
         }
 
@@ -207,6 +214,19 @@ namespace OzGameLab01.Controllers
             {
                 if (victory)
                 {
+                    if (combatSceneController != null && combatSceneController.IsBossVictory)
+                    {
+                        if (battleUIView.ResultView != null)
+                        {
+                            battleUIView.ResultView.SetResultText("Victory");
+                            battleUIView.ResultView.SetOptionalMessage(string.Empty);
+                            battleUIView.ResultView.SetEndBattleButtonText("Return To Title");
+                        }
+
+                        battleUIView.ShowResultView();
+                        return;
+                    }
+
                     // 승리 시 보상 창(RewardView)을 먼저 띄웁니다.
                     if (battleUIView.RewardView != null)
                     {
@@ -232,6 +252,7 @@ namespace OzGameLab01.Controllers
                     {
                         battleUIView.ResultView.SetResultText("Defeat...");
                         battleUIView.ResultView.SetOptionalMessage("Better luck next time...");
+                        battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
                     }
                     battleUIView.ShowResultView();
                 }
@@ -246,6 +267,7 @@ namespace OzGameLab01.Controllers
                 if (battleUIView.ResultView != null)
                 {
                     battleUIView.ResultView.SetResultText("Victory!");
+                    battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
                     
                     // 선택한 보상의 설명을 결과창에 표기
                     string selectedDesc = option.DescriptionText != null ? option.DescriptionText.text : "Reward";
