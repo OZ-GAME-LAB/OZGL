@@ -12,7 +12,7 @@ namespace OzGameLab01.UI
     public class BattleRewardPanel : MonoBehaviour
     {
         private const float ExpPerBattle = 40f;
-        private const string TitleLabel = "승리!";
+        private const string TitleLabel = "victory!";
 
         [SerializeField] private GameObject panel;
         [SerializeField] private Transform cellsContainer;
@@ -282,7 +282,7 @@ namespace OzGameLab01.UI
             rt.sizeDelta = new Vector2(200f, 60f);
             buttonObj.GetComponent<Image>().color = new Color(0.2f, 0.6f, 0.9f, 1f);
 
-            TextMeshProUGUI label = CreateText(buttonObj.transform, "확인", 26, TextAlignmentOptions.Center);
+            TextMeshProUGUI label = CreateText(buttonObj.transform, "Check", 26, TextAlignmentOptions.Center);
             RectTransform labelRt = label.rectTransform;
             labelRt.anchorMin = Vector2.zero;
             labelRt.anchorMax = Vector2.one;
