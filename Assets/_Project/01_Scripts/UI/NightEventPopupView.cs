@@ -123,7 +123,7 @@ namespace OzGameLab01.UI
             labelObj.transform.SetParent(buttonObj.transform, false);
 
             TextMeshProUGUI label = labelObj.AddComponent<TextMeshProUGUI>();
-            label.text = "확인";
+            label.text = "Check";
             label.fontSize = 20;
             label.alignment = TextAlignmentOptions.Center;
             label.color = Color.white;

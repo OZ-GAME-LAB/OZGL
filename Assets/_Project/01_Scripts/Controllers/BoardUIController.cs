@@ -107,7 +107,7 @@ namespace OzGameLab01.Controllers
             {
                 if (Managers.DiceManager.Instance != null && Managers.DiceManager.Instance.HasRolledThisTurn)
                 {
-                    ShowWarning("턴 종료를 먼저 해주세요!");
+                    ShowWarning("Please end the turn first!!");
                     return;
                 }
 
@@ -139,7 +139,7 @@ namespace OzGameLab01.Controllers
         {
             if (Managers.DiceManager.Instance != null && !Managers.DiceManager.Instance.HasRolledThisTurn)
             {
-                ShowWarning("주사위를 먼저 굴려주세요!");
+                ShowWarning("Please roll the dice first!");
                 return;
             }
 
