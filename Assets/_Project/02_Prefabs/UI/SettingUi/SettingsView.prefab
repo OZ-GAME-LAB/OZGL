@@ -786,6 +786,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7905384195110530482}
   - component: {fileID: 7593306415409819823}
+  - component: {fileID: 9188177240062806724}
   m_Layer: 0
   m_Name: SettingsView
   m_TagString: Untagged
@@ -838,6 +839,23 @@ MonoBehaviour:
   toggleItems:
   - {fileID: 1783844492778018966}
   settingItems: []
+--- !u!114 &9188177240062806724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3656264152356623285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 292f8d3db60f408997653156c5a19e47, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Settings.SettingsAudioController
+  settingsView: {fileID: 7593306415409819823}
+  masterVolumeItem: {fileID: 8999904842599746340}
+  bgmVolumeItem: {fileID: 5372233274358621918}
+  sfxVolumeItem: {fileID: 6307540065566822712}
+  muteAllItem: {fileID: 1783844492778018966}
 --- !u!1 &4265522860802834457
 GameObject:
   m_ObjectHideFlags: 0
