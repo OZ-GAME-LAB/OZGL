@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4413370296528165858}
   - component: {fileID: 8036404248846272864}
   - component: {fileID: 4765515414941831763}
+  - component: {fileID: 6211868172338176540}
   m_Layer: 0
   m_Name: GlobalManagers
   m_TagString: Untagged
@@ -49,6 +50,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.GameBootstrapper
   _managerComponents:
   - {fileID: 8036404248846272864}
+  - {fileID: 6211868172338176540}
 --- !u!114 &8036404248846272864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -76,6 +78,145 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.SceneTransitioner
   fadeImage: {fileID: 0}
   fadeDuration: 0.3
+--- !u!114 &6211868172338176540
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4478891463764493965}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c56e860aa35c49c1a80fd041975c3451, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.SoundManager
+  sounds:
+  - id: 1
+    channel: 0
+    clip: {fileID: 0}
+    volume: 1
+  - id: 2
+    channel: 0
+    clip: {fileID: 0}
+    volume: 1
+  - id: 3
+    channel: 0
+    clip: {fileID: 0}
+    volume: 1
+  - id: 4
+    channel: 0
+    clip: {fileID: 0}
+    volume: 1
+  - id: 5
+    channel: 0
+    clip: {fileID: 0}
+    volume: 1
+  - id: 6
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 7
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 8
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 9
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 10
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 11
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 12
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 13
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 14
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 15
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 16
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 17
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 18
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 19
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 20
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 21
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 22
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 23
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 24
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 25
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 26
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 27
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 28
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 29
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 30
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  - id: 31
+    channel: 1
+    clip: {fileID: 0}
+    volume: 1
+  bgmSource: {fileID: 0}
+  sfxSource: {fileID: 0}
 --- !u!1 &7527684322060833760
 GameObject:
   m_ObjectHideFlags: 0
