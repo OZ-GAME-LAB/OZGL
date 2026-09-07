@@ -204,8 +204,6 @@ MonoBehaviour:
   rectTransform: {fileID: 1874980782046394495}
   background: {fileID: 6584486632271796997}
   icon: {fileID: 2523226867809370390}
-  titleText: {fileID: 0}
-  descriptionText: {fileID: 0}
 --- !u!1 &8487444812649121689
 GameObject:
   m_ObjectHideFlags: 0
