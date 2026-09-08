@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using OzGameLab01.Data;
-using OZGL.Map;
+using OzGameLab01.Map;
 
 public class MapObjectiveManager : MonoBehaviour
 {

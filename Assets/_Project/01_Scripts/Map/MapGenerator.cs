@@ -9,13 +9,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace OZGL.Map
+namespace OzGameLab01.Map
 {
     public class MapGenerator : MonoBehaviour
     {
         [Header("Theme Data")]
         [Tooltip("현재 스테이지에 맞는 테마 데이터(SO)를 연결해주세요.")]
-        [SerializeField] private OZGL.Data.MapThemeData _currentTheme;
+        [SerializeField] private OzGameLab01.Data.MapThemeData _currentTheme;
 
         [Header("Map Size Settings")]
         [Tooltip("최종적으로 남길 타일(노드)의 목표 개수")]

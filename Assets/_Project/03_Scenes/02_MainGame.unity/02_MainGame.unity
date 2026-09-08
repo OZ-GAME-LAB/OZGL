@@ -429,6 +429,10 @@ PrefabInstance:
       propertyPath: m_SizeDelta.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 784871359235922958, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_EditorClassIdentifier
+      value: Assembly-CSharp::OzGameLab01.UI.Settings.ToggleItemView
+      objectReference: {fileID: 0}
     - target: {fileID: 890833200375110301, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_Name
       value: ReadyUI
@@ -957,6 +961,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5020936409525458336, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_EditorClassIdentifier
+      value: Assembly-CSharp::OzGameLab01.UI.Settings.SliderItemView
+      objectReference: {fileID: 0}
     - target: {fileID: 5248903223680031260, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1060,6 +1068,10 @@ PrefabInstance:
     - target: {fileID: 6277564188579138013, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6389219160397537862, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_EditorClassIdentifier
+      value: Assembly-CSharp::OzGameLab01.UI.Settings.SliderItemView
       objectReference: {fileID: 0}
     - target: {fileID: 6621530953197828363, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1272,6 +1284,10 @@ PrefabInstance:
     - target: {fileID: 7902466366336744281, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7981227981090148284, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_EditorClassIdentifier
+      value: Assembly-CSharp::OzGameLab01.UI.Settings.SliderItemView
       objectReference: {fileID: 0}
     - target: {fileID: 7988132679588851369, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchorMax.y
@@ -2141,7 +2157,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f83b31d9c6f4a6ea2e2d8f8f2057b47, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OZGL.Map.MapRouteDirector
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.MapRouteDirector
   mapGenerator: {fileID: 1930314713}
   highlightPrefab: {fileID: 5675414566698002851, guid: 68df69805251f07498868acad49980fc, type: 3}
   eliteCount: 3
@@ -2638,7 +2654,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 417df8c1e29f4fb28c31e7f20f28b6a3, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OZGL.Map.MapCoverageGenerator
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.MapCoverageGenerator
   _currentTheme: {fileID: 11400000, guid: e133a67e099fa81468db8371e2ad60ac, type: 2}
   totalNodeCount: 950
   maxRadius: 400

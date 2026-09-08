@@ -233,17 +233,18 @@ namespace OzGameLab01.Controllers
                         battleUIView.RewardView.ClearRewardOptions();
 
                         // 기획 데이터 연결 전까지 임시 보상 3개 생성
-                        for (int i = 0; i < 3; i++)
-                        {
-                            var option = battleUIView.RewardView.CreateRewardOption();
-                            if (option != null)
-                            {
-                                option.SetDescription($"[Temporary{i + 1}] his is the battle victory reward");
-                            }
-                        }
+                        // 보상 데이터가 준비되기 전까지 사용하던 임시 보상 생성은 제거합니다.
+                        battleUIView.RewardView.Hide();
                     }
-                    
-                    battleUIView.ShowRewardView();
+
+                    if (battleUIView.ResultView != null)
+                    {
+                        battleUIView.ResultView.SetResultText("Victory!");
+                        battleUIView.ResultView.SetOptionalMessage("Reward data is not configured yet.");
+                        battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
+                    }
+
+                    battleUIView.ShowResultView();
                 }
                 else
                 {

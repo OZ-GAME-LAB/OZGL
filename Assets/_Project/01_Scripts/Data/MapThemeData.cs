@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace OZGL.Data
+namespace OzGameLab01.Data
 {
     // 우클릭 에셋 창 크리에이트(Create) 메뉴에 항목을 띄워주는 속성 추가
     [CreateAssetMenu(fileName = "NewMapTheme", menuName = "OZGL/Data/MapTheme")]

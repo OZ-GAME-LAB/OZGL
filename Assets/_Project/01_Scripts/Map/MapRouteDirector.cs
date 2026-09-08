@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using OzGameLab01.Data;
 using UnityEngine;
 
-namespace OZGL.Map
+namespace OzGameLab01.Map
 {
     /// <summary>
     /// 절차적으로 생성된 보드 위에 '중간 보스 -> 최종 보스' 진행 경로를 후처리로 배치합니다.

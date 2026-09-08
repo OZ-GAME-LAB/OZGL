@@ -537,7 +537,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 392680373}
-  - component: {fileID: 392680372}
   m_Layer: 0
   m_Name: MapGenerator
   m_TagString: Untagged
@@ -545,42 +544,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &392680372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 392680371}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 81cd20d1c8d721f48a443eb3250a7368, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OZGL.Map.MapGenerator
-  _currentTheme: {fileID: 11400000, guid: e133a67e099fa81468db8371e2ad60ac, type: 2}
-  totalNodeCount: 300
-  tileSpacing: 1.03
-  animationDuration: 5
-  treeClusterCount: 5
-  minTreeClusterSize: 2
-  maxTreeClusterSize: 5
-  rockClusterCount: 4
-  minRockClusterSize: 1
-  maxRockClusterSize: 4
-  waterClusterCount: 3
-  minWaterClusterSize: 1
-  maxWaterClusterSize: 5
-  bossCount: 1
-  minBossDistance: 5
-  minBossDistanceFromStart: 5
-  shopCount: 3
-  eliteCount: 3
-  eventCount: 8
-  battleCount: 20
-  minShopDistance: 3
-  minEliteDistance: 3
-  minEventDistance: 2
-  minBattleDistance: 4
 --- !u!4 &392680373
 Transform:
   m_ObjectHideFlags: 0
@@ -925,8 +888,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uD134 \uC885\uB8CC"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 34968b8879e6e7a43876b01cf39c0c40, type: 2}
-  m_sharedMaterial: {fileID: 8887313186883105125, guid: 34968b8879e6e7a43876b01cf39c0c40, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials:
   - {fileID: 1344723995}
   m_fontMaterial: {fileID: 1344723995}
@@ -1395,6 +1358,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BoardPlayerController
   _playerTokenPrefab: {fileID: 4785631077047780553, guid: beebf41a585c24d46b0897410005ca63, type: 3}
   _currentDiceValue: 0
+  _actionPowerHud: {fileID: 0}
   _moveSpeed: 5
   _shakeIntensity: 0.3
   _shakeDuration: 0.4
@@ -1640,9 +1604,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BoardSceneController
   _boardPlayerController: {fileID: 1574196127}
   _nightInterval: 3
-  _endTurnButton: {fileID: 1382943842}
   _nightEventPopup: {fileID: 1004471317}
   _timeStatusHud: {fileID: 153301857}
+  _unitFormationController: {fileID: 0}
+  _unitRosterData: {fileID: 0}
+  _eventUIPanel: {fileID: 0}
 --- !u!4 &2004950437
 Transform:
   m_ObjectHideFlags: 0
