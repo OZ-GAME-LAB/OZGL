@@ -33,9 +33,9 @@ RectTransform:
   - {fileID: 6564621733762976683}
   m_Father: {fileID: 4855378848960191350}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 190, y: -85}
   m_SizeDelta: {x: 360, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6035499324793113811
@@ -79,10 +79,10 @@ RectTransform:
   - {fileID: 4633439497686575053}
   m_Father: {fileID: 8128013580351164442}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 100}
+  m_AnchorMin: {x: 0.5, y: 1}
+  m_AnchorMax: {x: 0.5, y: 1}
+  m_AnchoredPosition: {x: -80, y: 0}
+  m_SizeDelta: {x: 500, y: 100}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &8259675969839191256
 MonoBehaviour:
@@ -358,7 +358,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 60}
+  m_SizeDelta: {x: 300, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8782675272759534880
 CanvasRenderer:
@@ -1203,11 +1203,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.UnitFormationController
   unitView: {fileID: 7490831117867674770}
-  unitItemTemplate: {fileID: 0}
+  unitItemTemplate: {fileID: -4660451734347070822, guid: 4f6ff5d5e94b1db418706956e898885f, type: 3}
   rosterData: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
   unitIconSprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
   unitIcons: []
-  synergyItemTemplate: {fileID: 0}
+  synergyItemTemplate: {fileID: 2963044796329331369, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
   synergyActiveColor: {r: 1, g: 1, b: 1, a: 1}
   synergyInactiveColor: {r: 1, g: 1, b: 1, a: 0.4}
 --- !u!114 &6153368479699891312
@@ -2437,7 +2437,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 200, y: 60}
+  m_SizeDelta: {x: 300, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2957851240160704157
 CanvasRenderer:
@@ -3383,7 +3383,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6717777817314609391
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3501,9 +3501,9 @@ RectTransform:
   - {fileID: 2214082644471183288}
   m_Father: {fileID: 4855378848960191350}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 190, y: -215}
   m_SizeDelta: {x: 360, y: 130}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5686328760293317434
@@ -3957,6 +3957,18 @@ PrefabInstance:
       propertyPath: rectTransform
       value: 
       objectReference: {fileID: 2624618610093109721}
+    - target: {fileID: 7636400434228319150, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7636400434228319150, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7636400434228319150, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4586,6 +4598,18 @@ PrefabInstance:
       propertyPath: rectTransform
       value: 
       objectReference: {fileID: 7063389122004747805}
+    - target: {fileID: 7636400434228319150, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_Color.b
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7636400434228319150, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_Color.g
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7636400434228319150, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_Color.r
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
