@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using OzGameLab01.Managers;
@@ -31,8 +30,6 @@ namespace OzGameLab01.Combat
         [SerializeField] private AttackProfile skillAttack = new AttackProfile { damage = 30f, cooldown = 4f };
         [SerializeField] private Color skillGlowColor = new Color(1f, 0.95f, 0.3f, 1f);
         [SerializeField] private float skillGlowDuration = 0.35f;
-
-        public static List<Unit> All = new List<Unit>();
 
         public bool IsDead => _isDead;
         public SkillType Skill => skillType;
@@ -75,7 +72,7 @@ namespace OzGameLab01.Combat
             //
             // [수정] : 초기화 코드를 공용 메서드로 옮겨 Configure 이후에도 다시 적용 
             InitializeRuntimeState();
-            All.Add(this);
+            BattleUnitRegistry.Register(this);
             //
             // _attackTimer = basicAttack.cooldown;
             // _skillTimer = skillAttack.cooldown;
@@ -84,12 +81,12 @@ namespace OzGameLab01.Combat
 
         private void OnDestroy()
         {
-            All.Remove(this);
+            BattleUnitRegistry.Unregister(this);
         }
 
         private void OnDisable()
         {
-            All.Remove(this);
+            BattleUnitRegistry.Unregister(this);
         }
 
         private void Update()
@@ -329,7 +326,7 @@ namespace OzGameLab01.Combat
         private void Die()
         {
             _isDead = true;
-            All.Remove(this);
+            BattleUnitRegistry.Unregister(this);
 
             if (_combatImage != null)
             {

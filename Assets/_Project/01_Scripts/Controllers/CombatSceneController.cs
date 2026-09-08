@@ -12,15 +12,52 @@ namespace OzGameLab01.Controllers
     /// </summary>
     public sealed class CombatSceneController : MonoBehaviour
     {
+        public enum BattleState
+        {
+            Running,
+            Paused,
+            Resolved
+        }
+
         // 전투가 끝났을 때 UI 컨트롤러 쪽에 알려줄 이벤트
         public event Action<bool> OnBattleResolved;
 
         private bool _resolved;
         private bool _wasBossBattle;
         private bool _victory;
+        private bool _fastForward;
+
+        public BattleState CurrentState { get; private set; } = BattleState.Running;
+        public bool IsPaused => CurrentState == BattleState.Paused;
+        public float CurrentTimeScale => _fastForward ? 2f : 1f;
 
         public bool IsResolved => _resolved;
         public bool IsBossVictory => _wasBossBattle && _victory;
+
+        public void SetFastForward(bool enabled)
+        {
+            _fastForward = enabled;
+            if (!_resolved && !IsPaused)
+            {
+                ApplyTimeScale();
+            }
+        }
+
+        public void SetPaused(bool paused)
+        {
+            if (_resolved)
+            {
+                return;
+            }
+
+            CurrentState = paused ? BattleState.Paused : BattleState.Running;
+            ApplyTimeScale();
+        }
+
+        private void ApplyTimeScale()
+        {
+            Time.timeScale = IsPaused || _resolved ? 0f : CurrentTimeScale;
+        }
 
         private void Update()
         {
@@ -32,7 +69,7 @@ namespace OzGameLab01.Controllers
             bool allyAlive = false;
             bool enemyAlive = false;
 
-            foreach (Unit unit in Unit.All)
+            foreach (Unit unit in BattleUnitRegistry.Units)
             {
                 if (unit == null || unit.IsDead)
                 {
@@ -69,7 +106,8 @@ namespace OzGameLab01.Controllers
             _resolved = true;
             _wasBossBattle = BoardRunData.HasCurrentBattle && BoardRunData.IsBossBattle;
             _victory = victory;
-            Time.timeScale = 0f;
+            CurrentState = BattleState.Resolved;
+            ApplyTimeScale();
 
             if (victory)
             {
@@ -99,7 +137,7 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            Time.timeScale = 1f;
+            ResetTimeScale();
             transitioner.LoadBoardScene();
         }
 
@@ -122,9 +160,16 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            Time.timeScale = 1f;
+            ResetTimeScale();
             BoardRunData.Clear();
             transitioner.LoadTitleScene();
+        }
+
+        private void ResetTimeScale()
+        {
+            _fastForward = false;
+            CurrentState = BattleState.Running;
+            Time.timeScale = 1f;
         }
     }
 }

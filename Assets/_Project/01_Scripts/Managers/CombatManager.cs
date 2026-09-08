@@ -80,10 +80,14 @@ namespace OzGameLab01.Combat
         private SynergyController _synergyController;
 
         public Unit EnemyUnit => _enemyUnit;
+        public UnitRosterData RosterData => rosterData;
 
         private void Awake()
         {
             Instance = this;
+            // 정적 상태라 실기기 빌드에서는 씬 전환만으로 비워지지 않는다.
+            // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.
+            BattleUnitRegistry.Clear();
             //  씬/프리팹에서 직접 연결하지 못한 경우 비활성 BattleUI까지 포함해 자동으로 찾기
             if (battleMainView == null)
             {
@@ -150,6 +154,8 @@ namespace OzGameLab01.Combat
             {
                 return;
             }
+
+            CombatDataValidator.ValidateRoster(rosterData, this);
 
             UnitRosterData.RegisterActive(rosterData, this);
 

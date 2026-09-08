@@ -36,6 +36,11 @@ namespace OzGameLab01.Combat
         public IReadOnlyList<UnitTraitEntry> UnitTraits => unitTraits;
         public IReadOnlyList<SynergyDefinition> SynergyDefinitions => synergyDefinitions;
 
+        private void OnValidate()
+        {
+            CombatDataValidator.ValidateRoster(this, this);
+        }
+
         private static UnitRosterData _activeInstance;
 
         /// <summary>

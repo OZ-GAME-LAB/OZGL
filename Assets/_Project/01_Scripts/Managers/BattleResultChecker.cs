@@ -32,7 +32,7 @@ namespace OzGameLab01.Combat
             bool allyAlive = false;
             bool enemyAlive = false;
 
-            foreach (Unit unit in Unit.All)
+            foreach (Unit unit in BattleUnitRegistry.Units)
             {
                 if (unit == null || unit.IsDead)
                 {

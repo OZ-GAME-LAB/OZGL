@@ -61,25 +61,7 @@ namespace OzGameLab01.Combat
             // 팀 전체에서 각 트레이트를 보유한 유닛 수를 센다 (시너지 발동 여부 판정용).
             // 인스펙터 폴백 편성이 아니라 실제로 스폰된 편성(spawnedFormation)을 기준으로 삼아야
             // 배치 화면에서 넘어온 편성에도 시너지가 정상 반영된다.
-            _traitCounts = new Dictionary<SynergyTrait, int>();
-            foreach (int unitId in spawnedFormation.Values)
-            {
-                if (!_unitTraitsById.TryGetValue(unitId, out List<SynergyTrait> traits) || traits == null)
-                {
-                    continue;
-                }
-
-                foreach (SynergyTrait trait in traits)
-                {
-                    if (trait == null)
-                    {
-                        continue;
-                    }
-
-                    _traitCounts.TryGetValue(trait, out int count);
-                    _traitCounts[trait] = count + 1;
-                }
-            }
+            _traitCounts = SynergyPanelUtility.CountTraits(spawnedFormation.Values, _unitTraitsById);
 
             Dictionary<SynergyTrait, SynergyDefinition> definitionByTrait = new Dictionary<SynergyTrait, SynergyDefinition>();
             if (rosterData != null)
@@ -134,45 +116,17 @@ namespace OzGameLab01.Combat
                 Object.Destroy(synergyPanelRoot.GetChild(i).gameObject);
             }
 
-            // 발동 수가 높은 시너지가 먼저 오도록 정렬한다.
-            List<SynergyDefinition> sortedDefinitions = new List<SynergyDefinition>(rosterData.SynergyDefinitions);
-            sortedDefinitions.Sort((a, b) => GetTraitCount(b).CompareTo(GetTraitCount(a)));
+            List<SynergyPanelUtility.DisplayItem> displayItems =
+                SynergyPanelUtility.BuildDisplayItems(rosterData.SynergyDefinitions, _traitCounts);
 
-            foreach (SynergyDefinition definition in sortedDefinitions)
+            foreach (SynergyPanelUtility.DisplayItem displayItem in displayItems)
             {
-                if (definition == null || definition.Trait == null)
-                {
-                    continue;
-                }
-
-                int count = GetTraitCount(definition);
-                if (count <= 0)
-                {
-                    continue;
-                }
-
-                bool isActive = definition.TryGetActiveTier(count, out _);
-                string stackText = definition.TryGetNextThreshold(count, out int nextThreshold)
-                    ? $"{count}/{nextThreshold}"
-                    : count.ToString();
-
                 SynergyItemView item = Object.Instantiate(synergyItemTemplate, synergyPanelRoot);
                 item.gameObject.SetActive(true);
-                item.SetTitle(definition.Trait.DisplayName);
-                item.SetStackText(stackText);
-                item.SetBackgroundColor(isActive ? synergyActiveColor : synergyInactiveColor);
+                item.SetTitle(displayItem.Definition.Trait.DisplayName);
+                item.SetStackText(displayItem.StackText);
+                item.SetBackgroundColor(displayItem.IsActive ? synergyActiveColor : synergyInactiveColor);
             }
-        }
-
-        private int GetTraitCount(SynergyDefinition definition)
-        {
-            if (definition == null || definition.Trait == null)
-            {
-                return 0;
-            }
-
-            _traitCounts.TryGetValue(definition.Trait, out int count);
-            return count;
         }
     }
 }
