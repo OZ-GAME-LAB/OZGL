@@ -123,6 +123,7 @@ namespace OzGameLab01.Controllers
 
                 readySceneView.HideAllOverlayViews();
                 if (resultText != null) resultText.text = "?";
+                readySceneView.RollView.SetInteractable(true);
                 readySceneView.ShowRollView();
             }
             else
@@ -206,9 +207,35 @@ namespace OzGameLab01.Controllers
 
         private void HandleDiceRolled(int diceValue)
         {
-            if (readySceneView != null && readySceneView.RollView != null && readySceneView.RollView.IsVisible)
+            if (readySceneView == null)
+                return;
+
+            RollView view = readySceneView.RollView;
+
+            if (view == null || !view.IsVisible)
+                return;
+
+            if (resultText != null)
+                resultText.text = "?";
+
+            view.SetInteractable(false);
+
+            bool started = view.PlayRoll(diceValue, result =>
             {
-                if (resultText != null) resultText.text = diceValue.ToString();
+                if (view == null || !view.IsVisible)
+                    return;
+
+                if (resultText != null)
+                    resultText.text = result.ToString();
+
+                StartCoroutine(CloseRollViewRoutine());
+            });
+
+            if (!started)
+            {
+                if (resultText != null)
+                    resultText.text = diceValue.ToString();
+
                 StartCoroutine(CloseRollViewRoutine());
             }
         }

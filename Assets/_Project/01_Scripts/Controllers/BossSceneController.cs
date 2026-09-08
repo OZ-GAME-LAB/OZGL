@@ -12,6 +12,9 @@ namespace OzGameLab01.Controllers
     /// </summary>
     public sealed class BossSceneController : MonoBehaviour
     {
+        // [추가] 런 종료 저장 중 승리 및 패배 버튼 중복 입력 방지
+        private bool _isFinishingBattle;
+
         /// <summary>
         /// 임시 보스전 승리 버튼에서 호출합니다.
         /// </summary>
@@ -32,8 +35,15 @@ namespace OzGameLab01.Controllers
         /// 보스전을 종료하고 게임 진행 데이터를 초기화한 뒤
         /// 타이틀 씬으로 이동합니다.
         /// </summary>
-        private void FinishBossBattle(string result)
+        //private void FinishBossBattle(string result)
+        // [수정] 임시 보스전 종료 시 Continue 저장 제거 완료 후 타이틀로 이동
+        private async void FinishBossBattle(string result)
         {
+            if (_isFinishingBattle)
+            {
+                return;
+            }
+
             SceneTransitioner transitioner =
                 SceneTransitioner.Instance;
 
@@ -53,14 +63,26 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            // [추가] 유효한 종료 요청의 저장과 씬 전환이 끝날 때까지 중복 입력 방지
+            _isFinishingBattle = true;
+
             Time.timeScale = 1f;
 
             Debug.Log($"[BossSceneController] 보스전 {result} | 게임 진행 데이터를 초기화하고 타이틀로 이동합니다.", this);
 
             // 보스전 종료 후 현재 게임 진행 데이터 전체 초기화
-            BoardRunData.Clear();
+            //BoardRunData.Clear();
+            // [수정] 런타임과 저장 파일의 종료된 런 데이터를 함께 초기화
+            SaveManager saveManager = SaveManager.Instance;
+            saveManager.ClearCurrentRun();
+            bool saved = await saveManager.SaveAsync();
+            if (!saved)
+            {
+                Debug.LogError("[BossSceneController] 종료된 런 데이터 정리에 실패했습니다.", this);
+            }
 
             transitioner.LoadTitleScene();
+            _isFinishingBattle = false;
         }
     }
 }

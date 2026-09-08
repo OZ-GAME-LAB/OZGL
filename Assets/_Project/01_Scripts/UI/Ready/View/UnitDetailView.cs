@@ -21,17 +21,32 @@ namespace OzGameLab01.UI
         [Header("Description")]
         [SerializeField] private TMP_Text conceptDescriptionText;
 
-        private readonly List<InfoSynergyItemView> synergyBadgeItems =
-            new List<InfoSynergyItemView>();
+        private readonly List<InfoSynergyItemView> synergyBadgeItems = new ();
+
+        public bool IsVisible => gameObject.activeSelf;
 
         #region API
+
+        /// <summary>
+        /// 현재 내용으로 패널을 표시합니다.
+        /// </summary>
+        public void Show()
+        {
+            gameObject.SetActive(true);
+        }
+
+        /// <summary>
+        /// 내용을 유지한 채 패널을 숨깁니다.
+        /// </summary>
+        public void Hide()
+        {
+            gameObject.SetActive(false);
+        }
 
         public void SetUnitIcon(Sprite icon)
         {
             if (unitIcon == null)
-            {
                 return;
-            }
 
             unitIcon.sprite = icon;
             unitIcon.enabled = icon != null;
@@ -40,76 +55,78 @@ namespace OzGameLab01.UI
         public void SetUnitName(string unitName)
         {
             if (unitNameText != null)
-            {
-                unitNameText.text = unitName;
-            }
+                unitNameText.text = unitName ?? string.Empty;
         }
 
         public void SetSynergies(IReadOnlyList<string> synergyNames)
         {
             ClearSynergies();
 
-            if (synergyNames == null ||
-                synergyBadgeRoot == null ||
-                synergyBadgeItemPrefab == null)
+            if (synergyNames == null || synergyBadgeRoot == null || synergyBadgeItemPrefab == null)
             {
                 return;
             }
 
             foreach (string synergyName in synergyNames)
             {
-                InfoSynergyItemView badgeItem = Instantiate(
-                    synergyBadgeItemPrefab,
-                    synergyBadgeRoot);
+                InfoSynergyItemView badgeItem = Instantiate(synergyBadgeItemPrefab,synergyBadgeRoot,false);
+                badgeItem.SetName(synergyName ?? string.Empty);
+                badgeItem.SetVisible(true);
 
-                badgeItem.SetName(synergyName);
                 synergyBadgeItems.Add(badgeItem);
             }
         }
 
-        public void SetSkill(int skillIndex, Sprite icon, string description)
+        /// <summary>
+        /// 지정한 슬롯의 스킬 아이콘과 설명을 갱신합니다.
+        /// 아이콘이 null이면 해당 Image만 숨깁니다.
+        /// </summary>
+        public void SetSkill(int skillIndex,Sprite icon,string description)
         {
-            if (skillIndex < 0 ||
-                skillIndex >= skillIcons.Length ||
-                skillIndex >= skillDescriptionTexts.Length)
-            {
+            if (skillIndex < 0)
                 return;
+
+            if (skillIcons != null && skillIndex < skillIcons.Length)
+            {
+                Image targetIcon = skillIcons[skillIndex];
+
+                if (targetIcon != null)
+                {
+                    targetIcon.sprite = icon;
+                    targetIcon.enabled = icon != null;
+                }
             }
 
-            Image skillIcon = skillIcons[skillIndex];
-
-            if (skillIcon != null)
+            if (skillDescriptionTexts != null && skillIndex < skillDescriptionTexts.Length)
             {
-                skillIcon.sprite = icon;
-                skillIcon.enabled = icon != null;
-            }
+                TMP_Text targetText = skillDescriptionTexts[skillIndex];
 
-            TMP_Text descriptionText = skillDescriptionTexts[skillIndex];
-
-            if (descriptionText != null)
-            {
-                descriptionText.text = description;
+                if (targetText != null)
+                    targetText.text = description ?? string.Empty;
             }
         }
 
         public void SetConceptDescription(string description)
         {
             if (conceptDescriptionText != null)
-            {
-                conceptDescriptionText.text = description;
-            }
+                conceptDescriptionText.text = description ?? string.Empty;
         }
 
+        /// <summary>
+        /// 표시 여부를 변경하지 않고 내용만 초기화합니다.
+        /// </summary>
         public void ClearDetail()
         {
             SetUnitIcon(null);
             SetUnitName(string.Empty);
             ClearSynergies();
 
-            for (int index = 0; index < skillIcons.Length; index++)
-            {
+            int iconCount = skillIcons != null ? skillIcons.Length : 0;
+            int descriptionCount = skillDescriptionTexts != null ? skillDescriptionTexts.Length : 0;
+            int count = Mathf.Max(iconCount, descriptionCount);
+
+            for (int index = 0; index < count; index++)
                 SetSkill(index, null, string.Empty);
-            }
 
             SetConceptDescription(string.Empty);
         }
@@ -122,10 +139,11 @@ namespace OzGameLab01.UI
         {
             foreach (InfoSynergyItemView badgeItem in synergyBadgeItems)
             {
-                if (badgeItem != null)
-                {
-                    Destroy(badgeItem.gameObject);
-                }
+                if (badgeItem == null)
+                    continue;
+
+                badgeItem.SetVisible(false);
+                Destroy(badgeItem.gameObject);
             }
 
             synergyBadgeItems.Clear();

@@ -26,6 +26,7 @@ namespace OzGameLab01.Controllers
         private bool _wasBossBattle;
         private bool _victory;
         private bool _fastForward;
+        private bool _isReturningToTitle; // [추가] 런 종료 저장 중 중복 타이틀 이동 요청 방지
 
         public BattleState CurrentState { get; private set; } = BattleState.Running;
         public bool IsPaused => CurrentState == BattleState.Paused;
@@ -141,11 +142,20 @@ namespace OzGameLab01.Controllers
             transitioner.LoadBoardScene();
         }
 
+        // <summary>
+        // 보스전 승리 후 현재 게임 진행을 종료하고 타이틀 씬으로 이동합니다.
+        // </summary>
+        //public void ReturnToTitle()
         /// <summary>
-        /// 보스전 승리 후 현재 게임 진행을 종료하고 타이틀 씬으로 이동합니다.
+        /// [수정] 종료된 런의 Continue 데이터를 제거한 뒤 타이틀로 이동
         /// </summary>
-        public void ReturnToTitle()
+        public async void ReturnToTitle()
         {
+            if (_isReturningToTitle)
+            {
+                return;
+            }
+
             SceneTransitioner transitioner = SceneTransitioner.Instance;
 
             if (transitioner == null)
@@ -160,9 +170,21 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            _isReturningToTitle = true;
+
             ResetTimeScale();
-            BoardRunData.Clear();
+
+            // [수정] 런타임 상태와 저장 파일의 Continue 데이터를 함께 초기화 (BoardRunData.Clear()를 포함)
+            SaveManager saveManager = SaveManager.Instance;
+            saveManager.ClearCurrentRun();
+            bool saved = await saveManager.SaveAsync();
+            if (!saved)
+            {
+                Debug.LogError("[CombatSceneController] 종료된 런 데이터 정리에 실패했습니다.", this);
+            }
+
             transitioner.LoadTitleScene();
+            _isReturningToTitle = false;
         }
 
         private void ResetTimeScale()

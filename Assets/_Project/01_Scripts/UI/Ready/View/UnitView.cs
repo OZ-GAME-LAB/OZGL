@@ -329,6 +329,18 @@ namespace OzGameLab01.UI
             UnsubscribeSynergyItem(item);
         }
 
+        public void ShowUnitDetail()
+        {
+            if (unitDetailView != null)
+                unitDetailView.Show();
+        }
+
+        public void HideUnitDetail()
+        {
+            if (unitDetailView != null)
+                unitDetailView.Hide();
+        }
+
         #endregion
 
         #region Private Methods
