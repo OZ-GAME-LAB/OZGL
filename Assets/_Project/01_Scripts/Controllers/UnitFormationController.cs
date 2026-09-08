@@ -20,28 +20,6 @@ namespace OzGameLab01.Controllers
             public Sprite icon;
         }
 
-        /// <summary>
-        /// 전투 슬롯 또는 서브 슬롯 한 그룹의 배치 상태(데이터/아이템/인원수)를 담습니다.
-        /// 배틀/서포트 슬롯이 거의 동일한 배치·이동·교체 로직을 각자 복붙해서 갖고 있던 것을
-        /// 이 타입 하나로 통합해 정리합니다.
-        /// </summary>
-        private sealed class SlotGroup
-        {
-            public readonly UnitSlotType SlotType;
-            public readonly int MaxCount;
-            public readonly UnitData[] Data;
-            public readonly UnitItemView[] Items;
-            public int Count;
-
-            public SlotGroup(UnitSlotType slotType, int slotCount, int maxCount)
-            {
-                SlotType = slotType;
-                MaxCount = maxCount;
-                Data = new UnitData[slotCount];
-                Items = new UnitItemView[slotCount];
-            }
-        }
-
         private const int BattleSlotCount = 9;
         private const int MaxBattleUnitCount = 4;
         private const int SupportSlotCount = 2;
@@ -85,9 +63,16 @@ namespace OzGameLab01.Controllers
 
         private readonly Dictionary<UnitItemView, UnitData> unitDataByItem = new Dictionary<UnitItemView, UnitData>();
 
-        private readonly SlotGroup battleGroup = new SlotGroup(UnitSlotType.Battle, BattleSlotCount, MaxBattleUnitCount);
+        private readonly UnitData[] battleUnitData = new UnitData[BattleSlotCount];
 
-        private readonly SlotGroup supportGroup = new SlotGroup(UnitSlotType.Support, SupportSlotCount, SupportSlotCount);
+        private readonly UnitItemView[] battleUnitItems = new UnitItemView[BattleSlotCount];
+
+        private readonly UnitData[] supportUnitData = new UnitData[SupportSlotCount];
+
+        private readonly UnitItemView[] supportUnitItems = new UnitItemView[SupportSlotCount];
+
+        private int battleUnitCount;
+        private int supportUnitCount;
 
         private UnitItemView draggingUnitItem;
         private Transform dragOriginParent;
@@ -107,26 +92,31 @@ namespace OzGameLab01.Controllers
         /// 3×3 전투 슬롯에 배치된 유닛 데이터를 반환합니다.
         /// 인덱스는 전투 슬롯의 0~8 위치와 일치합니다.
         /// </summary>
-        public IReadOnlyList<UnitData> BattleUnitData => battleGroup.Data;
+        public IReadOnlyList<UnitData> BattleUnitData => battleUnitData;
 
         /// <summary>
         /// 서브 슬롯에 배치된 유닛 데이터를 반환합니다.
         /// 인덱스는 서브 슬롯의 0~1 위치와 일치합니다.
         /// </summary>
-        public IReadOnlyList<UnitData> SupportUnitData => supportGroup.Data;
+        public IReadOnlyList<UnitData> SupportUnitData => supportUnitData;
 
         /// <summary>
         /// 현재 전투 슬롯에 배치된 유닛 수를 반환합니다.
         /// </summary>
-        public int BattleUnitCount => battleGroup.Count;
+        public int BattleUnitCount => battleUnitCount;
 
         /// <summary>
         /// 현재 서브 슬롯에 배치된 유닛 수를 반환합니다.
         /// </summary>
-        public int SupportUnitCount => supportGroup.Count;
+        public int SupportUnitCount => supportUnitCount;
+
+        /// <summary>
+        /// 전투 유닛이 한 명 이상 배치되었는지 반환합니다.
+        /// </summary>
+        // public bool CanStartBattle => battleUnitCount >= 1;
 
         // [수정]비활성 UnitView가 아직 초기화되지 않았어도 저장된 전투 편성으로 진입을 허용합니다.
-        public bool CanStartBattle => battleGroup.Count >= 1 || UnitFormationCombatLink.HasSavedBattleUnit;
+        public bool CanStartBattle => battleUnitCount >= 1 || UnitFormationCombatLink.HasSavedBattleUnit;
 
         private void Awake()
         {
@@ -215,7 +205,21 @@ namespace OzGameLab01.Controllers
                     {
                         continue;
                     }
-
+                    // testUnitDataList.Add(new UnitData
+                    // {
+                    //     id = source.id,
+                    //     name = source.name,
+                    //     spriteAddress = source.spriteAddress,
+                    //     healthPoint = source.healthPoint,
+                    //     attackPoint = source.attackPoint,
+                    //     criticalRate = source.criticalRate,
+                    //     dodgeRate = source.dodgeRate,
+                    //     bloodDrain = source.bloodDrain,
+                    //     attackSpeed = source.attackSpeed,
+                    //     skillCooldown = source.skillCooldown,
+                    //     attackKey = source.attackKey,
+                    //     skillKey = source.skillKey
+                    // });
                     // 누락된 필드까지 포함한 로스터 원본 데이터를 id 기준으로 복제합니다.
                     testUnitDataList.Add(CloneCanonicalUnitData(source));
                 }
@@ -272,6 +276,7 @@ namespace OzGameLab01.Controllers
 
                 unitItem.name = $"Unit_Item_{i + 1:00}";
 
+                // unitItem.SetIcon(unitIconSprite);
                 // UnitData.id에 연결된 PrivateAssets 아이콘을 우선 사용
                 unitItem.SetIcon(GetUnitIcon(testUnitDataList[i]));
                 unitItem.SetIconColor(testUnitDataList[i].color);
@@ -305,7 +310,7 @@ namespace OzGameLab01.Controllers
                 }
             }
 
-            // 로스터에 없는 런타임 유닛은 기존 인벤토리 데이터를 복사해 유지
+            // 로스터에 없는 런타임 유닛은 기존 인벤토리 데이터를 복사해 유지 
             return PlayerInventoryManager.CloneUnitData(ownedUnit);
         }
 
@@ -325,7 +330,8 @@ namespace OzGameLab01.Controllers
 
             for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
             {
-                // 저장된 슬롯 ID를 우선 사용하고 구버전 전달 데이터는 폴백으로 유지
+                // UnitData savedData = savedBattleUnits[slotIndex]?.Data;
+                // 저장된 슬롯 ID를 우선 사용하고 구버전 전달 데이터는 폴백으로 유지 
                 int savedUnitId = UnitFormationCombatLink.HasSavedFormation
                     ? UnitFormationCombatLink.SavedBattleUnitIds[slotIndex]
                     : savedBattleUnits[slotIndex]?.Data?.id ?? -1;
@@ -340,7 +346,7 @@ namespace OzGameLab01.Controllers
                     ? FindUnplacedUnitItemById(savedUnitId)
                     : FindUnplacedUnitItem(savedData);
                 UnitSlotItemView slot = FindSlot(UnitSlotType.Battle, slotIndex);
-                if (unitItem != null && slot != null && PlaceUnitInEmptySlot(battleGroup, unitItem, unitDataByItem[unitItem], slot))
+                if (unitItem != null && slot != null && PlaceUnitInEmptyBattleSlot(unitItem, unitDataByItem[unitItem], slot))
                 {
                     restoredAnyUnit = true;
                 }
@@ -359,7 +365,7 @@ namespace OzGameLab01.Controllers
                     ? FindUnplacedUnitItemById(savedUnitId)
                     : FindUnplacedUnitItem(savedData);
                 UnitSlotItemView slot = FindSlot(UnitSlotType.Support, slotIndex);
-                if (unitItem != null && slot != null && PlaceUnitInEmptySlot(supportGroup, unitItem, unitDataByItem[unitItem], slot))
+                if (unitItem != null && slot != null && PlaceUnitInEmptySupportSlot(unitItem, unitDataByItem[unitItem], slot))
                 {
                     restoredAnyUnit = true;
                 }
@@ -367,7 +373,7 @@ namespace OzGameLab01.Controllers
 
             if (restoredAnyUnit)
             {
-                // 새 씬에서 생성된 UnitItemView와 아이콘 참조까지 최신 전달 데이터로 다시 저장
+                // 새 씬에서 생성된 UnitItemView와 아이콘 참조까지 최신 전달 데이터로 다시 저장 
                 SaveFormation();
                 Debug.Log("[UnitFormationController] 이전 전투 및 서브 유닛 배치를 복원했습니다.", this);
             }
@@ -390,7 +396,7 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                if (FindSlotIndex(battleGroup, pair.Key) < 0 && FindSlotIndex(supportGroup, pair.Key) < 0)
+                if (FindBattleSlotIndex(pair.Key) < 0 && FindSupportSlotIndex(pair.Key) < 0)
                 {
                     return pair.Key;
                 }
@@ -407,7 +413,7 @@ namespace OzGameLab01.Controllers
             foreach (KeyValuePair<UnitItemView, UnitData> pair in unitDataByItem)
             {
                 if (pair.Key != null && pair.Value != null && pair.Value.id == unitId &&
-                    FindSlotIndex(battleGroup, pair.Key) < 0 && FindSlotIndex(supportGroup, pair.Key) < 0)
+                    FindBattleSlotIndex(pair.Key) < 0 && FindSupportSlotIndex(pair.Key) < 0)
                 {
                     return pair.Key;
                 }
@@ -426,11 +432,11 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            int battleSlotIndex = FindSlotIndex(battleGroup, unitItem);
+            int battleSlotIndex = FindBattleSlotIndex(unitItem);
 
             if (battleSlotIndex >= 0)
             {
-                if (RemoveUnit(battleGroup, battleSlotIndex))
+                if (RemoveBattleUnit(battleSlotIndex))
                 {
                     SaveFormation();
                 }
@@ -438,11 +444,11 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            int supportSlotIndex = FindSlotIndex(supportGroup, unitItem);
+            int supportSlotIndex = FindSupportSlotIndex(unitItem);
 
             if (supportSlotIndex >= 0)
             {
-                if (RemoveUnit(supportGroup, supportSlotIndex))
+                if (RemoveSupportUnit(supportSlotIndex))
                 {
                     SaveFormation();
                 }
@@ -450,7 +456,7 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            if (PlaceUnitInFirstEmptySlot(battleGroup, unitItem))
+            if (PlaceUnitInFirstEmptyBattleSlot(unitItem))
             {
                 SaveFormation();
             }
@@ -523,11 +529,11 @@ namespace OzGameLab01.Controllers
 
             if (targetSlot.IsBattleSlot)
             {
-                dragDropHandled = TryDropOnSlot(draggingUnitItem, targetSlot, battleGroup, supportGroup);
+                dragDropHandled = TryDropOnBattleSlot(draggingUnitItem, targetSlot);
             }
             else if (targetSlot.IsSupportSlot)
             {
-                dragDropHandled = TryDropOnSlot(draggingUnitItem, targetSlot, supportGroup, battleGroup);
+                dragDropHandled = TryDropOnSupportSlot(draggingUnitItem, targetSlot);
             }
 
             if (dragDropHandled)
@@ -537,19 +543,18 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 드래그한 유닛을 지정한 슬롯 그룹(전투 또는 서브)에 배치합니다.
-        /// otherGroup은 반대쪽 그룹으로, 이미 그쪽에 배치된 유닛은 여기로 옮길 수 없도록 막는 데 씁니다.
+        /// 드래그한 유닛을 지정한 전투 슬롯에 배치합니다.
         /// </summary>
-        private bool TryDropOnSlot(UnitItemView unitItem, UnitSlotItemView targetSlot, SlotGroup ownGroup, SlotGroup otherGroup)
+        private bool TryDropOnBattleSlot(UnitItemView unitItem, UnitSlotItemView targetSlot)
         {
             int targetIndex = targetSlot.SlotIndex;
 
-            if (!IsValidSlot(ownGroup, targetIndex))
+            if (!IsValidBattleSlot(targetIndex))
             {
                 return false;
             }
 
-            if (FindSlotIndex(otherGroup, unitItem) >= 0)
+            if (FindSupportSlotIndex(unitItem) >= 0)
             {
                 return false;
             }
@@ -559,11 +564,11 @@ namespace OzGameLab01.Controllers
                 return false;
             }
 
-            int sourceIndex = FindSlotIndex(ownGroup, unitItem);
+            int sourceIndex = FindBattleSlotIndex(unitItem);
 
-            UnitItemView targetUnitItem = ownGroup.Items[targetIndex];
+            UnitItemView targetUnitItem = battleUnitItems[targetIndex];
 
-            UnitData targetUnitData = ownGroup.Data[targetIndex];
+            UnitData targetUnitData = battleUnitData[targetIndex];
 
             if (sourceIndex == targetIndex)
             {
@@ -574,44 +579,46 @@ namespace OzGameLab01.Controllers
 
             if (sourceIndex < 0 && targetUnitItem == null)
             {
-                return PlaceUnitInEmptySlot(ownGroup, unitItem, draggedUnitData, targetSlot);
+                return PlaceUnitInEmptyBattleSlot(unitItem, draggedUnitData, targetSlot);
             }
 
             if (sourceIndex >= 0 && targetUnitItem == null)
             {
-                return MoveUnitToEmptySlot(ownGroup, unitItem, draggedUnitData, sourceIndex, targetSlot);
+                return MoveBattleUnitToEmptySlot(
+                    unitItem, draggedUnitData, sourceIndex, targetSlot);
             }
 
-            if (sourceIndex < 0 && targetUnitItem != null)
+            if (sourceIndex < 0 &&
+                targetUnitItem != null)
             {
-                return ReplaceUnit(ownGroup, unitItem, draggedUnitData, targetUnitItem, targetIndex, targetSlot);
+                return ReplaceBattleUnit(unitItem, draggedUnitData, targetUnitItem, targetIndex, targetSlot);
             }
 
             if (sourceIndex >= 0 && targetUnitItem != null)
             {
-                return SwapUnits(ownGroup, unitItem, draggedUnitData, targetUnitItem, targetUnitData, sourceIndex, targetSlot);
+                return SwapBattleUnits(unitItem, draggedUnitData, targetUnitItem, targetUnitData, sourceIndex, targetSlot);
             }
 
             return false;
         }
 
         /// <summary>
-        /// 보유 유닛을 지정한 그룹의 비어 있는 슬롯에 배치합니다.
+        /// 보유 유닛을 비어 있는 전투 슬롯에 배치합니다.
         /// </summary>
-        private bool PlaceUnitInEmptySlot(SlotGroup group, UnitItemView unitItem, UnitData unitData, UnitSlotItemView targetSlot)
+        private bool PlaceUnitInEmptyBattleSlot(UnitItemView unitItem, UnitData unitData, UnitSlotItemView targetSlot)
         {
-            if (group.Count >= group.MaxCount)
+            if (battleUnitCount >= MaxBattleUnitCount)
             {
-                Debug.LogWarning($"[UnitFormationController] {GroupLabel(group)} 유닛은 최대 {group.MaxCount}명까지 배치할 수 있습니다.", this);
+                Debug.LogWarning("[UnitFormationController] 전투 유닛은 최대 4명까지 배치할 수 있습니다.", this);
 
                 return false;
             }
 
             int targetIndex = targetSlot.SlotIndex;
 
-            group.Items[targetIndex] = unitItem;
-            group.Data[targetIndex] = unitData;
-            group.Count++;
+            battleUnitItems[targetIndex] = unitItem;
+            battleUnitData[targetIndex] = unitData;
+            battleUnitCount++;
 
             targetSlot.SetOccupied(true);
             MoveUnitItemToSlot(unitItem, targetSlot);
@@ -621,19 +628,20 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 같은 그룹 안에서 유닛을 비어 있는 다른 슬롯으로 이동합니다.
+        /// 전투 유닛을 비어 있는 다른 전투 슬롯으로 이동합니다.
         /// </summary>
-        private bool MoveUnitToEmptySlot(SlotGroup group, UnitItemView unitItem, UnitData unitData, int sourceIndex, UnitSlotItemView targetSlot)
+        private bool MoveBattleUnitToEmptySlot(UnitItemView unitItem, UnitData unitData,
+            int sourceIndex, UnitSlotItemView targetSlot)
         {
-            UnitSlotItemView sourceSlot = FindSlot(group.SlotType, sourceIndex);
+            UnitSlotItemView sourceSlot = FindSlot(UnitSlotType.Battle, sourceIndex);
 
             int targetIndex = targetSlot.SlotIndex;
 
-            group.Items[sourceIndex] = null;
-            group.Data[sourceIndex] = null;
+            battleUnitItems[sourceIndex] = null;
+            battleUnitData[sourceIndex] = null;
 
-            group.Items[targetIndex] = unitItem;
-            group.Data[targetIndex] = unitData;
+            battleUnitItems[targetIndex] = unitItem;
+            battleUnitData[targetIndex] = unitData;
 
             if (sourceSlot != null)
             {
@@ -647,14 +655,19 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 그룹 안의 기존 슬롯 유닛을 보유 목록 유닛으로 교체합니다.
+        /// 전투 슬롯의 기존 유닛을 보유 목록 유닛으로 교체합니다.
         /// </summary>
-        private bool ReplaceUnit(SlotGroup group, UnitItemView unitItem, UnitData unitData, UnitItemView targetUnitItem, int targetIndex, UnitSlotItemView targetSlot)
+        private bool ReplaceBattleUnit(
+            UnitItemView unitItem,
+            UnitData unitData,
+            UnitItemView targetUnitItem,
+            int targetIndex,
+            UnitSlotItemView targetSlot)
         {
             MoveUnitItemToList(targetUnitItem);
 
-            group.Items[targetIndex] = unitItem;
-            group.Data[targetIndex] = unitData;
+            battleUnitItems[targetIndex] = unitItem;
+            battleUnitData[targetIndex] = unitData;
 
             targetSlot.SetOccupied(true);
             MoveUnitItemToSlot(unitItem, targetSlot);
@@ -664,11 +677,17 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 같은 그룹 안의 두 슬롯에 배치된 유닛의 위치를 교체합니다.
+        /// 두 전투 슬롯에 배치된 유닛의 위치를 교체합니다.
         /// </summary>
-        private bool SwapUnits(SlotGroup group, UnitItemView unitItem, UnitData unitData, UnitItemView targetUnitItem, UnitData targetUnitData, int sourceIndex, UnitSlotItemView targetSlot)
+        private bool SwapBattleUnits(
+            UnitItemView unitItem,
+            UnitData unitData,
+            UnitItemView targetUnitItem,
+            UnitData targetUnitData,
+            int sourceIndex,
+            UnitSlotItemView targetSlot)
         {
-            UnitSlotItemView sourceSlot = FindSlot(group.SlotType, sourceIndex);
+            UnitSlotItemView sourceSlot = FindSlot(UnitSlotType.Battle, sourceIndex);
 
             if (sourceSlot == null)
             {
@@ -677,13 +696,16 @@ namespace OzGameLab01.Controllers
 
             int targetIndex = targetSlot.SlotIndex;
 
-            group.Items[sourceIndex] = targetUnitItem;
-            group.Data[sourceIndex] = targetUnitData;
+            battleUnitItems[sourceIndex] = targetUnitItem;
 
-            group.Items[targetIndex] = unitItem;
-            group.Data[targetIndex] = unitData;
+            battleUnitData[sourceIndex] = targetUnitData;
+
+            battleUnitItems[targetIndex] = unitItem;
+
+            battleUnitData[targetIndex] = unitData;
 
             MoveUnitItemToSlot(targetUnitItem, sourceSlot);
+
             MoveUnitItemToSlot(unitItem, targetSlot);
 
             sourceSlot.SetOccupied(true);
@@ -693,18 +715,206 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 지정한 그룹에서 비어 있는 슬롯을 앞에서부터 찾아 유닛을 배치합니다.
+        /// 드래그한 유닛을 지정한 서브 슬롯에 배치합니다.
         /// </summary>
-        private bool PlaceUnitInFirstEmptySlot(SlotGroup group, UnitItemView unitItem)
+        private bool TryDropOnSupportSlot(UnitItemView unitItem, UnitSlotItemView targetSlot)
+        {
+            int targetIndex = targetSlot.SlotIndex;
+
+            if (!IsValidSupportSlot(targetIndex))
+            {
+                return false;
+            }
+
+            if (FindBattleSlotIndex(unitItem) >= 0)
+            {
+                return false;
+            }
+
+            if (!unitDataByItem.TryGetValue(unitItem, out UnitData draggedUnitData))
+            {
+                return false;
+            }
+
+            int sourceIndex = FindSupportSlotIndex(unitItem);
+
+            UnitItemView targetUnitItem = supportUnitItems[targetIndex];
+
+            UnitData targetUnitData = supportUnitData[targetIndex];
+
+            if (sourceIndex == targetIndex)
+            {
+                MoveUnitItemToSlot(unitItem, targetSlot);
+
+                return true;
+            }
+
+            if (sourceIndex < 0 && targetUnitItem == null)
+            {
+                return PlaceUnitInEmptySupportSlot(unitItem, draggedUnitData, targetSlot);
+            }
+
+            if (sourceIndex >= 0 && targetUnitItem == null)
+            {
+                return MoveSupportUnitToEmptySlot(
+                    unitItem,
+                    draggedUnitData,
+                    sourceIndex,
+                    targetSlot);
+            }
+
+            if (sourceIndex < 0 && targetUnitItem != null)
+            {
+                return ReplaceSupportUnit(
+                    unitItem,
+                    draggedUnitData,
+                    targetUnitItem,
+                    targetIndex,
+                    targetSlot);
+            }
+
+            if (sourceIndex >= 0 && targetUnitItem != null)
+            {
+                return SwapSupportUnits(
+                    unitItem,
+                    draggedUnitData,
+                    targetUnitItem,
+                    targetUnitData,
+                    sourceIndex,
+                    targetSlot);
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// 보유 유닛을 비어 있는 서브 슬롯에 배치합니다.
+        /// </summary>
+        private bool PlaceUnitInEmptySupportSlot(UnitItemView unitItem, UnitData unitData, UnitSlotItemView targetSlot)
+        {
+            if (supportUnitCount >= SupportSlotCount)
+            {
+                Debug.LogWarning("[UnitFormationController] 서브 유닛은 최대 2명까지 배치할 수 있습니다.", this);
+
+                return false;
+            }
+
+            int targetIndex = targetSlot.SlotIndex;
+
+            supportUnitItems[targetIndex] = unitItem;
+            supportUnitData[targetIndex] = unitData;
+            supportUnitCount++;
+
+            targetSlot.SetOccupied(true);
+            MoveUnitItemToSlot(unitItem, targetSlot);
+            UpdateUnitCount();
+
+            return true;
+        }
+
+        /// <summary>
+        /// 서브 유닛을 비어 있는 다른 서브 슬롯으로 이동합니다.
+        /// </summary>
+        private bool MoveSupportUnitToEmptySlot(
+            UnitItemView unitItem,
+            UnitData unitData,
+            int sourceIndex,
+            UnitSlotItemView targetSlot)
+        {
+            UnitSlotItemView sourceSlot = FindSlot(UnitSlotType.Support, sourceIndex);
+
+            int targetIndex = targetSlot.SlotIndex;
+
+            supportUnitItems[sourceIndex] = null;
+            supportUnitData[sourceIndex] = null;
+
+            supportUnitItems[targetIndex] = unitItem;
+            supportUnitData[targetIndex] = unitData;
+
+            if (sourceSlot != null)
+            {
+                sourceSlot.SetOccupied(false);
+            }
+
+            targetSlot.SetOccupied(true);
+            MoveUnitItemToSlot(unitItem, targetSlot);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 서브 슬롯의 기존 유닛을 보유 목록 유닛으로 교체합니다.
+        /// </summary>
+        private bool ReplaceSupportUnit(
+            UnitItemView unitItem,
+            UnitData unitData,
+            UnitItemView targetUnitItem,
+            int targetIndex,
+            UnitSlotItemView targetSlot)
+        {
+            MoveUnitItemToList(targetUnitItem);
+
+            supportUnitItems[targetIndex] = unitItem;
+            supportUnitData[targetIndex] = unitData;
+
+            targetSlot.SetOccupied(true);
+            MoveUnitItemToSlot(unitItem, targetSlot);
+            UpdateUnitCount();
+
+            return true;
+        }
+
+        /// <summary>
+        /// 두 서브 슬롯에 배치된 유닛의 위치를 교체합니다.
+        /// </summary>
+        private bool SwapSupportUnits(
+            UnitItemView unitItem,
+            UnitData unitData,
+            UnitItemView targetUnitItem,
+            UnitData targetUnitData,
+            int sourceIndex,
+            UnitSlotItemView targetSlot)
+        {
+            UnitSlotItemView sourceSlot = FindSlot(UnitSlotType.Support, sourceIndex);
+
+            if (sourceSlot == null)
+            {
+                return false;
+            }
+
+            int targetIndex = targetSlot.SlotIndex;
+
+            supportUnitItems[sourceIndex] = targetUnitItem;
+
+            supportUnitData[sourceIndex] = targetUnitData;
+
+            supportUnitItems[targetIndex] = unitItem;
+
+            supportUnitData[targetIndex] = unitData;
+
+            MoveUnitItemToSlot(targetUnitItem, sourceSlot);
+
+            MoveUnitItemToSlot(unitItem, targetSlot);
+
+            sourceSlot.SetOccupied(true);
+            targetSlot.SetOccupied(true);
+
+            return true;
+        }
+
+        /// <summary>
+        /// 비어 있는 전투 슬롯을 앞에서부터 찾아 유닛을 배치합니다.
+        /// </summary>
+        private bool PlaceUnitInFirstEmptyBattleSlot(UnitItemView unitItem)
         {
             if (unitItem == null)
             {
                 return false;
             }
 
-            if (group.Count >= group.MaxCount)
+            if (battleUnitCount >= MaxBattleUnitCount)
             {
-                Debug.LogWarning($"[UnitFormationController] {GroupLabel(group)} 유닛은 최대 {group.MaxCount}명까지 배치할 수 있습니다.", this);
+                Debug.LogWarning("[UnitFormationController] 전투 유닛은 최대 4명까지 배치할 수 있습니다.", this);
 
                 return false;
             }
@@ -714,50 +924,84 @@ namespace OzGameLab01.Controllers
                 return false;
             }
 
-            for (int slotIndex = 0; slotIndex < group.Data.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
             {
-                if (group.Data[slotIndex] != null)
+                if (battleUnitData[slotIndex] != null)
                 {
                     continue;
                 }
 
-                UnitSlotItemView slotItem = FindSlot(group.SlotType, slotIndex);
+                UnitSlotItemView slotItem = FindSlot(UnitSlotType.Battle, slotIndex);
 
                 if (slotItem == null)
                 {
-                    Debug.LogWarning($"[UnitFormationController] {GroupLabel(group)} 슬롯 {slotIndex}번을 찾을 수 없습니다.", this);
+                    Debug.LogWarning($"[UnitFormationController] 전투 슬롯 {slotIndex}번을 찾을 수 없습니다.", this);
 
                     return false;
                 }
 
-                return PlaceUnitInEmptySlot(group, unitItem, unitData, slotItem);
+                return PlaceUnitInEmptyBattleSlot(unitItem, unitData, slotItem);
             }
 
             return false;
         }
 
         /// <summary>
-        /// 지정한 그룹의 슬롯에 배치된 유닛을 보유 목록으로 되돌립니다.
+        /// 지정한 전투 슬롯의 유닛을 보유 목록으로 되돌립니다.
         /// </summary>
-        private bool RemoveUnit(SlotGroup group, int slotIndex)
+        private bool RemoveBattleUnit(int slotIndex)
         {
-            if (!IsValidSlot(group, slotIndex))
+            if (!IsValidBattleSlot(slotIndex))
             {
                 return false;
             }
 
-            UnitItemView unitItem = group.Items[slotIndex];
+            UnitItemView unitItem = battleUnitItems[slotIndex];
 
             if (unitItem == null)
             {
                 return false;
             }
 
-            UnitSlotItemView slotItem = FindSlot(group.SlotType, slotIndex);
+            UnitSlotItemView slotItem = FindSlot(UnitSlotType.Battle, slotIndex);
 
-            group.Items[slotIndex] = null;
-            group.Data[slotIndex] = null;
-            group.Count--;
+            battleUnitItems[slotIndex] = null;
+            battleUnitData[slotIndex] = null;
+            battleUnitCount--;
+
+            MoveUnitItemToList(unitItem);
+
+            if (slotItem != null)
+            {
+                slotItem.SetOccupied(false);
+            }
+
+            UpdateUnitCount();
+            return true;
+        }
+
+        /// <summary>
+        /// 지정한 서브 슬롯의 유닛을 보유 목록으로 되돌립니다.
+        /// </summary>
+        private bool RemoveSupportUnit(int slotIndex)
+        {
+            if (!IsValidSupportSlot(slotIndex))
+            {
+                return false;
+            }
+
+            UnitItemView unitItem = supportUnitItems[slotIndex];
+
+            if (unitItem == null)
+            {
+                return false;
+            }
+
+            UnitSlotItemView slotItem = FindSlot(UnitSlotType.Support, slotIndex);
+
+            supportUnitItems[slotIndex] = null;
+            supportUnitData[slotIndex] = null;
+            supportUnitCount--;
 
             MoveUnitItemToList(unitItem);
 
@@ -780,6 +1024,8 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            // RectTransform unitRect = unitItem.RectTransform;
+            // RectTransform slotRect = slotItem.RectTransform;
             // Slot_00 원본 프리팹의 참조가 비어 있어도 각 오브젝트 자신의 RectTransform을 사용
             RectTransform unitRect = unitItem.RectTransform != null
                 ? unitItem.RectTransform
@@ -795,6 +1041,10 @@ namespace OzGameLab01.Controllers
             }
 
             unitRect.SetParent(slotRect, false);
+            // unitRect.anchorMin = new Vector2(0.5f, 0.5f);
+            // unitRect.anchorMax = new Vector2(0.5f, 0.5f);
+            // unitRect.anchoredPosition = Vector2.zero;
+            // unitRect.sizeDelta = slotRect.rect.size;
             // 슬롯 크기를 복사하지 않고 부모 슬롯 전체에 stretch하여 레이아웃 계산 이후에도 자동으로 맞춤
             unitRect.anchorMin = Vector2.zero;
             unitRect.anchorMax = Vector2.one;
@@ -815,6 +1065,7 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            // RectTransform unitRect = unitItem.RectTransform;
             // Inspector 참조가 비어 있는 UnitItem도 자신의 RectTransform으로 목록에 복귀
             RectTransform unitRect = unitItem.RectTransform != null
                 ? unitItem.RectTransform
@@ -868,13 +1119,29 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 유닛 아이템이 지정한 그룹의 어느 슬롯에 배치되어 있는지 찾습니다.
+        /// 유닛 아이템이 배치된 전투 슬롯 번호를 반환합니다.
         /// </summary>
-        private static int FindSlotIndex(SlotGroup group, UnitItemView unitItem)
+        private int FindBattleSlotIndex(UnitItemView unitItem)
         {
-            for (int i = 0; i < group.Items.Length; i++)
+            for (int i = 0; i < battleUnitItems.Length; i++)
             {
-                if (group.Items[i] == unitItem)
+                if (battleUnitItems[i] == unitItem)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// 유닛 아이템이 배치된 서브 슬롯 번호를 반환합니다.
+        /// </summary>
+        private int FindSupportSlotIndex(UnitItemView unitItem)
+        {
+            for (int i = 0; i < supportUnitItems.Length; i++)
+            {
+                if (supportUnitItems[i] == unitItem)
                 {
                     return i;
                 }
@@ -919,9 +1186,9 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            unitView.SetUnitCount(battleGroup.Count, battleGroup.MaxCount);
+            unitView.SetUnitCount(battleUnitCount, MaxBattleUnitCount);
 
-            unitView.SetSupportUnitCount(supportGroup.Count, supportGroup.MaxCount);
+            unitView.SetSupportUnitCount(supportUnitCount, SupportSlotCount);
 
             RefreshSynergyPanel();
         }
@@ -952,16 +1219,32 @@ namespace OzGameLab01.Controllers
                 Destroy(child.gameObject);
             }
 
-            List<SynergyPanelUtility.DisplayItem> displayItems =
-                SynergyPanelUtility.BuildDisplayItems(rosterData.SynergyDefinitions, traitCounts);
+            List<SynergyDefinition> sortedDefinitions = new List<SynergyDefinition>(rosterData.SynergyDefinitions);
+            sortedDefinitions.Sort((a, b) => GetTraitCount(traitCounts, b).CompareTo(GetTraitCount(traitCounts, a)));
 
-            foreach (SynergyPanelUtility.DisplayItem displayItem in displayItems)
+            foreach (SynergyDefinition definition in sortedDefinitions)
             {
+                if (definition == null || definition.Trait == null)
+                {
+                    continue;
+                }
+
+                int count = GetTraitCount(traitCounts, definition);
+                if (count <= 0)
+                {
+                    continue;
+                }
+
+                bool isActive = definition.TryGetActiveTier(count, out _);
+                string stackText = definition.TryGetNextThreshold(count, out int nextThreshold)
+                    ? $"{count}/{nextThreshold}"
+                    : count.ToString();
+
                 SynergyItemView item = Instantiate(synergyItemTemplate, panelRoot);
                 item.gameObject.SetActive(true);
-                item.SetTitle(displayItem.Definition.Trait.DisplayName);
-                item.SetStackText(displayItem.StackText);
-                item.SetBackgroundColor(displayItem.IsActive ? synergyActiveColor : synergyInactiveColor);
+                item.SetTitle(definition.Trait.DisplayName);
+                item.SetStackText(stackText);
+                item.SetBackgroundColor(isActive ? synergyActiveColor : synergyInactiveColor);
             }
         }
 
@@ -971,16 +1254,39 @@ namespace OzGameLab01.Controllers
         /// </summary>
         private Dictionary<SynergyTrait, int> BuildTraitCounts()
         {
-            List<int> battleUnitIds = new List<int>();
-            foreach (UnitData data in battleGroup.Data)
+            Dictionary<SynergyTrait, int> traitCounts = new Dictionary<SynergyTrait, int>();
+
+            foreach (UnitData data in battleUnitData)
             {
-                if (data != null)
+                if (data == null || !unitTraitsById.TryGetValue(data.id, out List<SynergyTrait> traits) || traits == null)
                 {
-                    battleUnitIds.Add(data.id);
+                    continue;
+                }
+
+                foreach (SynergyTrait trait in traits)
+                {
+                    if (trait == null)
+                    {
+                        continue;
+                    }
+
+                    traitCounts.TryGetValue(trait, out int count);
+                    traitCounts[trait] = count + 1;
                 }
             }
 
-            return SynergyPanelUtility.CountTraits(battleUnitIds, unitTraitsById);
+            return traitCounts;
+        }
+
+        private static int GetTraitCount(Dictionary<SynergyTrait, int> traitCounts, SynergyDefinition definition)
+        {
+            if (definition == null || definition.Trait == null)
+            {
+                return 0;
+            }
+
+            traitCounts.TryGetValue(definition.Trait, out int count);
+            return count;
         }
 
         /// <summary>
@@ -1005,14 +1311,14 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private static bool IsValidSlot(SlotGroup group, int slotIndex)
+        private bool IsValidBattleSlot(int slotIndex)
         {
-            return slotIndex >= 0 && slotIndex < group.Data.Length;
+            return slotIndex >= 0 && slotIndex < BattleSlotCount;
         }
 
-        private static string GroupLabel(SlotGroup group)
+        private bool IsValidSupportSlot(int slotIndex)
         {
-            return group.SlotType == UnitSlotType.Battle ? "전투" : "서브";
+            return slotIndex >= 0 && slotIndex < SupportSlotCount;
         }
 
         /// <summary>
@@ -1040,7 +1346,12 @@ namespace OzGameLab01.Controllers
         /// </summary>
         public UnitData GetBattleUnitData(int slotIndex)
         {
-            return IsValidSlot(battleGroup, slotIndex) ? battleGroup.Data[slotIndex] : null;
+            if (!IsValidBattleSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return battleUnitData[slotIndex];
         }
 
         /// <summary>
@@ -1049,7 +1360,12 @@ namespace OzGameLab01.Controllers
         /// </summary>
         public UnitData GetSupportUnitData(int slotIndex)
         {
-            return IsValidSlot(supportGroup, slotIndex) ? supportGroup.Data[slotIndex] : null;
+            if (!IsValidSupportSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return supportUnitData[slotIndex];
         }
 
         /// <summary>
@@ -1057,7 +1373,12 @@ namespace OzGameLab01.Controllers
         /// </summary>
         public UnitItemView GetBattleUnitItem(int slotIndex)
         {
-            return IsValidSlot(battleGroup, slotIndex) ? battleGroup.Items[slotIndex] : null;
+            if (!IsValidBattleSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return battleUnitItems[slotIndex];
         }
 
         /// <summary>
@@ -1065,7 +1386,12 @@ namespace OzGameLab01.Controllers
         /// </summary>
         public UnitItemView GetSupportUnitItem(int slotIndex)
         {
-            return IsValidSlot(supportGroup, slotIndex) ? supportGroup.Items[slotIndex] : null;
+            if (!IsValidSupportSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return supportUnitItems[slotIndex];
         }
 
         // [추가됨] 새 유닛을 얻었을 때 편성창(하단 목록)에 아이템을 즉시 1개 추가해주는 함수
@@ -1081,6 +1407,7 @@ namespace OzGameLab01.Controllers
             UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
             unitItem.name = $"Unit_Item_{testUnitDataList.Count:00}";
 
+            // unitItem.SetIcon(unitIconSprite);
             unitItem.SetIcon(GetUnitIcon(newData));
             unitItem.SetIconColor(newData.color);
             unitItem.SetSelected(false);
