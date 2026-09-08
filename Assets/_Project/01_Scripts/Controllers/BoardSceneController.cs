@@ -37,6 +37,8 @@ namespace OzGameLab01.Controllers
 
         public event Action<int> TurnEnded;
         public event Action<int> NightReached;
+        // [추가] 저장 대기 중 중복 타이틀 이동 요청 방지
+        private bool _isReturningToTitle;
 
         private void Awake()
         {
@@ -61,13 +63,13 @@ namespace OzGameLab01.Controllers
                 }
             }
 
-            // [수정] 이제 버튼 클릭 처리는 BoardUIController가 전담합니다.
-            /*
-            if (_endTurnButton != null)
-                _endTurnButton.onClick.AddListener(EndTurn);
-            else
-                Debug.LogError("[BoardSceneController] 턴 종료 버튼이 연결되지 않았습니다.", this);
-            */
+            // [수정] 버튼 클릭 처리는 BoardUIController가 전담
+            //
+            //if (_endTurnButton != null)
+            //    _endTurnButton.onClick.AddListener(EndTurn);
+            //else
+            //    Debug.LogError("[BoardSceneController] 턴 종료 버튼이 연결되지 않았습니다.", this);
+            //
 
             if (_unitFormationController == null)
             {
@@ -148,11 +150,31 @@ namespace OzGameLab01.Controllers
             return false;
         }
 
-        public void ReturnToTitle()
+        //public void ReturnToTitle()
+        /// <summary>
+        /// [수정] 현재 런 저장 완료 후 타이틀 씬으로 이동
+        /// </summary>
+        public async void ReturnToTitle()
         {
+            if (_isReturningToTitle)
+            {
+                return;
+            }
+
             if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
+            _isReturningToTitle = true;
             Time.timeScale = 1f;
-            BoardRunData.Clear();
+
+            //BoardRunData.Clear();
+            // [수정] 타이틀 복귀는 런 포기가 아니라 Continue 저장 시점으로 처리
+            SaveManager saveManager = SaveManager.Instance;
+            saveManager.CaptureCurrentRun();
+            bool saved = await saveManager.SaveAsync();
+            if (!saved)
+            {
+                Debug.LogError("[BoardSceneController] 타이틀 복귀 전 런 데이터 저장에 실패했습니다.", this);
+            }
+
             transitioner.LoadTitleScene();
         }
 
@@ -206,11 +228,11 @@ namespace OzGameLab01.Controllers
 
         private void HandleUnitAcquisitionNode(MapNode unitNode)
         {
-            // 맵 타일 1회 방문 체크(소모) 등 다른 규칙은 추후 적용합니다.
-            // (현재 BoardRunData에 위치를 저장해서 중복 획득 여부를 확인할 수 있습니다.)
+            // 맵 타일 1회 방문 체크(소모) 등 다른 규칙은 추후 적용
+            // (현재 BoardRunData에 위치를 저장해서 중복 획득 여부를 확인)
             if (_unitRosterData != null && _unitRosterData.UnitStats.Count > 0)
             {
-                // 프리팹(SpriteAddress)이 세팅된 유닛만 필터링해서 뽑습니다. (테스트 용이성을 위해)
+                // 프리팹(SpriteAddress)이 세팅된 유닛만 필터링 (테스트 용이성을 위해)
                 System.Collections.Generic.List<UnitData> validUnits = new System.Collections.Generic.List<UnitData>();
                 foreach (var u in _unitRosterData.UnitStats)
                 {
@@ -223,7 +245,8 @@ namespace OzGameLab01.Controllers
                 if (validUnits.Count == 0)
                 {
                     Debug.LogWarning("[BoardSceneController] 프리팹(SpriteAddress)이 설정된 유닛이 로스터에 하나도 없습니다!");
-                    validUnits = new System.Collections.Generic.List<UnitData>(_unitRosterData.UnitStats); // 전부 없으면 그냥 전체에서 뽑기
+                    // 전부 없으면 그냥 전체에서 뽑기
+                    validUnits = new System.Collections.Generic.List<UnitData>(_unitRosterData.UnitStats);
                 }
 
                 // 1. 유효한 유닛 중 무작위 하나를 뽑습니다.

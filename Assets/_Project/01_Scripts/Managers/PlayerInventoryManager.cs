@@ -26,6 +26,8 @@ namespace OzGameLab01.Managers
         protected override void Awake()
         {
             base.Awake();
+            // [추가] Continue에서 보류된 인벤토리를 로스터 참조가 준비된 시점에 복원
+            SaveManager.Instance.RestorePendingInventory(this);
         }
 
         /// <summary>
@@ -47,6 +49,63 @@ namespace OzGameLab01.Managers
         {
             _ownedUnits.Clear();
             Debug.Log("[PlayerInventoryManager] 인벤토리가 초기화되었습니다.");
+        }
+
+        /// <summary>
+        /// 저장된 유닛 ID와 수량을 로스터 원본 데이터로 복원합니다.
+        /// </summary>
+        public void RestoreFromSave(IReadOnlyList<UnitStuff> savedUnits)
+        {
+            _ownedUnits.Clear();
+
+            if (savedUnits == null || savedUnits.Count == 0)
+            {
+                return;
+            }
+
+            if (startingRoster == null)
+            {
+                Debug.LogError("[PlayerInventoryManager] 저장된 인벤토리를 복원할 UnitRosterData가 없습니다.", this);
+                return;
+            }
+
+            foreach (UnitStuff savedUnit in savedUnits)
+            {
+                if (savedUnit == null || savedUnit.amount <= 0)
+                {
+                    continue;
+                }
+
+                UnitData rosterUnit = FindRosterUnit(savedUnit.unitId);
+                if (rosterUnit == null)
+                {
+                    Debug.LogWarning($"[PlayerInventoryManager] 로스터에 없는 저장 유닛을 건너뜁니다. ID: {savedUnit.unitId}", this);
+                    continue;
+                }
+
+                for (int amountIndex = 0; amountIndex < savedUnit.amount; amountIndex++)
+                {
+                    _ownedUnits.Add(CloneUnitData(rosterUnit));
+                }
+            }
+
+            Debug.Log($"[PlayerInventoryManager] 저장된 인벤토리를 복원했습니다. 총 {_ownedUnits.Count}명", this);
+        }
+
+        /// <summary>
+        /// 저장된 유닛 ID와 일치하는 로스터 원본을 찾습니다.
+        /// </summary>
+        private UnitData FindRosterUnit(int unitId)
+        {
+            foreach (UnitData rosterUnit in startingRoster.UnitStats)
+            {
+                if (rosterUnit != null && rosterUnit.id == unitId)
+                {
+                    return rosterUnit;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
