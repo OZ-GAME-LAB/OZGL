@@ -778,8 +778,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonTextFeedback
   button: {fileID: 894571225050619796}
   label: {fileID: 1811561477475454410}
-  normalColor: {r: 0, g: 0, b: 0, a: 1}
-  hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverColor: {r: 0, g: 0, b: 0, a: 1}
   fadeDuration: 0.15
 --- !u!1 &3656264152356623285
 GameObject:
@@ -1393,8 +1393,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonTextFeedback
   button: {fileID: 2084968103602927496}
   label: {fileID: 755245244062002756}
-  normalColor: {r: 0, g: 0, b: 0, a: 1}
-  hoverColor: {r: 1, g: 1, b: 1, a: 1}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverColor: {r: 0, g: 0, b: 0, a: 1}
   fadeDuration: 0.15
 --- !u!1001 &222243299506587916
 PrefabInstance:
