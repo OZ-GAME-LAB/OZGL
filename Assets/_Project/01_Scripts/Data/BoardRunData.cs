@@ -93,6 +93,83 @@ namespace OzGameLab01.Data
         }
 
         /// <summary>
+        /// 현재 런 상태를 Continue용 직렬화 데이터로 변환합니다.
+        /// </summary>
+        public static BoardRunSaveData CreateSaveData()
+        {
+            BoardRunSaveData saveData = new BoardRunSaveData
+            {
+                hasActiveRun = HasActiveRun,
+                mapSeed = MapSeed,
+                hasPlayerPosition = HasPlayerPosition,
+                playerPositionX = PlayerPosition.x,
+                playerPositionY = PlayerPosition.y,
+                hasCurrentBattle = HasCurrentBattle,
+                currentBattlePositionX = CurrentBattlePosition.x,
+                currentBattlePositionY = CurrentBattlePosition.y,
+                isBossBattle = IsBossBattle,
+                isEliteBattle = IsEliteBattle,
+                isBossDefeated = IsBossDefeated,
+                unusedActionPoints = UnusedActionPoints,
+                turnCount = TurnCount,
+                defeatedElitesCount = DefeatedElitesCount
+            };
+
+            foreach (Vector2Int position in _completedBattlePositions)
+            {
+                saveData.completedBattlePositions.Add(new BoardPositionSaveEntry
+                {
+                    x = position.x,
+                    y = position.y
+                });
+            }
+
+            return saveData;
+        }
+
+        /// <summary>
+        /// Continue가 선택한 저장 데이터로 정적 런 상태를 복원합니다.
+        /// </summary>
+        public static bool RestoreFromSaveData(BoardRunSaveData saveData)
+        {
+            if (saveData == null || !saveData.hasActiveRun || saveData.mapSeed <= 0)
+            {
+                return false;
+            }
+
+            Clear();
+
+            HasActiveRun = true;
+            MapSeed = saveData.mapSeed;
+            HasPlayerPosition = saveData.hasPlayerPosition;
+            PlayerPosition = new Vector2Int(saveData.playerPositionX, saveData.playerPositionY);
+            HasCurrentBattle = saveData.hasCurrentBattle;
+            CurrentBattlePosition = new Vector2Int(
+                saveData.currentBattlePositionX,
+                saveData.currentBattlePositionY);
+            IsBossBattle = saveData.isBossBattle;
+            IsEliteBattle = saveData.isEliteBattle;
+            IsBossDefeated = saveData.isBossDefeated;
+            UnusedActionPoints = Mathf.Max(0, saveData.unusedActionPoints);
+            TurnCount = Mathf.Max(0, saveData.turnCount);
+            DefeatedElitesCount = Mathf.Max(0, saveData.defeatedElitesCount);
+
+            if (saveData.completedBattlePositions != null)
+            {
+                foreach (BoardPositionSaveEntry position in saveData.completedBattlePositions)
+                {
+                    if (position != null)
+                    {
+                        _completedBattlePositions.Add(new Vector2Int(position.x, position.y));
+                    }
+                }
+            }
+
+            Debug.Log($"[BoardRunData] 저장된 게임 진행을 복원했습니다. Map Seed: {MapSeed}");
+            return true;
+        }
+
+        /// <summary>
         /// 활성화된 게임 진행 데이터가 없다면 새로 생성합니다.
         ///
         /// 보드 씬을 직접 실행하는 테스트 상황에서도
@@ -220,7 +297,9 @@ namespace OzGameLab01.Data
             CurrentBattlePosition = Vector2Int.zero;
             HasCurrentBattle = false;
             IsBossBattle = false;
-            IsBossDefeated = false; // [추가] 보스 처치 상태 초기화
+            IsBossDefeated = false; // 보스 처치 상태 초기화
+            // [추가] New Game에서 이전 엘리트 전투 상태가 남지 않도록 초기화
+            IsEliteBattle = false;
 
             UnusedActionPoints = 0;
             TurnCount = 0;
@@ -228,6 +307,9 @@ namespace OzGameLab01.Data
             _completedBattlePositions.Clear();
 
             DefeatedElitesCount = 0;
+
+            // [추가] 이전 런의 씬 객체가 남긴 전투 완료 구독 정보 초기화
+            OnBattleCompleted = null;
         }
 
         /// <summary>

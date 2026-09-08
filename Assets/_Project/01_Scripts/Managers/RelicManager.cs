@@ -43,7 +43,9 @@ namespace OzGameLab01.Managers
         /// <param name="saveEntries"></param>
         public void RestoreFromSave(List<RelicSaveEntry> saveEntries)
         {
-            _allRelics.Clear();
+            //_allRelics.Clear();
+            // [수정] 보유 목록뿐 아니라 이전 런의 공격 및 주사위 발동 목록도 함께 초기화
+            ClearRunState();
 
             foreach (var entry in saveEntries)
             {
@@ -54,6 +56,16 @@ namespace OzGameLab01.Managers
                 _allRelics.Add(runtime);
                 runtime.OnEquip();
             }
+        }
+
+        /// <summary>
+        /// New Game과 런 종료 시 이전 런에서 획득한 유물 상태를 모두 초기화
+        /// </summary>
+        public void ClearRunState()
+        {
+            _allRelics.Clear();
+            _attackRelics.Clear();
+            _diceRelics.Clear();
         }
 
         /// <summary>
