@@ -49,9 +49,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9849046a6bd1ad8458bb635cd5c15ed0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UnitSlotItemView
-  rectTransform: {fileID: 0}
-  slotIcon: {fileID: 0}
+  rectTransform: {fileID: 4238426846634087938}
+  slotIcon: {fileID: 7636400434228319150}
   slotIndex: 0
+  slotType: 0
 --- !u!1 &5240361314716060933
 GameObject:
   m_ObjectHideFlags: 0
@@ -110,14 +111,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.4716981, g: 0.4716981, b: 0.4716981, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 6800783873b9da644bc9b9fa8987a3c5, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 70462a932a290444282e5f3efc4d8168, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
