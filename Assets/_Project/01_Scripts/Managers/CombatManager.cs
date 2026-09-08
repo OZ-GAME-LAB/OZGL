@@ -139,6 +139,8 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            UnitRosterData.RegisterActive(rosterData, this);
+
             foreach (UnitData data in rosterData.UnitStats)
             {
                 _unitDataById[data.id] = data;

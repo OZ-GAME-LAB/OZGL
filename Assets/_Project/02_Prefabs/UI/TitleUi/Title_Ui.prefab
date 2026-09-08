@@ -3510,7 +3510,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonScaleFeedback
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
   visualRoot: {fileID: 7038460343976877962}
   normalScale: 1
   hoverScale: 1.03
@@ -5825,7 +5825,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonScaleFeedback
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
   visualRoot: {fileID: 988544466265027584}
   normalScale: 1
   hoverScale: 1.03
@@ -6808,7 +6808,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonScaleFeedback
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
   visualRoot: {fileID: 5944910241701915723}
   normalScale: 1
   hoverScale: 1.03
@@ -10218,7 +10218,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonScaleFeedback
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
   visualRoot: {fileID: 1363796487358285630}
   normalScale: 1
   hoverScale: 1.03

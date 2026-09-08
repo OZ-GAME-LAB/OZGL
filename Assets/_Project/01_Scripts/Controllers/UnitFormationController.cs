@@ -242,6 +242,8 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            UnitRosterData.RegisterActive(rosterData, this);
+
             foreach (UnitRosterData.UnitTraitEntry entry in rosterData.UnitTraits)
             {
                 unitTraitsById[entry.id] = entry.traits;
@@ -1397,23 +1399,9 @@ namespace OzGameLab01.Controllers
         {
             if (source == null || unitItemTemplate == null || unitView == null) return;
             // 1. 편성창 전용 독립 데이터로 복사하여 내부 리스트에 추가
-            UnitData newData = new UnitData
-            {
-                id = source.id,
-                name = source.name,
-                spriteAddress = source.spriteAddress,
-                healthPoint = source.healthPoint,
-                attackPoint = source.attackPoint,
-                criticalRate = source.criticalRate,
-                dodgeRate = source.dodgeRate,
-                bloodDrain = source.bloodDrain,
-                attackSpeed = source.attackSpeed,
-                skillCooldown = source.skillCooldown,
-                attackKey = source.attackKey,
-                skillKey = source.skillKey,
-                color = source.color,
-                skillType = source.skillType
-            };
+            // (필드를 직접 나열하지 않고 PlayerInventoryManager.CloneUnitData를 재사용해
+            //  UnitData에 필드가 추가되어도 이 복사가 누락되지 않도록 한다.)
+            UnitData newData = PlayerInventoryManager.CloneUnitData(source);
             testUnitDataList.Add(newData);
             // 2. UI 아이템(프리팹) 1개 새로 생성 후 셋팅
             UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
