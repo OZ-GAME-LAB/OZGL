@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using OzGameLab01.Managers;
 using OzGameLab01.UI.Battle;
 using OzGameLab01.Controllers;
 
@@ -65,20 +64,24 @@ namespace OzGameLab01.Combat
         }
 
         /// <summary>
-        /// 아군을 스폰합니다. 유닛 편성 화면에서 넘어온 배치 데이터(AllyFormationData)가
+        /// 아군을 스폰합니다. 유닛 편성 화면에서 넘어온 배치 데이터(placedAllyFormation)가
         /// 있으면 그것을 사용하고, 없으면 인스펙터에 지정된 allyFormation으로 대체합니다.
         /// slotUnits는 호출자가 미리 할당한 배열을 그대로 채웁니다.
+        /// placedAllyFormation/transferredUnits는 각각 SceneTransitioner.AllyFormationData,
+        /// UnitFormationCombatLink.BattleUnits를 호출부(CombatManager)가 대신 읽어 전달한 값입니다
+        /// (이 클래스가 다른 매니저의 static 상태를 직접 참조하지 않도록 하기 위함).
         /// </summary>
         public SpawnResult SpawnAllies(
             Unit[,] slotUnits,
             Dictionary<CombatManager.SlotKey, int> allyFormationFallback,
-            Dictionary<int, UnitData> unitDataById)
+            Dictionary<int, UnitData> unitDataById,
+            UnitData[] placedAllyFormation,
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> transferredUnits)
         {
-            UnitData[] placedUnits = SceneTransitioner.AllyFormationData;
             bool hasPlacementData = false;
-            if (placedUnits != null)
+            if (placedAllyFormation != null)
             {
-                foreach (UnitData placedUnit in placedUnits)
+                foreach (UnitData placedUnit in placedAllyFormation)
                 {
                     if (placedUnit != null)
                     {
@@ -90,7 +93,8 @@ namespace OzGameLab01.Combat
 
             if (hasPlacementData)
             {
-                Dictionary<CombatManager.SlotKey, int> spawnedFromPlacement = SpawnAlliesFromPlacement(slotUnits, placedUnits);
+                Dictionary<CombatManager.SlotKey, int> spawnedFromPlacement =
+                    SpawnAlliesFromPlacement(slotUnits, placedAllyFormation, transferredUnits);
                 return new SpawnResult(true, spawnedFromPlacement);
             }
 
@@ -104,14 +108,17 @@ namespace OzGameLab01.Combat
 
                 CombatManager.SlotKey slot = kvp.Key;
                 int placementIndex = SlotKeyToPlacementIndex(slot);
-                slotUnits[slot.column, (int)slot.row] = SpawnAllyUnitInPlayerSlot(data, placementIndex);
+                slotUnits[slot.column, (int)slot.row] = SpawnAllyUnitInPlayerSlot(data, placementIndex, transferredUnits);
                 spawnedFormation[slot] = kvp.Value;
             }
 
             return new SpawnResult(false, spawnedFormation);
         }
 
-        private Dictionary<CombatManager.SlotKey, int> SpawnAlliesFromPlacement(Unit[,] slotUnits, UnitData[] placedUnits)
+        private Dictionary<CombatManager.SlotKey, int> SpawnAlliesFromPlacement(
+            Unit[,] slotUnits,
+            UnitData[] placedUnits,
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> transferredUnits)
         {
             Dictionary<CombatManager.SlotKey, int> spawnedFormation = new Dictionary<CombatManager.SlotKey, int>();
 
@@ -124,7 +131,7 @@ namespace OzGameLab01.Combat
                 }
 
                 CombatManager.SlotKey slot = PlacementIndexToSlotKey(placementIndex);
-                slotUnits[slot.column, (int)slot.row] = SpawnAllyUnitInPlayerSlot(data, placementIndex);
+                slotUnits[slot.column, (int)slot.row] = SpawnAllyUnitInPlayerSlot(data, placementIndex, transferredUnits);
                 spawnedFormation[slot] = data.id;
             }
 
@@ -134,7 +141,10 @@ namespace OzGameLab01.Combat
         /// <summary>
         /// 편성 인덱스(0~8)에 대응하는 PlayerSlotItemView의 UnitAnchor 아래에 실제 Unit 프리팹을 생성합니다.
         /// </summary>
-        private Unit SpawnAllyUnitInPlayerSlot(UnitData data, int placementIndex)
+        private Unit SpawnAllyUnitInPlayerSlot(
+            UnitData data,
+            int placementIndex,
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> transferredUnits)
         {
             if (battleMainView == null)
             {
@@ -180,7 +190,7 @@ namespace OzGameLab01.Combat
             Sprite unitSprite = instance.GetComponentInChildren<SpriteRenderer>(true)?.sprite;
             if (unitSprite == null)
             {
-                unitSprite = GetTransferredUnitSprite(placementIndex);
+                unitSprite = GetTransferredUnitSprite(placementIndex, transferredUnits);
             }
             Image combatImage = CreateCombatImage(slotView.UnitAnchor, $"BattleCombatUnit_{placementIndex:00}", unitSprite, Color.white);
             unit.BindCombatUI(slotView.UnitAnchor as RectTransform, combatImage, uiProjectilePool);
@@ -192,10 +202,11 @@ namespace OzGameLab01.Combat
         /// <summary>
         /// 메인보드에서 전달된 유닛 아이콘을 편성 인덱스로 찾습니다.
         /// </summary>
-        private static Sprite GetTransferredUnitSprite(int placementIndex)
+        private static Sprite GetTransferredUnitSprite(
+            int placementIndex,
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> units)
         {
-            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> units = UnitFormationCombatLink.BattleUnits;
-            if (placementIndex < 0 || placementIndex >= units.Count || units[placementIndex] == null)
+            if (units == null || placementIndex < 0 || placementIndex >= units.Count || units[placementIndex] == null)
             {
                 return null;
             }

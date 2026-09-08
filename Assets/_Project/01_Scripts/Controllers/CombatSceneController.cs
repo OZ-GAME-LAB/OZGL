@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
@@ -53,6 +54,15 @@ namespace OzGameLab01.Controllers
 
             CurrentState = paused ? BattleState.Paused : BattleState.Running;
             ApplyTimeScale();
+        }
+
+        /// <summary>
+        /// 전투 씬을 재시작합니다. 시간 배율 복구도 전투 상태 소유자인 이 클래스가 담당합니다.
+        /// </summary>
+        public void RestartBattle()
+        {
+            ResetTimeScale();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
         }
 
         private void ApplyTimeScale()
@@ -191,6 +201,12 @@ namespace OzGameLab01.Controllers
         {
             _fastForward = false;
             CurrentState = BattleState.Running;
+            Time.timeScale = 1f;
+        }
+
+        private void OnDestroy()
+        {
+            // 결과/일시정지 상태에서 에디터가 씬을 닫거나 재시작해도 다음 씬에 정지 상태가 전파되지 않도록 합니다.
             Time.timeScale = 1f;
         }
     }

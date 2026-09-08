@@ -35,7 +35,7 @@ namespace OzGameLab01.Managers
             }
             else
             {
-                Time.timeScale = _isPaused ? 0f : 1f;
+                Debug.LogError("[PauseController] CombatSceneController가 연결되지 않아 일시정지를 적용할 수 없습니다.", this);
             }
 
             if (pauseButtonLabel != null)

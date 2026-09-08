@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
+using OzGameLab01.Managers;
+using OzGameLab01.Controllers;
 
 namespace OzGameLab01.Combat
 {
     public class CombatManager : MonoBehaviour
     {
-        public static CombatManager Instance;
+        public static CombatManager Instance { get; private set; }
 
 
         public enum SlotRow { Front, Mid, Back }
@@ -122,7 +124,9 @@ namespace OzGameLab01.Combat
             BuildUnitStatLookup();
             _synergyController.BuildUnitTraitLookup();
 
-            AllySpawner.SpawnResult spawnResult = _allySpawner.SpawnAllies(_slotUnits, _allyFormation, _unitDataById);
+            AllySpawner.SpawnResult spawnResult = _allySpawner.SpawnAllies(
+                _slotUnits, _allyFormation, _unitDataById,
+                SceneTransitioner.AllyFormationData, UnitFormationCombatLink.BattleUnits);
             _spawnedFormation = spawnResult.SpawnedFormation;
 
             _synergyController.ApplySynergies(_spawnedFormation, _slotUnits);
