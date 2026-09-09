@@ -2,7 +2,7 @@ using System;
 using OzGameLab01.Data;
 using OzGameLab01.Map;
 using OzGameLab01.UI;
-using OZGL.Map;
+using OzGameLab01.Map;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -75,7 +75,7 @@ namespace OzGameLab01.Controllers
             float spacing = 2f;
 
             // 최신 유니티 권장 사항에 맞추어 FindFirstObjectByType으로 변경 (경고 해결)
-            OZGL.Map.MapGenerator mapGen = FindFirstObjectByType<OZGL.Map.MapGenerator>();
+            OzGameLab01.Map.MapGenerator mapGen = FindFirstObjectByType<OzGameLab01.Map.MapGenerator>();
             if (mapGen != null) spacing = mapGen.tileSpacing;
 
             // 컨트롤러의 논리적 위치를 시작 타일에 정확하게 맞춤

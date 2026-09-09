@@ -501,9 +501,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BoardSceneController
   _boardPlayerController: {fileID: 1574196127}
   _nightInterval: 3
-  _endTurnButton: {fileID: 260339688}
   _nightEventPopup: {fileID: 0}
   _timeStatusHud: {fileID: 0}
+  _unitFormationController: {fileID: 0}
+  _unitRosterData: {fileID: 0}
+  _eventUIPanel: {fileID: 0}
 --- !u!4 &349193971
 Transform:
   m_ObjectHideFlags: 0
@@ -562,7 +564,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 82cf7d7aa71f4394b9dd4aeda809b322, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OZGL.Map.MapGenerator3
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.MapGenerator
   _currentTheme: {fileID: 11400000, guid: e133a67e099fa81468db8371e2ad60ac, type: 2}
   totalNodeCount: 950
   maxRadius: 400
@@ -580,17 +582,31 @@ MonoBehaviour:
   waterClusterCount: 1
   minWaterClusterSize: 1
   maxWaterClusterSize: 5
+  forceUnitAtStart: 1
   bossCount: 1
   minBossDistance: 5
   minBossDistanceFromStart: 30
+  maxBossDistanceFromStart: 999
   shopCount: 0
-  eliteCount: 0
-  eventCount: 8
-  battleCount: 40
   minShopDistance: 3
+  minShopDistFromStart: 0
+  maxShopDistFromStart: 999
+  eliteCount: 0
   minEliteDistance: 15
+  minEliteDistFromStart: 0
+  maxEliteDistFromStart: 999
+  eventCount: 8
   minEventDistance: 2
+  minEventDistFromStart: 0
+  maxEventDistFromStart: 999
+  battleCount: 40
   minBattleDistance: 3
+  minBattleDistFromStart: 0
+  maxBattleDistFromStart: 999
+  unitAcquisitionCount: 2
+  minUnitAcquisitionDistance: 4
+  minUnitAcquisitionDistFromStart: 2
+  maxUnitAcquisitionDistFromStart: 999
 --- !u!1 &1013613878
 GameObject:
   m_ObjectHideFlags: 0
@@ -748,6 +764,8 @@ MonoBehaviour:
   zoomSpeed: 1
   minZoomMultiplier: 0.3
   maxZoomMultiplier: 2.5
+  locateMoveDuration: 0.75
+  locateHoldDuration: 1.5
 --- !u!1 &1348347719
 GameObject:
   m_ObjectHideFlags: 0
@@ -904,8 +922,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::MapObjectiveManager
   mapGenerator: {fileID: 392680375}
   highlightPrefab: {fileID: 8694107122199768055, guid: 2f83f1cb377a39a46b806b140f70a5c5, type: 3}
-  maxElites: 3
   minSpawnDistance: 10
+  maxSpawnDistance: 999
+  maxElites: 3
 --- !u!4 &1482639498
 Transform:
   m_ObjectHideFlags: 0
@@ -964,6 +983,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BoardPlayerController
   _playerTokenPrefab: {fileID: 4785631077047780553, guid: beebf41a585c24d46b0897410005ca63, type: 3}
   _currentDiceValue: 0
+  _actionPowerHud: {fileID: 0}
   _moveSpeed: 5
   _shakeIntensity: 0.3
   _shakeDuration: 0.4

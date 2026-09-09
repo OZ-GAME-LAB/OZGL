@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using OzGameLab01.Controllers;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
 
@@ -14,78 +14,80 @@ namespace OzGameLab01.Combat
         [SerializeField] private Button continueButton;
         [SerializeField] private BattleRewardPanel battleRewardPanel;
 
-        private bool _resolved;
+        [Header("전투 상태")]
+        [SerializeField] private CombatSceneController combatSceneController;
 
         private void Awake()
         {
-            resultPanel.SetActive(false);
-            continueButton.onClick.AddListener(OnContinueClicked);
+            if (resultPanel != null)
+            {
+                resultPanel.SetActive(false);
+            }
+
+            if (combatSceneController == null)
+            {
+                combatSceneController = FindFirstObjectByType<CombatSceneController>(FindObjectsInactive.Include);
+            }
+
+            if (continueButton != null)
+            {
+                continueButton.onClick.AddListener(OnContinueClicked);
+            }
         }
 
-        private void Update()
+        private void OnEnable()
         {
-            if (_resolved)
+            if (combatSceneController != null)
             {
+                combatSceneController.OnBattleResolved += HandleBattleResolved;
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (combatSceneController != null)
+            {
+                combatSceneController.OnBattleResolved -= HandleBattleResolved;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (continueButton != null)
+            {
+                continueButton.onClick.RemoveListener(OnContinueClicked);
+            }
+        }
+
+        private void HandleBattleResolved(bool victory)
+        {
+            if (victory && battleRewardPanel != null && CombatManager.Instance != null)
+            {
+                // BattleRewardPanel이 자체 배경/제목을 갖춘 독립 팝업이라 ResultPanel은 승리 시 띄우지 않음
+                battleRewardPanel.Show(CombatManager.Instance.GetParticipatingAllyUnits(), OnContinueClicked);
                 return;
             }
 
-            bool allyAlive = false;
-            bool enemyAlive = false;
-
-            foreach (Unit unit in Unit.All)
+            if (resultText != null)
             {
-                if (unit == null || unit.IsDead)
-                {
-                    continue;
-                }
-
-                if (unit.TeamValue == Unit.Team.Ally)
-                {
-                    allyAlive = true;
-                }
-                else if (unit.TeamValue == Unit.Team.Enemy)
-                {
-                    enemyAlive = true;
-                }
+                resultText.text = victory ? "victory!" : "defeat...";
             }
 
-            if (!enemyAlive)
+            if (resultPanel != null)
             {
-                _resolved = true;
-                Time.timeScale = 0f;
-
-                if (battleRewardPanel != null && CombatManager.Instance != null)
-                {
-                    // BattleRewardPanel이 자체 배경/제목을 갖춘 독립 팝업이라 ResultPanel은 승리 시 띄우지 않음
-                    battleRewardPanel.Show(CombatManager.Instance.GetParticipatingAllyUnits(), OnContinueClicked);
-                }
-                else
-                {
-                    resultText.text = "victory!";
-                    resultPanel.SetActive(true);
-                }
-            }
-            else if (!allyAlive)
-            {
-                _resolved = true;
-                resultText.text = "defeat...";
                 resultPanel.SetActive(true);
-                Time.timeScale = 0f;
             }
         }
 
         private void OnContinueClicked()
         {
-            Time.timeScale = 1f;
+            if (combatSceneController == null)
+            {
+                Debug.LogError("[BattleResultChecker] CombatSceneController가 연결되지 않아 보드로 복귀할 수 없습니다.", this);
+                return;
+            }
 
-            if (SceneTransitioner.Instance != null)
-            {
-                SceneTransitioner.Instance.LoadScene("ProtoBoardScene");
-            }
-            else
-            {
-                SceneManager.LoadScene("ProtoBoardScene");
-            }
+            combatSceneController.ReturnToBoard();
         }
     }
 }

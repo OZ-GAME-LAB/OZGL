@@ -2,7 +2,7 @@ using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
-using OZGL.Map;
+using OzGameLab01.Map;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -188,10 +188,14 @@ namespace OzGameLab01.Controllers
                 case NodeType.Elite: HandleBattleNode(arrivedNode, true); break;
                 case NodeType.Boss: HandleBossNode(arrivedNode); break;
                 case NodeType.Event:
-                    if (_eventUIPanel != null)
+                    if (_eventUIPanel != null && !_eventUIPanel.OpenRandomEvent())
                     {
-                        _eventUIPanel.gameObject.SetActive(true);
-                        _eventUIPanel.RandomEventOpenTest();
+                        if (_nightEventPopup == null)
+                        {
+                            _nightEventPopup = FindFirstObjectByType<NightEventPopupView>();
+                        }
+
+                        _nightEventPopup?.Show("Event data is not configured yet.");
                     }
                     break;
                 

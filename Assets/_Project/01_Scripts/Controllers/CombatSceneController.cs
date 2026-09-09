@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
@@ -12,15 +13,62 @@ namespace OzGameLab01.Controllers
     /// </summary>
     public sealed class CombatSceneController : MonoBehaviour
     {
+        public enum BattleState
+        {
+            Running,
+            Paused,
+            Resolved
+        }
+
         // 전투가 끝났을 때 UI 컨트롤러 쪽에 알려줄 이벤트
         public event Action<bool> OnBattleResolved;
 
         private bool _resolved;
         private bool _wasBossBattle;
         private bool _victory;
+        private bool _fastForward;
         private bool _isReturningToTitle; // [추가] 런 종료 저장 중 중복 타이틀 이동 요청 방지
+
+        public BattleState CurrentState { get; private set; } = BattleState.Running;
+        public bool IsPaused => CurrentState == BattleState.Paused;
+        public float CurrentTimeScale => _fastForward ? 2f : 1f;
+
         public bool IsResolved => _resolved;
         public bool IsBossVictory => _wasBossBattle && _victory;
+
+        public void SetFastForward(bool enabled)
+        {
+            _fastForward = enabled;
+            if (!_resolved && !IsPaused)
+            {
+                ApplyTimeScale();
+            }
+        }
+
+        public void SetPaused(bool paused)
+        {
+            if (_resolved)
+            {
+                return;
+            }
+
+            CurrentState = paused ? BattleState.Paused : BattleState.Running;
+            ApplyTimeScale();
+        }
+
+        /// <summary>
+        /// 전투 씬을 재시작합니다. 시간 배율 복구도 전투 상태 소유자인 이 클래스가 담당합니다.
+        /// </summary>
+        public void RestartBattle()
+        {
+            ResetTimeScale();
+            SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        }
+
+        private void ApplyTimeScale()
+        {
+            Time.timeScale = IsPaused || _resolved ? 0f : CurrentTimeScale;
+        }
 
         private void Update()
         {
@@ -32,7 +80,7 @@ namespace OzGameLab01.Controllers
             bool allyAlive = false;
             bool enemyAlive = false;
 
-            foreach (Unit unit in Unit.All)
+            foreach (Unit unit in BattleUnitRegistry.Units)
             {
                 if (unit == null || unit.IsDead)
                 {
@@ -69,7 +117,8 @@ namespace OzGameLab01.Controllers
             _resolved = true;
             _wasBossBattle = BoardRunData.HasCurrentBattle && BoardRunData.IsBossBattle;
             _victory = victory;
-            Time.timeScale = 0f;
+            CurrentState = BattleState.Resolved;
+            ApplyTimeScale();
 
             if (victory)
             {
@@ -99,7 +148,7 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            Time.timeScale = 1f;
+            ResetTimeScale();
             transitioner.LoadBoardScene();
         }
 
@@ -133,10 +182,9 @@ namespace OzGameLab01.Controllers
 
             _isReturningToTitle = true;
 
-            Time.timeScale = 1f;
+            ResetTimeScale();
 
-            //BoardRunData.Clear();
-            // [수정] 런타임 상태와 저장 파일의 Continue 데이터를 함께 초기화
+            // [수정] 런타임 상태와 저장 파일의 Continue 데이터를 함께 초기화 (BoardRunData.Clear()를 포함)
             SaveManager saveManager = SaveManager.Instance;
             saveManager.ClearCurrentRun();
             bool saved = await saveManager.SaveAsync();
@@ -147,6 +195,19 @@ namespace OzGameLab01.Controllers
 
             transitioner.LoadTitleScene();
             _isReturningToTitle = false;
+        }
+
+        private void ResetTimeScale()
+        {
+            _fastForward = false;
+            CurrentState = BattleState.Running;
+            Time.timeScale = 1f;
+        }
+
+        private void OnDestroy()
+        {
+            // 결과/일시정지 상태에서 에디터가 씬을 닫거나 재시작해도 다음 씬에 정지 상태가 전파되지 않도록 합니다.
+            Time.timeScale = 1f;
         }
     }
 }

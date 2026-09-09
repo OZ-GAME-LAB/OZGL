@@ -416,8 +416,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: EVENT
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -978,8 +978,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: YOU CAN RECEIVE DIFFERENT EFFECTS DEPENDING ON THE OPTION YOU SELECT
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1217,8 +1217,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Choose the item you want.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1421,18 +1421,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5410d7e5c9be9d54e8365da781278024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.ChoiceEventManager
-  eventTitleTxt: {fileID: 0}
-  eventDialogTxt: {fileID: 0}
   choiceArea: {fileID: 7407865000633747387}
   choicePrefab: {fileID: 9014682470215004950, guid: ba87736e0145c144dbdf4e7e2b7e1946, type: 3}
   actionPrefab: {fileID: 9075945919751357883, guid: 736bc9e68cd7ead49971bbe99cb156b6, type: 3}
   eventUIView: {fileID: 2599459832272954032}
-  testChoiceEvents:
-  - {fileID: 11400000, guid: 7e92f108f9ef49d4d97893c2de6215d5, type: 2}
-  - {fileID: 11400000, guid: ab50b9a0a17a11f4482e3cdddf2f8cf3, type: 2}
-  - {fileID: 11400000, guid: c02bd15c9bda0634c877000015df1104, type: 2}
-  - {fileID: 11400000, guid: bed29eeefeb159c4abce8f13921304df, type: 2}
-  testNextEventSO: {fileID: 11400000, guid: 834c279fcd992bf44a4401f5865ffde3, type: 2}
+  eventPool: []
 --- !u!1 &7490045068334050397
 GameObject:
   m_ObjectHideFlags: 0

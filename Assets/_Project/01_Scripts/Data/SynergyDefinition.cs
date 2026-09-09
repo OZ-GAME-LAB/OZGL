@@ -19,6 +19,36 @@ namespace OzGameLab01.Combat
 
         public SynergyTrait Trait => trait;
 
+        public bool ValidateConfiguration(UnityEngine.Object context = null)
+        {
+            bool valid = true;
+            if (trait == null)
+            {
+                Debug.LogError($"[SynergyDefinition] 트레이트가 할당되지 않았습니다: {name}", context);
+                return false;
+            }
+
+            if (tiers == null || tiers.Count == 0)
+            {
+                Debug.LogError($"[SynergyDefinition] 시너지 단계가 비어 있습니다: {name}", context);
+                return false;
+            }
+
+            int previousRequiredCount = 0;
+            foreach (Tier tier in tiers)
+            {
+                if (tier.requiredCount <= previousRequiredCount || tier.hpMultiplier <= 0f || tier.attackMultiplier <= 0f)
+                {
+                    Debug.LogError($"[SynergyDefinition] 단계 설정이 올바르지 않습니다: {name}", context);
+                    valid = false;
+                }
+
+                previousRequiredCount = tier.requiredCount;
+            }
+
+            return valid;
+        }
+
         public bool TryGetActiveTier(int unitCount, out Tier activeTier)
         {
             bool found = false;

@@ -35,5 +35,39 @@ namespace OzGameLab01.Combat
         public IReadOnlyList<UnitData> UnitStats => unitStats;
         public IReadOnlyList<UnitTraitEntry> UnitTraits => unitTraits;
         public IReadOnlyList<SynergyDefinition> SynergyDefinitions => synergyDefinitions;
+
+        private void OnValidate()
+        {
+            CombatDataValidator.ValidateRoster(this, this);
+        }
+
+        private static UnitRosterData _activeInstance;
+
+        /// <summary>
+        /// CombatManager와 UnitFormationController가 각자 들고 있는 rosterData 참조가
+        /// 실제로 같은 asset을 가리키는지 확인합니다. 이번 플레이 세션에서 처음 등록된
+        /// asset을 기준으로, 이후 다른 asset이 등록되면 에러 로그를 남깁니다.
+        /// </summary>
+        public static void RegisterActive(UnitRosterData data, Object context)
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            if (_activeInstance == null)
+            {
+                _activeInstance = data;
+                return;
+            }
+
+            if (_activeInstance != data)
+            {
+                Debug.LogError(
+                    $"[UnitRosterData] 서로 다른 로스터 asset이 쓰이고 있습니다: '{_activeInstance.name}' vs '{data.name}'. " +
+                    "CombatManager와 UnitFormationController의 rosterData 참조가 같은 asset을 가리키는지 확인하세요.",
+                    context);
+            }
+        }
     }
 }

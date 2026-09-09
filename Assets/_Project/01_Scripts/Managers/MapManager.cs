@@ -1,4 +1,4 @@
-using OZGL.Map;
+using OzGameLab01.Map;
 using System.Collections.Generic;
 using UnityEngine;
 

@@ -24,7 +24,7 @@ namespace OzGameLab01.Test
         public void OnChoiceEventSystem()
         {
             _choiceEventPanel.gameObject.SetActive(true);
-            _choiceEventPanel.RandomEventOpenTest();
+            _choiceEventPanel.OpenRandomEvent();
         }
     }
 }

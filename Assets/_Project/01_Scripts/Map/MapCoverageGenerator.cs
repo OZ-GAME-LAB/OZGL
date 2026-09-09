@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace OZGL.Map
+namespace OzGameLab01.Map
 {
     /// <summary>
     /// 기본 MapGenerator의 랜덤 타일 배치 뒤에 콘텐츠 공백을 보정하는 비교용 생성기입니다.
