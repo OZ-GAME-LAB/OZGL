@@ -41,6 +41,7 @@ namespace OzGameLab01.UI.Settings
 
         private void OnDisable()
         {
+            if (soundManager != null) soundManager.SaveVolumeSettings();
             Unsubscribe();
         }
 
@@ -51,6 +52,8 @@ namespace OzGameLab01.UI.Settings
                 return;
             }
 
+            settingsView.BackClicked += SaveSettings;
+            settingsView.ReturnToMainClicked += SaveSettings;
             settingsView.SliderValueChanged += HandleSliderValueChanged;
             settingsView.ToggleValueChanged += HandleToggleValueChanged;
             soundManager.VolumeSettingsChanged += RefreshView;
@@ -66,6 +69,8 @@ namespace OzGameLab01.UI.Settings
 
             if (settingsView != null)
             {
+                settingsView.BackClicked -= SaveSettings;
+                settingsView.ReturnToMainClicked -= SaveSettings;
                 settingsView.SliderValueChanged -= HandleSliderValueChanged;
                 settingsView.ToggleValueChanged -= HandleToggleValueChanged;
             }
@@ -83,6 +88,11 @@ namespace OzGameLab01.UI.Settings
             masterVolumeItem?.SetRange(0f, 1f);
             bgmVolumeItem?.SetRange(0f, 1f);
             sfxVolumeItem?.SetRange(0f, 1f);
+        }
+
+        private void SaveSettings(SettingsView view)
+        {
+            if (soundManager != null) soundManager.SaveVolumeSettings();
         }
 
         private void RefreshView()
