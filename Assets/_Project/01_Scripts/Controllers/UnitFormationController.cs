@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using OzGameLab01.Combat;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
+using OzGameLab01.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
