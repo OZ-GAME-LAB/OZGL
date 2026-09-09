@@ -256,35 +256,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 115991225}
   m_CullTransparentMesh: 1
---- !u!1 &214814847 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2814694787055883913, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
-  m_PrefabInstance: {fileID: 550859398}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &214814851
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 214814847}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4fc20c8f30eb0114c84a7ebf9f5f993b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.ActionPointViewController
-  valueText: {fileID: 475144411}
---- !u!114 &475144411 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 1242091874462021364, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
-  m_PrefabInstance: {fileID: 550859398}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1001 &550859398
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -909,6 +880,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4311788342251037025, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 4311788342251037025, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 4438618346453924135, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1515,17 +1494,14 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2071062697152820606, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1605771951}
-    - targetCorrespondingSourceObject: {fileID: 4047911659088216402, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
-      insertIndex: 0
-      addedObject: {fileID: 1817598205}
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 2814694787055883913, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+    - targetCorrespondingSourceObject: {fileID: 1828430395384540401, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 214814851}
+      addedObject: {fileID: 1817598205}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
 --- !u!224 &550859399 stripped
 RectTransform:
-  m_CorrespondingSourceObject: {fileID: 4047911659088216402, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+  m_CorrespondingSourceObject: {fileID: 1828430395384540401, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
   m_PrefabInstance: {fileID: 550859398}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &609233635 stripped
@@ -2455,11 +2431,11 @@ RectTransform:
   - {fileID: 115991226}
   m_Father: {fileID: 550859399}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 1}
-  m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 0, y: 144.4}
-  m_SizeDelta: {x: 100, y: 50}
-  m_Pivot: {x: 0.5, y: 1}
+  m_AnchorMin: {x: 1, y: 0.5}
+  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchoredPosition: {x: -150, y: 200}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1817598206
 MonoBehaviour:
   m_ObjectHideFlags: 0

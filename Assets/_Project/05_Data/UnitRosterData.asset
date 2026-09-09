@@ -17,66 +17,6 @@ MonoBehaviour:
     name: Ally_Sword_Red
     spriteAddress: Ally_Sword
     healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
-    bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-    skillType: 0
-  - id: 2
-    name: Ally_Bow_Red
-    spriteAddress: Ally_Bow
-    healthPoint: 110
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
-    bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-    skillType: 1
-  - id: 3
-    name: Ally_Staff_Red
-    spriteAddress: Ally_Staff
-    healthPoint: 110
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
-    bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-    skillType: 2
-  - id: 4
-    name: Ally_Rogue_Red
-    spriteAddress: 
-    healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
-    bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-    skillType: 0
-  - id: 5
-    name: Ally_Sword_Blue
-    spriteAddress: Ally_Sword
-    healthPoint: 500
     attackPoint: 8
     criticalRate: 0
     dodgeRate: 0
@@ -84,115 +24,85 @@ MonoBehaviour:
     attackSpeed: 0
     basicAttackCooldown: 0.9
     skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
+    attackKey:
+    skillKey:
+    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
     skillType: 0
-  - id: 6
-    name: Ally_Bow_Blue
+  - id: 2
+    name: Ally_Bow_Red
     spriteAddress: Ally_Bow
-    healthPoint: 500
-    attackPoint: 500
+    healthPoint: 110
+    attackPoint: 6
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
     attackSpeed: 0
     basicAttackCooldown: 1.1
     skillCooldown: 4
-    attackKey: 
-    skillKey: 
+    attackKey:
+    skillKey:
+    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
+    skillType: 1
+  - id: 3
+    name: Ally_Staff_Red
+    spriteAddress: Ally_Staff
+    healthPoint: 110
+    attackPoint: 13
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 1.1
+    skillCooldown: 4
+    attackKey:
+    skillKey:
+    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
+    skillType: 2
+  - id: 4
+    name: Ally_Sword_Blue
+    spriteAddress: Ally_Sword
+    healthPoint: 160
+    attackPoint: 8
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 0.9
+    skillCooldown: 4
+    attackKey:
+    skillKey:
+    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
+    skillType: 0
+  - id: 5
+    name: Ally_Bow_Blue
+    spriteAddress: Ally_Bow
+    healthPoint: 110
+    attackPoint: 6
+    criticalRate: 0
+    dodgeRate: 0
+    bloodDrain: 0
+    attackSpeed: 0
+    basicAttackCooldown: 1.1
+    skillCooldown: 4
+    attackKey:
+    skillKey:
     color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
     skillType: 1
-  - id: 7
+  - id: 6
     name: Ally_Staff_Blue
     spriteAddress: Ally_Staff
     healthPoint: 110
-    attackPoint: 500
+    attackPoint: 13
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
     attackSpeed: 0
     basicAttackCooldown: 1.1
     skillCooldown: 4
-    attackKey: 
-    skillKey: 
+    attackKey:
+    skillKey:
     color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
     skillType: 2
-  - id: 8
-    name: Ally_Rogue_Blue
-    spriteAddress: 
-    healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
-    bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
-    skillType: 0
-  - id: 9
-    name: Ally_Sword_Yellow
-    spriteAddress: Ally_Sword
-    healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
-    bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
-    skillType: 0
-  - id: 10
-    name: Ally_Bow_Yellow
-    spriteAddress: Ally_Bow
-    healthPoint: 110
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
-    bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
-    skillType: 1
-  - id: 11
-    name: Ally_Staff_Yellow
-    spriteAddress: Ally_Staff
-    healthPoint: 110
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
-    bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
-    skillType: 2
-  - id: 12
-    name: Ally_Rogue_Yellow
-    spriteAddress: 
-    healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
-    bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
-    attackKey: 
-    skillKey: 
-    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
-    skillType: 0
   unitTraits:
   - id: 1
     traits:
@@ -208,40 +118,16 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 27a3b77afd311b741be5033230c00a6d, type: 2}
   - id: 4
     traits:
-    - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
-    - {fileID: 11400000, guid: 27ccbb4fabaa96341850aed7226e56b6, type: 2}
+    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
+    - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}
   - id: 5
     traits:
     - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}
+    - {fileID: 11400000, guid: 004f39747a5dc194bbf130dd8796a3b7, type: 2}
   - id: 6
     traits:
     - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 004f39747a5dc194bbf130dd8796a3b7, type: 2}
-  - id: 7
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
     - {fileID: 11400000, guid: 27a3b77afd311b741be5033230c00a6d, type: 2}
-  - id: 8
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 27ccbb4fabaa96341850aed7226e56b6, type: 2}
-  - id: 9
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}
-  - id: 10
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 004f39747a5dc194bbf130dd8796a3b7, type: 2}
-  - id: 11
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 27a3b77afd311b741be5033230c00a6d, type: 2}
-  - id: 12
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 27ccbb4fabaa96341850aed7226e56b6, type: 2}
   synergyDefinitions:
   - {fileID: 11400000, guid: af215132e908c2643814c106db3e964d, type: 2}
   - {fileID: 11400000, guid: 3ad1f0f6f37579e4f992d8da4f9c9517, type: 2}
