@@ -15,11 +15,6 @@ MonoBehaviour:
   m_GroupName: Default Local Group
   m_GUID: 517b0716e18e03246bf2db9080b7d88b
   m_SerializeEntries:
-  - m_GUID: 169fd65c83a56c0448852619e4bbde87
-    m_Address: JSON/UnitJSON
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: aed7d08a62d10b342b4fa27255744ee1
     m_Address: Assets/_Project/05_Docs/JSON/Test_Monster.json
     m_ReadOnly: 0
