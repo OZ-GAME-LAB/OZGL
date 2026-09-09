@@ -5,6 +5,7 @@ using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
 using OzGameLab01.Controllers;
+using OzGameLab01.Data;
 
 namespace OzGameLab01.Combat
 {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Combat;
+using OzGameLab01.Data;
 
 namespace OzGameLab01.Managers
 {
@@ -62,16 +63,20 @@ namespace OzGameLab01.Managers
                 spriteAddress = source.spriteAddress,
                 healthPoint = source.healthPoint,
                 attackPoint = source.attackPoint,
+                defensePoint = source.defensePoint,
+                attackSpeed = source.attackSpeed,
+                criticalMult = source.criticalMult,
                 criticalRate = source.criticalRate,
                 dodgeRate = source.dodgeRate,
-                bloodDrain = source.bloodDrain,
-                attackSpeed = source.attackSpeed,
                 basicAttackCooldown = source.basicAttackCooldown,
+                passiveSkillKey = source.passiveSkillKey,
+                activeSkillKey = source.activeSkillKey,
                 skillCooldown = source.skillCooldown,
                 attackKey = source.attackKey,
-                skillKey = source.skillKey,
                 color = source.color,
-                skillType = source.skillType
+                skillType = source.skillType,
+                jobType = source.jobType,
+                tribeType = source.tribeType
             };
         }
     }
