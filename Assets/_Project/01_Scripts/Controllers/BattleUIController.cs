@@ -5,6 +5,8 @@ using TMPro;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
 using OzGameLab01.UI.Settings;
+using OzGameLab01.Combat;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.Controllers
 {
@@ -23,6 +25,7 @@ namespace OzGameLab01.Controllers
         private BattleTimerView _timerView;
         
         private float _battleTimer = 0f;
+        private bool _rewardApplied;
         private bool _isFastForward = false; // 배속 상태 저장용 변수
 
         private void Awake()
@@ -136,9 +139,9 @@ namespace OzGameLab01.Controllers
             _isFastForward = !_isFastForward; // 상태 토글 (1배속 <-> 2배속)
 
             // 설정창 등이 열려있어서 일시정지 상태인 경우가 아니라면 즉시 배속을 적용합니다.
-            if (Time.timeScale > 0f)
+            if (combatSceneController != null)
             {
-                Time.timeScale = _isFastForward ? 2f : 1f;
+                combatSceneController.SetFastForward(_isFastForward);
             }
 
             // 버튼의 텍스트가 있다면 업데이트 해줍니다. (버튼 내부에 TMP_Text가 있다고 가정)
@@ -154,7 +157,7 @@ namespace OzGameLab01.Controllers
 
         private void HandleSettingsClicked(BattleControlView view)
         {
-            Time.timeScale = 0f; // 전투 일시정지
+            combatSceneController?.SetPaused(true);
             settingsView?.Show();
         }
 
@@ -164,7 +167,7 @@ namespace OzGameLab01.Controllers
             if (combatSceneController != null && !combatSceneController.IsResolved)
             {
                 // 일시정지를 풀 때, 플레이어가 설정해둔 배속 상태(1배속 또는 2배속)로 정확히 복원합니다.
-                Time.timeScale = _isFastForward ? 2f : 1f;
+                combatSceneController.SetPaused(false);
             }
         }
 
@@ -228,22 +231,23 @@ namespace OzGameLab01.Controllers
                     }
 
                     // 승리 시 보상 창(RewardView)을 먼저 띄웁니다.
-                    if (battleUIView.RewardView != null)
+                    if (battleUIView.RewardView != null && battleUIView.RewardView.HasConfiguredRewards)
                     {
-                        battleUIView.RewardView.ClearRewardOptions();
+                        battleUIView.ShowRewardView();
+                        return;
 
                         // 기획 데이터 연결 전까지 임시 보상 3개 생성
-                        for (int i = 0; i < 3; i++)
-                        {
-                            var option = battleUIView.RewardView.CreateRewardOption();
-                            if (option != null)
-                            {
-                                option.SetDescription($"[Temporary{i + 1}] his is the battle victory reward");
-                            }
-                        }
+                        // 보상 데이터가 준비되기 전까지 사용하던 임시 보상 생성은 제거합니다.
                     }
-                    
-                    battleUIView.ShowRewardView();
+
+                    if (battleUIView.ResultView != null)
+                    {
+                        battleUIView.ResultView.SetResultText("Victory!");
+                        battleUIView.ResultView.SetOptionalMessage("Reward data is not configured yet.");
+                        battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
+                    }
+
+                    battleUIView.ShowResultView();
                 }
                 else
                 {
@@ -261,6 +265,24 @@ namespace OzGameLab01.Controllers
 
         private void HandleRewardSelected(RewardOptionItemView option)
         {
+            if (_rewardApplied || option == null || combatSceneController == null)
+            {
+                return;
+            }
+
+            CombatManager combatManager = CombatManager.Instance;
+            bool applied = combatManager != null && BattleRewardService.Apply(
+                option.RewardData,
+                combatManager.GetParticipatingAllyUnits(),
+                combatManager.RosterData,
+                this);
+
+            if (!applied)
+            {
+                return;
+            }
+
+            _rewardApplied = true;
             // 보상을 선택하면 보상창이 닫히고 결과창으로 넘어갑니다.
             if (battleUIView != null)
             {

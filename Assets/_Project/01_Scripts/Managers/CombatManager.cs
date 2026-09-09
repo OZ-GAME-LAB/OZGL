@@ -1,16 +1,15 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
+using OzGameLab01.Managers;
 using OzGameLab01.Controllers;
 
 namespace OzGameLab01.Combat
 {
     public class CombatManager : MonoBehaviour
     {
-        public static CombatManager Instance;
+        public static CombatManager Instance { get; private set; }
 
 
         public enum SlotRow { Front, Mid, Back }
@@ -76,23 +75,27 @@ namespace OzGameLab01.Combat
         private Dictionary<SlotKey, int> _allyFormation;
         private Dictionary<SlotKey, int> _spawnedFormation;
         private Dictionary<int, UnitData> _unitDataById;
-        private Dictionary<int, List<SynergyTrait>> _unitTraitsById;
-        private Dictionary<SynergyTrait, int> _traitCounts;
         private readonly Unit[,] _slotUnits = new Unit[SlotColumns, SlotRows];
         private Unit _enemyUnit;
         private UIProjectilePool _uiProjectilePool;
+        private AllySpawner _allySpawner;
+        private SynergyController _synergyController;
 
         public Unit EnemyUnit => _enemyUnit;
+        public UnitRosterData RosterData => rosterData;
 
         private void Awake()
         {
             Instance = this;
+            // 정적 상태라 실기기 빌드에서는 씬 전환만으로 비워지지 않는다.
+            // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.
+            BattleUnitRegistry.Clear();
             //  씬/프리팹에서 직접 연결하지 못한 경우 비활성 BattleUI까지 포함해 자동으로 찾기
             if (battleMainView == null)
             {
                 battleMainView = FindFirstObjectByType<BattleMainView>(FindObjectsInactive.Include);
             }
-            // BattleMainView 아래에 런타임 투사체 풀은 한번만 생성 
+            // BattleMainView 아래에 런타임 투사체 풀은 한번만 생성
             if (battleMainView != null)
             {
                 _uiProjectilePool = battleMainView.GetComponentInChildren<UIProjectilePool>(true);
@@ -105,21 +108,38 @@ namespace OzGameLab01.Combat
                     _uiProjectilePool = poolObject.GetComponent<UIProjectilePool>();
                 }
             }
+
+            // 스폰/시너지 책임은 별도 클래스로 분리되어 있다. Inspector 참조는 CombatManager가
+            // 그대로 들고 있고, 생성자로 넘겨주기만 한다(씬/프리팹 재배선 불필요).
+            _allySpawner = new AllySpawner(
+                battleMainView, allyTemplatePrefab, unitsRoot,
+                gridOrigin, columnSpacing, rowSpacing,
+                enemyPosition, enemyPrefabResourceName, enemyScale,
+                _uiProjectilePool);
+            _synergyController = new SynergyController(
+                rosterData, synergyPanelRoot, synergyItemTemplate,
+                synergyActiveColor, synergyInactiveColor, this);
+
             BuildAllyFormation();
             BuildUnitStatLookup();
-            BuildUnitTraitLookup();
-            bool spawnedFromPlacement = SpawnAllies();
-            ApplySynergies();
-            PopulateSynergyPanel();
+            _synergyController.BuildUnitTraitLookup();
+
+            AllySpawner.SpawnResult spawnResult = _allySpawner.SpawnAllies(
+                _slotUnits, _allyFormation, _unitDataById,
+                SceneTransitioner.AllyFormationData, UnitFormationCombatLink.BattleUnits);
+            _spawnedFormation = spawnResult.SpawnedFormation;
+
+            _synergyController.ApplySynergies(_spawnedFormation, _slotUnits);
+            _synergyController.PopulateSynergyPanel();
 
             // 배치 데이터로 스폰했다면 BattleFormationInfoController가 유닛 정보 패널을
             // 실제 편성 기준으로 채운다. 인스펙터 폴백 편성일 때만 여기서 직접 채운다.
-            if (!spawnedFromPlacement)
+            if (!spawnResult.UsedPlacementData)
             {
                 PopulateUnitInfoPanel();
             }
 
-            SpawnEnemy();
+            _enemyUnit = _allySpawner.SpawnEnemy();
         }
 
         private void BuildAllyFormation()
@@ -139,23 +159,13 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            CombatDataValidator.ValidateRoster(rosterData, this);
+
+            UnitRosterData.RegisterActive(rosterData, this);
+
             foreach (UnitData data in rosterData.UnitStats)
             {
                 _unitDataById[data.id] = data;
-            }
-        }
-
-        private void BuildUnitTraitLookup()
-        {
-            _unitTraitsById = new Dictionary<int, List<SynergyTrait>>();
-            if (rosterData == null)
-            {
-                return;
-            }
-
-            foreach (UnitRosterData.UnitTraitEntry entry in rosterData.UnitTraits)
-            {
-                _unitTraitsById[entry.id] = entry.traits;
             }
         }
 
@@ -203,372 +213,6 @@ namespace OzGameLab01.Combat
             }
 
             return units;
-        }
-
-        /// <summary>
-        /// 아군을 스폰합니다. 유닛 편성 화면에서 넘어온 배치 데이터(AllyFormationData)가
-        /// 있으면 그것을 사용하고, 없으면 인스펙터에 지정된 allyFormation으로 대체합니다.
-        /// 배치 데이터를 사용했는지 여부를 반환합니다(하단 유닛 정보 패널을
-        /// BattleFormationInfoController가 채울지, 여기서 채울지 판단하는 데 씁니다).
-        /// </summary>
-        private bool SpawnAllies()
-        {
-            _spawnedFormation = new Dictionary<SlotKey, int>();
-
-            UnitData[] placedUnits = SceneTransitioner.AllyFormationData;
-            bool hasPlacementData = false;
-            if (placedUnits != null)
-            {
-                foreach (UnitData placedUnit in placedUnits)
-                {
-                    if (placedUnit != null)
-                    {
-                        hasPlacementData = true;
-                        break;
-                    }
-                }
-            }
-
-            if (hasPlacementData)
-            {
-                SpawnAlliesFromPlacement(placedUnits);
-                return true;
-            }
-
-            foreach (KeyValuePair<SlotKey, int> kvp in _allyFormation)
-            {
-                if (!_unitDataById.TryGetValue(kvp.Value, out UnitData data) || data == null)
-                {
-                    continue;
-                }
-
-                SlotKey slot = kvp.Key;
-                // _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
-                // [수정] Inspector 폴백 편성도 대응하는 PlayerSlot의 UnitAnchor 아래에 생성합니다.
-                int placementIndex = SlotKeyToPlacementIndex(slot);
-                _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnitInPlayerSlot(data, placementIndex);
-                _spawnedFormation[slot] = kvp.Value;
-            }
-
-            return false;
-        }
-
-        private void SpawnAlliesFromPlacement(UnitData[] placedUnits)
-        {
-            for (int placementIndex = 0; placementIndex < placedUnits.Length; placementIndex++)
-            {
-                UnitData data = placedUnits[placementIndex];
-                if (data == null)
-                {
-                    continue;
-                }
-
-                SlotKey slot = PlacementIndexToSlotKey(placementIndex);
-                // _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnit(data, GetSlotPosition(slot.column, slot.row));
-                // [수정] : 02_MainGame 편성 인덱스와 같은 PlayerSlot UnitAnchor 아래에 생성합니다.
-                _slotUnits[slot.column, (int)slot.row] = SpawnAllyUnitInPlayerSlot(data, placementIndex);
-                _spawnedFormation[slot] = data.id;
-            }
-        }
-
-        /// <summary>
-        /// 편성 인덱스(0~8)에 대응하는 PlayerSlotItemView의 UnitAnchor 아래에 실제 Unit 프리팹을 생성합니다.
-        /// </summary>
-        /// <returns></returns>
-        private Unit SpawnAllyUnitInPlayerSlot(UnitData data, int placementIndex)
-        {
-            if (battleMainView == null)
-            {
-                Debug.LogError("[CombatManager] BattleMainView가 연결되지 않아 플레이어 슬롯에 유닛을 생성할 수 없습니다.", this);
-                return null;
-            }
-
-            IReadOnlyList<PlayerSlotItemView> slotViews = battleMainView.PlayerSlotViews;
-            if (placementIndex < 0 || placementIndex >= slotViews.Count)
-            {
-                Debug.LogError($"[CombatManager] 편성 인덱스 {placementIndex}에 대응하는 PlayerSlot이 없습니다.", this);
-                return null;
-            }
-
-            PlayerSlotItemView slotView = slotViews[placementIndex];
-            if (slotView == null || slotView.UnitAnchor == null)
-            {
-                Debug.LogError($"[CombatManager] PlayerSlot {placementIndex}의 UnitAnchor가 연결되지 않았습니다.", this);
-                return null;
-            }
-
-            GameObject prefabToSpawn = LoadAllyPrefab(data);
-            if (prefabToSpawn == null)
-            {
-                return null;
-            }
-
-            GameObject instance = Instantiate(prefabToSpawn, slotView.UnitAnchor, false);
-            instance.name = $"{prefabToSpawn.name}_{placementIndex:00}";
-            instance.transform.localPosition = Vector3.zero;
-            instance.transform.localRotation = Quaternion.identity;
-            instance.transform.localScale = Vector3.one;
-
-            Unit unit = instance.GetComponent<Unit>();
-            if (unit == null)
-            {
-                Debug.LogError($"[CombatManager] '{prefabToSpawn.name}' 루트에 Unit 컴포넌트가 없습니다.", instance);
-                Destroy(instance);
-                return null;
-            }
-
-            unit.Configure(data);
-            Sprite unitSprite = instance.GetComponentInChildren<SpriteRenderer>(true)?.sprite;
-            if (unitSprite == null)
-            {
-                unitSprite = GetTransferredUnitSprite(placementIndex);
-            }
-            Image combatImage = CreateCombatImage(slotView.UnitAnchor, $"BattleCombatUnit_{placementIndex:00}", unitSprite, Color.white);
-            unit.BindCombatUI(slotView.UnitAnchor as RectTransform, combatImage, _uiProjectilePool);
-            unit.SetVisualsVisible(false);
-            instance.SetActive(true);
-            return unit;
-        }
-
-        /// <summary>
-        /// 메인보드에서 전달된 유닛 아이콘을 편성 인덱스로 찾습니다.
-        /// </summary>
-        private static Sprite GetTransferredUnitSprite(int placementIndex)
-        {
-            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> units = UnitFormationCombatLink.BattleUnits;
-            if (placementIndex < 0 || placementIndex >= units.Count || units[placementIndex] == null)
-            {
-                return null;
-            }
-
-            return units[placementIndex].Sprite;
-        }
-
-        /// <summary>
-        /// 전투 UnitAnchor 전체를 채우는 유닛 이미지를 생성합니다.
-        /// </summary>
-        private static Image CreateCombatImage(Transform anchor, string objectName, Sprite sprite, Color color)
-        {
-            GameObject imageObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            RectTransform rect = imageObject.GetComponent<RectTransform>();
-            rect.SetParent(anchor, false);
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-            rect.localScale = Vector3.one;
-
-            Image image = imageObject.GetComponent<Image>();
-            image.sprite = sprite;
-            image.color = color;
-            image.preserveAspect = true;
-            image.raycastTarget = false;
-            image.enabled = sprite != null;
-            return image;
-        }
-
-        /// <summary>
-        /// UnitData의 주소에 맞는 아군 전투 프리팹을 불러옵니다.
-        /// </summary>
-        private GameObject LoadAllyPrefab(UnitData data)
-        {
-            GameObject prefabToSpawn = null;
-            if (data != null && !string.IsNullOrEmpty(data.spriteAddress))
-            {
-                prefabToSpawn = Resources.Load<GameObject>($"Characters/{data.spriteAddress}");
-            }
-
-            if (prefabToSpawn == null)
-            {
-                prefabToSpawn = allyTemplatePrefab;
-            }
-
-            if (prefabToSpawn == null)
-            {
-                Debug.LogError($"[CombatManager] 아군 프리팹을 찾을 수 없습니다. " +
-                    $"(spriteAddress: {data?.spriteAddress})", this);
-            }
-
-            return prefabToSpawn;
-        }
-
-        /// <summary>
-        /// 공용 아군 프리팹을 비활성 상태로 Instantiate하여 UnitData로 Configure()한 뒤 활성화합니다.
-        /// (Awake()가 Configure()에서 설정한 값을 읽어 초기화하므로 순서가 중요합니다.)
-        /// </summary>
-        private Unit SpawnAllyUnit(UnitData data, Vector3 position)
-        {
-            GameObject prefabToSpawn = null;
-
-            // 1. UnitData의 spriteAddress를 기반으로 Resources/Characters/ 폴더에서 프리팹을 찾습니다.
-            if (!string.IsNullOrEmpty(data.spriteAddress))
-            {
-                prefabToSpawn = Resources.Load<GameObject>($"Characters/{data.spriteAddress}");
-            }
-
-            // 2. 만약 해당 이름의 프리팹이 없다면 기존의 공용 템플릿 프리팹을 사용합니다.
-            if (prefabToSpawn == null)
-            {
-                prefabToSpawn = allyTemplatePrefab;
-            }
-
-            if (prefabToSpawn == null)
-            {
-                Debug.LogError($"[CombatManager] 아군 프리팹을 찾을 수 없습니다! (spriteAddress: {data.spriteAddress})", this);
-                return null;
-            }
-
-            GameObject instance = Instantiate(prefabToSpawn, position, Quaternion.identity, unitsRoot);
-            Unit unit = instance.GetComponent<Unit>();
-            unit.Configure(data);
-            instance.SetActive(true);
-            // unit.SetVisualsVisible(false); // 버그 원인: 렌더러를 끄고 다시 켜는 코드가 없어서 투명해짐
-
-            return unit;
-        }
-
-        // UnitPlaceScene 배치 그리드(인덱스 0-8, row-major: row=idx/3 위→아래, col=idx%3 왼쪽→오른쪽)를
-        // CombatManager 슬롯으로 옮긴다. 오른쪽 열=Front, 가운데=Mid, 왼쪽=Back로 취급하고,
-        // 배치 UI의 위쪽 행이 CombatManager의 높은 column 값이 되도록 상하 시각 순서를 그대로 보존한다.
-        private static SlotKey PlacementIndexToSlotKey(int placementIndex)
-        {
-            int placeRow = placementIndex / SlotColumns;
-            int placeCol = placementIndex % SlotColumns;
-
-            return new SlotKey
-            {
-                column = (SlotColumns - 1) - placeRow,
-                row = (SlotRow)((SlotColumns - 1) - placeCol)
-            };
-        }
-
-        /// <summary>
-        /// Inspector 폴백 SlotKey를 BattleMainView.PlayerSlotViews의 0~8 인덱스로 역변환합니다.
-        /// </summary>
-        private static int SlotKeyToPlacementIndex(SlotKey slot)
-        {
-            int placeRow = (SlotColumns - 1) - slot.column;
-            int placeCol = (SlotRows - 1) - (int)slot.row;
-            return placeRow * SlotColumns + placeCol;
-        }
-
-        private void ApplySynergies()
-        {
-            // 팀 전체에서 각 트레이트를 보유한 유닛 수를 센다 (시너지 발동 여부 판정용).
-            // 인스펙터 폴백 편성이 아니라 실제로 스폰된 편성(_spawnedFormation)을 기준으로 삼아야
-            // 배치 화면에서 넘어온 편성에도 시너지가 정상 반영된다.
-            _traitCounts = new Dictionary<SynergyTrait, int>();
-            foreach (int unitId in _spawnedFormation.Values)
-            {
-                if (!_unitTraitsById.TryGetValue(unitId, out List<SynergyTrait> traits) || traits == null)
-                {
-                    continue;
-                }
-
-                foreach (SynergyTrait trait in traits)
-                {
-                    if (trait == null)
-                    {
-                        continue;
-                    }
-
-                    _traitCounts.TryGetValue(trait, out int count);
-                    _traitCounts[trait] = count + 1;
-                }
-            }
-
-            Dictionary<SynergyTrait, SynergyDefinition> definitionByTrait = new Dictionary<SynergyTrait, SynergyDefinition>();
-            if (rosterData != null)
-            {
-                foreach (SynergyDefinition definition in rosterData.SynergyDefinitions)
-                {
-                    if (definition != null && definition.Trait != null)
-                    {
-                        definitionByTrait[definition.Trait] = definition;
-                    }
-                }
-            }
-
-            // 발동된 시너지의 보너스는 해당 트레이트를 실제로 보유한 유닛에게만 적용한다.
-            foreach (KeyValuePair<SlotKey, int> kvp in _spawnedFormation)
-            {
-                Unit unit = _slotUnits[kvp.Key.column, (int)kvp.Key.row];
-                if (unit == null || !_unitTraitsById.TryGetValue(kvp.Value, out List<SynergyTrait> traits) || traits == null)
-                {
-                    continue;
-                }
-
-                foreach (SynergyTrait trait in traits)
-                {
-                    if (trait == null || !definitionByTrait.TryGetValue(trait, out SynergyDefinition definition))
-                    {
-                        continue;
-                    }
-
-                    _traitCounts.TryGetValue(trait, out int count);
-                    if (definition.TryGetActiveTier(count, out SynergyDefinition.Tier tier))
-                    {
-                        unit.ApplySynergyBonus(tier.hpMultiplier, tier.attackMultiplier);
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 보유 중인(카운트 1 이상) 시너지를 패널에 표시합니다.
-        /// 발동 중인 시너지와 아직 발동하지 않은 시너지를 색상으로 구분합니다.
-        /// </summary>
-        private void PopulateSynergyPanel()
-        {
-            if (rosterData == null || synergyPanelRoot == null || synergyItemTemplate == null)
-            {
-                return;
-            }
-
-            for (int i = synergyPanelRoot.childCount - 1; i >= 0; i--)
-            {
-                Destroy(synergyPanelRoot.GetChild(i).gameObject);
-            }
-
-            // 발동 수가 높은 시너지가 먼저 오도록 정렬한다.
-            List<SynergyDefinition> sortedDefinitions = new List<SynergyDefinition>(rosterData.SynergyDefinitions);
-            sortedDefinitions.Sort((a, b) => GetTraitCount(b).CompareTo(GetTraitCount(a)));
-
-            foreach (SynergyDefinition definition in sortedDefinitions)
-            {
-                if (definition == null || definition.Trait == null)
-                {
-                    continue;
-                }
-
-                int count = GetTraitCount(definition);
-                if (count <= 0)
-                {
-                    continue;
-                }
-
-                bool isActive = definition.TryGetActiveTier(count, out _);
-                string stackText = definition.TryGetNextThreshold(count, out int nextThreshold)
-                    ? $"{count}/{nextThreshold}"
-                    : count.ToString();
-
-                SynergyItemView item = Instantiate(synergyItemTemplate, synergyPanelRoot);
-                item.gameObject.SetActive(true);
-                item.SetTitle(definition.Trait.DisplayName);
-                item.SetStackText(stackText);
-                item.SetBackgroundColor(isActive ? synergyActiveColor : synergyInactiveColor);
-            }
-        }
-
-        private int GetTraitCount(SynergyDefinition definition)
-        {
-            if (definition == null || definition.Trait == null)
-            {
-                return 0;
-            }
-
-            _traitCounts.TryGetValue(definition.Trait, out int count);
-            return count;
         }
 
         /// <summary>
@@ -635,50 +279,6 @@ namespace OzGameLab01.Combat
 
                 item.SetUnitName(data.name);
             }
-        }
-
-        private void SpawnEnemy()
-        {
-            GameObject prefab = Resources.Load<GameObject>(enemyPrefabResourceName);
-            if (prefab == null)
-            {
-                return;
-            }
-
-            GameObject enemySlot = new GameObject("EnemySlot");
-            enemySlot.transform.SetParent(unitsRoot);
-            enemySlot.transform.position = enemyPosition;
-            enemySlot.transform.localScale = Vector3.one * enemyScale;
-
-            GameObject enemyInstance = Instantiate(prefab, enemySlot.transform);
-            enemyInstance.transform.localPosition = Vector3.zero;
-            enemyInstance.transform.localRotation = Quaternion.identity;
-            _enemyUnit = enemyInstance.GetComponent<Unit>();
-
-            // [추가]적도 BattleUI의 EnemyUnitAnchor에 표시하고 아군 투사체의 UI 도착점으로 사용
-            if (_enemyUnit != null && battleMainView != null && battleMainView.EnemyCombatArea != null)
-            {
-                Transform enemyAnchor = battleMainView.EnemyCombatArea.Find("EnemyUnitAnchor");
-                if (enemyAnchor == null)
-                {
-                    enemyAnchor = battleMainView.EnemyCombatArea;
-                }
-
-                SpriteRenderer enemyRenderer = enemyInstance.GetComponentInChildren<SpriteRenderer>(true);
-                Sprite enemySprite = enemyRenderer != null ? enemyRenderer.sprite : null;
-                Color enemyColor = enemyRenderer != null ? enemyRenderer.color : Color.white;
-                Image enemyImage = CreateCombatImage(enemyAnchor, "BattleCombatEnemy", enemySprite, enemyColor);
-                _enemyUnit.BindCombatUI(enemyAnchor as RectTransform, enemyImage, _uiProjectilePool);
-                _enemyUnit.SetVisualsVisible(false);
-            }
-        }
-
-        private Vector3 GetSlotPosition(int column, SlotRow row)
-        {
-            // Front (closest to the enemy on the right) sits at the highest local X; Back sits at gridOrigin.
-            float localX = (SlotRows - 1 - (int)row) * rowSpacing;
-            float localY = column * columnSpacing;
-            return gridOrigin + new Vector3(localX, localY, 0f);
         }
     }
 }

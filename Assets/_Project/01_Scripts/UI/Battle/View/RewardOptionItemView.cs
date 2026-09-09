@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using OzGameLab01.Combat;
 
 namespace OzGameLab01.UI.Battle
 {
@@ -12,6 +13,7 @@ namespace OzGameLab01.UI.Battle
         [SerializeField] private Button selectButton;
         [SerializeField] private Image iconImage;
         [SerializeField] private TMP_Text descriptionText;
+        [SerializeField] private BattleRewardData rewardData;
 
         #region Properties
 
@@ -20,6 +22,7 @@ namespace OzGameLab01.UI.Battle
         public TMP_Text DescriptionText => descriptionText;
 
         public bool IsVisible => gameObject.activeSelf;
+        public BattleRewardData RewardData => rewardData;
 
         public event Action<RewardOptionItemView> Selected;
 
@@ -74,6 +77,13 @@ namespace OzGameLab01.UI.Battle
             {
                 descriptionText.text = value ?? string.Empty;
             }
+        }
+
+        public void SetRewardData(BattleRewardData value)
+        {
+            rewardData = value;
+            SetIcon(value.icon);
+            SetDescription(value.description);
         }
 
         public void SetInteractable(bool value)

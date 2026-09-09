@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.UI;
 
-[CreateAssetMenu(fileName = "ChoiceEventSO_", menuName = "OZGL/Data/ChoiceEvent")]
+[CreateAssetMenu(fileName = "ChoiceEventSO_", menuName = "OzGameLab01/Data/ChoiceEvent")]
 public class ChoiceEventSO : ScriptableObject
 {
     public int id;

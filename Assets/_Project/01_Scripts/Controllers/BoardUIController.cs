@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
-using OZGL.Map;
+using OzGameLab01.Map;
 
 namespace OzGameLab01.Controllers
 {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using OzGameLab01.Combat;
 
 namespace OzGameLab01.UI.Battle
 {
@@ -12,6 +13,7 @@ namespace OzGameLab01.UI.Battle
         [Header("References")]
         [SerializeField] private Transform rewardChoicesRoot;
         [SerializeField] private RewardOptionItemView rewardOptionItemPrefab;
+        [SerializeField] private List<BattleRewardData> configuredRewards = new ();
 
         private readonly List<RewardOptionItemView> rewardOptions = new ();
 
@@ -24,6 +26,10 @@ namespace OzGameLab01.UI.Battle
         public IReadOnlyList<RewardOptionItemView> RewardOptions => rewardOptions;
 
         public bool IsVisible => gameObject.activeSelf;
+
+        public bool HasConfiguredRewards => configuredRewards != null && configuredRewards.Count > 0;
+
+        public IReadOnlyList<BattleRewardData> ConfiguredRewards => configuredRewards;
 
         public event Action<RewardOptionItemView> RewardSelected;
 
@@ -94,6 +100,40 @@ namespace OzGameLab01.UI.Battle
             }
 
             rewardOptions.Clear();
+        }
+
+        public bool ShowConfiguredRewards()
+        {
+            ClearRewardOptions();
+            if (!HasConfiguredRewards)
+            {
+                return false;
+            }
+
+            foreach (BattleRewardData reward in configuredRewards)
+            {
+                if (!CombatDataValidator.ValidateReward(reward, this))
+                {
+                    continue;
+                }
+
+                RewardOptionItemView option = CreateRewardOption();
+                if (option == null)
+                {
+                    break;
+                }
+
+                option.SetRewardData(reward);
+                option.Show();
+            }
+
+            if (rewardOptions.Count == 0)
+            {
+                return false;
+            }
+
+            Show();
+            return true;
         }
 
         public void RegisterRewardOption(RewardOptionItemView option)
