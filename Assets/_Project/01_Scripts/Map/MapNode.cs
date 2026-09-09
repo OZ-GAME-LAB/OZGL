@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace OZGL.Map
+namespace OzGameLab01.Map
 {
     public enum NodeType
     {

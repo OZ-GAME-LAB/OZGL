@@ -1406,9 +1406,9 @@ RectTransform:
   - {fileID: 6692217198533659506}
   m_Father: {fileID: 1837966372329880637}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 420, y: -30}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 160, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8201296934171642080
@@ -2897,9 +2897,9 @@ RectTransform:
   - {fileID: 8016816998664247612}
   m_Father: {fileID: 1837966372329880637}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 250, y: -30}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 160, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6540921797440530511
@@ -3510,7 +3510,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonScaleFeedback
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
   visualRoot: {fileID: 7038460343976877962}
   normalScale: 1
   hoverScale: 1.03
@@ -3965,7 +3965,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2e4cebfae965323409d534ec8946ead6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OZGL.UI.TitleUIView
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Title.TitleUIView
   backgroundVisual: {fileID: 7613380347226262405}
   titleVisual: {fileID: 3083496928550050307}
   startButton: {fileID: 5798262011050951081}
@@ -4714,8 +4714,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: '- Please take care of the fairy tale -'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -4955,8 +4955,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: INDIE TAIL
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5373,8 +5373,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: CONTINUE
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5825,7 +5825,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonScaleFeedback
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
   visualRoot: {fileID: 988544466265027584}
   normalScale: 1
   hoverScale: 1.03
@@ -6033,10 +6033,10 @@ RectTransform:
   - {fileID: 5823577174302140700}
   m_Father: {fileID: 1162978538349636661}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -467}
-  m_SizeDelta: {x: 500, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 500, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9010324331416680788
 CanvasRenderer:
@@ -6808,7 +6808,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonScaleFeedback
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
   visualRoot: {fileID: 5944910241701915723}
   normalScale: 1
   hoverScale: 1.03
@@ -7082,7 +7082,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: -120}
-  m_SizeDelta: {x: -220, y: 100}
+  m_SizeDelta: {x: 0, y: 100}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &8618161283486155005
 MonoBehaviour:
@@ -7160,9 +7160,9 @@ RectTransform:
   - {fileID: 7722583895602174112}
   m_Father: {fileID: 1837966372329880637}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 80, y: -30}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 160, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8631546236788319199
@@ -7677,7 +7677,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &8141139094736053855
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7710,7 +7710,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6c006715070938640adf27f40a11c357, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OZGL.UI.SettingsView
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Title.TitleSettingsView
   dimmer: {fileID: 4963039536203191687}
   panel: {fileID: 4721791933163134943}
   backButton: {fileID: 3460202450670389545}
@@ -7778,7 +7778,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 88fc016107dc46f08411dd4b2b94a637, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Title.TitleSettingsAudioController
   settingsView: {fileID: 1684025681306818998}
 --- !u!1 &5241357406008354817
@@ -7816,10 +7816,10 @@ RectTransform:
   - {fileID: 3351421756674946147}
   m_Father: {fileID: 1162978538349636661}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -413}
-  m_SizeDelta: {x: 500, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 500, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7660240915703510126
 CanvasRenderer:
@@ -7953,9 +7953,9 @@ RectTransform:
   - {fileID: 3901607548045667956}
   m_Father: {fileID: 1162978538349636661}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -234}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 500, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &3913204631879088430
@@ -8299,9 +8299,9 @@ RectTransform:
   - {fileID: 8718860360603528800}
   m_Father: {fileID: 1162978538349636661}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -40}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 500, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5497258482256216934
@@ -8703,8 +8703,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: NEW GAME
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9280,9 +9280,9 @@ RectTransform:
   - {fileID: 4765212128471271722}
   m_Father: {fileID: 7306727828243733831}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 200, y: -70}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 400, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &4337203480840872262
@@ -9382,7 +9382,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 404c0ad3d58a1964999f48458e1ebc8e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OZGL.UI.ExitConfirmView
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Title.ExitConfirmView
   dimmer: {fileID: 8206618989208557420}
   panel: {fileID: 8985564679117798798}
   confirmButton: {fileID: 3095186137306078711}
@@ -9705,9 +9705,9 @@ RectTransform:
   - {fileID: 1256052746905712763}
   m_Father: {fileID: 7306727828243733831}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 200, y: -20}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 400, y: 40}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &7445193060336608835
@@ -9936,8 +9936,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: SETTINGS
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -10218,7 +10218,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonScaleFeedback
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
   visualRoot: {fileID: 1363796487358285630}
   normalScale: 1
   hoverScale: 1.03
@@ -11783,10 +11783,10 @@ RectTransform:
   - {fileID: 2311005195685736349}
   m_Father: {fileID: 1162978538349636661}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 1}
-  m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 300, y: -521}
-  m_SizeDelta: {x: 500, y: 50}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 500, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8677235618622262488
 CanvasRenderer:
@@ -12029,8 +12029,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: EXIT
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

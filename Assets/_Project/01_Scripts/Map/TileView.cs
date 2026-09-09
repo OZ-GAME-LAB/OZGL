@@ -1,5 +1,5 @@
 using OzGameLab01.Controllers;
-using OZGL.Map;
+using OzGameLab01.Map;
 using UnityEngine;
 
 namespace OzGameLab01.Map

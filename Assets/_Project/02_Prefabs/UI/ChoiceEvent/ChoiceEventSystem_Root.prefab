@@ -711,18 +711,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5410d7e5c9be9d54e8365da781278024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.ChoiceEventManager
-  eventTitleTxt: {fileID: 7423340959976776526}
-  eventDialogTxt: {fileID: 2408188375327320727}
   choiceArea: {fileID: 6575185681220469224}
   choicePrefab: {fileID: 2573500114184038231, guid: 3c3e595d35e45a947b54fadd55a62d29, type: 3}
   actionPrefab: {fileID: 0}
   eventUIView: {fileID: 0}
-  testChoiceEvents:
-  - {fileID: 11400000, guid: 7e92f108f9ef49d4d97893c2de6215d5, type: 2}
-  - {fileID: 11400000, guid: ab50b9a0a17a11f4482e3cdddf2f8cf3, type: 2}
-  - {fileID: 11400000, guid: c02bd15c9bda0634c877000015df1104, type: 2}
-  - {fileID: 11400000, guid: bed29eeefeb159c4abce8f13921304df, type: 2}
-  testNextEventSO: {fileID: 0}
+  eventPool: []
 --- !u!1 &9071875046987774405
 GameObject:
   m_ObjectHideFlags: 0
@@ -835,6 +828,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: EventChoicePrefab
       objectReference: {fileID: 0}
+    - target: {fileID: 4856736229933845016, guid: 3c3e595d35e45a947b54fadd55a62d29, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 4856736229933845016, guid: 3c3e595d35e45a947b54fadd55a62d29, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 5179788163756600248, guid: 3c3e595d35e45a947b54fadd55a62d29, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

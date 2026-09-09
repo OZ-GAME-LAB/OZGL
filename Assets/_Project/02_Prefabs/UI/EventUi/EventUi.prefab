@@ -416,8 +416,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: EVENT
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -441,8 +441,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 42
+  m_fontSizeBase: 42
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -978,8 +978,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: YOU CAN RECEIVE DIFFERENT EFFECTS DEPENDING ON THE OPTION YOU SELECT
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1003,8 +1003,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24
-  m_fontSizeBase: 24
+  m_fontSize: 30
+  m_fontSizeBase: 30
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1217,8 +1217,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Choose the item you want.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1376,7 +1376,7 @@ RectTransform:
   m_GameObject: {fileID: 6880439430386520786}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.7777778, y: 1.7777778, z: 1.7777778}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 6949210538409776083}
@@ -1421,18 +1421,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5410d7e5c9be9d54e8365da781278024, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.ChoiceEventManager
-  eventTitleTxt: {fileID: 0}
-  eventDialogTxt: {fileID: 0}
+  eventTitleTxt: {fileID: 3687590176398828429}
+  eventDialogTxt: {fileID: 3361650027189645366}
   choiceArea: {fileID: 7407865000633747387}
   choicePrefab: {fileID: 9014682470215004950, guid: ba87736e0145c144dbdf4e7e2b7e1946, type: 3}
   actionPrefab: {fileID: 9075945919751357883, guid: 736bc9e68cd7ead49971bbe99cb156b6, type: 3}
   eventUIView: {fileID: 2599459832272954032}
-  testChoiceEvents:
-  - {fileID: 11400000, guid: 7e92f108f9ef49d4d97893c2de6215d5, type: 2}
-  - {fileID: 11400000, guid: ab50b9a0a17a11f4482e3cdddf2f8cf3, type: 2}
-  - {fileID: 11400000, guid: c02bd15c9bda0634c877000015df1104, type: 2}
-  - {fileID: 11400000, guid: bed29eeefeb159c4abce8f13921304df, type: 2}
-  testNextEventSO: {fileID: 11400000, guid: 834c279fcd992bf44a4401f5865ffde3, type: 2}
+  eventPool: []
 --- !u!1 &7490045068334050397
 GameObject:
   m_ObjectHideFlags: 0
@@ -1468,7 +1463,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 600, y: 60}
+  m_SizeDelta: {x: 600, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1791467520548732981
 CanvasRenderer:
@@ -1498,7 +1493,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 50624c2c4dd4a4b48995c35decccb07e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7c172b73644ecd240a49534594e3c138, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

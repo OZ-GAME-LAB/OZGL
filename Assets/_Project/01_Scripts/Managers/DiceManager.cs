@@ -57,5 +57,14 @@ namespace OzGameLab01.Managers
         {
             _hasRolledThisTurn = false;
         }
+
+        /// <summary>
+        /// New Game과 런 종료 시 이전 턴의 주사위 상태와 구독 정보를 초기화
+        /// </summary>
+        public void ResetRunState()
+        {
+            ResetTurnRoll();
+            OnDiceRolled = null;
+        }
     }
 }

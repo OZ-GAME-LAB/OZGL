@@ -56,7 +56,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 4
-  m_Spacing: 0
+  m_Spacing: -20
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 0
@@ -211,7 +211,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8756346391532779402}
   - component: {fileID: 504615810966119215}
-  - component: {fileID: 5737667727338872319}
   - component: {fileID: 489511368033020691}
   m_Layer: 0
   m_Name: SettingsScrollArea
@@ -248,36 +247,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963178085344144172}
   m_CullTransparentMesh: 1
---- !u!114 &5737667727338872319
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 963178085344144172}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 0.8679245, g: 0.8679245, b: 0.8679245, a: 1}
-  m_RaycastTarget: 0
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 69f4fef31ddc27a4b888ece7159f12b7, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!114 &489511368033020691
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -502,7 +471,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 2100000, guid: ea66950fab7ed574ab38cb36edbc0785, type: 2}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
@@ -510,7 +479,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 202cac9aa284881449e74538d86a238c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 70462a932a290444282e5f3efc4d8168, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -667,6 +636,8 @@ GameObject:
   - component: {fileID: 5175437529951456750}
   - component: {fileID: 4028511276033505212}
   - component: {fileID: 894571225050619796}
+  - component: {fileID: 426754212500275424}
+  - component: {fileID: 8939107707910609888}
   m_Layer: 0
   m_Name: BackButton
   m_TagString: Untagged
@@ -715,14 +686,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d01bd0812669db74d87e85d5f7a75f3d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7c172b73644ecd240a49534594e3c138, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -754,10 +725,10 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_HighlightedColor: {r: 0.86666673, g: 0.29803923, b: 0.29803923, a: 1}
+    m_PressedColor: {r: 0.5647059, g: 0.19607845, b: 0.19607845, a: 1}
+    m_SelectedColor: {r: 0.86666673, g: 0.29803923, b: 0.29803923, a: 1}
+    m_DisabledColor: {r: 0.18823531, g: 0.14901961, b: 0.14901961, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -776,6 +747,40 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &426754212500275424
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3052284874082409388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
+  visualRoot: {fileID: 796763801299652383}
+  normalScale: 1
+  hoverScale: 1.03
+  pressedScale: 0.97
+  duration: 0.12
+--- !u!114 &8939107707910609888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3052284874082409388}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60181ef861b53614aac5787098c2c3e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonTextFeedback
+  button: {fileID: 894571225050619796}
+  label: {fileID: 1811561477475454410}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverColor: {r: 0, g: 0, b: 0, a: 1}
+  fadeDuration: 0.15
 --- !u!1 &3656264152356623285
 GameObject:
   m_ObjectHideFlags: 0
@@ -849,7 +854,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 292f8d3db60f408997653156c5a19e47, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Settings.SettingsAudioController
   settingsView: {fileID: 7593306415409819823}
   masterVolumeItem: {fileID: 8999904842599746340}
@@ -866,7 +871,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4530705961701775905}
   - component: {fileID: 7967278313609938538}
-  - component: {fileID: 5895376917379102107}
   m_Layer: 0
   m_Name: SettingsPanel
   m_TagString: Untagged
@@ -905,36 +909,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4265522860802834457}
   m_CullTransparentMesh: 1
---- !u!114 &5895376917379102107
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4265522860802834457}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.392}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &4887927530990151916
 GameObject:
   m_ObjectHideFlags: 0
@@ -1255,7 +1229,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 50624c2c4dd4a4b48995c35decccb07e, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7c172b73644ecd240a49534594e3c138, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1277,6 +1251,8 @@ GameObject:
   - component: {fileID: 8575349282319423138}
   - component: {fileID: 2717293767546790223}
   - component: {fileID: 2084968103602927496}
+  - component: {fileID: 8913241623825512507}
+  - component: {fileID: 3469264400153521697}
   m_Layer: 0
   m_Name: ReturnToMainButton
   m_TagString: Untagged
@@ -1325,14 +1301,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3018868, g: 0.3018868, b: 0.3018868, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: d01bd0812669db74d87e85d5f7a75f3d, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 7c172b73644ecd240a49534594e3c138, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1364,10 +1340,10 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_HighlightedColor: {r: 0.86666673, g: 0.29803923, b: 0.29803923, a: 1}
+    m_PressedColor: {r: 0.5647059, g: 0.19607845, b: 0.19607845, a: 1}
+    m_SelectedColor: {r: 0.86666673, g: 0.29803923, b: 0.29803923, a: 1}
+    m_DisabledColor: {r: 0.18823531, g: 0.14901961, b: 0.14901961, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -1386,6 +1362,40 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8913241623825512507
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9132689944746417531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
+  visualRoot: {fileID: 8089614740328083047}
+  normalScale: 1
+  hoverScale: 1.03
+  pressedScale: 0.97
+  duration: 0.12
+--- !u!114 &3469264400153521697
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9132689944746417531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60181ef861b53614aac5787098c2c3e0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonTextFeedback
+  button: {fileID: 2084968103602927496}
+  label: {fileID: 755245244062002756}
+  normalColor: {r: 1, g: 1, b: 1, a: 1}
+  hoverColor: {r: 0, g: 0, b: 0, a: 1}
+  fadeDuration: 0.15
 --- !u!1001 &222243299506587916
 PrefabInstance:
   m_ObjectHideFlags: 0

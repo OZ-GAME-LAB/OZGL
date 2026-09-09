@@ -187,6 +187,91 @@ namespace OzGameLab01.Controllers
             hasSavedFormation = true;
         }
 
+        /// <summary>
+        /// 현재 편성 ID를 런 저장 데이터에 기록합니다.
+        /// </summary>
+        /// <param name="saveData"></param>
+        public static void WriteFormationToSaveData(BoardRunSaveData saveData)
+        {
+            if (saveData == null)
+            {
+                return;
+            }
+
+            saveData.battleFormationUnitIds.Clear();
+            saveData.supportFormationUnitIds.Clear();
+
+            for (int slotIndex = 0; slotIndex < savedBattleUnitIds.Length; slotIndex++)
+            {
+                saveData.battleFormationUnitIds.Add(savedBattleUnitIds[slotIndex]);
+            }
+
+            for (int slotIndex = 0; slotIndex < savedSupportUnitIds.Length; slotIndex++)
+            {
+                saveData.supportFormationUnitIds.Add(savedSupportUnitIds[slotIndex]);
+            }
+        }
+
+        /// <summary>
+        /// Continue 저장 데이터의 편성 ID를 메인보드 복원용 정적 상태에 적용합니다.
+        /// </summary>
+        public static void RestoreFormationFromSaveData(BoardRunSaveData saveData)
+        {
+            ClearSavedFormation();
+
+            if (saveData == null)
+            {
+                return;
+            }
+
+            for (int slotIndex = 0; slotIndex < savedBattleUnitIds.Length; slotIndex++)
+            {
+                savedBattleUnitIds[slotIndex] = GetSavedUnitId(
+                    saveData.battleFormationUnitIds,
+                    slotIndex);
+            }
+
+            for (int slotIndex = 0; slotIndex < savedSupportUnitIds.Length; slotIndex++)
+            {
+                savedSupportUnitIds[slotIndex] = GetSavedUnitId(
+                    saveData.supportFormationUnitIds,
+                    slotIndex);
+            }
+
+            hasSavedFormation = true;
+        }
+
+        /// <summary>
+        /// New Game에서 이전 런의 전투 및 서브 편성을 제거합니다.
+        /// </summary>
+        public static void ClearSavedFormation()
+        {
+            ClearTransferredUnits();
+            SceneTransitioner.AllyFormationData = null;
+
+            for (int slotIndex = 0; slotIndex < savedBattleUnitIds.Length; slotIndex++)
+            {
+                savedBattleUnitIds[slotIndex] = -1;
+            }
+
+            for (int slotIndex = 0; slotIndex < savedSupportUnitIds.Length; slotIndex++)
+            {
+                savedSupportUnitIds[slotIndex] = -1;
+            }
+
+            hasSavedFormation = false;
+        }
+
+        /// <summary>
+        ///  저장 목록에 슬롯 값이 없으면 빈 슬롯 ID를 반환합니다.
+        /// </summary>
+        private static int GetSavedUnitId(IReadOnlyList<int> unitIds, int slotIndex)
+        {
+            return unitIds != null && slotIndex >= 0 && slotIndex < unitIds.Count
+                ? unitIds[slotIndex]
+                : -1;
+        }
+
         private static void ClearTransferredUnits()
         {
             Array.Clear(battleUnits, 0, battleUnits.Length);
