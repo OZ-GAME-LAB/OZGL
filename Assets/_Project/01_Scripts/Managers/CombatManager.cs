@@ -55,6 +55,10 @@ namespace OzGameLab01.Combat
         [Tooltip("유닛 id별 프리팹/트레이트, 시너지 발동 정의. 로스터 준비 화면과 공유하는 데이터입니다.")]
         [SerializeField] private UnitRosterData rosterData;
 
+        [Tooltip("적 유닛 id별 스탯. 비워두면 enemyPrefabResourceName 프리팹의 기본값을 그대로 사용합니다.")]
+        [SerializeField] private MonsterRosterData monsterRosterData;
+        [SerializeField] private int enemyMonsterId = 1;
+
         [Header("시너지 UI")]
         [Tooltip("시너지 표시 아이템이 배치될 부모입니다.")]
         [SerializeField] private Transform synergyPanelRoot;
@@ -111,11 +115,15 @@ namespace OzGameLab01.Combat
 
             // 스폰/시너지 책임은 별도 클래스로 분리되어 있다. Inspector 참조는 CombatManager가
             // 그대로 들고 있고, 생성자로 넘겨주기만 한다(씬/프리팹 재배선 불필요).
+            MonsterData enemyMonsterData = monsterRosterData != null
+                ? monsterRosterData.GetById(enemyMonsterId)
+                : null;
+
             _allySpawner = new AllySpawner(
                 battleMainView, allyTemplatePrefab, unitsRoot,
                 gridOrigin, columnSpacing, rowSpacing,
                 enemyPosition, enemyPrefabResourceName, enemyScale,
-                _uiProjectilePool);
+                _uiProjectilePool, enemyMonsterData);
             _synergyController = new SynergyController(
                 rosterData, synergyPanelRoot, synergyItemTemplate,
                 synergyActiveColor, synergyInactiveColor, this);

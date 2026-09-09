@@ -38,6 +38,7 @@ namespace OzGameLab01.Combat
         private readonly string enemyPrefabResourceName;
         private readonly float enemyScale;
         private readonly UIProjectilePool uiProjectilePool;
+        private readonly MonsterData enemyMonsterData;
 
         public AllySpawner(
             BattleMainView battleMainView,
@@ -49,7 +50,8 @@ namespace OzGameLab01.Combat
             Vector3 enemyPosition,
             string enemyPrefabResourceName,
             float enemyScale,
-            UIProjectilePool uiProjectilePool)
+            UIProjectilePool uiProjectilePool,
+            MonsterData enemyMonsterData = null)
         {
             this.battleMainView = battleMainView;
             this.allyTemplatePrefab = allyTemplatePrefab;
@@ -61,6 +63,7 @@ namespace OzGameLab01.Combat
             this.enemyPrefabResourceName = enemyPrefabResourceName;
             this.enemyScale = enemyScale;
             this.uiProjectilePool = uiProjectilePool;
+            this.enemyMonsterData = enemyMonsterData;
         }
 
         /// <summary>
@@ -340,6 +343,11 @@ namespace OzGameLab01.Combat
             enemyInstance.transform.localPosition = Vector3.zero;
             enemyInstance.transform.localRotation = Quaternion.identity;
             Unit enemyUnit = enemyInstance.GetComponent<Unit>();
+
+            if (enemyUnit != null && enemyMonsterData != null)
+            {
+                enemyUnit.ConfigureEnemy(enemyMonsterData);
+            }
 
             // 적도 BattleUI의 EnemyUnitAnchor에 표시하고 아군 투사체의 UI 도착점으로 사용
             if (enemyUnit != null && battleMainView != null && battleMainView.EnemyCombatArea != null)

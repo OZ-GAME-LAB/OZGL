@@ -124,6 +124,28 @@ namespace OzGameLab01.Combat
             }
         }
 
+        /// <summary>
+        /// 적 프리팹을 MonsterData 기준으로 설정합니다. Configure(UnitData)의 적 버전으로,
+        /// MonsterData에 없는 필드(쿨다운, 스킬 타입, 색상)는 프리팹 기본값을 그대로 둡니다.
+        /// </summary>
+        public void ConfigureEnemy(MonsterData data)
+        {
+            if (data == null)
+            {
+                Debug.LogError("[Unit] ConfigureEnemy에 전달된 MonsterData가 null입니다.", this);
+                return;
+            }
+
+            maxHP = data.healthPoint;
+            basicAttack.damage = data.attackPoint;
+            skillAttack.cooldown = data.skillCooldown;
+
+            if (_awakeInitialized)
+            {
+                InitializeRuntimeState();
+            }
+        }
+
         private void InitializeRuntimeState()
         {
             _level = 1;
