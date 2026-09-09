@@ -35,6 +35,7 @@ namespace OzGameLab01.UI.Title
 
         private void OnDisable()
         {
+            if (soundManager != null) soundManager.SaveVolumeSettings();
             Unsubscribe();
         }
 
@@ -45,6 +46,8 @@ namespace OzGameLab01.UI.Title
                 return;
             }
 
+            settingsView.CloseRequested += SaveSettings;
+            settingsView.TabSelected += HandleTabSelected;
             settingsView.MasterVolumeChanged += soundManager.SetMasterVolume;
             settingsView.BgmVolumeChanged += soundManager.SetBgmVolume;
             settingsView.SfxVolumeChanged += soundManager.SetSfxVolume;
@@ -62,6 +65,8 @@ namespace OzGameLab01.UI.Title
 
             if (settingsView != null && soundManager != null)
             {
+                settingsView.CloseRequested -= SaveSettings;
+                settingsView.TabSelected -= HandleTabSelected;
                 settingsView.MasterVolumeChanged -= soundManager.SetMasterVolume;
                 settingsView.BgmVolumeChanged -= soundManager.SetBgmVolume;
                 settingsView.SfxVolumeChanged -= soundManager.SetSfxVolume;
@@ -75,6 +80,13 @@ namespace OzGameLab01.UI.Title
 
             isSubscribed = false;
         }
+
+        private void SaveSettings()
+        {
+            if (soundManager != null) soundManager.SaveVolumeSettings();
+        }
+
+        private void HandleTabSelected(SettingsTab tab) => SaveSettings();
 
         private void RefreshView()
         {
