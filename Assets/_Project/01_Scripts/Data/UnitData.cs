@@ -22,7 +22,7 @@ namespace OzGameLab01.Data
         public float defensePoint;      // 방어력
         public float attackSpeed;       // 공격 속도
         public float criticalMult;      // 치명타 배율
-        public int criticalRate;        // 치명 확률
+        public float criticalRate;        // 치명 확률
         public float dodgeRate;         // 회피율
         public float basicAttackCooldown = 1f;
 
