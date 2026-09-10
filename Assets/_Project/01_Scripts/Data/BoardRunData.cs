@@ -15,6 +15,7 @@ namespace OzGameLab01.Data
     public static class BoardRunData
     {
         private static readonly HashSet<Vector2Int> _completedBattlePositions = new();
+        private static readonly HashSet<Vector2Int> _consumedSpecialTilePositions = new();
 
         /// <summary>
         /// 현재 진행 중인 게임이 존재하는지 나타냅니다.
@@ -124,6 +125,15 @@ namespace OzGameLab01.Data
                 });
             }
 
+            foreach (Vector2Int position in _consumedSpecialTilePositions)
+            {
+                saveData.consumedSpecialTilePositions.Add(new BoardPositionSaveEntry
+                {
+                    x = position.x,
+                    y = position.y
+                });
+            }
+
             return saveData;
         }
 
@@ -160,7 +170,22 @@ namespace OzGameLab01.Data
                 {
                     if (position != null)
                     {
-                        _completedBattlePositions.Add(new Vector2Int(position.x, position.y));
+                        Vector2Int completedPosition = new Vector2Int(position.x, position.y);
+                        _completedBattlePositions.Add(completedPosition);
+
+                        // 구버전 저장 데이터의 완료 전투도 일회성 특수 타일로 마이그레이션합니다.
+                        _consumedSpecialTilePositions.Add(completedPosition);
+                    }
+                }
+            }
+
+            if (saveData.consumedSpecialTilePositions != null)
+            {
+                foreach (BoardPositionSaveEntry position in saveData.consumedSpecialTilePositions)
+                {
+                    if (position != null)
+                    {
+                        _consumedSpecialTilePositions.Add(new Vector2Int(position.x, position.y));
                     }
                 }
             }
@@ -239,6 +264,8 @@ namespace OzGameLab01.Data
         {
             if (!HasCurrentBattle) return;
 
+            ConsumeSpecialTile(CurrentBattlePosition);
+
             if (!IsBossBattle) 
             {
                 _completedBattlePositions.Add(CurrentBattlePosition);
@@ -265,7 +292,29 @@ namespace OzGameLab01.Data
         /// </summary>
         public static bool IsBattleCompleted(Vector2Int position)
         {
-            return _completedBattlePositions.Contains(position);
+            return _completedBattlePositions.Contains(position) ||
+                   _consumedSpecialTilePositions.Contains(position);
+        }
+
+        /// <summary>
+        /// 효과 처리가 끝난 일회성 특수 타일의 좌표를 현재 런에 기록합니다.
+        /// </summary>
+        public static void ConsumeSpecialTile(Vector2Int position)
+        {
+            EnsureActiveRun();
+
+            if (_consumedSpecialTilePositions.Add(position))
+            {
+                Debug.Log($"[BoardRunData] 특수 타일 소모 완료. Position: {position}");
+            }
+        }
+
+        /// <summary>
+        /// 해당 좌표의 일회성 특수 타일이 이미 발동을 마쳤는지 확인합니다.
+        /// </summary>
+        public static bool IsSpecialTileConsumed(Vector2Int position)
+        {
+            return _consumedSpecialTilePositions.Contains(position);
         }
 
         /// <summary>
@@ -305,6 +354,7 @@ namespace OzGameLab01.Data
             TurnCount = 0;
 
             _completedBattlePositions.Clear();
+            _consumedSpecialTilePositions.Clear();
 
             DefeatedElitesCount = 0;
 

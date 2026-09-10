@@ -294,6 +294,7 @@ public class SaveManager : Singleton<SaveManager>
         if (data.boardRun != null)
         {
             data.boardRun.completedBattlePositions ??= new List<BoardPositionSaveEntry>();
+            data.boardRun.consumedSpecialTilePositions ??= new List<BoardPositionSaveEntry>();
             data.boardRun.battleFormationUnitIds ??= new List<int>();
             data.boardRun.supportFormationUnitIds ??= new List<int>();
         }

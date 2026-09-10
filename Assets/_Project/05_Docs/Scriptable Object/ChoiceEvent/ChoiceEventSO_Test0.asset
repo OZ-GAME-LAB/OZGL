@@ -15,6 +15,7 @@ MonoBehaviour:
   id: 0
   eventTitle: Choice Event_0
   eventDialog: Choice Relic Or Unit
+  eventCategory: 0
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 21300000, guid: cd596215f3eddaa488d1b5a59bbb1c75, type: 3}
@@ -24,5 +25,5 @@ MonoBehaviour:
   - choiceIndex: 1
     choiceSprite: {fileID: 21300000, guid: a6ccb27892511d1428d5268b00737843, type: 3}
     choiceDialog: 'unit [0]'
-    choiceCategory: 0
+    choiceCategory: 1
     resultTargetID: 0
