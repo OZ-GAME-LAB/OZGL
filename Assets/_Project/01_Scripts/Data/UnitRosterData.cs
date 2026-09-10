@@ -18,10 +18,17 @@ namespace OzGameLab01.Combat
     public class UnitRosterData : ScriptableObject
     {
         [System.Serializable]
-        public struct UnitTraitEntry
+        public struct JobTraitEntry
         {
-            public int id;
-            public List<SynergyTrait> traits;
+            public UnitTypeJob job;
+            public SynergyDefinition trait;
+        }
+
+        [System.Serializable]
+        public struct TribeTraitEntry
+        {
+            public UnitTypeTribe tribe;
+            public SynergyDefinition trait;
         }
 
         [Tooltip("유닛 id별 스탯/색상/스킬 클래스. UnitData.id와 매칭.")]
@@ -30,15 +37,43 @@ namespace OzGameLab01.Combat
         [Tooltip("UnitData.skillIds가 참조하는 스킬 정의 테이블. SkillData.id와 매칭.")]
         [SerializeField] private List<SkillData> skillDefinitions = new List<SkillData>();
 
-        [Tooltip("유닛 id별 시너지 트레이트. UnitData.id와 매칭.")]
-        [SerializeField] private List<UnitTraitEntry> unitTraits = new List<UnitTraitEntry>();
+        [Tooltip("UnitData.jobType별 시너지 트레이트. 실제 유닛 데이터베이스(JSON) 기반 전투에서 사용.")]
+        [SerializeField] private List<JobTraitEntry> jobTraits = new List<JobTraitEntry>();
+
+        [Tooltip("UnitData.tribeType별 시너지 트레이트. 실제 유닛 데이터베이스(JSON) 기반 전투에서 사용.")]
+        [SerializeField] private List<TribeTraitEntry> tribeTraits = new List<TribeTraitEntry>();
 
         [Tooltip("트레이트 조합으로 발동 가능한 시너지 목록.")]
         [SerializeField] private List<SynergyDefinition> synergyDefinitions = new List<SynergyDefinition>();
 
         public IReadOnlyList<UnitData> UnitStats => unitStats;
-        public IReadOnlyList<UnitTraitEntry> UnitTraits => unitTraits;
         public IReadOnlyList<SynergyDefinition> SynergyDefinitions => synergyDefinitions;
+
+        public SynergyDefinition GetJobTrait(UnitTypeJob job)
+        {
+            foreach (JobTraitEntry entry in jobTraits)
+            {
+                if (entry.job == job)
+                {
+                    return entry.trait;
+                }
+            }
+
+            return null;
+        }
+
+        public SynergyDefinition GetTribeTrait(UnitTypeTribe tribe)
+        {
+            foreach (TribeTraitEntry entry in tribeTraits)
+            {
+                if (entry.tribe == tribe)
+                {
+                    return entry.trait;
+                }
+            }
+
+            return null;
+        }
 
         /// <summary>
         /// 현재 전투에서 활성화된 로스터(RegisterActive로 등록됨). Unit이 UnitData.skillIds를
@@ -57,6 +92,16 @@ namespace OzGameLab01.Combat
             }
 
             return null;
+        }
+
+        private void OnEnable()
+        {
+            // TempUnitData.json 테스트 유닛이 아직 실제 스킬 기획을 갖지 못해
+            // 임시로 부여하는 공용 기본공격 + 디버프 4종 검증용 액티브를 TempRosterSeed에서 채웁니다.
+            List<SkillData> tempSkills = TempRosterSeed.CreateAllTempUnitSkills();
+            HashSet<int> tempSkillIds = new HashSet<int>(tempSkills.ConvertAll(skill => skill.id));
+            skillDefinitions.RemoveAll(skill => skill != null && tempSkillIds.Contains(skill.id));
+            skillDefinitions.AddRange(tempSkills);
         }
 
         private void OnValidate()

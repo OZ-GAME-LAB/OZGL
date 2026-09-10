@@ -27,6 +27,10 @@ namespace OzGameLab01.Combat
         private void OnEnable()
         {
             Active = this;
+
+            // 실제 몬스터 스키마(EnemyData.xlsx)가 턴 스케일링 커브뿐이라 아직 로스터 형태가 아닙니다.
+            // 그 전까지 쓸 임시 데이터를 TempRosterSeed 한 곳에서 가져와 채웁니다.
+            monsterStats = TempRosterSeed.CreateMonsterRoster();
         }
 
         public MonsterData GetById(int id)

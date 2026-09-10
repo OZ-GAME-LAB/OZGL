@@ -29,8 +29,8 @@ namespace OzGameLab01.Combat
         [SerializeField] private GameObject projectilePrefab;
 
         [Header("Skill (0번째 = 기본공격, 침묵 면역. 각자 쿨다운마다 자동 발동)")]
-        [SerializeField] private Color skillGlowColor = new Color(1f, 0.95f, 0.3f, 1f);
-        [SerializeField] private float skillGlowDuration = 0.35f;
+        [SerializeField] private TMPro.TextMeshPro skillNameLabel;
+        [SerializeField] private float skillNameDisplayDuration = 0.35f;
 
         private readonly List<RuntimeSkill> _skills = new List<RuntimeSkill>();
 
@@ -48,7 +48,7 @@ namespace OzGameLab01.Combat
 
         private void Awake()
         {
-            _presenter = new UnitPresenter(healthBar, spriteRenderer, projectilePrefab, skillGlowColor, skillGlowDuration, team);
+            _presenter = new UnitPresenter(healthBar, spriteRenderer, projectilePrefab, skillNameLabel, skillNameDisplayDuration, team);
             _status = new UnitStatusEffects();
             InitializeRuntimeState();
             BattleUnitRegistry.Register(this);
@@ -247,7 +247,7 @@ namespace OzGameLab01.Combat
 
         private IEnumerator CastSkill(Unit target, RuntimeSkill skill, bool isBasicAttack)
         {
-            yield return _presenter.SkillGlow();
+            yield return _presenter.ShowSkillCastText(skill.data.name);
 
             if (target != null && !target.IsDead)
             {
@@ -257,6 +257,7 @@ namespace OzGameLab01.Combat
                 // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
                 if (!isBasicAttack)
                 {
+                    Debug.Log($"[Unit] {name}({team}) 액티브 스킬 사용: {skill.data.name}");
                     PassiveEventBus.RaiseSkillUsed(this, skill.data);
                 }
             }

@@ -10,13 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c134a03a4c38adb4dafe46c580c9ff9c, type: 3}
-  m_Name: Synergy_yellow
-  m_EditorClassIdentifier: Assembly-CSharp::Combat.SynergyDefinition
-  trait: {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
+  m_Name: Synergy_Job_Healer
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.SynergyDefinition
+  displayName: "\uB3C4\uC6B0\uBBF8"
   tiers:
   - requiredCount: 2
-    hpMultiplier: 1.1
-    attackMultiplier: 1.1
-  - requiredCount: 3
-    hpMultiplier: 1.25
-    attackMultiplier: 1.25
+    hpMultiplier: 1
+    attackMultiplier: 1

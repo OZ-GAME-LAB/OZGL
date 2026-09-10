@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.UI;
+using OzGameLab01.Data;
 
 namespace OzGameLab01.Combat
 {
@@ -18,8 +19,8 @@ namespace OzGameLab01.Combat
         private readonly Color synergyInactiveColor;
         private readonly Object logContext;
 
-        private Dictionary<int, List<SynergyTrait>> _unitTraitsById;
-        private Dictionary<SynergyTrait, int> _traitCounts;
+        private Dictionary<int, List<SynergyDefinition>> _unitTraitsById;
+        private Dictionary<SynergyDefinition, int> _traitCounts;
 
         public SynergyController(
             UnitRosterData rosterData,
@@ -38,21 +39,37 @@ namespace OzGameLab01.Combat
         }
 
         /// <summary>
-        /// CombatManager와 공유하는 유닛 id별 시너지 트레이트를 읽어 둡니다.
+        /// 유닛 id별 시너지 트레이트를 읽어 둡니다. UnitRosterData.UnitTraits(수동 목록,
+        /// 로스터 준비 화면 전용)가 아니라 실제로 전투에 등장하는 유닛들의 jobType/tribeType으로
+        /// 직접 계산합니다 — 유닛이 UnitRosterData의 placeholder든 실제 DB(JSON)든 동일하게 동작합니다.
         /// </summary>
-        public void BuildUnitTraitLookup()
+        public void BuildUnitTraitLookup(Dictionary<int, UnitData> unitDataById)
         {
-            _unitTraitsById = new Dictionary<int, List<SynergyTrait>>();
-            if (rosterData == null)
+            _unitTraitsById = new Dictionary<int, List<SynergyDefinition>>();
+            if (rosterData == null || unitDataById == null)
             {
                 return;
             }
 
             UnitRosterData.RegisterActive(rosterData, logContext);
 
-            foreach (UnitRosterData.UnitTraitEntry entry in rosterData.UnitTraits)
+            foreach (KeyValuePair<int, UnitData> kvp in unitDataById)
             {
-                _unitTraitsById[entry.id] = entry.traits;
+                List<SynergyDefinition> traits = new List<SynergyDefinition>();
+
+                SynergyDefinition jobTrait = rosterData.GetJobTrait(kvp.Value.jobType);
+                if (jobTrait != null)
+                {
+                    traits.Add(jobTrait);
+                }
+
+                SynergyDefinition tribeTrait = rosterData.GetTribeTrait(kvp.Value.tribeType);
+                if (tribeTrait != null)
+                {
+                    traits.Add(tribeTrait);
+                }
+
+                _unitTraitsById[kvp.Key] = traits;
             }
         }
 
@@ -63,35 +80,23 @@ namespace OzGameLab01.Combat
             // 배치 화면에서 넘어온 편성에도 시너지가 정상 반영된다.
             _traitCounts = SynergyPanelUtility.CountTraits(spawnedFormation.Values, _unitTraitsById);
 
-            Dictionary<SynergyTrait, SynergyDefinition> definitionByTrait = new Dictionary<SynergyTrait, SynergyDefinition>();
-            if (rosterData != null)
-            {
-                foreach (SynergyDefinition definition in rosterData.SynergyDefinitions)
-                {
-                    if (definition != null && definition.Trait != null)
-                    {
-                        definitionByTrait[definition.Trait] = definition;
-                    }
-                }
-            }
-
             // 발동된 시너지의 보너스는 해당 트레이트를 실제로 보유한 유닛에게만 적용한다.
             foreach (KeyValuePair<CombatManager.SlotKey, int> kvp in spawnedFormation)
             {
                 Unit unit = slotUnits[kvp.Key.column, (int)kvp.Key.row];
-                if (unit == null || !_unitTraitsById.TryGetValue(kvp.Value, out List<SynergyTrait> traits) || traits == null)
+                if (unit == null || !_unitTraitsById.TryGetValue(kvp.Value, out List<SynergyDefinition> traits) || traits == null)
                 {
                     continue;
                 }
 
-                foreach (SynergyTrait trait in traits)
+                foreach (SynergyDefinition definition in traits)
                 {
-                    if (trait == null || !definitionByTrait.TryGetValue(trait, out SynergyDefinition definition))
+                    if (definition == null)
                     {
                         continue;
                     }
 
-                    _traitCounts.TryGetValue(trait, out int count);
+                    _traitCounts.TryGetValue(definition, out int count);
                     if (definition.TryGetActiveTier(count, out SynergyDefinition.Tier tier))
                     {
                         unit.ApplySynergyBonus(tier.hpMultiplier, tier.attackMultiplier);
@@ -123,7 +128,7 @@ namespace OzGameLab01.Combat
             {
                 SynergyItemView item = Object.Instantiate(synergyItemTemplate, synergyPanelRoot);
                 item.gameObject.SetActive(true);
-                item.SetTitle(displayItem.Definition.Trait.DisplayName);
+                item.SetTitle(displayItem.Definition.DisplayName);
                 item.SetStackText(displayItem.StackText);
                 item.SetBackgroundColor(displayItem.IsActive ? synergyActiveColor : synergyInactiveColor);
             }

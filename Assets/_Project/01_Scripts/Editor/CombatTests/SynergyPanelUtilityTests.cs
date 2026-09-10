@@ -21,18 +21,10 @@ namespace OzGameLab01.Tests.EditMode
             created.Clear();
         }
 
-        private SynergyTrait CreateTrait(string displayName)
-        {
-            SynergyTrait trait = ScriptableObject.CreateInstance<SynergyTrait>();
-            SetPrivateField(trait, "displayName", displayName);
-            created.Add(trait);
-            return trait;
-        }
-
-        private SynergyDefinition CreateDefinition(SynergyTrait trait, params SynergyDefinition.Tier[] tiers)
+        private SynergyDefinition CreateDefinition(string displayName, params SynergyDefinition.Tier[] tiers)
         {
             SynergyDefinition definition = ScriptableObject.CreateInstance<SynergyDefinition>();
-            SetPrivateField(definition, "trait", trait);
+            SetPrivateField(definition, "displayName", displayName);
             SetPrivateField(definition, "tiers", new List<SynergyDefinition.Tier>(tiers));
             created.Add(definition);
             return definition;
@@ -47,23 +39,23 @@ namespace OzGameLab01.Tests.EditMode
         [Test]
         public void CountTraits_AggregatesAcrossUnits()
         {
-            SynergyTrait red = CreateTrait("Red");
-            var traitsById = new Dictionary<int, List<SynergyTrait>>
+            SynergyDefinition red = CreateDefinition("Red");
+            var traitsById = new Dictionary<int, List<SynergyDefinition>>
             {
-                { 1, new List<SynergyTrait> { red } },
-                { 2, new List<SynergyTrait> { red } },
-                { 3, new List<SynergyTrait>() },
+                { 1, new List<SynergyDefinition> { red } },
+                { 2, new List<SynergyDefinition> { red } },
+                { 3, new List<SynergyDefinition>() },
             };
-            Dictionary<SynergyTrait, int> counts = SynergyPanelUtility.CountTraits(new[] { 1, 2, 3 }, traitsById);
+            Dictionary<SynergyDefinition, int> counts = SynergyPanelUtility.CountTraits(new[] { 1, 2, 3 }, traitsById);
             Assert.AreEqual(2, counts[red]);
         }
 
         [Test]
         public void CountTraits_SkipsIdsMissingFromTable()
         {
-            SynergyTrait red = CreateTrait("Red");
-            var traitsById = new Dictionary<int, List<SynergyTrait>> { { 1, new List<SynergyTrait> { red } } };
-            Dictionary<SynergyTrait, int> counts = SynergyPanelUtility.CountTraits(new[] { 1, 99 }, traitsById);
+            SynergyDefinition red = CreateDefinition("Red");
+            var traitsById = new Dictionary<int, List<SynergyDefinition>> { { 1, new List<SynergyDefinition> { red } } };
+            Dictionary<SynergyDefinition, int> counts = SynergyPanelUtility.CountTraits(new[] { 1, 99 }, traitsById);
             Assert.AreEqual(1, counts.Count);
             Assert.AreEqual(1, counts[red]);
         }
@@ -71,14 +63,11 @@ namespace OzGameLab01.Tests.EditMode
         [Test]
         public void BuildDisplayItems_FiltersZeroCountAndSortsDescending()
         {
-            SynergyTrait red = CreateTrait("Red");
-            SynergyTrait blue = CreateTrait("Blue");
-            SynergyTrait unused = CreateTrait("Unused");
             SynergyDefinition.Tier tier = new SynergyDefinition.Tier { requiredCount = 2, hpMultiplier = 1.1f, attackMultiplier = 1.1f };
-            SynergyDefinition redDef = CreateDefinition(red, tier);
-            SynergyDefinition blueDef = CreateDefinition(blue, tier);
-            SynergyDefinition unusedDef = CreateDefinition(unused, tier);
-            var counts = new Dictionary<SynergyTrait, int> { { red, 3 }, { blue, 1 }, { unused, 0 } };
+            SynergyDefinition redDef = CreateDefinition("Red", tier);
+            SynergyDefinition blueDef = CreateDefinition("Blue", tier);
+            SynergyDefinition unusedDef = CreateDefinition("Unused", tier);
+            var counts = new Dictionary<SynergyDefinition, int> { { redDef, 3 }, { blueDef, 1 }, { unusedDef, 0 } };
             List<SynergyPanelUtility.DisplayItem> items = SynergyPanelUtility.BuildDisplayItems(new List<SynergyDefinition> { blueDef, redDef, unusedDef }, counts);
             Assert.AreEqual(2, items.Count);
             Assert.AreEqual(redDef, items[0].Definition);
@@ -88,11 +77,10 @@ namespace OzGameLab01.Tests.EditMode
         [Test]
         public void BuildDisplayItems_ComputesActiveTierAndStackText()
         {
-            SynergyTrait red = CreateTrait("Red");
-            SynergyDefinition definition = CreateDefinition(red,
+            SynergyDefinition definition = CreateDefinition("Red",
                 new SynergyDefinition.Tier { requiredCount = 2, hpMultiplier = 1.1f, attackMultiplier = 1.1f },
                 new SynergyDefinition.Tier { requiredCount = 4, hpMultiplier = 1.3f, attackMultiplier = 1.3f });
-            var counts = new Dictionary<SynergyTrait, int> { { red, 2 } };
+            var counts = new Dictionary<SynergyDefinition, int> { { definition, 2 } };
             List<SynergyPanelUtility.DisplayItem> items = SynergyPanelUtility.BuildDisplayItems(new List<SynergyDefinition> { definition }, counts);
             Assert.AreEqual(1, items.Count);
             Assert.IsTrue(items[0].IsActive);
@@ -102,9 +90,8 @@ namespace OzGameLab01.Tests.EditMode
         [Test]
         public void BuildDisplayItems_BelowFirstTier_IsInactiveWithThresholdStackText()
         {
-            SynergyTrait red = CreateTrait("Red");
-            SynergyDefinition definition = CreateDefinition(red, new SynergyDefinition.Tier { requiredCount = 3, hpMultiplier = 1.1f, attackMultiplier = 1.1f });
-            var counts = new Dictionary<SynergyTrait, int> { { red, 1 } };
+            SynergyDefinition definition = CreateDefinition("Red", new SynergyDefinition.Tier { requiredCount = 3, hpMultiplier = 1.1f, attackMultiplier = 1.1f });
+            var counts = new Dictionary<SynergyDefinition, int> { { definition, 1 } };
             List<SynergyPanelUtility.DisplayItem> items = SynergyPanelUtility.BuildDisplayItems(new List<SynergyDefinition> { definition }, counts);
             Assert.AreEqual(1, items.Count);
             Assert.IsFalse(items[0].IsActive);

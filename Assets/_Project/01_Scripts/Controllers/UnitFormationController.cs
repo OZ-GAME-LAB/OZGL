@@ -82,7 +82,7 @@ namespace OzGameLab01.Controllers
 
         private UnitFormationCombatLink formationCombatLink;
 
-        private Dictionary<int, List<SynergyTrait>> unitTraitsById;
+        private Dictionary<int, List<SynergyDefinition>> unitTraitsById;
 
         /// <summary>
         /// 현재 배치 화면에 연결된 테스트 유닛 데이터를 반환합니다.
@@ -232,11 +232,12 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// CombatManager와 공유하는 유닛 id별 시너지 트레이트를 읽어 둡니다.
+        /// 보유 유닛의 id별 시너지 트레이트를 읽어 둡니다. CombatManager(SynergyController)와 동일하게
+        /// jobType/tribeType으로 직접 계산합니다 — 유닛이 placeholder든 실제 DB(JSON)든 동일하게 동작합니다.
         /// </summary>
         private void BuildUnitTraitLookup()
         {
-            unitTraitsById = new Dictionary<int, List<SynergyTrait>>();
+            unitTraitsById = new Dictionary<int, List<SynergyDefinition>>();
 
             if (rosterData == null)
             {
@@ -245,9 +246,28 @@ namespace OzGameLab01.Controllers
 
             UnitRosterData.RegisterActive(rosterData, this);
 
-            foreach (UnitRosterData.UnitTraitEntry entry in rosterData.UnitTraits)
+            foreach (UnitData data in testUnitDataList)
             {
-                unitTraitsById[entry.id] = entry.traits;
+                if (data == null)
+                {
+                    continue;
+                }
+
+                List<SynergyDefinition> traits = new List<SynergyDefinition>();
+
+                SynergyDefinition jobTrait = rosterData.GetJobTrait(data.jobType);
+                if (jobTrait != null)
+                {
+                    traits.Add(jobTrait);
+                }
+
+                SynergyDefinition tribeTrait = rosterData.GetTribeTrait(data.tribeType);
+                if (tribeTrait != null)
+                {
+                    traits.Add(tribeTrait);
+                }
+
+                unitTraitsById[data.id] = traits;
             }
         }
 
@@ -1205,7 +1225,7 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            Dictionary<SynergyTrait, int> traitCounts = BuildTraitCounts();
+            Dictionary<SynergyDefinition, int> traitCounts = BuildTraitCounts();
 
             Transform panelRoot = unitView.SynergyContentRoot;
             for (int i = panelRoot.childCount - 1; i >= 0; i--)
@@ -1225,7 +1245,7 @@ namespace OzGameLab01.Controllers
 
             foreach (SynergyDefinition definition in sortedDefinitions)
             {
-                if (definition == null || definition.Trait == null)
+                if (definition == null)
                 {
                     continue;
                 }
@@ -1243,7 +1263,7 @@ namespace OzGameLab01.Controllers
 
                 SynergyItemView item = Instantiate(synergyItemTemplate, panelRoot);
                 item.gameObject.SetActive(true);
-                item.SetTitle(definition.Trait.DisplayName);
+                item.SetTitle(definition.DisplayName);
                 item.SetStackText(stackText);
                 item.SetBackgroundColor(isActive ? synergyActiveColor : synergyInactiveColor);
             }
@@ -1253,18 +1273,18 @@ namespace OzGameLab01.Controllers
         /// 현재 전투 슬롯에 배치된 유닛들의 트레이트 보유 수를 센다.
         /// (서브 슬롯 유닛은 CombatManager와 마찬가지로 시너지 계산에서 제외한다.)
         /// </summary>
-        private Dictionary<SynergyTrait, int> BuildTraitCounts()
+        private Dictionary<SynergyDefinition, int> BuildTraitCounts()
         {
-            Dictionary<SynergyTrait, int> traitCounts = new Dictionary<SynergyTrait, int>();
+            Dictionary<SynergyDefinition, int> traitCounts = new Dictionary<SynergyDefinition, int>();
 
             foreach (UnitData data in battleUnitData)
             {
-                if (data == null || !unitTraitsById.TryGetValue(data.id, out List<SynergyTrait> traits) || traits == null)
+                if (data == null || !unitTraitsById.TryGetValue(data.id, out List<SynergyDefinition> traits) || traits == null)
                 {
                     continue;
                 }
 
-                foreach (SynergyTrait trait in traits)
+                foreach (SynergyDefinition trait in traits)
                 {
                     if (trait == null)
                     {
@@ -1279,14 +1299,14 @@ namespace OzGameLab01.Controllers
             return traitCounts;
         }
 
-        private static int GetTraitCount(Dictionary<SynergyTrait, int> traitCounts, SynergyDefinition definition)
+        private static int GetTraitCount(Dictionary<SynergyDefinition, int> traitCounts, SynergyDefinition definition)
         {
-            if (definition == null || definition.Trait == null)
+            if (definition == null)
             {
                 return 0;
             }
 
-            traitCounts.TryGetValue(definition.Trait, out int count);
+            traitCounts.TryGetValue(definition, out int count);
             return count;
         }
 
