@@ -107,15 +107,41 @@ namespace OzGameLab01.Combat
             // 유닛 데이터베이스(JSON)를 로드해 UnitStats를 캐싱합니다.
             // 지금은 TempUnitData.json(임시)이고, 나중에 실제 UnitJSON으로 바뀌어도 이 asset을
             // 참조하는 CombatManager/PlayerInventoryManager 등은 그대로 둘 수 있습니다.
-            TextAsset jsonFile = Resources.Load<TextAsset>("Data/TempUnitData");
-            if (jsonFile != null)
+            TextAsset jsonFile = Resources.Load<TextAsset>("TempUnitData");
+            if (jsonFile == null)
             {
-                UnitDataList list = Newtonsoft.Json.JsonConvert.DeserializeObject<UnitDataList>(jsonFile.text);
-                if (list?.unitList != null)
-                {
-                    unitStats = list.unitList;
-                }
+                Debug.LogWarning("[UnitRosterData] 05_Data/Resources/TempUnitData.json을 찾을 수 없어 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다.", this);
+                return;
             }
+
+            List<UnitData> parsed;
+            try
+            {
+                parsed = ParseUnitList(jsonFile.text);
+            }
+            catch (Newtonsoft.Json.JsonException e)
+            {
+                Debug.LogWarning($"[UnitRosterData] TempUnitData.json 파싱에 실패해 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다. ({e.Message})", this);
+                return;
+            }
+
+            if (parsed == null)
+            {
+                Debug.LogWarning("[UnitRosterData] TempUnitData.json에 unitList가 없어 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다.", this);
+                return;
+            }
+
+            unitStats = parsed;
+        }
+
+        /// <summary>
+        /// 유닛 JSON 텍스트를 UnitData 목록으로 역직렬화합니다. OnEnable()에서 분리해둔 순수 함수라
+        /// Resources/에셋 로드 없이도 EditMode 테스트로 검증할 수 있습니다.
+        /// </summary>
+        public static List<UnitData> ParseUnitList(string json)
+        {
+            UnitDataList list = Newtonsoft.Json.JsonConvert.DeserializeObject<UnitDataList>(json);
+            return list?.unitList;
         }
 
         private void OnValidate()

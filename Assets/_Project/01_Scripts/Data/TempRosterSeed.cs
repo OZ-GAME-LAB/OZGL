@@ -10,13 +10,13 @@ public static class TempRosterSeed
 {
     /// <summary>
     /// 실제 21종 유닛(UnitJSON)이 아직 고유 액티브 스킬을 갖지 못해 임시로 부여하는 공용 기본공격.
-    /// TempUnitData.json(4종 테스트 유닛)의 0번 스킬로도 재사용합니다.
+    /// TempUnitData.json(21종 임시 유닛)의 0번 스킬로도 재사용합니다.
     /// </summary>
     public const int UnitBasicAttackSkillId = 900;
 
     /// <summary>
-    /// TempUnitData.json 4종 테스트 유닛이 하나씩 나눠 갖는, 도트/기절/그을림/침묵 디버프를
-    /// 하나씩 검증하기 위한 임시 액티브 스킬 id입니다.
+    /// TempUnitData.json의 21종 임시 유닛이 4개씩 순환으로 나눠 갖는, 도트/기절/그을림/침묵
+    /// 디버프를 하나씩 검증하기 위한 임시 액티브 스킬 id입니다.
     /// </summary>
     public const int DotSkillId = 910;
     public const int StunSkillId = 911;
