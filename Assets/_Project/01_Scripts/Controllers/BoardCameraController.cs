@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 using OzGameLab01.Controllers;
 using System.Collections;
 
@@ -49,12 +50,13 @@ public class BoardCameraController : MonoBehaviour
             if (target == null) return;
         }
 
-        // 2. 마우스 휠 스크롤 값 받기
-        float scroll = Input.mouseScrollDelta.y;
+        // 2. Input System을 통해 마우스 휠 스크롤 값 받기
+        Mouse mouse = Mouse.current;
+        float scroll = mouse != null ? mouse.scroll.ReadValue().y : 0f;
         if (Mathf.Abs(scroll) > 0.01f)
         {
             // 휠을 위로 굴리면(+) 줌 인, 아래로 굴리면(-) 줌 아웃되도록 처리
-            _currentZoom -= scroll * zoomSpeed * 0.1f;
+            _currentZoom -= Mathf.Sign(scroll) * zoomSpeed * 0.1f;
 
             // 너무 줌아웃되거나 줌인되는 것을 방지
             _currentZoom = Mathf.Clamp(_currentZoom, minZoomMultiplier, maxZoomMultiplier);

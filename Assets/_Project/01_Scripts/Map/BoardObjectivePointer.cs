@@ -2,7 +2,7 @@ using OzGameLab01.Map;
 using OzGameLab01.Controllers;
 using UnityEngine;
 
-namespace OZGL.Map
+namespace OzGameLab01.Map
 {
     /// <summary>
     /// 플레이어 주변에서 현재 중간 보스/보스 목표의 직선 방향을 표시합니다.

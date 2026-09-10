@@ -17,6 +17,12 @@ namespace OzGameLab01.Managers
         private readonly List<EventChoice> _choices = new();
         private ChoiceEventSO currentEvent;
 
+
+        /// <summary>
+        /// 선택지 효과가 정상 처리되어 이벤트 UI가 닫힐 때 발생합니다.
+        /// </summary>
+        public event Action EventCompleted;
+
         private void Awake()
         {
             ResetState();
@@ -184,6 +190,7 @@ namespace OzGameLab01.Managers
             ExecuteChoice(_choices[choiceIndex]);
 
             CloseCanvas();
+            EventCompleted?.Invoke();
             //if (ExecuteChoice(choices[choiceIndex]))
             //{
             //    gameObject.SetActive(false);

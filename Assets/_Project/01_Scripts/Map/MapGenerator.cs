@@ -7,12 +7,16 @@ using OzGameLab01.Data;
 using OzGameLab01.Map;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace OzGameLab01.Map
 {
     public class MapGenerator : MonoBehaviour
     {
+        private const float NodeScaleAnimationDuration = 0.5f;
+        private const int ObstacleClusterPlacementAttempts = 100;
+
         [Header("Theme Data")]
         [Tooltip("현재 스테이지에 맞는 테마 데이터(SO)를 연결해주세요.")]
         [SerializeField] private OzGameLab01.Data.MapThemeData _currentTheme;
@@ -26,6 +30,9 @@ namespace OzGameLab01.Map
         [Header("Rendering Settings")]
         [Tooltip("타일 간의 간격")]
         public float tileSpacing = 2.0f;
+        [Tooltip("타일 프리팹의 X, Z 스케일에만 적용할 수평 배율입니다. Y 배율은 1로 유지됩니다.")]
+        [Min(0.01f)]
+        [SerializeField] private float tileScaleMultiplier = 1f;
         [Tooltip("맵 전체 생성 애니메이션 재생 시간")]
         public float animationDuration = 5.0f;
 
@@ -94,15 +101,44 @@ namespace OzGameLab01.Map
         public IReadOnlyDictionary<Vector2Int, MapNode> NodeDict => _nodeDict;
 
         /// <summary>
+        /// 논리 좌표 기준으로 설정된 맵의 최대 생성 반경입니다.
+        /// </summary>
+        public float MaxRadius => maxRadius;
+
+        /// <summary>
+        /// 타일 간격을 반영한 월드 좌표 기준 최대 생성 반경입니다.
+        /// </summary>
+        public float MaxWorldRadius => maxRadius * tileSpacing;
+
+        /// <summary>
+        /// 타일 프리팹의 X, Z 스케일에만 적용되는 수평 배율입니다.
+        /// </summary>
+        public float TileScaleMultiplier => tileScaleMultiplier;
+
+        /// <summary>
+        /// 실제로 생성된 모든 노드를 포함하는 월드 좌표 Bounds입니다.
+        /// 절차적으로 생성된 맵을 덮는 효과에는 MaxRadius보다 이 값을 우선 사용하는 것이 정확합니다.
+        /// </summary>
+        public Bounds GeneratedWorldBounds { get; private set; }
+
+        /// <summary>
         /// 이번 보드 씬 진입에서 맵 생성 연출을 재생하는지 여부입니다.
         /// MapRouteDirector가 최초 목표 배치 대기 여부를 판단할 때 사용합니다.
         /// </summary>
         public bool UsedInitialGenerationAnimation { get; private set; }
 
+        /// <summary>
+        /// 즉시 생성 또는 최초 생성 연출이 모두 끝나 플레이 가능한 상태인지 나타냅니다.
+        /// </summary>
+        public bool IsPresentationComplete { get; private set; }
+
+        public event System.Action PresentationCompleted;
+
         protected virtual void Start()
         {
-            // GenerateMapData()가 활성 런을 보장하기 전에 확인해야 첫 진입을 올바르게 구분할 수 있습니다.
-            UsedInitialGenerationAnimation = !BoardRunData.HasActiveRun;
+            // 새 게임 시작 시에는 이미 활성 런이 만들어져 있으므로 저장된 플레이어 위치로 최초 진입을 구분합니다.
+            UsedInitialGenerationAnimation = !BoardRunData.HasPlayerPosition;
+            IsPresentationComplete = false;
 
             if (_currentTheme == null)
             {
@@ -137,6 +173,8 @@ namespace OzGameLab01.Map
                 GenerateLogicalShape();
                 AssignNodeTypes();
                 ApplyPostGenerationRules();
+                ApplyConsumedSpecialTiles();
+                UpdateGeneratedWorldBounds();
             }
             finally
             {
@@ -158,6 +196,10 @@ namespace OzGameLab01.Map
             {
                 targetPosition = GetStartNodePosition();
                 if (!_nodeDict.TryGetValue(targetPosition, out targetNode)) return;
+            }
+
+            if (!BoardRunData.HasPlayerPosition || BoardRunData.PlayerPosition != targetPosition)
+            {
                 BoardRunData.SavePlayerPosition(targetPosition);
             }
 
@@ -185,6 +227,19 @@ namespace OzGameLab01.Map
         }
 
         /// <summary>
+        /// 같은 Seed로 맵을 다시 생성해도 이미 완료한 일회성 특수 타일은 Normal로 복원합니다.
+        /// </summary>
+        private void ApplyConsumedSpecialTiles()
+        {
+            foreach (MapNode node in _allNodes.Where(node =>
+                         IsSingleUseSpecialTile(node.Type) &&
+                         BoardRunData.IsSpecialTileConsumed(node.Position)))
+            {
+                node.Type = NodeType.Normal;
+            }
+        }
+
+        /// <summary>
         /// 파생 생성기가 생성된 논리 노드를 읽고 타입을 보정할 때 사용합니다.
         /// </summary>
         protected IReadOnlyList<MapNode> AllNodes => _allNodes;
@@ -199,6 +254,47 @@ namespace OzGameLab01.Map
             {
                 CreateNodeView(node, false);
             }
+
+            CompletePresentation();
+        }
+
+        private void UpdateGeneratedWorldBounds()
+        {
+            if (_allNodes.Count == 0)
+            {
+                GeneratedWorldBounds = new Bounds(Vector3.zero, Vector3.zero);
+                return;
+            }
+
+            Vector2Int firstPosition = _allNodes[0].Position;
+            Vector3 firstWorldPosition = new Vector3(
+                firstPosition.x * tileSpacing,
+                0f,
+                firstPosition.y * tileSpacing);
+            Bounds bounds = new Bounds(firstWorldPosition, Vector3.zero);
+
+            for (int i = 1; i < _allNodes.Count; i++)
+            {
+                Vector2Int position = _allNodes[i].Position;
+                bounds.Encapsulate(new Vector3(
+                    position.x * tileSpacing,
+                    0f,
+                    position.y * tileSpacing));
+            }
+
+            bounds.Expand(new Vector3(tileSpacing, 0f, tileSpacing));
+            GeneratedWorldBounds = bounds;
+        }
+
+        private void CompletePresentation()
+        {
+            if (IsPresentationComplete)
+            {
+                return;
+            }
+
+            IsPresentationComplete = true;
+            PresentationCompleted?.Invoke();
         }
 
         private void ValidatePrefabs()
@@ -297,38 +393,25 @@ namespace OzGameLab01.Map
             availableNodes.RemoveAll(n => n.Type == NodeType.Start);
             if (availableNodes.Count == 0) return;
 
-            // 1. 장애물 먼저 배치 (이후 거리를 잴 때 길을 막기 위함)
-            PlaceObstacleClusters(availableNodes);
-
-            // 2. Start 타일을 찾고, 맵 전체의 걸음 수(Depth)를 단 한 번 계산하여 캐싱
-            MapNode startNode = null;
-            foreach (var node in _allNodes)
-                if (node.Type == NodeType.Start) { startNode = node; break; }
-
-            // [추가됨] 강제 시작 동선 셋팅 (시작 타일 3면 차단, 1면 유닛 확정 획득)
-            if (forceUnitAtStart && startNode != null)
+            MapNode startNode = _allNodes.FirstOrDefault(node => node.Type == NodeType.Start);
+            if (startNode == null)
             {
-                List<MapNode> neighbors = new List<MapNode>(startNode.ConnectedNodes);
-                if (neighbors.Count > 0)
-                {
-                    // 연결된 타일 중 1개를 랜덤으로 골라 유닛 획득 타일로 만듭니다.
-                    MapNode unitNode = neighbors[Random.Range(0, neighbors.Count)];
-                    unitNode.Type = NodeType.UnitAcquisition;
-                    availableNodes.Remove(unitNode);
-
-                    // 나머지 연결된 시작점 주변 타일들은 장애물(바위)로 막아버립니다.
-                    foreach (MapNode n in neighbors)
-                    {
-                        if (n != unitNode && n.Type == NodeType.Normal)
-                        {
-                            n.Type = NodeType.Rock;
-                            availableNodes.Remove(n);
-                        }
-                    }
-                }
+                Debug.LogError("[MapGenerator3] Start 타일이 없어 노드 타입을 배치할 수 없습니다!", this);
+                return;
             }
 
+            // 1. 장애물 먼저 배치하되, Start 기준 이동 가능 영역이 분리되지 않는 후보만 확정합니다.
+            PlaceObstacleClusters(availableNodes, startNode);
+
+            // [추가됨] 강제 시작 동선 셋팅 (시작 타일 3면 차단, 1면 유닛 확정 획득)
+            if (forceUnitAtStart)
+            {
+                ConfigureForcedStartPath(startNode, availableNodes);
+            }
+
+            // 2. Start 타일로부터 맵 전체의 걸음 수(Depth)를 한 번 계산하여 캐싱합니다.
             CalculateAllNodeDepths(startNode);
+            ValidateWalkableConnectivity();
 
             // 3. 타일 배치 (isSequential 옵션을 true로 주면 순차적으로 더 깊은 곳에 스폰됨)
             // 최종 보스: 순차 배치 켬 (점점 깊은 곳)
@@ -369,83 +452,252 @@ namespace OzGameLab01.Map
                     }
                 }
             }
+
         }
 
 
-        private void PlaceObstacleClusters(List<MapNode> availableNodes)
+        private void PlaceObstacleClusters(List<MapNode> availableNodes, MapNode startNode)
         {
             if (_currentTheme.TreePrefabs != null && _currentTheme.TreePrefabs.Count > 0)
-                CreateCluster(availableNodes, treeClusterCount, minTreeClusterSize, maxTreeClusterSize, NodeType.Tree, false);
+                CreateCluster(availableNodes, startNode, treeClusterCount, minTreeClusterSize, maxTreeClusterSize, NodeType.Tree, false);
 
             if (_currentTheme.RockPrefabs != null && _currentTheme.RockPrefabs.Count > 0)
-                CreateCluster(availableNodes, rockClusterCount, minRockClusterSize, maxRockClusterSize, NodeType.Rock, false);
+                CreateCluster(availableNodes, startNode, rockClusterCount, minRockClusterSize, maxRockClusterSize, NodeType.Rock, false);
 
             if (_currentTheme.WaterPuddlePrefab != null && _currentTheme.WaterStartPrefab != null &&
                 _currentTheme.WaterEndPrefab != null && _currentTheme.WaterBodyPrefabs != null &&
                 _currentTheme.WaterBodyPrefabs.Count > 0)
-                CreateCluster(availableNodes, waterClusterCount, minWaterClusterSize, maxWaterClusterSize, NodeType.WaterPuddle, true);
+                CreateCluster(availableNodes, startNode, waterClusterCount, minWaterClusterSize, maxWaterClusterSize, NodeType.WaterPuddle, true);
         }
 
-        private void CreateCluster(List<MapNode> availableNodes, int count, int minSize, int maxSize, NodeType baseType, bool isWater)
+        private void CreateCluster(
+            List<MapNode> availableNodes,
+            MapNode startNode,
+            int count,
+            int minSize,
+            int maxSize,
+            NodeType baseType,
+            bool isWater)
         {
-            for (int i = 0; i < count; i++)
+            int safeMinSize = Mathf.Max(1, minSize);
+            int safeMaxSize = Mathf.Max(safeMinSize, maxSize);
+
+            for (int clusterIndex = 0; clusterIndex < count; clusterIndex++)
             {
-                if (availableNodes.Count == 0) break;
+                if (availableNodes.Count < safeMinSize) break;
 
-                int targetSize = Random.Range(minSize, maxSize + 1);
-                MapNode seed = availableNodes[Random.Range(0, availableNodes.Count)];
+                int requestedSize = Random.Range(safeMinSize, safeMaxSize + 1);
+                int largestPossibleSize = Mathf.Min(requestedSize, availableNodes.Count);
+                bool wasPlaced = false;
 
-                List<MapNode> cluster = new List<MapNode>();
-                Queue<MapNode> queue = new Queue<MapNode>();
-                HashSet<MapNode> visited = new HashSet<MapNode>();
-
-                queue.Enqueue(seed);
-                visited.Add(seed);
-
-                while (queue.Count > 0 && cluster.Count < targetSize)
+                // 요청 크기의 안전한 위치가 없으면 최소 크기까지 단계적으로 축소합니다.
+                for (int targetSize = largestPossibleSize;
+                     targetSize >= safeMinSize && !wasPlaced;
+                     targetSize--)
                 {
-                    MapNode current = queue.Dequeue();
-
-                    if (availableNodes.Contains(current))
+                    for (int attempt = 0;
+                         attempt < ObstacleClusterPlacementAttempts && !wasPlaced;
+                         attempt++)
                     {
-                        cluster.Add(current);
-                        availableNodes.Remove(current);
-
-                        List<MapNode> neighbors = new List<MapNode>(current.ConnectedNodes);
-                        ShuffleList(neighbors);
-
-                        foreach (MapNode neighbor in neighbors)
+                        List<MapNode> cluster = BuildClusterCandidate(availableNodes, targetSize);
+                        if (cluster.Count != targetSize)
                         {
-                            if (!visited.Contains(neighbor) && availableNodes.Contains(neighbor))
-                            {
-                                visited.Add(neighbor);
-                                queue.Enqueue(neighbor);
-                            }
+                            continue;
                         }
+
+                        HashSet<MapNode> proposedObstacles = cluster.ToHashSet();
+                        if (!KeepsWalkableMapConnected(startNode, proposedObstacles))
+                        {
+                            continue;
+                        }
+
+                        CommitObstacleCluster(availableNodes, cluster, baseType, isWater);
+                        wasPlaced = true;
                     }
                 }
 
-                if (cluster.Count > 0)
+                if (!wasPlaced)
                 {
-                    if (!isWater)
+                    Debug.LogWarning(
+                        $"[MapGenerator3] 연결성을 유지할 수 없어 {baseType} 장애물 클러스터 " +
+                        $"{clusterIndex + 1}/{count} 배치를 생략했습니다.",
+                        this);
+                }
+            }
+        }
+
+        private List<MapNode> BuildClusterCandidate(List<MapNode> availableNodes, int targetSize)
+        {
+            MapNode seed = availableNodes[Random.Range(0, availableNodes.Count)];
+            HashSet<MapNode> availableSet = availableNodes.ToHashSet();
+            HashSet<MapNode> visited = new HashSet<MapNode> { seed };
+            Queue<MapNode> queue = new Queue<MapNode>();
+            List<MapNode> cluster = new List<MapNode>(targetSize);
+
+            queue.Enqueue(seed);
+
+            while (queue.Count > 0 && cluster.Count < targetSize)
+            {
+                MapNode current = queue.Dequeue();
+                if (!availableSet.Contains(current))
+                {
+                    continue;
+                }
+
+                cluster.Add(current);
+
+                List<MapNode> neighbors = current.ConnectedNodes
+                    .Where(availableSet.Contains)
+                    .ToList();
+                ShuffleList(neighbors);
+
+                foreach (MapNode neighbor in neighbors)
+                {
+                    if (visited.Add(neighbor))
                     {
-                        foreach (var node in cluster) node.Type = baseType;
-                    }
-                    else
-                    {
-                        if (cluster.Count == 1)
-                        {
-                            cluster[0].Type = NodeType.WaterPuddle;
-                        }
-                        else
-                        {
-                            cluster[0].Type = NodeType.WaterStart;
-                            cluster[cluster.Count - 1].Type = NodeType.WaterEnd;
-                            for (int j = 1; j < cluster.Count - 1; j++) cluster[j].Type = NodeType.WaterBody;
-                        }
+                        queue.Enqueue(neighbor);
                     }
                 }
             }
+
+            return cluster;
+        }
+
+        private void CommitObstacleCluster(
+            List<MapNode> availableNodes,
+            List<MapNode> cluster,
+            NodeType baseType,
+            bool isWater)
+        {
+            foreach (MapNode node in cluster)
+            {
+                availableNodes.Remove(node);
+            }
+
+            if (!isWater)
+            {
+                foreach (MapNode node in cluster)
+                {
+                    node.Type = baseType;
+                }
+
+                return;
+            }
+
+            if (cluster.Count == 1)
+            {
+                cluster[0].Type = NodeType.WaterPuddle;
+                return;
+            }
+
+            cluster[0].Type = NodeType.WaterStart;
+            cluster[cluster.Count - 1].Type = NodeType.WaterEnd;
+
+            for (int index = 1; index < cluster.Count - 1; index++)
+            {
+                cluster[index].Type = NodeType.WaterBody;
+            }
+        }
+
+        private void ConfigureForcedStartPath(MapNode startNode, List<MapNode> availableNodes)
+        {
+            List<MapNode> unitCandidates = startNode.ConnectedNodes
+                .Where(node => node.Type == NodeType.Normal)
+                .ToList();
+
+            if (unitCandidates.Count == 0)
+            {
+                Debug.LogWarning(
+                    "[MapGenerator3] 시작 타일 주변에 유닛 획득 타일로 사용할 수 있는 노드가 없습니다.",
+                    this);
+                return;
+            }
+
+            ShuffleList(unitCandidates);
+
+            foreach (MapNode unitNode in unitCandidates)
+            {
+                HashSet<MapNode> proposedRocks = unitCandidates
+                    .Where(node => node != unitNode)
+                    .ToHashSet();
+
+                if (!KeepsWalkableMapConnected(startNode, proposedRocks))
+                {
+                    continue;
+                }
+
+                unitNode.Type = NodeType.UnitAcquisition;
+                availableNodes.Remove(unitNode);
+
+                foreach (MapNode rockNode in proposedRocks)
+                {
+                    rockNode.Type = NodeType.Rock;
+                    availableNodes.Remove(rockNode);
+                }
+
+                return;
+            }
+
+            // 모든 방향에서 3면 차단이 맵을 분리한다면 유닛 획득 타일만 보장합니다.
+            MapNode fallbackUnitNode = unitCandidates[0];
+            fallbackUnitNode.Type = NodeType.UnitAcquisition;
+            availableNodes.Remove(fallbackUnitNode);
+
+            Debug.LogWarning(
+                "[MapGenerator3] 시작 지점의 3면 차단이 맵 연결성을 해쳐 바위 배치를 생략했습니다.",
+                this);
+        }
+
+        private bool KeepsWalkableMapConnected(
+            MapNode startNode,
+            HashSet<MapNode> proposedObstacles)
+        {
+            if (startNode == null || proposedObstacles.Contains(startNode))
+            {
+                return false;
+            }
+
+            HashSet<MapNode> visited = new HashSet<MapNode> { startNode };
+            Queue<MapNode> queue = new Queue<MapNode>();
+            queue.Enqueue(startNode);
+
+            while (queue.Count > 0)
+            {
+                MapNode current = queue.Dequeue();
+
+                foreach (MapNode neighbor in current.ConnectedNodes)
+                {
+                    if (visited.Contains(neighbor) ||
+                        IsObstacle(neighbor.Type) ||
+                        proposedObstacles.Contains(neighbor))
+                    {
+                        continue;
+                    }
+
+                    visited.Add(neighbor);
+                    queue.Enqueue(neighbor);
+                }
+            }
+
+            int expectedWalkableCount = _allNodes.Count(node =>
+                !IsObstacle(node.Type) &&
+                !proposedObstacles.Contains(node));
+
+            return visited.Count == expectedWalkableCount;
+        }
+
+        private void ValidateWalkableConnectivity()
+        {
+            int walkableNodeCount = _allNodes.Count(node => !IsObstacle(node.Type));
+            if (_nodeDepths.Count == walkableNodeCount)
+            {
+                return;
+            }
+
+            Debug.LogError(
+                $"[MapGenerator3] 장애물 배치 후 이동 가능 영역이 분리되었습니다. " +
+                $"도달 가능: {_nodeDepths.Count}, 전체 이동 가능: {walkableNodeCount}",
+                this);
         }
 
         private void ShuffleList<T>(List<T> list)
@@ -604,6 +856,10 @@ namespace OzGameLab01.Map
                     }
                 }
             }
+
+            // 마지막 타일의 확대 연출까지 끝난 뒤 플레이 가능 상태를 알립니다.
+            yield return new WaitForSeconds(NodeScaleAnimationDuration);
+            CompletePresentation();
         }
 
         private void CreateNodeView(MapNode node, bool animateScale)
@@ -621,6 +877,10 @@ namespace OzGameLab01.Map
                 node.Position.y * tileSpacing);
 
             node.NodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, transform);
+            Transform nodeTransform = node.NodeView.transform;
+            nodeTransform.localScale = Vector3.Scale(
+                nodeTransform.localScale,
+                new Vector3(tileScaleMultiplier, 1f, tileScaleMultiplier));
 
             TileView tileView = node.NodeView.GetComponent<TileView>();
             if (tileView != null)
@@ -630,7 +890,7 @@ namespace OzGameLab01.Map
 
             if (animateScale)
             {
-                StartCoroutine(ScaleUpNode(node.NodeView.transform, 0.5f));
+                StartCoroutine(ScaleUpNode(nodeTransform, NodeScaleAnimationDuration));
             }
         }
 
@@ -693,6 +953,51 @@ namespace OzGameLab01.Map
 
             if (node.NodeView != null) Destroy(node.NodeView); // 기존 평범한 타일 모델 삭제
             CreateNodeView(node, false);
+        }
+
+        /// <summary>
+        /// 효과 처리가 끝난 특수 타일을 현재 런에 기록하고 Normal 타일로 교체합니다.
+        /// 특수 타일이 아닌 경우에는 아무 작업도 하지 않습니다.
+        /// </summary>
+        public bool ConsumeSpecialTile(MapNode node)
+        {
+            if (node == null || !IsSingleUseSpecialTile(node.Type))
+            {
+                return false;
+            }
+
+            BoardRunData.ConsumeSpecialTile(node.Position);
+            return NormalizeConsumedSpecialTile(node);
+        }
+
+        /// <summary>
+        /// 완료 기록이 있는 특수 타일의 논리 타입과 외형을 Normal로 동기화합니다.
+        /// </summary>
+        public bool NormalizeConsumedSpecialTile(MapNode node)
+        {
+            if (node == null ||
+                !BoardRunData.IsSpecialTileConsumed(node.Position) ||
+                !IsSingleUseSpecialTile(node.Type))
+            {
+                return false;
+            }
+
+            node.Type = NodeType.Normal;
+            ReplaceTileVisual(node);
+            return true;
+        }
+
+        /// <summary>
+        /// 발동 후 Normal로 바뀌는 일회성 특수 타일인지 확인합니다.
+        /// </summary>
+        public static bool IsSingleUseSpecialTile(NodeType type)
+        {
+            return type == NodeType.Battle ||
+                   type == NodeType.Event ||
+                   type == NodeType.Shop ||
+                   type == NodeType.Elite ||
+                   type == NodeType.Boss ||
+                   type == NodeType.UnitAcquisition;
         }
     }
 }

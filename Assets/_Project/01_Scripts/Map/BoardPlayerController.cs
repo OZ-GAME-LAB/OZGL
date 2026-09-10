@@ -2,7 +2,6 @@ using System;
 using OzGameLab01.Data;
 using OzGameLab01.Map;
 using OzGameLab01.UI;
-using OzGameLab01.Map;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;

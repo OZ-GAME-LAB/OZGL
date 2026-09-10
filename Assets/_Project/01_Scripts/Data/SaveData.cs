@@ -60,6 +60,7 @@ public class BoardRunSaveData
     public int turnCount;
     public int defeatedElitesCount;
     public List<BoardPositionSaveEntry> completedBattlePositions = new List<BoardPositionSaveEntry>(); // 전투 완료 진입 불가 
+    public List<BoardPositionSaveEntry> consumedSpecialTilePositions = new List<BoardPositionSaveEntry>(); // 발동이 끝난 일회성 특수 타일
     // 전투 슬롯 순서대로 저장한 유닛 ID 목록 / 빈 슬롯은 -1
     public List<int> battleFormationUnitIds = new List<int>();
 

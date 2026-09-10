@@ -13,6 +13,7 @@ namespace OzGameLab01.UI
         [SerializeField] private TooltipView tooltipView;
         [SerializeField] private ReadySettingsView settingsView;
         [SerializeField] private ConfirmPopupView confirmPopupView;
+        [SerializeField] private FeedbackView feedbackView;
 
         #region Properties
 
@@ -22,6 +23,7 @@ namespace OzGameLab01.UI
         public TooltipView TooltipView => tooltipView;
         public ReadySettingsView SettingsView => settingsView;
         public ConfirmPopupView ConfirmPopupView => confirmPopupView;
+        public FeedbackView FeedbackView => feedbackView;
 
         #endregion
 
@@ -107,6 +109,22 @@ namespace OzGameLab01.UI
             }
         }
 
+        public void ShowFeedbackView(string message)
+        {
+            if (feedbackView != null)
+            {
+                feedbackView.Show(message);
+            }
+        }
+
+        public void HideFeedbackView()
+        {
+            if (feedbackView != null)
+            {
+                feedbackView.Hide();
+            }
+        }
+
         public void HideTooltip()
         {
             if (tooltipView != null)
@@ -121,6 +139,7 @@ namespace OzGameLab01.UI
             HideUnitView();
             HideSettingsView();
             HideConfirmPopup();
+            HideFeedbackView();
             HideTooltip();
         }
 
