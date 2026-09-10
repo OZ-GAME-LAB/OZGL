@@ -27,6 +27,9 @@ namespace OzGameLab01.Combat
         [Tooltip("유닛 id별 스탯/색상/스킬 클래스. UnitData.id와 매칭.")]
         [SerializeField] private List<UnitData> unitStats = new List<UnitData>();
 
+        [Tooltip("UnitData.skillIds가 참조하는 스킬 정의 테이블. SkillData.id와 매칭.")]
+        [SerializeField] private List<SkillData> skillDefinitions = new List<SkillData>();
+
         [Tooltip("유닛 id별 시너지 트레이트. UnitData.id와 매칭.")]
         [SerializeField] private List<UnitTraitEntry> unitTraits = new List<UnitTraitEntry>();
 
@@ -36,6 +39,25 @@ namespace OzGameLab01.Combat
         public IReadOnlyList<UnitData> UnitStats => unitStats;
         public IReadOnlyList<UnitTraitEntry> UnitTraits => unitTraits;
         public IReadOnlyList<SynergyDefinition> SynergyDefinitions => synergyDefinitions;
+
+        /// <summary>
+        /// 현재 전투에서 활성화된 로스터(RegisterActive로 등록됨). Unit이 UnitData.skillIds를
+        /// SkillData로 풀어낼 때 참조합니다. GameDB/어드레서블 이전 전까지의 임시 조회 경로입니다.
+        /// </summary>
+        public static UnitRosterData Active => _activeInstance;
+
+        public SkillData GetSkill(int id)
+        {
+            foreach (SkillData skill in skillDefinitions)
+            {
+                if (skill != null && skill.id == id)
+                {
+                    return skill;
+                }
+            }
+
+            return null;
+        }
 
         private void OnValidate()
         {

@@ -13,7 +13,21 @@ namespace OzGameLab01.Combat
         [Tooltip("적 유닛 id별 스탯/스프라이트 주소.")]
         [SerializeField] private List<MonsterData> monsterStats = new List<MonsterData>();
 
+        [Tooltip("MonsterData.skillIds가 참조하는 스킬 정의 테이블. SkillData.id와 매칭.")]
+        [SerializeField] private List<SkillData> skillDefinitions = new List<SkillData>();
+
         public IReadOnlyList<MonsterData> MonsterStats => monsterStats;
+
+        /// <summary>
+        /// 씬에 로드된 MonsterRosterData asset. Unit이 MonsterData.skillIds를 SkillData로
+        /// 풀어낼 때 참조합니다. GameDB/어드레서블 이전 전까지의 임시 조회 경로입니다.
+        /// </summary>
+        public static MonsterRosterData Active { get; private set; }
+
+        private void OnEnable()
+        {
+            Active = this;
+        }
 
         public MonsterData GetById(int id)
         {
@@ -22,6 +36,19 @@ namespace OzGameLab01.Combat
                 if (data != null && data.id == id)
                 {
                     return data;
+                }
+            }
+
+            return null;
+        }
+
+        public SkillData GetSkill(int id)
+        {
+            foreach (SkillData skill in skillDefinitions)
+            {
+                if (skill != null && skill.id == id)
+                {
+                    return skill;
                 }
             }
 

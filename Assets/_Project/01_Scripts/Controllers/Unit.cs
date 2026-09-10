@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using OzGameLab01.Managers;
@@ -26,6 +27,17 @@ namespace OzGameLab01.Combat
             public DebuffProfile debuff;
         }
 
+        /// <summary>
+        /// SkillData(공용 정의) + 이 유닛 인스턴스만의 쿨다운 타이머/레벨 배율을 묶은 런타임 상태.
+        /// SkillData는 로스터에 공유되는 데이터라 직접 변경하지 않고, 배율은 여기 별도로 둡니다.
+        /// </summary>
+        private sealed class RuntimeSkill
+        {
+            public SkillData data;
+            public float timer;
+            public float damageMultiplier = 1f;
+        }
+
         [SerializeField] private Team team;
         [SerializeField] private float maxHP = 100f;
         [SerializeField] private AttackProfile basicAttack = new AttackProfile { damage = 10f, cooldown = 1.2f };
@@ -40,6 +52,8 @@ namespace OzGameLab01.Combat
         [SerializeField] private SkillProfile skillAttack2 = new SkillProfile { attack = new AttackProfile { damage = 30f, cooldown = 5f } };
         [SerializeField] private Color skillGlowColor = new Color(1f, 0.95f, 0.3f, 1f);
         [SerializeField] private float skillGlowDuration = 0.35f;
+
+        private readonly List<RuntimeSkill> _skills = new List<RuntimeSkill>();
 
         public bool IsDead => _isDead;
         public SkillType Skill => skillType;
