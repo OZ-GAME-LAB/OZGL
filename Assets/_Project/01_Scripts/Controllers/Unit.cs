@@ -93,16 +93,12 @@ namespace OzGameLab01.Combat
 
             for (int i = 0; i < _skills.Count; i++)
             {
-                // 0번째 항목(기본공격)만 침묵 중에도 계속 발동합니다.
+                // 쿨다운은 침묵 중에도 계속 흐르고, 발동(캐스트)만 막습니다.
+                // 0번째 항목(기본공격)은 예외로 침묵 중에도 발동합니다.
                 bool isBasicAttack = i == 0;
-                if (_status.IsSilenced && !isBasicAttack)
-                {
-                    continue;
-                }
-
                 RuntimeSkill skill = _skills[i];
                 skill.timer -= Time.deltaTime;
-                if (skill.timer <= 0f)
+                if (skill.timer <= 0f && (isBasicAttack || !_status.IsSilenced))
                 {
                     StartCoroutine(CastSkill(target, skill, isBasicAttack));
                     skill.timer = skill.data.cooldown;
