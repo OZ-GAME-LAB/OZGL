@@ -23,7 +23,7 @@ namespace OzGameLab01.UI
         [SerializeField] private CanvasGroup eventViewCanvasGroup;
 
         private readonly List<EventChoiceButtonView> _choiceButtons = new();
-        private EventActionButtonView _actionButton;
+        private readonly List<EventActionButtonView> _actionButtons = new();
 
         private void Awake()
         {
@@ -52,22 +52,36 @@ namespace OzGameLab01.UI
             eventDescriptionText.text = description ?? string.Empty;
         }
 
-        public void ShowChoices(IReadOnlyList<EventChoiceDisplayData> choices, Action<string> onChoiceSelected)
+        //public void ShowChoices(IReadOnlyList<EventChoiceDisplayData> choices, Action<string> onChoiceSelected)
+        //{
+        //    ClearChoices();
+        //    HideAction();
+
+        //    choiceRoot.gameObject.SetActive(true);
+
+        //    foreach (EventChoiceDisplayData choiceData in choices)
+        //    {
+        //        EventChoiceButtonView choiceButton = Instantiate(choiceButtonPrefab, choiceRoot);
+
+        //        choiceButton.Bind(choiceData, onChoiceSelected);
+        //        _choiceButtons.Add(choiceButton);
+        //    }
+        //}
+        public void ShowChoices(List<EventChoice> choices, Action<int> onChoiceSelected)
         {
             ClearChoices();
             HideAction();
 
             choiceRoot.gameObject.SetActive(true);
 
-            foreach (EventChoiceDisplayData choiceData in choices)
+            for (int i = 0; i < choices.Count; i++) 
             {
                 EventChoiceButtonView choiceButton = Instantiate(choiceButtonPrefab, choiceRoot);
 
-                choiceButton.Bind(choiceData, onChoiceSelected);
+                choiceButton.Bind(i, choices[i], onChoiceSelected);
                 _choiceButtons.Add(choiceButton);
             }
         }
-
         public void ClearChoices()
         {
             foreach (EventChoiceButtonView choiceButton in _choiceButtons)
@@ -86,15 +100,20 @@ namespace OzGameLab01.UI
             }
         }
 
-        public void ShowAction(string label, Action onActionClicked)
+        public void ShowAction(List<EventChoice> choices, Action<int> onActionClicked)
         {
             ClearChoices();
             ClearAction();
 
             actionRoot.gameObject.SetActive(true);
 
-            _actionButton = Instantiate(actionButtonPrefab, actionRoot);
-            _actionButton.Bind(label, onActionClicked);
+            for (int i = 0; i < choices.Count; i++)
+            {
+                EventActionButtonView actionButton = Instantiate(actionButtonPrefab, actionRoot);
+
+                actionButton.Bind(i, choices[i], onActionClicked);
+                _actionButtons.Add(actionButton);
+            }
         }
 
         public void HideAction()
@@ -126,13 +145,16 @@ namespace OzGameLab01.UI
 
         private void ClearAction()
         {
-            if (_actionButton == null)
+            if (_actionButtons == null)
             {
                 return;
             }
 
-            Destroy(_actionButton.gameObject);
-            _actionButton = null;
+            for(int i=0; i< _actionButtons.Count; i++)
+            {
+                Destroy(_actionButtons[i].gameObject);
+            }
+            _actionButtons.Clear();// = null;
         }
     }
 }
