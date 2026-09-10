@@ -179,33 +179,6 @@ namespace OzGameLab01.Combat
             {
                 _unitDataById[data.id] = data;
             }
-
-            LoadTempUnitDatabase();
-        }
-
-        /// <summary>
-        /// 임시: 스킬 스키마(skillIds)까지 채워진 테스트용 유닛 4종을 등록합니다.
-        /// 실제 UnitJSON(다른 담당자 소유, 아직 skillIds/스킬 기획이 없음)은 건드리지 않고,
-        /// Resources 아래 별도 임시 JSON(TempUnitData)만 직접 로드/역직렬화합니다.
-        /// </summary>
-        private void LoadTempUnitDatabase()
-        {
-            TextAsset jsonFile = Resources.Load<TextAsset>("Data/TempUnitData");
-            if (jsonFile == null)
-            {
-                return;
-            }
-
-            UnitDataList list = Newtonsoft.Json.JsonConvert.DeserializeObject<UnitDataList>(jsonFile.text);
-            if (list?.unitList == null)
-            {
-                return;
-            }
-
-            foreach (UnitData data in list.unitList)
-            {
-                _unitDataById[data.id] = data;
-            }
         }
 
         public Unit ResolveAllyTarget()

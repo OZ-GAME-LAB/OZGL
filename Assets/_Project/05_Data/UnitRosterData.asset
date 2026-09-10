@@ -13,132 +13,447 @@ MonoBehaviour:
   m_Name: UnitRosterData
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.UnitRosterData
   unitStats:
-  - id: 1
-    name: Ally_Sword_Red
-    spriteAddress: Ally_Sword
-    healthPoint: 160
-    attackPoint: 8
-    defensePoint: 0
-    attackSpeed: 0
-    criticalMult: 0
-    criticalRate: 0
-    dodgeRate: 0
+  - id: 100
+    name: "\uC568\uB9AC\uC2A4"
+    spriteAddress: 001_100
+    healthPoint: 92
+    attackPoint: 10.3
+    defensePoint: 3.48
+    attackSpeed: 0.82
+    criticalMult: 150
+    criticalRate: 15
+    dodgeRate: 7.5
     bloodDrain: 0
-    basicAttackCooldown: 0.9
-    skillIds: 650000006f00000070000000
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
     passiveSkillKey: 
     activeSkillKey: 
-    skillCooldown: 4
+    skillCooldown: 0
     attackKey: 
     synergy: 
     jobType: 0
     tribeType: 0
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-  - id: 2
-    name: Ally_Bow_Red
-    spriteAddress: Ally_Bow
-    healthPoint: 110
-    attackPoint: 6
-    defensePoint: 0
-    attackSpeed: 0
-    criticalMult: 0
-    criticalRate: 0
-    dodgeRate: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 101
+    name: "\uD770\uD1A0\uB07C"
+    spriteAddress: 001_101
+    healthPoint: 77.39
+    attackPoint: 12.32
+    defensePoint: 2.62
+    attackSpeed: 1.49
+    criticalMult: 150
+    criticalRate: 8
+    dodgeRate: 3
     bloodDrain: 0
-    basicAttackCooldown: 1.1
-    skillIds: 66000000790000007a000000
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
     passiveSkillKey: 
     activeSkillKey: 
-    skillCooldown: 4
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 2
+    tribeType: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 102
+    name: "\uCCB4\uC154\uCEA3"
+    spriteAddress: 001_102
+    healthPoint: 62.48
+    attackPoint: 10.42
+    defensePoint: 3.08
+    attackSpeed: 1.12
+    criticalMult: 150
+    criticalRate: 11
+    dodgeRate: 5
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 2
+    tribeType: 2
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 103
+    name: "\uC54C\uB77C\uB518"
+    spriteAddress: 001_103
+    healthPoint: 117
+    attackPoint: 8.1
+    defensePoint: 4.4
+    attackSpeed: 1.14
+    criticalMult: 150
+    criticalRate: 8
+    dodgeRate: 2.5
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 3
+    tribeType: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 104
+    name: "\uC790\uC2A4\uBBFC"
+    spriteAddress: 001_104
+    healthPoint: 49.7
+    attackPoint: 9.52
+    defensePoint: 2.92
+    attackSpeed: 1.02
+    criticalMult: 150
+    criticalRate: 9
+    dodgeRate: 4
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 2
+    tribeType: 3
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 105
+    name: "\uC9C0\uB2C8"
+    spriteAddress: 001_105
+    healthPoint: 80.96
+    attackPoint: 9.58
+    defensePoint: 3.31
+    attackSpeed: 0.75
+    criticalMult: 150
+    criticalRate: 16
+    dodgeRate: 8
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
     synergy: 
     jobType: 0
-    tribeType: 0
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-  - id: 3
-    name: Ally_Staff_Red
-    spriteAddress: Ally_Staff
-    healthPoint: 110
-    attackPoint: 13
-    defensePoint: 0
-    attackSpeed: 0
-    criticalMult: 0
-    criticalRate: 0
-    dodgeRate: 0
+    tribeType: 2
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 106
+    name: "\uC0AC\uC790"
+    spriteAddress: 001_106
+    healthPoint: 127.53
+    attackPoint: 8.91
+    defensePoint: 3.56
+    attackSpeed: 1.38
+    criticalMult: 150
+    criticalRate: 6
+    dodgeRate: 1
     bloodDrain: 0
-    basicAttackCooldown: 1.1
-    skillIds: 670000008300000084000000
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
     passiveSkillKey: 
     activeSkillKey: 
-    skillCooldown: 4
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 3
+    tribeType: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 107
+    name: "\uC591\uCCA0\uB85C\uBD07"
+    spriteAddress: 001_107
+    healthPoint: 99.44
+    attackPoint: 9.37
+    defensePoint: 3.48
+    attackSpeed: 1.04
+    criticalMult: 150
+    criticalRate: 12
+    dodgeRate: 1
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 5
+    tribeType: 4
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 108
+    name: "\uD5C8\uC218\uC544\uBE44"
+    spriteAddress: 001_108
+    healthPoint: 103.96
+    attackPoint: 10.61
+    defensePoint: 3.83
+    attackSpeed: 1.14
+    criticalMult: 150
+    criticalRate: 14
+    dodgeRate: 5
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
     synergy: 
     jobType: 0
-    tribeType: 0
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-  - id: 4
-    name: Ally_Sword_Blue
-    spriteAddress: Ally_Sword
-    healthPoint: 160
-    attackPoint: 8
-    defensePoint: 0
-    attackSpeed: 0
-    criticalMult: 0
-    criticalRate: 0
-    dodgeRate: 0
+    tribeType: 4
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 109
+    name: "\uB3C4\uB85C\uC2DC"
+    spriteAddress: 001_109
+    healthPoint: 101
+    attackPoint: 8.7
+    defensePoint: 4.16
+    attackSpeed: 1
+    criticalMult: 150
+    criticalRate: 12
+    dodgeRate: 5.5
     bloodDrain: 0
-    basicAttackCooldown: 0.9
-    skillIds: 650000006f00000070000000
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
     passiveSkillKey: 
     activeSkillKey: 
-    skillCooldown: 4
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 1
+    tribeType: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 110
+    name: "\uC778\uC5B4\uACF5\uC8FC"
+    spriteAddress: 001_110
+    healthPoint: 55.3
+    attackPoint: 8.67
+    defensePoint: 3.02
+    attackSpeed: 0.93
+    criticalMult: 150
+    criticalRate: 6
+    dodgeRate: 3
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 4
+    tribeType: 3
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 111
+    name: "\uBC31\uC124\uACF5\uC8FC"
+    spriteAddress: 001_111
+    healthPoint: 61.6
+    attackPoint: 7.74
+    defensePoint: 2.84
+    attackSpeed: 0.62
+    criticalMult: 150
+    criticalRate: 12
+    dodgeRate: 3
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 5
+    tribeType: 3
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 112
+    name: "\uD5E8\uC824"
+    spriteAddress: 001_112
+    healthPoint: 61.64
+    attackPoint: 7.52
+    defensePoint: 2.44
+    attackSpeed: 0.76
+    criticalMult: 150
+    criticalRate: 11
+    dodgeRate: 6
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
     synergy: 
     jobType: 0
-    tribeType: 0
-    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
-  - id: 5
-    name: Ally_Bow_Blue
-    spriteAddress: Ally_Bow
-    healthPoint: 110
-    attackPoint: 6
-    defensePoint: 0
-    attackSpeed: 0
-    criticalMult: 0
-    criticalRate: 0
-    dodgeRate: 0
+    tribeType: 5
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 113
+    name: "\uADF8\uB808\uD154"
+    spriteAddress: 001_113
+    healthPoint: 58.96
+    attackPoint: 6.64
+    defensePoint: 2.21
+    attackSpeed: 0.7
+    criticalMult: 150
+    criticalRate: 9
+    dodgeRate: 2
     bloodDrain: 0
-    basicAttackCooldown: 1.1
-    skillIds: 66000000790000007a000000
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
     passiveSkillKey: 
     activeSkillKey: 
-    skillCooldown: 4
+    skillCooldown: 0
     attackKey: 
     synergy: 
-    jobType: 0
-    tribeType: 0
-    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
-  - id: 6
-    name: Ally_Staff_Blue
-    spriteAddress: Ally_Staff
-    healthPoint: 110
-    attackPoint: 13
-    defensePoint: 0
-    attackSpeed: 0
-    criticalMult: 0
-    criticalRate: 0
-    dodgeRate: 0
+    jobType: 5
+    tribeType: 5
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 114
+    name: "\uD53C\uD130\uD32C"
+    spriteAddress: 001_114
+    healthPoint: 88
+    attackPoint: 9.1
+    defensePoint: 3.16
+    attackSpeed: 0.75
+    criticalMult: 150
+    criticalRate: 13
+    dodgeRate: 3.5
     bloodDrain: 0
-    basicAttackCooldown: 1.1
-    skillIds: 670000008300000084000000
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
     passiveSkillKey: 
     activeSkillKey: 
-    skillCooldown: 4
+    skillCooldown: 0
     attackKey: 
     synergy: 
-    jobType: 0
+    jobType: 5
     tribeType: 0
-    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 115
+    name: "\uD305\uCEE4\uBCA8"
+    spriteAddress: 001_115
+    healthPoint: 88.88
+    attackPoint: 8.09
+    defensePoint: 3.95
+    attackSpeed: 0.91
+    criticalMult: 150
+    criticalRate: 13
+    dodgeRate: 6
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 1
+    tribeType: 2
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 116
+    name: "\uCCAB\uC9F8\uB3FC\uC9C0"
+    spriteAddress: 001_116
+    healthPoint: 110.09
+    attackPoint: 9.57
+    defensePoint: 3.37
+    attackSpeed: 1.21
+    criticalMult: 150
+    criticalRate: 10
+    dodgeRate: 4
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 1
+    tribeType: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 117
+    name: "\uB458\uC9F8\uB3FC\uC9C0"
+    spriteAddress: 001_117
+    healthPoint: 86.11
+    attackPoint: 11.22
+    defensePoint: 2.72
+    attackSpeed: 1.36
+    criticalMult: 150
+    criticalRate: 5
+    dodgeRate: 2
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 4
+    tribeType: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 118
+    name: "\uC14B\uC9F8\uB3FC\uC9C0"
+    spriteAddress: 001_118
+    healthPoint: 78.39
+    attackPoint: 5.91
+    defensePoint: 3.08
+    attackSpeed: 1.06
+    criticalMult: 150
+    criticalRate: 4
+    dodgeRate: 1
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 3
+    tribeType: 5
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 119
+    name: "\uD53C\uB178\uD0A4\uC624"
+    spriteAddress: 001_119
+    healthPoint: 102.96
+    attackPoint: 7.53
+    defensePoint: 4.18
+    attackSpeed: 1.04
+    criticalMult: 150
+    criticalRate: 9
+    dodgeRate: 3
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 3
+    tribeType: 2
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 120
+    name: "\uC81C\uD398\uD1A0"
+    spriteAddress: 001_120
+    healthPoint: 80.23
+    attackPoint: 11.54
+    defensePoint: 3.56
+    attackSpeed: 1.71
+    criticalMult: 150
+    criticalRate: 9
+    dodgeRate: 2
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 2
+    tribeType: 4
+    color: {r: 1, g: 1, b: 1, a: 1}
   skillDefinitions:
   - id: 101
     name: Warrior_Basic
