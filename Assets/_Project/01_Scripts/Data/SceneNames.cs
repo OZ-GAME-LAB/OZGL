@@ -30,12 +30,16 @@ namespace OzGameLab01.Data
         /// </summary>
         public const string Combat = "03_Combat";
 
+        #region 테스트용, 불필요 - 삭제한 Proto 씬 전환 기록
+        /* 테스트용, 불필요: ProtoScenes 삭제로 사용하지 않는 기존 코드 보존.
         //public const string Boss = "ProtoBossScene";
 
         /// <summary>
         /// 최종 승리 또는 패배를 표시하는 결과 씬입니다.
         /// </summary>
         //public const string Result = "ProtoResult";
+        */
+        #endregion
 
         
     }

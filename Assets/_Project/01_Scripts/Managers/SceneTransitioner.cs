@@ -216,6 +216,8 @@ namespace OzGameLab01.Managers
             LoadScene(SceneNames.Combat);
         }
 
+        #region 테스트용, 불필요 - 삭제한 Proto 씬 전환 기록
+        /* 테스트용, 불필요: ProtoScenes 삭제로 사용하지 않는 기존 코드 보존.
         /// <summary>
         /// 임시 보스 전투 씬으로 이동합니다.
         /// </summary>
@@ -231,6 +233,8 @@ namespace OzGameLab01.Managers
         //{
         //    LoadScene(SceneNames.Result);
         // }
+        */
+        #endregion
 
         private IEnumerator LoadSceneRoutine(string sceneName)
         {
