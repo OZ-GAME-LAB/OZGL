@@ -65,7 +65,7 @@ namespace OzGameLab01.Controllers
 
             if(_eventUIPanel == null)
             {
-                _eventUIPanel = ChoiceEventManager.Instance;
+                _eventUIPanel = FindFirstObjectByType<ChoiceEventManager>(FindObjectsInactive.Include);
                 if (_eventUIPanel != null)
                 {
                     _eventUIPanel.gameObject.SetActive(false);
