@@ -9,7 +9,7 @@ public class ChoiceEventSO : ScriptableObject
     public int id;
     public string eventTitle;
     public string eventDialog;
-   // public EventCategory eventCategory;
+    public EventCategory eventCategory;
 
     public List<EventChoice> choices;
     //public List<EventChoiceDisplayData> choices_;
@@ -27,12 +27,13 @@ public class EventChoice
     [SerializeField]
     private EventChoiceCategory choiceCategory;
     [SerializeField]
-    private int resultTargetID;
+    private string resultTargetID;
 
+    public int ChoiceIndex => choiceIndex;
     public string ChoiceDialog => choiceDialog;
     public Sprite ChoiceSprite => choiceSprite;
     public EventChoiceCategory ChoiceCategory => choiceCategory;
-    public int ResultTargetID => resultTargetID;
+    public string ResultTargetID => resultTargetID;
 }
 //전체 이벤트 리스트를 관리할 용도
 public class ChoiceEventList : IDataList<ChoiceEventSO>
