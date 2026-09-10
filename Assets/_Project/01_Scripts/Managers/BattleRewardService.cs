@@ -1,3 +1,4 @@
+using OzGameLab01.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Combat;
