@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using OzGameLab01.Data;
 using UnityEngine;
 
 namespace OzGameLab01.Map
@@ -199,13 +200,13 @@ namespace OzGameLab01.Map
             for (int offset = 0; offset < maximumStepsWithoutInteraction; offset++)
             {
                 int beforeIndex = centerIndex - offset;
-                if (beforeIndex > 0 && path[beforeIndex].Type == NodeType.Normal)
+                if (beforeIndex > 0 && IsAvailableNormalNode(path[beforeIndex]))
                 {
                     return path[beforeIndex];
                 }
 
                 int afterIndex = centerIndex + offset;
-                if (afterIndex < path.Count && path[afterIndex].Type == NodeType.Normal)
+                if (afterIndex < path.Count && IsAvailableNormalNode(path[afterIndex]))
                 {
                     return path[afterIndex];
                 }
@@ -217,7 +218,7 @@ namespace OzGameLab01.Map
         private MapNode SelectBestNormalNode(IEnumerable<MapNode> nodes)
         {
             return nodes
-                .Where(node => node.Type == NodeType.Normal)
+                .Where(IsAvailableNormalNode)
                 .OrderByDescending(GetWalkableNeighborCount)
                 .FirstOrDefault();
         }
@@ -234,12 +235,15 @@ namespace OzGameLab01.Map
 
         private static bool IsInteractionNode(MapNode node)
         {
-            return node.Type == NodeType.Battle ||
-                   node.Type == NodeType.Event ||
-                   node.Type == NodeType.Shop ||
-                   node.Type == NodeType.UnitAcquisition ||
-                   node.Type == NodeType.Elite ||
-                   node.Type == NodeType.Boss;
+            return !BoardRunData.IsSpecialTileConsumed(node.Position) &&
+                   MapGenerator.IsSingleUseSpecialTile(node.Type);
+        }
+
+        private static bool IsAvailableNormalNode(MapNode node)
+        {
+            return node != null &&
+                   node.Type == NodeType.Normal &&
+                   !BoardRunData.IsSpecialTileConsumed(node.Position);
         }
     }
 }
