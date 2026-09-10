@@ -44,7 +44,7 @@ namespace OzGameLab01.Controllers
         {
             if (_boardPlayerController == null)
             {
-                _boardPlayerController = FindFirstObjectByType<BoardPlayerController>();
+                _boardPlayerController = BoardPlayerController.Instance;
             }
 
             if (_boardPlayerController == null)
@@ -56,7 +56,7 @@ namespace OzGameLab01.Controllers
 
             if(_eventUIPanel == null)
             {
-                _eventUIPanel = FindFirstObjectByType<ChoiceEventManager>(FindObjectsInactive.Include);
+                _eventUIPanel = ChoiceEventManager.Instance;
                 if (_eventUIPanel != null)
                 {
                     _eventUIPanel.gameObject.SetActive(false);

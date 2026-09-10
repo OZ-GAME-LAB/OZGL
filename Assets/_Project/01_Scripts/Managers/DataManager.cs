@@ -16,7 +16,7 @@ namespace OzGameLab01.Managers
         {
             await Task.WhenAll(
                 Monsters.LoadAsync(""),
-                Units.LoadAsync(""),
+                Units.LoadAsync("JSON/UnitJSON"),
                 Relics.LoadAsync("")
             );
         }
