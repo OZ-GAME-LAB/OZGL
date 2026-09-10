@@ -16,17 +16,15 @@ namespace OzGameLab01.Test
         private void Awake()
         {
             //_choiceEventPanel = Instantiate(choiceEventPrefab, mapCanvas.transform, false);
-            //_choiceEventPanel = Instantiate(choiceEventPrefab);
-            //_choiceEventPanel.transform.localPosition = Vector3.zero;
-            //_choiceEventPanel.gameObject.SetActive(false);
+            _choiceEventPanel = Instantiate(choiceEventPrefab);
+            _choiceEventPanel.transform.localPosition = Vector3.zero;
+            _choiceEventPanel.gameObject.SetActive(false);
         }
 
         public void OnChoiceEventSystem()
         {
-            choiceEventPrefab.gameObject.SetActive(true);
-            choiceEventPrefab.OpenRandomEvent();
-            //_choiceEventPanel.gameObject.SetActive(true);
-            //_choiceEventPanel.OpenRandomEvent();
+            _choiceEventPanel.gameObject.SetActive(true);
+            _choiceEventPanel.OpenRandomEvent();
         }
     }
 }

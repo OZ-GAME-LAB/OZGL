@@ -24,8 +24,8 @@ namespace OzGameLab01.UI
         [SerializeField, Range(0f, 1f)] private float disabledAlpha = 0.6f;
         [SerializeField, Min(0f)] private float unselectedHoldDuration = 0.1f;
 
-        private int _choiceId;
-        private Action<int> _onClick;
+        private string _choiceId;
+        private Action<string> _onClick;
         private Coroutine _exitRoutine;
         private bool _isExiting;
 
@@ -64,24 +64,25 @@ namespace OzGameLab01.UI
         /// <param name="onClick">
         /// 버튼 클릭 시 Choice ID와 함께 호출되는 콜백입니다.
         /// </param>
-        
-        public void Bind(int choiceId, EventChoice data, Action<int> onClick)
+        public void Bind(EventChoiceDisplayData data,Action<string> onClick)
         {
             ResetVisual();
 
-            _choiceId = choiceId;
+            _choiceId = data.Id;
             _onClick = onClick;
 
             if (labelText != null)
             {
                 labelText.text =
-                    data.ChoiceDialog ?? string.Empty;
+                    data.Text ?? string.Empty;
             }
+
             if (artImage != null)
             {
-                artImage.sprite = data.ChoiceSprite;
-                artImage.enabled = data.ChoiceSprite != null;
+                artImage.sprite = data.Icon;
+                artImage.enabled = data.Icon != null;
             }
+
             if (button != null)
             {
                 button.onClick.RemoveListener(HandleClick);
@@ -198,8 +199,8 @@ namespace OzGameLab01.UI
             {
                 return;
             }
-            burnEffect.Play(()=> _onClick?.Invoke(_choiceId));
-            //_onClick?.Invoke(_choiceId);
+
+            _onClick?.Invoke(_choiceId);
         }
 
         #endregion

@@ -92,7 +92,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &2354905482819320395
 RectTransform:
   m_ObjectHideFlags: 0
@@ -986,6 +986,7 @@ GameObject:
   - component: {fileID: 1414753398032861257}
   - component: {fileID: 162884615813773936}
   - component: {fileID: 5210905250746118847}
+  - component: {fileID: 9014682470215004950}
   - component: {fileID: 3199526570893442535}
   - component: {fileID: 3959275483108331219}
   - component: {fileID: 3919572342645761193}
@@ -1068,7 +1069,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 9014682470215004950}
         m_TargetAssemblyTypeName: OzGameLab01.UI.EventChoiceUI, Assembly-CSharp
         m_MethodName: OnClick
         m_Mode: 1
@@ -1100,6 +1101,21 @@ MonoBehaviour:
   burnEffect: {fileID: 3199526570893442535}
   disabledAlpha: 0.6
   unselectedHoldDuration: 0.1
+--- !u!114 &9014682470215004950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8282477529149709784}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 257869544a2a4ca4db60c3cf14b0c2c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.EventChoiceUI
+  choiceImg: {fileID: 1635803650232881013}
+  choiceDialog: {fileID: 7482374132981547010}
+  eventChoiceIndex: 0
 --- !u!114 &3199526570893442535
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -15,10 +15,9 @@ MonoBehaviour:
   id: 3
   eventTitle: blitz!
   eventDialog: You found a suspicious shadow.
-  eventCategory: 1
   choices:
   - choiceIndex: 0
-    choiceSprite: {fileID: 21300000, guid: cd596215f3eddaa488d1b5a59bbb1c75, type: 3}
+    choiceSprite: {fileID: 0}
     choiceDialog: get close
     choiceCategory: 3
     resultTargetID: 31

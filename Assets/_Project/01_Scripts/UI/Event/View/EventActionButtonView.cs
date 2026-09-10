@@ -16,8 +16,8 @@ namespace OzGameLab01.UI
         [SerializeField] private GameObject iconRoot;
         [SerializeField] private Image iconImage;
 
-        private Action<int> _onClick;
-        private int _choiceIndex;
+        private Action _onClick;
+
         #region Unity Lifecycle
 
         private void OnEnable()
@@ -47,9 +47,9 @@ namespace OzGameLab01.UI
         /// </summary>
         /// <param name="label">버튼에 표시할 액션 이름입니다.</param>
         /// <param name="onClick">액션 선택 시 호출되는 단발성 콜백입니다.</param>
-        public void Bind(int choiceIndex, EventChoice eventChoice, Action<int> onClick)
+        public void Bind(string label,Action onClick)
         {
-            Bind(choiceIndex, eventChoice.ChoiceDialog, eventChoice.ChoiceSprite, onClick);
+            Bind(label,null,onClick);
         }
 
         /// <summary>
@@ -61,10 +61,10 @@ namespace OzGameLab01.UI
         /// <param name="label">버튼에 표시할 액션 또는 아이템 이름입니다.</param>
         /// <param name="icon">표시할 아이콘입니다. null이면 아이콘 영역을 숨깁니다.</param>
         /// <param name="onClick">액션 선택 시 호출되는 단발성 콜백입니다.</param>
-        public void Bind(int choiceIndex, string label,Sprite icon,Action<int> onClick)
+        public void Bind(string label,Sprite icon,Action onClick)
         {
             gameObject.SetActive(true);
-            _choiceIndex= choiceIndex;
+
             _onClick = onClick;
 
             if (labelText != null)
@@ -150,7 +150,7 @@ namespace OzGameLab01.UI
 
         private void HandleClick()
         {
-            _onClick?.Invoke(_choiceIndex);
+            _onClick?.Invoke();
         }
 
         #endregion

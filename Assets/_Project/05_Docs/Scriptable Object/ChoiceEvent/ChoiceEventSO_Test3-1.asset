@@ -12,10 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdaac6197b15a3841aa800100e7065d8, type: 3}
   m_Name: ChoiceEventSO_Test3-1
   m_EditorClassIdentifier: Assembly-CSharp::ChoiceEventSO
-  id: 31
+  id: 3
   eventTitle: blitz!
   eventDialog: you base on the attack.
-  eventCategory: 0
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 0}
