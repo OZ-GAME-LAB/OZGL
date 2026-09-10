@@ -22,7 +22,33 @@ MonoBehaviour:
     dodgeRate: 0
     attackSpeed: 0
     skillCooldown: 4
-    skillKey_one: 
-    skillKey_two: 
-    skillKey_three: 
+    skillIds: c9000000ca000000cb000000
     type: 0
+  skillDefinitions:
+  - id: 201
+    name: Enemy_Basic
+    damage: 10
+    cooldown: 1.2
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0
+  - id: 202
+    name: Enemy_Skill1
+    damage: 30
+    cooldown: 4
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0
+  - id: 203
+    name: Enemy_Skill2
+    damage: 30
+    cooldown: 5
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0

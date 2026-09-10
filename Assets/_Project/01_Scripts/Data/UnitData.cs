@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using OzGameLab01.Combat;
 
 namespace OzGameLab01.Data
 {
@@ -40,7 +39,6 @@ namespace OzGameLab01.Data
         public UnitTypeTribe tribeType;
 
         public Color color = Color.white;
-        public Unit.SkillType skillType;
     }
 
     public enum UnitTypeJob

@@ -111,6 +111,12 @@ namespace OzGameLab01.Combat
                 valid = false;
             }
 
+            if (unit.skillIds == null || unit.skillIds.Count == 0)
+            {
+                Debug.LogError($"[CombatDataValidator] 유닛에 스킬(0번째=기본공격)이 하나도 없습니다. ID: {unit.id}", context);
+                valid = false;
+            }
+
             if (string.IsNullOrWhiteSpace(unit.spriteAddress))
             {
                 Debug.LogWarning($"[CombatDataValidator] 유닛 Sprite 리소스 주소가 비어 있습니다. ID: {unit.id}", context);

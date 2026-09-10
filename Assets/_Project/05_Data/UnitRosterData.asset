@@ -18,14 +18,21 @@ MonoBehaviour:
     spriteAddress: Ally_Sword
     healthPoint: 160
     attackPoint: 8
+    defensePoint: 0
+    attackSpeed: 0
+    criticalMult: 0
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
-    attackSpeed: 0
     basicAttackCooldown: 0.9
+    skillIds: 650000006f00000070000000
+    passiveSkillKey: 
+    activeSkillKey: 
     skillCooldown: 4
-    attackKey:
-    skillKey:
+    attackKey: 
+    synergy: 
+    jobType: 0
+    tribeType: 0
     color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
     skillType: 0
   - id: 2
@@ -33,14 +40,21 @@ MonoBehaviour:
     spriteAddress: Ally_Bow
     healthPoint: 110
     attackPoint: 6
+    defensePoint: 0
+    attackSpeed: 0
+    criticalMult: 0
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
-    attackSpeed: 0
     basicAttackCooldown: 1.1
+    skillIds: 66000000790000007a000000
+    passiveSkillKey: 
+    activeSkillKey: 
     skillCooldown: 4
-    attackKey:
-    skillKey:
+    attackKey: 
+    synergy: 
+    jobType: 0
+    tribeType: 0
     color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
     skillType: 1
   - id: 3
@@ -48,14 +62,21 @@ MonoBehaviour:
     spriteAddress: Ally_Staff
     healthPoint: 110
     attackPoint: 13
+    defensePoint: 0
+    attackSpeed: 0
+    criticalMult: 0
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
-    attackSpeed: 0
     basicAttackCooldown: 1.1
+    skillIds: 670000008300000084000000
+    passiveSkillKey: 
+    activeSkillKey: 
     skillCooldown: 4
-    attackKey:
-    skillKey:
+    attackKey: 
+    synergy: 
+    jobType: 0
+    tribeType: 0
     color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
     skillType: 2
   - id: 4
@@ -63,14 +84,21 @@ MonoBehaviour:
     spriteAddress: Ally_Sword
     healthPoint: 160
     attackPoint: 8
+    defensePoint: 0
+    attackSpeed: 0
+    criticalMult: 0
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
-    attackSpeed: 0
     basicAttackCooldown: 0.9
+    skillIds: 650000006f00000070000000
+    passiveSkillKey: 
+    activeSkillKey: 
     skillCooldown: 4
-    attackKey:
-    skillKey:
+    attackKey: 
+    synergy: 
+    jobType: 0
+    tribeType: 0
     color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
     skillType: 0
   - id: 5
@@ -78,14 +106,21 @@ MonoBehaviour:
     spriteAddress: Ally_Bow
     healthPoint: 110
     attackPoint: 6
+    defensePoint: 0
+    attackSpeed: 0
+    criticalMult: 0
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
-    attackSpeed: 0
     basicAttackCooldown: 1.1
+    skillIds: 66000000790000007a000000
+    passiveSkillKey: 
+    activeSkillKey: 
     skillCooldown: 4
-    attackKey:
-    skillKey:
+    attackKey: 
+    synergy: 
+    jobType: 0
+    tribeType: 0
     color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
     skillType: 1
   - id: 6
@@ -93,16 +128,105 @@ MonoBehaviour:
     spriteAddress: Ally_Staff
     healthPoint: 110
     attackPoint: 13
+    defensePoint: 0
+    attackSpeed: 0
+    criticalMult: 0
     criticalRate: 0
     dodgeRate: 0
     bloodDrain: 0
-    attackSpeed: 0
     basicAttackCooldown: 1.1
+    skillIds: 670000008300000084000000
+    passiveSkillKey: 
+    activeSkillKey: 
     skillCooldown: 4
-    attackKey:
-    skillKey:
+    attackKey: 
+    synergy: 
+    jobType: 0
+    tribeType: 0
     color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
     skillType: 2
+  skillDefinitions:
+  - id: 101
+    name: Warrior_Basic
+    damage: 8
+    cooldown: 0.9
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0
+  - id: 102
+    name: Archer_Basic
+    damage: 6
+    cooldown: 1.1
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0
+  - id: 103
+    name: Mage_Basic
+    damage: 13
+    cooldown: 1.1
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0
+  - id: 111
+    name: Warrior_Stun
+    damage: 30
+    cooldown: 4
+    debuff:
+      type: 2
+      duration: 1.5
+      magnitude: 0
+      tickInterval: 0
+  - id: 112
+    name: Warrior_DoT
+    damage: 30
+    cooldown: 5
+    debuff:
+      type: 1
+      duration: 3
+      magnitude: 3
+      tickInterval: 1
+  - id: 121
+    name: Archer_DoT
+    damage: 30
+    cooldown: 4
+    debuff:
+      type: 1
+      duration: 3
+      magnitude: 3
+      tickInterval: 1
+  - id: 122
+    name: Archer_Silence
+    damage: 30
+    cooldown: 5
+    debuff:
+      type: 4
+      duration: 2
+      magnitude: 0
+      tickInterval: 0
+  - id: 131
+    name: Mage_AttackDown
+    damage: 30
+    cooldown: 4
+    debuff:
+      type: 3
+      duration: 3
+      magnitude: 0.3
+      tickInterval: 0
+  - id: 132
+    name: Mage_Silence
+    damage: 30
+    cooldown: 5
+    debuff:
+      type: 4
+      duration: 2
+      magnitude: 0
+      tickInterval: 0
   unitTraits:
   - id: 1
     traits:
