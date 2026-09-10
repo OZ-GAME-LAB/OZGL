@@ -12,6 +12,7 @@ namespace OzGameLab01.UI
         State3
     }
 
+    [DefaultExecutionOrder(1000)]
     [DisallowMultipleComponent]
     public sealed class BoardSightEffectView : MonoBehaviour
     {
@@ -109,42 +110,53 @@ namespace OzGameLab01.UI
                 };
             }
 
-            public static LayerRuntimeState Lerp(LayerRuntimeState from,LayerRuntimeState to,float t)
+            public static LayerRuntimeState Lerp(LayerRuntimeState from, LayerRuntimeState to, float t)
             {
                 return new LayerRuntimeState
                 {
-                    LayerColor = Color.Lerp(from.LayerColor,to.LayerColor,t),
-                    ShadowColor = Color.Lerp(from.ShadowColor,to.ShadowColor,t),
-                    HoleRadius = Mathf.Lerp(from.HoleRadius,to.HoleRadius,t),
-                    InnerSoftness = Mathf.Lerp(from.InnerSoftness,to.InnerSoftness,t),
-                    OuterRadius = Mathf.Lerp(from.OuterRadius,to.OuterRadius,t),
-                    OuterSoftness = Mathf.Lerp(from.OuterSoftness,to.OuterSoftness,t),
-                    LobeCount = Mathf.Lerp(from.LobeCount,to.LobeCount,t),
-                    LobeStrength = Mathf.Lerp(from.LobeStrength,to.LobeStrength,t),
-                    NoiseScale = Mathf.Lerp(from.NoiseScale,to.NoiseScale,t),
-                    NoiseStrength = Mathf.Lerp(from.NoiseStrength,to.NoiseStrength,t),
-                    FineNoiseScale = Mathf.Lerp(from.FineNoiseScale,to.FineNoiseScale,t),
-                    FineNoiseStrength = Mathf.Lerp(from.FineNoiseStrength,to.FineNoiseStrength,t),
-                    NoiseOffset = Vector4.Lerp(from.NoiseOffset,to.NoiseOffset,t),
-                    OuterLobeCount = Mathf.Lerp(from.OuterLobeCount,to.OuterLobeCount,t),
-                    OuterLobeStrength = Mathf.Lerp(from.OuterLobeStrength,to.OuterLobeStrength,t),
-                    OuterNoiseScale = Mathf.Lerp(from.OuterNoiseScale,to.OuterNoiseScale,t),
-                    OuterNoiseStrength = Mathf.Lerp(from.OuterNoiseStrength,to.OuterNoiseStrength,t),
-                    OuterFineNoiseScale = Mathf.Lerp(from.OuterFineNoiseScale,to.OuterFineNoiseScale,t),
-                    OuterFineNoiseStrength = Mathf.Lerp(from.OuterFineNoiseStrength,to.OuterFineNoiseStrength,t),
-                    OuterNoiseOffset = Vector4.Lerp(from.OuterNoiseOffset,to.OuterNoiseOffset,t),
-                    WobbleSpeed = Mathf.Lerp(from.WobbleSpeed,to.WobbleSpeed,t),
-                    WobbleStrength = Mathf.Lerp(from.WobbleStrength,to.WobbleStrength,t),
-                    OuterWobbleStrength = Mathf.Lerp(from.OuterWobbleStrength,to.OuterWobbleStrength,t),
-                    WobbleScale = Mathf.Lerp(from.WobbleScale,to.WobbleScale,t),
-                    NoiseDrift = Mathf.Lerp(from.NoiseDrift,to.NoiseDrift,t),
-                    ShadowExpand = Mathf.Lerp(from.ShadowExpand,to.ShadowExpand,t),
-                    OuterShadowExpand = Mathf.Lerp(from.OuterShadowExpand,to.OuterShadowExpand,t),
-                    ShadowOffsetX = Mathf.Lerp(from.ShadowOffsetX,to.ShadowOffsetX,t),
-                    ShadowOffsetY = Mathf.Lerp(from.ShadowOffsetY,to.ShadowOffsetY,t)
+                    LayerColor = Color.Lerp(from.LayerColor, to.LayerColor, t),
+                    ShadowColor = Color.Lerp(from.ShadowColor, to.ShadowColor, t),
+                    HoleRadius = Mathf.Lerp(from.HoleRadius, to.HoleRadius, t),
+                    InnerSoftness = Mathf.Lerp(from.InnerSoftness, to.InnerSoftness, t),
+                    OuterRadius = Mathf.Lerp(from.OuterRadius, to.OuterRadius, t),
+                    OuterSoftness = Mathf.Lerp(from.OuterSoftness, to.OuterSoftness, t),
+                    LobeCount = Mathf.Lerp(from.LobeCount, to.LobeCount, t),
+                    LobeStrength = Mathf.Lerp(from.LobeStrength, to.LobeStrength, t),
+                    NoiseScale = Mathf.Lerp(from.NoiseScale, to.NoiseScale, t),
+                    NoiseStrength = Mathf.Lerp(from.NoiseStrength, to.NoiseStrength, t),
+                    FineNoiseScale = Mathf.Lerp(from.FineNoiseScale, to.FineNoiseScale, t),
+                    FineNoiseStrength = Mathf.Lerp(from.FineNoiseStrength, to.FineNoiseStrength, t),
+                    NoiseOffset = Vector4.Lerp(from.NoiseOffset, to.NoiseOffset, t),
+                    OuterLobeCount = Mathf.Lerp(from.OuterLobeCount, to.OuterLobeCount, t),
+                    OuterLobeStrength = Mathf.Lerp(from.OuterLobeStrength, to.OuterLobeStrength, t),
+                    OuterNoiseScale = Mathf.Lerp(from.OuterNoiseScale, to.OuterNoiseScale, t),
+                    OuterNoiseStrength = Mathf.Lerp(from.OuterNoiseStrength, to.OuterNoiseStrength, t),
+                    OuterFineNoiseScale = Mathf.Lerp(from.OuterFineNoiseScale, to.OuterFineNoiseScale, t),
+                    OuterFineNoiseStrength = Mathf.Lerp(from.OuterFineNoiseStrength, to.OuterFineNoiseStrength, t),
+                    OuterNoiseOffset = Vector4.Lerp(from.OuterNoiseOffset, to.OuterNoiseOffset, t),
+                    WobbleSpeed = Mathf.Lerp(from.WobbleSpeed, to.WobbleSpeed, t),
+                    WobbleStrength = Mathf.Lerp(from.WobbleStrength, to.WobbleStrength, t),
+                    OuterWobbleStrength = Mathf.Lerp(from.OuterWobbleStrength, to.OuterWobbleStrength, t),
+                    WobbleScale = Mathf.Lerp(from.WobbleScale, to.WobbleScale, t),
+                    NoiseDrift = Mathf.Lerp(from.NoiseDrift, to.NoiseDrift, t),
+                    ShadowExpand = Mathf.Lerp(from.ShadowExpand, to.ShadowExpand, t),
+                    OuterShadowExpand = Mathf.Lerp(from.OuterShadowExpand, to.OuterShadowExpand, t),
+                    ShadowOffsetX = Mathf.Lerp(from.ShadowOffsetX, to.ShadowOffsetX, t),
+                    ShadowOffsetY = Mathf.Lerp(from.ShadowOffsetY, to.ShadowOffsetY, t)
                 };
             }
         }
+
+        [Header("World Space Fog")]
+        [SerializeField] private Camera boardCamera;
+        [SerializeField] private Transform player;
+        [SerializeField] private Transform boardPlane;
+
+        [SerializeField, Min(0.01f)]
+        private float worldUnitsPerPresetUnit = 20f;
+
+        [SerializeField, Min(0.01f)]
+        private float radiusScale = 1f;
 
         [Header("References")]
         [SerializeField] private CanvasGroup canvasGroup;
@@ -192,7 +204,16 @@ namespace OzGameLab01.UI
         private static readonly int ShadowOffsetXId = Shader.PropertyToID("_ShadowOffsetX");
         private static readonly int ShadowOffsetYId = Shader.PropertyToID("_ShadowOffsetY");
         private static readonly int AspectId = Shader.PropertyToID("_Aspect");
+        private static readonly int FogInvViewProjectionId = Shader.PropertyToID("_FogInvViewProjection");
+        private static readonly int FogPlaneId = Shader.PropertyToID("_FogPlane");
+        private static readonly int FogPlaneOriginId = Shader.PropertyToID("_FogPlaneOrigin");
+        private static readonly int FogPlaneRightId = Shader.PropertyToID("_FogPlaneRight");
+        private static readonly int FogPlaneForwardId = Shader.PropertyToID("_FogPlaneForward");
+        private static readonly int FogFocusId = Shader.PropertyToID("_FogFocus");
+        private static readonly int FogWorldSizeId = Shader.PropertyToID("_FogWorldSize");
+        private static readonly int FogWorldEnabledId = Shader.PropertyToID("_FogWorldEnabled");
 
+        private Transform _focusTarget;
         private Coroutine _transitionRoutine;
         private BoardSightState _currentState;
         private bool _isInitialized;
@@ -202,6 +223,13 @@ namespace OzGameLab01.UI
         private void Awake()
         {
             InitializeMaterials();
+
+            if (!_isInitialized)
+            {
+                Debug.LogWarning("안개 View의 Layers 또는 기본 Material 연결을 확인하세요.",this);
+                return;
+            }
+
             UpdateAspect();
 
             BoardSightEffectPreset preset = GetPreset(initialState);
@@ -212,6 +240,73 @@ namespace OzGameLab01.UI
             }
 
             _currentState = initialState;
+        }
+
+        private void LateUpdate()
+        {
+            if (!_isInitialized || layers == null)
+            {
+                return;
+            }
+
+            Transform focus = _focusTarget != null ? _focusTarget : player;
+            bool ready = boardCamera != null && boardPlane != null && focus != null;
+
+            Matrix4x4 inverseViewProjection = Matrix4x4.identity;
+            Vector4 planeEquation = Vector4.zero;
+            Vector3 planeOrigin = Vector3.zero;
+            Vector3 planeRight = Vector3.right;
+            Vector3 planeForward = Vector3.forward;
+            Vector3 focusPosition = Vector3.zero;
+
+            if (ready)
+            {
+                inverseViewProjection = (boardCamera.projectionMatrix * boardCamera.worldToCameraMatrix).inverse;
+
+                planeOrigin = boardPlane.position;
+                planeRight = boardPlane.right;
+                planeForward = boardPlane.forward;
+
+                Vector3 normal = boardPlane.up;
+                planeEquation = new Vector4(normal.x,normal.y,normal.z,-Vector3.Dot(normal, planeOrigin));
+                focusPosition = focus.position;
+            }
+            float worldSize = Mathf.Max(0.01f, worldUnitsPerPresetUnit * radiusScale);
+
+            foreach (SightLayer layer in layers)
+            {
+                if (layer == null)
+                {
+                    continue;
+                }
+
+                UpdateWorldMaterial(layer.LayerMaterial);
+                UpdateWorldMaterial(layer.ShadowMaterial);
+            }
+
+            void UpdateWorldMaterial(Material material)
+            {
+                if (material == null)
+                {
+                    return;
+                }
+
+                material.SetFloat(FogWorldEnabledId, ready ? 1f : 0f);
+
+                if (!ready)
+                {
+                    return;
+                }
+
+                material.SetMatrix(FogInvViewProjectionId, inverseViewProjection);
+
+                material.SetVector(FogPlaneId, planeEquation);
+                material.SetVector(FogPlaneOriginId, planeOrigin);
+                material.SetVector(FogPlaneRightId, planeRight);
+                material.SetVector(FogPlaneForwardId, planeForward);
+                material.SetVector(FogFocusId, focusPosition);
+                material.SetFloat(FogWorldSizeId, worldSize);
+            }
         }
 
         private void OnRectTransformDimensionsChange()
@@ -250,7 +345,7 @@ namespace OzGameLab01.UI
         /// <param name="immediate">
         /// true면 애니메이션 없이 즉시 적용합니다.
         /// </param>
-        public void SetState(BoardSightState state,bool immediate = false)
+        public void SetState(BoardSightState state, bool immediate = false)
         {
             if (!_isInitialized)
             {
@@ -275,12 +370,12 @@ namespace OzGameLab01.UI
                 return;
             }
 
-            _transitionRoutine = StartCoroutine(TransitionRoutine(state,preset));
+            _transitionRoutine = StartCoroutine(TransitionRoutine(state, preset));
         }
 
         /// <summary>
-        /// 현재 설정된 초기 상태와 Preset으로
-        /// 시야 효과를 즉시 복구합니다.
+        /// 초기 시야 프리셋을 즉시 적용하고 표시합니다.
+        /// 카메라·플레이어 연결, 포커스 대상, 크기 배율은 유지합니다.
         /// </summary>
         public void ResetView()
         {
@@ -315,6 +410,59 @@ namespace OzGameLab01.UI
             canvasGroup.alpha = isVisible ? 1f : 0f;
         }
 
+        /// <summary>
+        /// 안개 계산에 사용할 카메라, 플레이어, 보드 평면을 연결합니다.
+        /// 기존 포커스를 해제하고 플레이어 추적으로 복귀합니다.
+        /// </summary>
+        /// <param name="camera">보드를 렌더링하는 카메라입니다.</param>
+        /// <param name="playerTarget">기본으로 추적할 플레이어입니다.</param>
+        /// <param name="plane">
+        /// position을 평면의 기준 위치로, up을 평면의 법선으로 사용합니다.
+        /// right와 forward는 안개 좌표의 가로·세로 방향으로 사용합니다.
+        /// </param>
+        public void Bind(Camera camera,Transform playerTarget,Transform plane)
+        {
+            boardCamera = camera;
+            player = playerTarget;
+            boardPlane = plane;
+            ResetFocus();
+        }
+
+        /// <summary>
+        /// 안개의 빈 영역이 추적할 대상을 변경합니다.
+        /// 카메라의 위치나 추적 대상은 변경하지 않습니다.
+        /// </summary>
+        /// <param name="target">
+        /// 추적할 대상입니다. null이면 기본 플레이어를 추적합니다.
+        /// </param>
+        public void SetFocusTarget(Transform target)
+        {
+            _focusTarget = target;
+        }
+
+        /// <summary>
+        /// 별도로 지정한 포커스를 해제하고 기본 플레이어 추적으로 복귀합니다.
+        /// 시야 상태와 크기 배율은 유지합니다.
+        /// </summary>
+        public void ResetFocus()
+        {
+            _focusTarget = null;
+        }
+
+        /// <summary>
+        /// 프리셋의 월드 환산 크기에 적용할 공통 배율을 설정합니다.
+        /// 빈 영역, 경계 부드러움, 레이어 간격, 그림자 오프셋,
+        /// 노이즈 무늬 크기에 함께 적용됩니다.
+        /// 카메라 줌 보정은 자동 처리되므로 줌에 맞춰 호출할 필요는 없습니다.
+        /// </summary>
+        /// <param name="scale">
+        /// 1이면 기본 크기입니다. 0.01 미만의 값은 0.01로 보정합니다.
+        /// </param>
+        public void SetRadiusScale(float scale)
+        {
+            radiusScale = Mathf.Max(0.01f, scale);
+        }
+
         #endregion
 
         #region State
@@ -337,9 +485,9 @@ namespace OzGameLab01.UI
             }
         }
 
-        private IEnumerator TransitionRoutine(BoardSightState targetState,BoardSightEffectPreset preset)
+        private IEnumerator TransitionRoutine(BoardSightState targetState, BoardSightEffectPreset preset)
         {
-            int count = Mathf.Min(layers.Length,preset.LayerCount);
+            int count = Mathf.Min(layers.Length, preset.LayerCount);
 
             LayerRuntimeState[] startStates = new LayerRuntimeState[count];
             LayerRuntimeState[] targetStates = new LayerRuntimeState[count];
@@ -348,7 +496,7 @@ namespace OzGameLab01.UI
             {
                 BoardSightEffectPreset.LayerPreset targetPreset = preset.GetLayer(i);
 
-                if (targetPreset == null)
+                if (layers[i] == null || targetPreset == null)
                 {
                     continue;
                 }
@@ -357,8 +505,8 @@ namespace OzGameLab01.UI
                 targetStates[i] = LayerRuntimeState.FromPreset(targetPreset);
             }
 
-            float duration = Mathf.Max(0f,preset.TransitionDuration);
-            float layerDelay = Mathf.Max(0f,preset.LayerDelay);
+            float duration = Mathf.Max(0f, preset.TransitionDuration);
+            float layerDelay = Mathf.Max(0f, preset.LayerDelay);
 
             if (duration <= 0f)
             {
@@ -370,14 +518,19 @@ namespace OzGameLab01.UI
                 yield break;
             }
 
-            float totalDuration = duration + layerDelay * Mathf.Max(0,count - 1);
+            float totalDuration = duration + layerDelay * Mathf.Max(0, count - 1);
             float elapsed = 0f;
 
             while (elapsed < totalDuration)
             {
                 for (int i = 0; i < count; i++)
                 {
-                    float layerElapsed = elapsed -layerDelay * i;
+                    if (layers[i] == null || preset.GetLayer(i) == null)
+                    {
+                        continue;
+                    }
+
+                    float layerElapsed = elapsed - layerDelay * i;
 
                     if (layerElapsed < 0f)
                     {
@@ -387,9 +540,9 @@ namespace OzGameLab01.UI
                     float normalized = Mathf.Clamp01(layerElapsed / duration);
                     float eased = preset.TransitionCurve != null ? preset.TransitionCurve.Evaluate(normalized) : normalized;
 
-                    LayerRuntimeState state = LayerRuntimeState.Lerp(startStates[i],targetStates[i],eased);
+                    LayerRuntimeState state = LayerRuntimeState.Lerp(startStates[i], targetStates[i], eased);
 
-                    ApplyRuntimeState(layers[i],state);
+                    ApplyRuntimeState(layers[i], state);
                 }
 
                 elapsed += Time.unscaledDeltaTime;
@@ -434,19 +587,19 @@ namespace OzGameLab01.UI
                     continue;
                 }
 
-                CreateLayerMaterials(layer,i);
+                CreateLayerMaterials(layer, i);
             }
 
             _isInitialized = true;
         }
 
-        private void CreateLayerMaterials(SightLayer layer,int index)
+        private void CreateLayerMaterials(SightLayer layer, int index)
         {
             if (layer.LayerImage != null)
             {
                 layer.LayerMaterial = new Material(fogBaseMaterial);
                 layer.LayerMaterial.name = $"{fogBaseMaterial.name}_Layer_{index + 1}";
-                layer.LayerImage.material =layer.LayerMaterial;
+                layer.LayerImage.material = layer.LayerMaterial;
             }
 
             if (layer.ShadowImage != null)
@@ -468,13 +621,13 @@ namespace OzGameLab01.UI
                 return;
             }
 
-            int count = Mathf.Min(layers.Length,preset.LayerCount);
+            int count = Mathf.Min(layers.Length, preset.LayerCount);
 
             for (int i = 0; i < count; i++)
             {
                 BoardSightEffectPreset.LayerPreset layerPreset = preset.GetLayer(i);
 
-                if (layerPreset == null)
+                if (layers[i] == null || layerPreset == null)
                 {
                     continue;
                 }
@@ -484,13 +637,13 @@ namespace OzGameLab01.UI
             }
         }
 
-        private LayerRuntimeState CaptureCurrentState( SightLayer layer)
+        private LayerRuntimeState CaptureCurrentState(SightLayer layer)
         {
             LayerRuntimeState state = new LayerRuntimeState();
 
             if (layer.LayerImage != null)
             {
-                state.LayerColor =layer.LayerImage.color;
+                state.LayerColor = layer.LayerImage.color;
             }
 
             if (layer.ShadowImage != null)
@@ -544,7 +697,7 @@ namespace OzGameLab01.UI
 
         #region Material Control
 
-        private void ApplyRuntimeState(SightLayer layer,LayerRuntimeState state)
+        private void ApplyRuntimeState(SightLayer layer, LayerRuntimeState state)
         {
             if (layer.LayerImage != null)
             {
@@ -556,48 +709,48 @@ namespace OzGameLab01.UI
                 layer.ShadowImage.color = state.ShadowColor;
             }
 
-            ApplyCommonMaterialState(layer.LayerMaterial,state);
-            ApplyCommonMaterialState(layer.ShadowMaterial,state);
+            ApplyCommonMaterialState(layer.LayerMaterial, state);
+            ApplyCommonMaterialState(layer.ShadowMaterial, state);
 
             if (layer.ShadowMaterial != null)
             {
-                layer.ShadowMaterial.SetFloat(ShadowExpandId,state.ShadowExpand);
-                layer.ShadowMaterial.SetFloat(OuterShadowExpandId,state.OuterShadowExpand);
-                layer.ShadowMaterial.SetFloat(ShadowOffsetXId,state.ShadowOffsetX);
-                layer.ShadowMaterial.SetFloat(ShadowOffsetYId,state.ShadowOffsetY);
+                layer.ShadowMaterial.SetFloat(ShadowExpandId, state.ShadowExpand);
+                layer.ShadowMaterial.SetFloat(OuterShadowExpandId, state.OuterShadowExpand);
+                layer.ShadowMaterial.SetFloat(ShadowOffsetXId, state.ShadowOffsetX);
+                layer.ShadowMaterial.SetFloat(ShadowOffsetYId, state.ShadowOffsetY);
             }
         }
 
-        private void ApplyCommonMaterialState(Material material,LayerRuntimeState state)
+        private void ApplyCommonMaterialState(Material material, LayerRuntimeState state)
         {
             if (material == null)
             {
                 return;
             }
 
-            material.SetFloat(HoleRadiusId,state.HoleRadius);
-            material.SetFloat(SoftnessId,state.InnerSoftness);
-            material.SetFloat(OuterRadiusId,state.OuterRadius);
-            material.SetFloat(OuterSoftnessId,state.OuterSoftness);
-            material.SetFloat(LobeCountId,state.LobeCount);
-            material.SetFloat(LobeStrengthId,state.LobeStrength);
-            material.SetFloat(NoiseScaleId,state.NoiseScale);
-            material.SetFloat(NoiseStrengthId,state.NoiseStrength);
-            material.SetFloat(FineNoiseScaleId,state.FineNoiseScale);
-            material.SetFloat(FineNoiseStrengthId,state.FineNoiseStrength);
-            material.SetVector(NoiseOffsetId,state.NoiseOffset);
-            material.SetFloat(OuterLobeCountId,state.OuterLobeCount);
-            material.SetFloat(OuterLobeStrengthId,state.OuterLobeStrength);
-            material.SetFloat(OuterNoiseScaleId,state.OuterNoiseScale);
-            material.SetFloat(OuterNoiseStrengthId,state.OuterNoiseStrength);
-            material.SetFloat(OuterFineNoiseScaleId,state.OuterFineNoiseScale);
-            material.SetFloat(OuterFineNoiseStrengthId,state.OuterFineNoiseStrength);
-            material.SetVector(OuterNoiseOffsetId,state.OuterNoiseOffset);
-            material.SetFloat(WobbleSpeedId,state.WobbleSpeed);
-            material.SetFloat(WobbleStrengthId,state.WobbleStrength);
-            material.SetFloat(OuterWobbleStrengthId,state.OuterWobbleStrength);
-            material.SetFloat(WobbleScaleId,state.WobbleScale);
-            material.SetFloat(NoiseDriftId,state.NoiseDrift);
+            material.SetFloat(HoleRadiusId, state.HoleRadius);
+            material.SetFloat(SoftnessId, state.InnerSoftness);
+            material.SetFloat(OuterRadiusId, state.OuterRadius);
+            material.SetFloat(OuterSoftnessId, state.OuterSoftness);
+            material.SetFloat(LobeCountId, state.LobeCount);
+            material.SetFloat(LobeStrengthId, state.LobeStrength);
+            material.SetFloat(NoiseScaleId, state.NoiseScale);
+            material.SetFloat(NoiseStrengthId, state.NoiseStrength);
+            material.SetFloat(FineNoiseScaleId, state.FineNoiseScale);
+            material.SetFloat(FineNoiseStrengthId, state.FineNoiseStrength);
+            material.SetVector(NoiseOffsetId, state.NoiseOffset);
+            material.SetFloat(OuterLobeCountId, state.OuterLobeCount);
+            material.SetFloat(OuterLobeStrengthId, state.OuterLobeStrength);
+            material.SetFloat(OuterNoiseScaleId, state.OuterNoiseScale);
+            material.SetFloat(OuterNoiseStrengthId, state.OuterNoiseStrength);
+            material.SetFloat(OuterFineNoiseScaleId, state.OuterFineNoiseScale);
+            material.SetFloat(OuterFineNoiseStrengthId, state.OuterFineNoiseStrength);
+            material.SetVector(OuterNoiseOffsetId, state.OuterNoiseOffset);
+            material.SetFloat(WobbleSpeedId, state.WobbleSpeed);
+            material.SetFloat(WobbleStrengthId, state.WobbleStrength);
+            material.SetFloat(OuterWobbleStrengthId, state.OuterWobbleStrength);
+            material.SetFloat(WobbleScaleId, state.WobbleScale);
+            material.SetFloat(NoiseDriftId, state.NoiseDrift);
         }
 
         private void UpdateAspect()
@@ -623,12 +776,12 @@ namespace OzGameLab01.UI
 
                 if (layer.LayerMaterial != null)
                 {
-                    layer.LayerMaterial.SetFloat(AspectId,aspect);
+                    layer.LayerMaterial.SetFloat(AspectId, aspect);
                 }
 
                 if (layer.ShadowMaterial != null)
                 {
-                    layer.ShadowMaterial.SetFloat(AspectId,aspect);
+                    layer.ShadowMaterial.SetFloat(AspectId, aspect);
                 }
             }
         }
@@ -668,5 +821,6 @@ namespace OzGameLab01.UI
         }
 
         #endregion
+
     }
 }
