@@ -17,6 +17,14 @@ namespace OzGameLab01.Combat
             public float cooldown;
         }
 
+        [System.Serializable]
+        private struct SkillProfile
+        {
+            public AttackProfile attack;
+            [Tooltip("명중 시 대상에게 부여할 디버프. type을 None으로 두면 디버프 없이 데미지만 적용.")]
+            public DebuffProfile debuff;
+        }
+
         [SerializeField] private Team team;
         [SerializeField] private float maxHP = 100f;
         [SerializeField] private AttackProfile basicAttack = new AttackProfile { damage = 10f, cooldown = 1.2f };
@@ -26,8 +34,9 @@ namespace OzGameLab01.Combat
 
         [SerializeField] private SkillType skillType;
 
-        [Header("Skill (별도 쿨다운, 발광 후 강한 투사체)")]
-        [SerializeField] private AttackProfile skillAttack = new AttackProfile { damage = 30f, cooldown = 4f };
+        [Header("Skill (기본 공격 외 2종, 각자 쿨다운마다 자동 발동)")]
+        [SerializeField] private SkillProfile skillAttack = new SkillProfile { attack = new AttackProfile { damage = 30f, cooldown = 4f } };
+        [SerializeField] private SkillProfile skillAttack2 = new SkillProfile { attack = new AttackProfile { damage = 30f, cooldown = 5f } };
         [SerializeField] private Color skillGlowColor = new Color(1f, 0.95f, 0.3f, 1f);
         [SerializeField] private float skillGlowDuration = 0.35f;
 
@@ -42,14 +51,18 @@ namespace OzGameLab01.Combat
         private bool _isDead;
         private float _attackTimer;
         private float _skillTimer;
+        private float _skillTimer2;
         // 활성 프리팹이 Instantiate될 때 Configure보다 Awake가 먼저 실행된 경우를 구분합니다.
         private bool _awakeInitialized;
         // 체력바/색상 연출/투사체 UI·월드 표시 등 시각 표현은 UnitPresenter에 위임합니다.
         private UnitPresenter _presenter;
+        // 도트/기절/그을림/침묵 디버프 상태는 UnitStatusEffects에 위임합니다.
+        private UnitStatusEffects _status;
 
         private void Awake()
         {
             _presenter = new UnitPresenter(healthBar, spriteRenderer, projectilePrefab, skillGlowColor, skillGlowDuration, team);
+            _status = new UnitStatusEffects();
             InitializeRuntimeState();
             BattleUnitRegistry.Register(this);
             _awakeInitialized = true;
@@ -72,6 +85,19 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            // 도트 데미지는 기절 중에도 계속 진행되어야 하므로 가장 먼저 처리합니다.
+            _status.Tick(Time.deltaTime, dmg => TakeDamage(dmg));
+            _presenter.SetDebuffTint(_status.IndicatorColor);
+            if (_isDead)
+            {
+                return;
+            }
+
+            if (_status.IsStunned)
+            {
+                return;
+            }
+
             Unit target = ResolveTarget();
             if (target == null)
             {
@@ -85,11 +111,23 @@ namespace OzGameLab01.Combat
                 _attackTimer = basicAttack.cooldown;
             }
 
+            if (_status.IsSilenced)
+            {
+                return;
+            }
+
             _skillTimer -= Time.deltaTime;
             if (_skillTimer <= 0f)
             {
-                StartCoroutine(SkillAttack(target));
-                _skillTimer = skillAttack.cooldown;
+                StartCoroutine(SkillAttack(target, skillAttack));
+                _skillTimer = skillAttack.attack.cooldown;
+            }
+
+            _skillTimer2 -= Time.deltaTime;
+            if (_skillTimer2 <= 0f)
+            {
+                StartCoroutine(SkillAttack(target, skillAttack2));
+                _skillTimer2 = skillAttack2.attack.cooldown;
             }
         }
 
@@ -111,7 +149,7 @@ namespace OzGameLab01.Combat
             maxHP = data.healthPoint;
             basicAttack.damage = data.attackPoint;
             basicAttack.cooldown = data.basicAttackCooldown;
-            skillAttack.cooldown = data.skillCooldown;
+            skillAttack.attack.cooldown = data.skillCooldown;
 
             if (spriteRenderer != null)
             {
@@ -138,7 +176,7 @@ namespace OzGameLab01.Combat
 
             maxHP = data.healthPoint;
             basicAttack.damage = data.attackPoint;
-            skillAttack.cooldown = data.skillCooldown;
+            skillAttack.attack.cooldown = data.skillCooldown;
 
             if (_awakeInitialized)
             {
@@ -155,7 +193,8 @@ namespace OzGameLab01.Combat
                 float multiplier = 1f + 0.1f * (_level - 1);
                 maxHP *= multiplier;
                 basicAttack.damage *= multiplier;
-                skillAttack.damage *= multiplier;
+                skillAttack.attack.damage *= multiplier;
+                skillAttack2.attack.damage *= multiplier;
             }
 
             _isDead = false;
@@ -164,7 +203,8 @@ namespace OzGameLab01.Combat
             _presenter.CaptureOriginalColor();
 
             _attackTimer = basicAttack.cooldown;
-            _skillTimer = skillAttack.cooldown;
+            _skillTimer = skillAttack.attack.cooldown;
+            _skillTimer2 = skillAttack2.attack.cooldown;
         }
 
         public void ApplySynergyBonus(float hpMultiplier, float attackMultiplier)
@@ -174,7 +214,8 @@ namespace OzGameLab01.Combat
             _presenter.InitHealthBar(maxHP);
 
             basicAttack.damage *= attackMultiplier;
-            skillAttack.damage *= attackMultiplier;
+            skillAttack.attack.damage *= attackMultiplier;
+            skillAttack2.attack.damage *= attackMultiplier;
         }
 
         /// <summary>
@@ -207,16 +248,19 @@ namespace OzGameLab01.Combat
                 RelicManager.Instance?.DispatchAttack();
             }
 
-            _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, damage);
+            // 그을림(공격력 감소) 디버프는 데미지 계산 시점에 반영한다.
+            float effectiveDamage = damage * _status.AttackMultiplier;
+            _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, effectiveDamage);
         }
 
-        private IEnumerator SkillAttack(Unit target)
+        private IEnumerator SkillAttack(Unit target, SkillProfile skill)
         {
             yield return _presenter.SkillGlow();
 
             if (target != null && !target.IsDead)
             {
-                FireProjectile(target, skillAttack.damage);
+                FireProjectile(target, skill.attack.damage);
+                target._status.Apply(skill.debuff);
             }
         }
 

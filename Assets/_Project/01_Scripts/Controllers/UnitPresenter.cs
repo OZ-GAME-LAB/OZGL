@@ -20,6 +20,7 @@ namespace OzGameLab01.Combat
         private readonly Unit.Team team;
 
         private Color _originalColor;
+        private bool _isColorEffectPlaying;
         private RectTransform _combatAnchor;
         private Image _combatImage;
         private UIProjectilePool _uiProjectilePool;
@@ -148,6 +149,8 @@ namespace OzGameLab01.Combat
                 yield break;
             }
 
+            _isColorEffectPlaying = true;
+
             float half = skillGlowDuration / 2f;
             float t = 0f;
 
@@ -167,6 +170,7 @@ namespace OzGameLab01.Combat
             }
 
             spriteRenderer.color = _originalColor;
+            _isColorEffectPlaying = false;
         }
 
         public IEnumerator HitFlash()
@@ -176,6 +180,8 @@ namespace OzGameLab01.Combat
                 yield break;
             }
 
+            _isColorEffectPlaying = true;
+
             for (int i = 0; i < 3; i++)
             {
                 spriteRenderer.color = Color.white;
@@ -183,6 +189,22 @@ namespace OzGameLab01.Combat
                 spriteRenderer.color = _originalColor;
                 yield return new WaitForSeconds(0.05f);
             }
+
+            _isColorEffectPlaying = false;
+        }
+
+        /// <summary>
+        /// 활성 디버프를 나타내는 플레이스홀더 틴트. HitFlash/SkillGlow가 진행 중일 때는
+        /// 색상 채널을 두고 다투지 않도록 무시한다(둘 다 짧게 끝나므로 다음 프레임에 다시 반영됨).
+        /// </summary>
+        public void SetDebuffTint(Color? tint)
+        {
+            if (spriteRenderer == null || _isColorEffectPlaying)
+            {
+                return;
+            }
+
+            spriteRenderer.color = tint ?? _originalColor;
         }
     }
 }

@@ -139,8 +139,23 @@ MonoBehaviour:
   projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
   skillType: 1
   skillAttack:
-    damage: 30
-    cooldown: 4
+    attack:
+      damage: 30
+      cooldown: 4
+    debuff:
+      type: 1
+      duration: 3
+      magnitude: 3
+      tickInterval: 1
+  skillAttack2:
+    attack:
+      damage: 30
+      cooldown: 5
+    debuff:
+      type: 4
+      duration: 2
+      magnitude: 0
+      tickInterval: 0
   skillGlowColor: {r: 1, g: 0.95, b: 0.3, a: 1}
   skillGlowDuration: 0.35
 --- !u!1 &3208309019493305694
