@@ -33,6 +33,8 @@ namespace OzGameLab01.Controllers
             {
                 // 행동력은 음수가 될 수 없으므로, 외부에서 잘못된 값이 들어와도 0으로 보정합니다.
                 _currentDiceValue = Mathf.Max(0, value);
+                // 표시 눈금과 저장용 런 데이터 동기화
+                BoardRunData.SetRemainingDiceValue(_currentDiceValue);
 
                 // 외부 시스템에서 행동력을 변경한 시점을 추적할 수 있도록 변경 결과를 기록합니다.
                 Debug.Log(
@@ -69,6 +71,8 @@ namespace OzGameLab01.Controllers
         public void SetupPlayer(MapNode startNode)
         {
             _currentNode = startNode;
+            // 보드 생성 후 Continue 잔여 눈금 및 HUD 복원, New Game 기본값 0 적용
+            CurrentDiceValue = BoardRunData.RemainingDiceValue;
 
             // MapGenerator를 찾아 기획자가 설정한 타일 간격을 가져옵니다 (기본값 2f).
             float spacing = 2f;
