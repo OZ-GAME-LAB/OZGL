@@ -84,6 +84,85 @@ namespace OzGameLab01.Controllers
 
         private Dictionary<int, List<SynergyDefinition>> unitTraitsById;
 
+        // 호버 대상별 진입 상태와 상세 데이터 연결 추가
+        private UnitItemView _hoveredUnit;
+        private UnitSlotItemView _hoveredSlot;
+
+        private void HandleUnitPointerEntered(UnitItemView item, PointerEventData eventData)
+        {
+            _hoveredUnit = item;
+            RefreshHoveredDetail();
+        }
+
+        private void HandleUnitPointerExited(UnitItemView item, PointerEventData eventData)
+        {
+            if (_hoveredUnit == item)
+            {
+                _hoveredUnit = null;
+            }
+            RefreshHoveredDetail();
+        }
+
+        private void HandleSlotPointerEntered(UnitSlotItemView slot, PointerEventData eventData)
+        {
+            _hoveredSlot = slot;
+            RefreshHoveredDetail();
+        }
+
+        private void HandleSlotPointerExited(UnitSlotItemView slot, PointerEventData eventData)
+        {
+            if (_hoveredSlot == slot)
+            {
+                _hoveredSlot = null;
+            }
+            RefreshHoveredDetail();
+        }
+
+        private void ResetHoveredDetail()
+        {
+            _hoveredUnit = null;
+            _hoveredSlot = null;
+            if (unitView != null)
+            {
+                unitView.HideUnitDetail();
+            }
+        }
+
+        private void RefreshHoveredDetail()
+        {
+            if (unitView == null || unitView.UnitDetailView == null)
+            {
+                return;
+            }
+            UnitData data = null;
+            if (draggingUnitItem == null)
+            {
+                if (_hoveredUnit != null && _hoveredUnit.isActiveAndEnabled)
+                {
+                    unitDataByItem.TryGetValue(_hoveredUnit, out data);
+                }
+                if (data == null && _hoveredSlot != null && _hoveredSlot.isActiveAndEnabled)
+                {
+                    int index = _hoveredSlot.SlotIndex;
+                    if (_hoveredSlot.IsBattleSlot && IsValidBattleSlot(index))
+                    {
+                        data = battleUnitData[index];
+                    }
+                    if (_hoveredSlot.IsSupportSlot && IsValidSupportSlot(index))
+                    {
+                        data = supportUnitData[index];
+                    }
+                }
+            }
+            if (data == null)
+            {
+                unitView.HideUnitDetail();
+                return;
+            }
+            unitView.UnitDetailView.LoadUnit(data, GetUnitIcon(data));
+            unitView.ShowUnitDetail();
+        }
+
         /// <summary>
         /// 현재 배치 화면에 연결된 테스트 유닛 데이터를 반환합니다.
         /// </summary>
@@ -145,6 +224,8 @@ namespace OzGameLab01.Controllers
 
         private void OnDisable()
         {
+            // 화면 종료 시 호버 상태 초기화
+            ResetHoveredDetail();
             UnsubscribeViewEvents();
             ClearDragState();
         }
@@ -168,6 +249,11 @@ namespace OzGameLab01.Controllers
             }
 
             unitView.UnitClicked += HandleUnitClicked;
+            // 보유 목록과 전투 및 서브 슬롯 호버 구독 추가
+            unitView.UnitPointerEntered += HandleUnitPointerEntered;
+            unitView.UnitPointerExited += HandleUnitPointerExited;
+            unitView.SlotPointerEntered += HandleSlotPointerEntered;
+            unitView.SlotPointerExited += HandleSlotPointerExited;
             unitView.UnitBeginDragged += HandleUnitBeginDragged;
             unitView.UnitDragged += HandleUnitDragged;
             unitView.UnitEndDragged += HandleUnitEndDragged;
@@ -185,6 +271,11 @@ namespace OzGameLab01.Controllers
             }
 
             unitView.UnitClicked -= HandleUnitClicked;
+            // 호버 이벤트 구독 해제 추가
+            unitView.UnitPointerEntered -= HandleUnitPointerEntered;
+            unitView.UnitPointerExited -= HandleUnitPointerExited;
+            unitView.SlotPointerEntered -= HandleSlotPointerEntered;
+            unitView.SlotPointerExited -= HandleSlotPointerExited;
             unitView.UnitBeginDragged -= HandleUnitBeginDragged;
             unitView.UnitDragged -= HandleUnitDragged;
             unitView.UnitEndDragged -= HandleUnitEndDragged;
@@ -221,13 +312,14 @@ namespace OzGameLab01.Controllers
                     //     attackKey = source.attackKey,
                     //     skillKey = source.skillKey
                     // });
-                    // 누락된 필드까지 포함한 로스터 원본 데이터를 id 기준으로 복제합니다.
+                    // 누락된 필드까지 포함한 로스터 원본 데이터를 id 기준으로 복제
                     testUnitDataList.Add(CloneCanonicalUnitData(source));
                 }
             }
             else
             {
-                Debug.LogWarning("[UnitFormationController] PlayerInventoryManager를 씬에서 찾을 수 없습니다. (매니저 오브젝트를 생성해주세요!)", this);
+                Debug.LogWarning("[UnitFormationController] PlayerInventoryManager를 씬에서 찾을 수 없습니다. " +
+                    "(매니저 오브젝트를 생성해주세요!)", this);
             }
         }
 
@@ -278,13 +370,13 @@ namespace OzGameLab01.Controllers
         {
             if (unitView == null)
             {
-                //Debug.LogError("[UnitFormationController] UnitView가 연결되지 않았습니다.", this);
+                Debug.LogError("[UnitFormationController] UnitView가 연결되지 않았습니다.", this);
                 return;
             }
 
             if (unitItemTemplate == null)
             {
-                //Debug.LogError("[UnitFormationController] 유닛 아이템 원본이 연결되지 않았습니다.", this);
+                Debug.LogError("[UnitFormationController] 유닛 아이템 원본이 연결되지 않았습니다.", this);
                 return;
             }
 
@@ -488,6 +580,8 @@ namespace OzGameLab01.Controllers
         /// </summary>
         private void HandleUnitBeginDragged(UnitItemView unitItem, PointerEventData eventData)
         {
+            // 드래그 중 상세 팝업 숨김 처리
+            ResetHoveredDetail();
             if (unitItem == null)
             {
                 return;
@@ -906,15 +1000,10 @@ namespace OzGameLab01.Controllers
             int targetIndex = targetSlot.SlotIndex;
 
             supportUnitItems[sourceIndex] = targetUnitItem;
-
             supportUnitData[sourceIndex] = targetUnitData;
-
             supportUnitItems[targetIndex] = unitItem;
-
             supportUnitData[targetIndex] = unitData;
-
             MoveUnitItemToSlot(targetUnitItem, sourceSlot);
-
             MoveUnitItemToSlot(unitItem, targetSlot);
 
             sourceSlot.SetOccupied(true);
@@ -1211,6 +1300,8 @@ namespace OzGameLab01.Controllers
 
             unitView.SetSupportUnitCount(supportUnitCount, SupportSlotCount);
 
+            // 우클릭 배치 변경 후 현재 호버 데이터 갱신
+            RefreshHoveredDetail();
             RefreshSynergyPanel();
         }
 
