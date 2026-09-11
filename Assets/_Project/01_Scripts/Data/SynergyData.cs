@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 
 [System.Serializable]
-public class SynergyDataList
+public class SynergyDataList : IDataList<SynergyData>
 {
     public List<SynergyData> synergyList = new();
     public List<SynergyData> GetList() => synergyList;
