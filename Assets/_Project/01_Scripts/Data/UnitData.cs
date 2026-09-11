@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using OzGameLab01.Combat;
 
 namespace OzGameLab01.Data
 {
@@ -22,9 +21,12 @@ namespace OzGameLab01.Data
         public float defensePoint;      // 방어력
         public float attackSpeed;       // 공격 속도
         public float criticalMult;      // 치명타 배율
-        public float criticalRate;        // 치명 확률
+        public float criticalRate;      // 치명 확률
         public float dodgeRate;         // 회피율
+        public int bloodDrain;          // 흡혈
         public float basicAttackCooldown = 1f;
+
+        public List<int> skillIds = new List<int>();
 
         public string passiveSkillKey;
         public string activeSkillKey;
@@ -32,12 +34,11 @@ namespace OzGameLab01.Data
 
         public string attackKey;
 
-        // 공용 아군 프리팹(Unit.Configure)이 생성 시 참조하는 시각/전투 클래스 정보
-        public Color color = Color.white;
-        public Unit.SkillType skillType;
-
+        public string synergy;
         public UnitTypeJob jobType;
         public UnitTypeTribe tribeType;
+
+        public Color color = Color.white;
     }
 
     public enum UnitTypeJob

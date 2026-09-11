@@ -29,22 +29,10 @@ namespace OzGameLab01.Managers
 
         private static bool ApplyExperience(float amount, IEnumerable<Unit> units, Object context)
         {
-            if (amount <= 0f || units == null)
-            {
-                Debug.LogError("[BattleRewardService] 경험치 보상 값 또는 대상 유닛이 올바르지 않습니다.", context);
-                return false;
-            }
-
-            HashSet<Unit.SkillType> rewardedTypes = new HashSet<Unit.SkillType>();
-            foreach (Unit unit in units)
-            {
-                if (unit != null && rewardedTypes.Add(unit.Skill))
-                {
-                    SceneTransitioner.AddExp(unit.Skill, amount);
-                }
-            }
-
-            return rewardedTypes.Count > 0;
+            // 클래스별 레벨업 기능 폐지로 더 이상 지급하지 않습니다. BattleRewardKind는
+            // 기존 보상 asset의 직렬화된 값을 밀리지 않도록 값 자체는 유지합니다.
+            Debug.LogWarning("[BattleRewardService] 경험치 보상은 더 이상 지원하지 않습니다.", context);
+            return false;
         }
 
         private static bool ApplyRelic(int relicId, Object context)
