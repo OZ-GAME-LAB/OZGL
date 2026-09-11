@@ -56,6 +56,7 @@ public class BoardRunSaveData
     public bool isBossBattle;
     public bool isEliteBattle;
     public bool isBossDefeated;
+    public int remainingDiceValue; // 저장 시점의 이동 가능한 잔여 주사위 눈금
     public int unusedActionPoints; // 턴 종료시 남은 행동력
     public int turnCount;
     public int defeatedElitesCount;
