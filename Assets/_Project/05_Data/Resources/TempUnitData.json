@@ -1,0 +1,382 @@
+{
+  "unitList": [
+    {
+      "id": 100,
+      "name": "앨리스",
+      "spriteAddress": "001_100",
+      "healthPoint": 92.0,
+      "attackPoint": 10.3,
+      "defensePoint": 3.48,
+      "attackSpeed": 0.82,
+      "criticalMult": 150.0,
+      "criticalRate": 15.0,
+      "dodgeRate": 7.5,
+      "jobType": "Assasin",
+      "tribeType": "Human",
+      "skillIds": [
+        900,
+        910
+      ]
+    },
+    {
+      "id": 101,
+      "name": "흰토끼",
+      "spriteAddress": "001_101",
+      "healthPoint": 77.39,
+      "attackPoint": 12.32,
+      "defensePoint": 2.62,
+      "attackSpeed": 1.49,
+      "criticalMult": 150.0,
+      "criticalRate": 8.0,
+      "dodgeRate": 3.0,
+      "jobType": "Sage",
+      "tribeType": "Beast",
+      "skillIds": [
+        900,
+        911
+      ]
+    },
+    {
+      "id": 102,
+      "name": "체셔캣",
+      "spriteAddress": "001_102",
+      "healthPoint": 62.48,
+      "attackPoint": 10.42,
+      "defensePoint": 3.08,
+      "attackSpeed": 1.12,
+      "criticalMult": 150.0,
+      "criticalRate": 11.0,
+      "dodgeRate": 5.0,
+      "jobType": "Sage",
+      "tribeType": "Fairy",
+      "skillIds": [
+        900,
+        912
+      ]
+    },
+    {
+      "id": 103,
+      "name": "알라딘",
+      "spriteAddress": "001_103",
+      "healthPoint": 117.0,
+      "attackPoint": 8.1,
+      "defensePoint": 4.4,
+      "attackSpeed": 1.14,
+      "criticalMult": 150.0,
+      "criticalRate": 8.0,
+      "dodgeRate": 2.5,
+      "jobType": "Knight",
+      "tribeType": "Human",
+      "skillIds": [
+        900,
+        913
+      ]
+    },
+    {
+      "id": 104,
+      "name": "자스민",
+      "spriteAddress": "001_104",
+      "healthPoint": 49.7,
+      "attackPoint": 9.52,
+      "defensePoint": 2.92,
+      "attackSpeed": 1.02,
+      "criticalMult": 150.0,
+      "criticalRate": 9.0,
+      "dodgeRate": 4.0,
+      "jobType": "Sage",
+      "tribeType": "Princess",
+      "skillIds": [
+        900,
+        910
+      ]
+    },
+    {
+      "id": 105,
+      "name": "지니",
+      "spriteAddress": "001_105",
+      "healthPoint": 80.96,
+      "attackPoint": 9.58,
+      "defensePoint": 3.31,
+      "attackSpeed": 0.75,
+      "criticalMult": 150.0,
+      "criticalRate": 16.0,
+      "dodgeRate": 8.0,
+      "jobType": "Assasin",
+      "tribeType": "Fairy",
+      "skillIds": [
+        900,
+        911
+      ]
+    },
+    {
+      "id": 106,
+      "name": "사자",
+      "spriteAddress": "001_106",
+      "healthPoint": 127.53,
+      "attackPoint": 8.91,
+      "defensePoint": 3.56,
+      "attackSpeed": 1.38,
+      "criticalMult": 150.0,
+      "criticalRate": 6.0,
+      "dodgeRate": 1.0,
+      "jobType": "Knight",
+      "tribeType": "Beast",
+      "skillIds": [
+        900,
+        912
+      ]
+    },
+    {
+      "id": 107,
+      "name": "양철로봇",
+      "spriteAddress": "001_107",
+      "healthPoint": 99.44,
+      "attackPoint": 9.37,
+      "defensePoint": 3.48,
+      "attackSpeed": 1.04,
+      "criticalMult": 150.0,
+      "criticalRate": 12.0,
+      "dodgeRate": 1.0,
+      "jobType": "Shooter",
+      "tribeType": "Machine",
+      "skillIds": [
+        900,
+        913
+      ]
+    },
+    {
+      "id": 108,
+      "name": "허수아비",
+      "spriteAddress": "001_108",
+      "healthPoint": 103.96,
+      "attackPoint": 10.61,
+      "defensePoint": 3.83,
+      "attackSpeed": 1.14,
+      "criticalMult": 150.0,
+      "criticalRate": 14.0,
+      "dodgeRate": 5.0,
+      "jobType": "Assasin",
+      "tribeType": "Machine",
+      "skillIds": [
+        900,
+        910
+      ]
+    },
+    {
+      "id": 109,
+      "name": "도로시",
+      "spriteAddress": "001_109",
+      "healthPoint": 101.0,
+      "attackPoint": 8.7,
+      "defensePoint": 4.16,
+      "attackSpeed": 1.0,
+      "criticalMult": 150.0,
+      "criticalRate": 12.0,
+      "dodgeRate": 5.5,
+      "jobType": "Tricster",
+      "tribeType": "Human",
+      "skillIds": [
+        900,
+        911
+      ]
+    },
+    {
+      "id": 110,
+      "name": "인어공주",
+      "spriteAddress": "001_110",
+      "healthPoint": 55.3,
+      "attackPoint": 8.67,
+      "defensePoint": 3.02,
+      "attackSpeed": 0.93,
+      "criticalMult": 150.0,
+      "criticalRate": 6.0,
+      "dodgeRate": 3.0,
+      "jobType": "Healer",
+      "tribeType": "Princess",
+      "skillIds": [
+        900,
+        912
+      ]
+    },
+    {
+      "id": 111,
+      "name": "백설공주",
+      "spriteAddress": "001_111",
+      "healthPoint": 61.6,
+      "attackPoint": 7.74,
+      "defensePoint": 2.84,
+      "attackSpeed": 0.62,
+      "criticalMult": 150.0,
+      "criticalRate": 12.0,
+      "dodgeRate": 3.0,
+      "jobType": "Shooter",
+      "tribeType": "Princess",
+      "skillIds": [
+        900,
+        913
+      ]
+    },
+    {
+      "id": 112,
+      "name": "헨젤",
+      "spriteAddress": "001_112",
+      "healthPoint": 61.64,
+      "attackPoint": 7.52,
+      "defensePoint": 2.44,
+      "attackSpeed": 0.76,
+      "criticalMult": 150.0,
+      "criticalRate": 11.0,
+      "dodgeRate": 6.0,
+      "jobType": "Assasin",
+      "tribeType": "Kid",
+      "skillIds": [
+        900,
+        910
+      ]
+    },
+    {
+      "id": 113,
+      "name": "그레텔",
+      "spriteAddress": "001_113",
+      "healthPoint": 58.96,
+      "attackPoint": 6.64,
+      "defensePoint": 2.21,
+      "attackSpeed": 0.7,
+      "criticalMult": 150.0,
+      "criticalRate": 9.0,
+      "dodgeRate": 2.0,
+      "jobType": "Shooter",
+      "tribeType": "Kid",
+      "skillIds": [
+        900,
+        911
+      ]
+    },
+    {
+      "id": 114,
+      "name": "피터팬",
+      "spriteAddress": "001_114",
+      "healthPoint": 88.0,
+      "attackPoint": 9.1,
+      "defensePoint": 3.16,
+      "attackSpeed": 0.75,
+      "criticalMult": 150.0,
+      "criticalRate": 13.0,
+      "dodgeRate": 3.5,
+      "jobType": "Shooter",
+      "tribeType": "Human",
+      "skillIds": [
+        900,
+        912
+      ]
+    },
+    {
+      "id": 115,
+      "name": "팅커벨",
+      "spriteAddress": "001_115",
+      "healthPoint": 88.88,
+      "attackPoint": 8.09,
+      "defensePoint": 3.95,
+      "attackSpeed": 0.91,
+      "criticalMult": 150.0,
+      "criticalRate": 13.0,
+      "dodgeRate": 6.0,
+      "jobType": "Tricster",
+      "tribeType": "Fairy",
+      "skillIds": [
+        900,
+        913
+      ]
+    },
+    {
+      "id": 116,
+      "name": "첫째돼지",
+      "spriteAddress": "001_116",
+      "healthPoint": 110.09,
+      "attackPoint": 9.57,
+      "defensePoint": 3.37,
+      "attackSpeed": 1.21,
+      "criticalMult": 150.0,
+      "criticalRate": 10.0,
+      "dodgeRate": 4.0,
+      "jobType": "Tricster",
+      "tribeType": "Beast",
+      "skillIds": [
+        900,
+        910
+      ]
+    },
+    {
+      "id": 117,
+      "name": "둘째돼지",
+      "spriteAddress": "001_117",
+      "healthPoint": 86.11,
+      "attackPoint": 11.22,
+      "defensePoint": 2.72,
+      "attackSpeed": 1.36,
+      "criticalMult": 150.0,
+      "criticalRate": 5.0,
+      "dodgeRate": 2.0,
+      "jobType": "Healer",
+      "tribeType": "Beast",
+      "skillIds": [
+        900,
+        911
+      ]
+    },
+    {
+      "id": 118,
+      "name": "셋째돼지",
+      "spriteAddress": "001_118",
+      "healthPoint": 78.39,
+      "attackPoint": 5.91,
+      "defensePoint": 3.08,
+      "attackSpeed": 1.06,
+      "criticalMult": 150.0,
+      "criticalRate": 4.0,
+      "dodgeRate": 1.0,
+      "jobType": "Knight",
+      "tribeType": "Kid",
+      "skillIds": [
+        900,
+        912
+      ]
+    },
+    {
+      "id": 119,
+      "name": "피노키오",
+      "spriteAddress": "001_119",
+      "healthPoint": 102.96,
+      "attackPoint": 7.53,
+      "defensePoint": 4.18,
+      "attackSpeed": 1.04,
+      "criticalMult": 150.0,
+      "criticalRate": 9.0,
+      "dodgeRate": 3.0,
+      "jobType": "Knight",
+      "tribeType": "Fairy",
+      "skillIds": [
+        900,
+        913
+      ]
+    },
+    {
+      "id": 120,
+      "name": "제페토",
+      "spriteAddress": "001_120",
+      "healthPoint": 80.23,
+      "attackPoint": 11.54,
+      "defensePoint": 3.56,
+      "attackSpeed": 1.71,
+      "criticalMult": 150.0,
+      "criticalRate": 9.0,
+      "dodgeRate": 2.0,
+      "jobType": "Sage",
+      "tribeType": "Machine",
+      "skillIds": [
+        900,
+        910
+      ]
+    }
+  ]
+}

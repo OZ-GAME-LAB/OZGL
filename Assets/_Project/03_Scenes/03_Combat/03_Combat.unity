@@ -489,9 +489,13 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1309662701}
     - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: monsterRosterData
+      value: 
+      objectReference: {fileID: 11400000, guid: 35f100bb41c1ba44283329792840be6a, type: 2}
+    - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
       propertyPath: allyTemplatePrefab
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 1608710449723199639, guid: 029ad7777ac8ace4bb5444feb35b6365, type: 3}
     - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
       propertyPath: battleUnitInfoView
       value: 
@@ -500,6 +504,30 @@ PrefabInstance:
       propertyPath: synergyItemTemplate
       value: 
       objectReference: {fileID: 2963044796329331369, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
+    - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: allyFormation.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: supportFormation.Array.size
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: allyFormation.Array.data[0].unitId
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: allyFormation.Array.data[1].unitId
+      value: 101
+      objectReference: {fileID: 0}
+    - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: allyFormation.Array.data[2].unitId
+      value: 102
+      objectReference: {fileID: 0}
+    - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: allyFormation.Array.data[3].unitId
+      value: 103
+      objectReference: {fileID: 0}
     - target: {fileID: 7404062802079038445, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -605,6 +633,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 799861448756084668, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 799861448756084668, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 1523608691842068722, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -693,6 +729,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2192779682393021075, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 2192779682393021075, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 2280229676192777061, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0

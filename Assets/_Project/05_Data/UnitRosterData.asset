@@ -13,240 +13,610 @@ MonoBehaviour:
   m_Name: UnitRosterData
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.UnitRosterData
   unitStats:
-  - id: 1
-    name: Ally_Sword_Red
-    spriteAddress: Ally_Sword
-    healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+  - id: 100
+    name: "\uC568\uB9AC\uC2A4"
+    spriteAddress: 001_100
+    healthPoint: 92
+    attackPoint: 10.3
+    defensePoint: 3.48
+    attackSpeed: 0.82
+    criticalMult: 150
+    criticalRate: 15
+    dodgeRate: 7.5
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-    skillType: 0
-  - id: 2
-    name: Ally_Bow_Red
-    spriteAddress: Ally_Bow
-    healthPoint: 110
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 0
+    tribeType: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 101
+    name: "\uD770\uD1A0\uB07C"
+    spriteAddress: 001_101
+    healthPoint: 77.39
+    attackPoint: 12.32
+    defensePoint: 2.62
+    attackSpeed: 1.49
+    criticalMult: 150
+    criticalRate: 8
+    dodgeRate: 3
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-    skillType: 1
-  - id: 3
-    name: Ally_Staff_Red
-    spriteAddress: Ally_Staff
-    healthPoint: 110
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 2
+    tribeType: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 102
+    name: "\uCCB4\uC154\uCEA3"
+    spriteAddress: 001_102
+    healthPoint: 62.48
+    attackPoint: 10.42
+    defensePoint: 3.08
+    attackSpeed: 1.12
+    criticalMult: 150
+    criticalRate: 11
+    dodgeRate: 5
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-    skillType: 2
-  - id: 4
-    name: Ally_Rogue_Red
-    spriteAddress: 
-    healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 2
+    tribeType: 2
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 103
+    name: "\uC54C\uB77C\uB518"
+    spriteAddress: 001_103
+    healthPoint: 117
+    attackPoint: 8.1
+    defensePoint: 4.4
+    attackSpeed: 1.14
+    criticalMult: 150
+    criticalRate: 8
+    dodgeRate: 2.5
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.85, g: 0.2, b: 0.2, a: 1}
-    skillType: 0
-  - id: 5
-    name: Ally_Sword_Blue
-    spriteAddress: Ally_Sword
-    healthPoint: 500
-    attackPoint: 8
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 3
+    tribeType: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 104
+    name: "\uC790\uC2A4\uBBFC"
+    spriteAddress: 001_104
+    healthPoint: 49.7
+    attackPoint: 9.52
+    defensePoint: 2.92
+    attackSpeed: 1.02
+    criticalMult: 150
+    criticalRate: 9
+    dodgeRate: 4
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
-    skillType: 0
-  - id: 6
-    name: Ally_Bow_Blue
-    spriteAddress: Ally_Bow
-    healthPoint: 500
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 2
+    tribeType: 3
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 105
+    name: "\uC9C0\uB2C8"
+    spriteAddress: 001_105
+    healthPoint: 80.96
+    attackPoint: 9.58
+    defensePoint: 3.31
+    attackSpeed: 0.75
+    criticalMult: 150
+    criticalRate: 16
+    dodgeRate: 8
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
-    skillType: 1
-  - id: 7
-    name: Ally_Staff_Blue
-    spriteAddress: Ally_Staff
-    healthPoint: 110
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 0
+    tribeType: 2
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 106
+    name: "\uC0AC\uC790"
+    spriteAddress: 001_106
+    healthPoint: 127.53
+    attackPoint: 8.91
+    defensePoint: 3.56
+    attackSpeed: 1.38
+    criticalMult: 150
+    criticalRate: 6
+    dodgeRate: 1
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
-    skillType: 2
-  - id: 8
-    name: Ally_Rogue_Blue
-    spriteAddress: 
-    healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 3
+    tribeType: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 107
+    name: "\uC591\uCCA0\uB85C\uBD07"
+    spriteAddress: 001_107
+    healthPoint: 99.44
+    attackPoint: 9.37
+    defensePoint: 3.48
+    attackSpeed: 1.04
+    criticalMult: 150
+    criticalRate: 12
+    dodgeRate: 1
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.2, g: 0.45, b: 0.9, a: 1}
-    skillType: 0
-  - id: 9
-    name: Ally_Sword_Yellow
-    spriteAddress: Ally_Sword
-    healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 5
+    tribeType: 4
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 108
+    name: "\uD5C8\uC218\uC544\uBE44"
+    spriteAddress: 001_108
+    healthPoint: 103.96
+    attackPoint: 10.61
+    defensePoint: 3.83
+    attackSpeed: 1.14
+    criticalMult: 150
+    criticalRate: 14
+    dodgeRate: 5
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
-    skillType: 0
-  - id: 10
-    name: Ally_Bow_Yellow
-    spriteAddress: Ally_Bow
-    healthPoint: 110
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 0
+    tribeType: 4
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 109
+    name: "\uB3C4\uB85C\uC2DC"
+    spriteAddress: 001_109
+    healthPoint: 101
+    attackPoint: 8.7
+    defensePoint: 4.16
+    attackSpeed: 1
+    criticalMult: 150
+    criticalRate: 12
+    dodgeRate: 5.5
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
-    skillType: 1
-  - id: 11
-    name: Ally_Staff_Yellow
-    spriteAddress: Ally_Staff
-    healthPoint: 110
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 1
+    tribeType: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 110
+    name: "\uC778\uC5B4\uACF5\uC8FC"
+    spriteAddress: 001_110
+    healthPoint: 55.3
+    attackPoint: 8.67
+    defensePoint: 3.02
+    attackSpeed: 0.93
+    criticalMult: 150
+    criticalRate: 6
+    dodgeRate: 3
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 1.1
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
-    skillType: 2
-  - id: 12
-    name: Ally_Rogue_Yellow
-    spriteAddress: 
-    healthPoint: 160
-    attackPoint: 500
-    criticalRate: 0
-    dodgeRate: 0
+    synergy: 
+    jobType: 4
+    tribeType: 3
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 111
+    name: "\uBC31\uC124\uACF5\uC8FC"
+    spriteAddress: 001_111
+    healthPoint: 61.6
+    attackPoint: 7.74
+    defensePoint: 2.84
+    attackSpeed: 0.62
+    criticalMult: 150
+    criticalRate: 12
+    dodgeRate: 3
     bloodDrain: 0
-    attackSpeed: 0
-    basicAttackCooldown: 0.9
-    skillCooldown: 4
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
     attackKey: 
-    skillKey: 
-    color: {r: 0.9, g: 0.8, b: 0.15, a: 1}
-    skillType: 0
-  unitTraits:
-  - id: 1
-    traits:
-    - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
-    - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}
-  - id: 2
-    traits:
-    - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
-    - {fileID: 11400000, guid: 004f39747a5dc194bbf130dd8796a3b7, type: 2}
-  - id: 3
-    traits:
-    - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
-    - {fileID: 11400000, guid: 27a3b77afd311b741be5033230c00a6d, type: 2}
-  - id: 4
-    traits:
-    - {fileID: 11400000, guid: b86af41b1977b484eb965b535e68ea35, type: 2}
-    - {fileID: 11400000, guid: 27ccbb4fabaa96341850aed7226e56b6, type: 2}
-  - id: 5
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}
-  - id: 6
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 004f39747a5dc194bbf130dd8796a3b7, type: 2}
-  - id: 7
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 27a3b77afd311b741be5033230c00a6d, type: 2}
-  - id: 8
-    traits:
-    - {fileID: 11400000, guid: cfcfa42f17c8d6644aa8d6311ed86925, type: 2}
-    - {fileID: 11400000, guid: 27ccbb4fabaa96341850aed7226e56b6, type: 2}
-  - id: 9
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 5d16f3faf5100a946af51f685269b56f, type: 2}
-  - id: 10
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 004f39747a5dc194bbf130dd8796a3b7, type: 2}
-  - id: 11
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 27a3b77afd311b741be5033230c00a6d, type: 2}
-  - id: 12
-    traits:
-    - {fileID: 11400000, guid: ada9294d88149e9478c1ea3409402bbf, type: 2}
-    - {fileID: 11400000, guid: 27ccbb4fabaa96341850aed7226e56b6, type: 2}
+    synergy: 
+    jobType: 5
+    tribeType: 3
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 112
+    name: "\uD5E8\uC824"
+    spriteAddress: 001_112
+    healthPoint: 61.64
+    attackPoint: 7.52
+    defensePoint: 2.44
+    attackSpeed: 0.76
+    criticalMult: 150
+    criticalRate: 11
+    dodgeRate: 6
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 0
+    tribeType: 5
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 113
+    name: "\uADF8\uB808\uD154"
+    spriteAddress: 001_113
+    healthPoint: 58.96
+    attackPoint: 6.64
+    defensePoint: 2.21
+    attackSpeed: 0.7
+    criticalMult: 150
+    criticalRate: 9
+    dodgeRate: 2
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 5
+    tribeType: 5
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 114
+    name: "\uD53C\uD130\uD32C"
+    spriteAddress: 001_114
+    healthPoint: 88
+    attackPoint: 9.1
+    defensePoint: 3.16
+    attackSpeed: 0.75
+    criticalMult: 150
+    criticalRate: 13
+    dodgeRate: 3.5
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 5
+    tribeType: 0
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 115
+    name: "\uD305\uCEE4\uBCA8"
+    spriteAddress: 001_115
+    healthPoint: 88.88
+    attackPoint: 8.09
+    defensePoint: 3.95
+    attackSpeed: 0.91
+    criticalMult: 150
+    criticalRate: 13
+    dodgeRate: 6
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 1
+    tribeType: 2
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 116
+    name: "\uCCAB\uC9F8\uB3FC\uC9C0"
+    spriteAddress: 001_116
+    healthPoint: 110.09
+    attackPoint: 9.57
+    defensePoint: 3.37
+    attackSpeed: 1.21
+    criticalMult: 150
+    criticalRate: 10
+    dodgeRate: 4
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 1
+    tribeType: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 117
+    name: "\uB458\uC9F8\uB3FC\uC9C0"
+    spriteAddress: 001_117
+    healthPoint: 86.11
+    attackPoint: 11.22
+    defensePoint: 2.72
+    attackSpeed: 1.36
+    criticalMult: 150
+    criticalRate: 5
+    dodgeRate: 2
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008f030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 4
+    tribeType: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 118
+    name: "\uC14B\uC9F8\uB3FC\uC9C0"
+    spriteAddress: 001_118
+    healthPoint: 78.39
+    attackPoint: 5.91
+    defensePoint: 3.08
+    attackSpeed: 1.06
+    criticalMult: 150
+    criticalRate: 4
+    dodgeRate: 1
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000090030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 3
+    tribeType: 5
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 119
+    name: "\uD53C\uB178\uD0A4\uC624"
+    spriteAddress: 001_119
+    healthPoint: 102.96
+    attackPoint: 7.53
+    defensePoint: 4.18
+    attackSpeed: 1.04
+    criticalMult: 150
+    criticalRate: 9
+    dodgeRate: 3
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 8403000091030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 3
+    tribeType: 2
+    color: {r: 1, g: 1, b: 1, a: 1}
+  - id: 120
+    name: "\uC81C\uD398\uD1A0"
+    spriteAddress: 001_120
+    healthPoint: 80.23
+    attackPoint: 11.54
+    defensePoint: 3.56
+    attackSpeed: 1.71
+    criticalMult: 150
+    criticalRate: 9
+    dodgeRate: 2
+    bloodDrain: 0
+    basicAttackCooldown: 1
+    skillIds: 840300008e030000
+    passiveSkillKey: 
+    activeSkillKey: 
+    skillCooldown: 0
+    attackKey: 
+    synergy: 
+    jobType: 2
+    tribeType: 4
+    color: {r: 1, g: 1, b: 1, a: 1}
+  skillDefinitions:
+  - id: 101
+    name: Warrior_Basic
+    damage: 8
+    cooldown: 0.9
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0
+  - id: 102
+    name: Archer_Basic
+    damage: 6
+    cooldown: 1.1
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0
+  - id: 103
+    name: Mage_Basic
+    damage: 13
+    cooldown: 1.1
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0
+  - id: 111
+    name: Warrior_Stun
+    damage: 30
+    cooldown: 4
+    debuff:
+      type: 2
+      duration: 1.5
+      magnitude: 0
+      tickInterval: 0
+  - id: 112
+    name: Warrior_DoT
+    damage: 30
+    cooldown: 5
+    debuff:
+      type: 1
+      duration: 3
+      magnitude: 3
+      tickInterval: 1
+  - id: 121
+    name: Archer_DoT
+    damage: 30
+    cooldown: 4
+    debuff:
+      type: 1
+      duration: 3
+      magnitude: 3
+      tickInterval: 1
+  - id: 122
+    name: Archer_Silence
+    damage: 30
+    cooldown: 5
+    debuff:
+      type: 4
+      duration: 2
+      magnitude: 0
+      tickInterval: 0
+  - id: 131
+    name: Mage_AttackDown
+    damage: 30
+    cooldown: 4
+    debuff:
+      type: 3
+      duration: 3
+      magnitude: 0.3
+      tickInterval: 0
+  - id: 132
+    name: Mage_Silence
+    damage: 30
+    cooldown: 5
+    debuff:
+      type: 4
+      duration: 2
+      magnitude: 0
+      tickInterval: 0
+  - id: 900
+    name: Temp_Basic
+    damage: 10
+    cooldown: 1
+    debuff:
+      type: 0
+      duration: 0
+      magnitude: 0
+      tickInterval: 0
+  - id: 910
+    name: Temp_DoT
+    damage: 8
+    cooldown: 4
+    debuff:
+      type: 1
+      duration: 4
+      magnitude: 5
+      tickInterval: 1
+  - id: 911
+    name: Temp_Stun
+    damage: 6
+    cooldown: 5
+    debuff:
+      type: 2
+      duration: 1.5
+      magnitude: 0
+      tickInterval: 0
+  - id: 912
+    name: Temp_AttackDown
+    damage: 8
+    cooldown: 5
+    debuff:
+      type: 3
+      duration: 4
+      magnitude: 0.3
+      tickInterval: 0
+  - id: 913
+    name: Temp_Silence
+    damage: 6
+    cooldown: 6
+    debuff:
+      type: 4
+      duration: 3
+      magnitude: 0
+      tickInterval: 0
+  jobTraits:
+  - job: 0
+    trait: {fileID: 11400000, guid: dc763691bee50e047bf6f676674b3c9c, type: 2}
+  - job: 1
+    trait: {fileID: 11400000, guid: 1698081e97c2d064da29e43aaec43a2e, type: 2}
+  - job: 2
+    trait: {fileID: 11400000, guid: 44958284cb7ca284798cbef38786034e, type: 2}
+  - job: 3
+    trait: {fileID: 11400000, guid: b15d2050a236af743ab5a80fe054ee69, type: 2}
+  - job: 4
+    trait: {fileID: 11400000, guid: 632075a2c27f9904380a24e1ce42e37d, type: 2}
+  - job: 5
+    trait: {fileID: 11400000, guid: b0ee653e6290c674783f800d2b257b07, type: 2}
+  tribeTraits:
+  - tribe: 0
+    trait: {fileID: 11400000, guid: 11f083bbfba3ce8438ed73870283db5b, type: 2}
+  - tribe: 1
+    trait: {fileID: 11400000, guid: 1191df873c0787a4e8520289f89376b8, type: 2}
+  - tribe: 2
+    trait: {fileID: 11400000, guid: e3f3bac815a05f54db9c8521d9ae4509, type: 2}
+  - tribe: 3
+    trait: {fileID: 11400000, guid: 8c00536c74cda5746919db5b30d61273, type: 2}
+  - tribe: 4
+    trait: {fileID: 11400000, guid: b45913ca52ffb2447a35ae461a2f0e7f, type: 2}
+  - tribe: 5
+    trait: {fileID: 11400000, guid: bbcbb2670fc6a4a4295ef6fd76548d05, type: 2}
   synergyDefinitions:
-  - {fileID: 11400000, guid: af215132e908c2643814c106db3e964d, type: 2}
-  - {fileID: 11400000, guid: 3ad1f0f6f37579e4f992d8da4f9c9517, type: 2}
-  - {fileID: 11400000, guid: b0ed4233c27b70047996367bdebf9055, type: 2}
-  - {fileID: 11400000, guid: ec03b297f7b5aa743969b67880ee2463, type: 2}
-  - {fileID: 11400000, guid: 203458f06a340834c98fe4a5c92f1896, type: 2}
-  - {fileID: 11400000, guid: d86e8267e7d3ed147a9b90ee6ba02fc0, type: 2}
-  - {fileID: 11400000, guid: 735e625c633c0fc48b72e34d2defb90b, type: 2}
+  - {fileID: 11400000, guid: dc763691bee50e047bf6f676674b3c9c, type: 2}
+  - {fileID: 11400000, guid: 1698081e97c2d064da29e43aaec43a2e, type: 2}
+  - {fileID: 11400000, guid: 44958284cb7ca284798cbef38786034e, type: 2}
+  - {fileID: 11400000, guid: b15d2050a236af743ab5a80fe054ee69, type: 2}
+  - {fileID: 11400000, guid: 632075a2c27f9904380a24e1ce42e37d, type: 2}
+  - {fileID: 11400000, guid: b0ee653e6290c674783f800d2b257b07, type: 2}
+  - {fileID: 11400000, guid: 11f083bbfba3ce8438ed73870283db5b, type: 2}
+  - {fileID: 11400000, guid: 1191df873c0787a4e8520289f89376b8, type: 2}
+  - {fileID: 11400000, guid: e3f3bac815a05f54db9c8521d9ae4509, type: 2}
+  - {fileID: 11400000, guid: 8c00536c74cda5746919db5b30d61273, type: 2}
+  - {fileID: 11400000, guid: b45913ca52ffb2447a35ae461a2f0e7f, type: 2}
+  - {fileID: 11400000, guid: bbcbb2670fc6a4a4295ef6fd76548d05, type: 2}

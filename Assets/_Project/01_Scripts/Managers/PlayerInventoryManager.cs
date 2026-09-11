@@ -128,12 +128,12 @@ namespace OzGameLab01.Managers
                 criticalRate = source.criticalRate,
                 dodgeRate = source.dodgeRate,
                 basicAttackCooldown = source.basicAttackCooldown,
+                skillIds = new List<int>(source.skillIds ?? new List<int>()),
                 passiveSkillKey = source.passiveSkillKey,
                 activeSkillKey = source.activeSkillKey,
                 skillCooldown = source.skillCooldown,
                 attackKey = source.attackKey,
                 color = source.color,
-                skillType = source.skillType,
                 jobType = source.jobType,
                 tribeType = source.tribeType
             };
