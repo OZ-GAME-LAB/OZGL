@@ -40,6 +40,7 @@ namespace OzGameLab01.Managers
 
             _ownedUnits.Add(unit);
             OnUnitAdded?.Invoke(unit);
+            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
             Debug.Log($"[PlayerInventoryManager] 유닛 획득 성공! : {unit.name} (현재 총 {_ownedUnits.Count}명 보유 중)");
         }
 
@@ -49,6 +50,7 @@ namespace OzGameLab01.Managers
         public void ClearInventory()
         {
             _ownedUnits.Clear();
+            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
             Debug.Log("[PlayerInventoryManager] 인벤토리가 초기화되었습니다.");
         }
 
@@ -61,12 +63,14 @@ namespace OzGameLab01.Managers
 
             if (savedUnits == null || savedUnits.Count == 0)
             {
+                RuntimeEffectManager.Instance?.RefreshFromPlayerState();
                 return;
             }
 
             if (startingRoster == null)
             {
                 Debug.LogError("[PlayerInventoryManager] 저장된 인벤토리를 복원할 UnitRosterData가 없습니다.", this);
+                RuntimeEffectManager.Instance?.RefreshFromPlayerState();
                 return;
             }
 
@@ -91,6 +95,7 @@ namespace OzGameLab01.Managers
             }
 
             Debug.Log($"[PlayerInventoryManager] 저장된 인벤토리를 복원했습니다. 총 {_ownedUnits.Count}명", this);
+            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
         }
 
         /// <summary>
@@ -133,6 +138,7 @@ namespace OzGameLab01.Managers
                 activeSkillKey = source.activeSkillKey,
                 skillCooldown = source.skillCooldown,
                 attackKey = source.attackKey,
+                passiveEffects = new List<EffectInstance>(source.passiveEffects ?? new List<EffectInstance>()),
                 color = source.color,
                 jobType = source.jobType,
                 tribeType = source.tribeType

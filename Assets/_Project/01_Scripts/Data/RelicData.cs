@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using OzGameLab01.Combat;
 
 namespace OzGameLab01.Data
 {
@@ -25,6 +26,7 @@ namespace OzGameLab01.Data
         public string relicLogic;           // 유물 로직 식별자
 
         public int baseValue;               // 유물의 고유 수치
+        public List<EffectInstance> effects = new List<EffectInstance>();
     }
 }
 

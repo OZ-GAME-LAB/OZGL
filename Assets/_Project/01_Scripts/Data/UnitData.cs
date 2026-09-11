@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using OzGameLab01.Combat;
 
 namespace OzGameLab01.Data
 {
@@ -33,6 +34,8 @@ namespace OzGameLab01.Data
         public int skillCooldown;
 
         public string attackKey;
+
+        public List<EffectInstance> passiveEffects = new List<EffectInstance>();
 
         public string synergy;
         public UnitTypeJob jobType;

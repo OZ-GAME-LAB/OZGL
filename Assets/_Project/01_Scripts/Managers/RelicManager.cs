@@ -14,6 +14,8 @@ namespace OzGameLab01.Managers
         private readonly List<IAttackTriggerRelic> _attackRelics = new();
         private readonly List<IDiceTriggerRelic> _diceRelics = new();
 
+        public IReadOnlyList<RelicRuntimeInstance> OwnedRelics => _allRelics;
+
         /// <summary>
         /// GameDB의 ID 기반 유물 획득
         /// </summary>
@@ -33,6 +35,7 @@ namespace OzGameLab01.Managers
             _allRelics.Add(newInstance);
             RegisterRuntimeRelic(newInstance);
             newInstance.OnEquip();
+            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
 
             SaveManager.Instance?.MarkAsDirty();
         }
@@ -56,6 +59,8 @@ namespace OzGameLab01.Managers
                 _allRelics.Add(runtime);
                 runtime.OnEquip();
             }
+
+            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
         }
 
         /// <summary>
@@ -66,6 +71,7 @@ namespace OzGameLab01.Managers
             _allRelics.Clear();
             _attackRelics.Clear();
             _diceRelics.Clear();
+            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
         }
 
         /// <summary>
