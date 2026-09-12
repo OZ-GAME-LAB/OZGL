@@ -47,6 +47,9 @@ namespace OzGameLab01.Combat
         [Tooltip("모든 아군이 공유하는 프리팹입니다. Instantiate 후 UnitData로 Configure()하여 실제 유닛으로 만듭니다. 프리팹 루트는 비활성 상태여야 합니다(Configure가 Awake보다 먼저 실행되어야 하므로).")]
         [SerializeField] private GameObject allyTemplatePrefab;
 
+        [Tooltip("아군 유닛마다 UnitAnchor 아래에 생성되는 체력/스킬 쿨다운 HUD입니다. 비워두면 HUD 없이 진행됩니다.")]
+        [SerializeField] private AllyUnitCombatHUDView allyHudPrefab;
+
         [Header("플레이어 전투 슬롯")]
         [SerializeField] private BattleMainView battleMainView;
 
@@ -86,6 +89,15 @@ namespace OzGameLab01.Combat
         private AllySpawner _allySpawner;
         private SynergyController _synergyController;
         private CombatEffectExecutor _combatEffectExecutor;
+        private BattleEffectFeedbackView _feedbackView;
+        private BattleEnemyHeaderView _enemyHeaderView;
+        private EnemySkillCooldownItemView _enemySkillCooldownView;
+        private StatusEffectItemView _enemyStatusEffectView;
+
+        public void ReportFeedback(CombatFeedback feedback)
+        {
+            if (_feedbackView != null) _feedbackView.Show(feedback);
+        }
 
         public Unit EnemyUnit => _enemyUnit;
 
@@ -104,6 +116,7 @@ namespace OzGameLab01.Combat
             // BattleMainView 아래에 런타임 투사체 풀은 한번만 생성
             if (battleMainView != null)
             {
+                _feedbackView = BattleEffectFeedbackView.Create(battleMainView);
                 _uiProjectilePool = battleMainView.GetComponentInChildren<UIProjectilePool>(true);
                 if (_uiProjectilePool == null)
                 {
@@ -129,10 +142,25 @@ namespace OzGameLab01.Combat
                 battleMainView, allyTemplatePrefab, unitsRoot,
                 gridOrigin, columnSpacing, rowSpacing,
                 enemyPosition, enemyPrefabResourceName, enemyScale,
-                _uiProjectilePool, enemyMonsterData);
+                _uiProjectilePool, enemyMonsterData, allyHudPrefab);
+
+            // dev 브랜치 머지로 들어온 전투 UI(적 이름/체력/스킬쿨타임/상태이상)를 실제 수치와
+            // 연동합니다. 아직 이 값들을 갱신하는 코드가 없어 화면에는 붙어 있어도 항상
+            // 초기값(0)만 보이던 상태였습니다.
+            if (battleMainView != null)
+            {
+                _enemyHeaderView = battleMainView.EnemyHeaderView;
+                _enemySkillCooldownView = battleMainView.GetComponentInChildren<EnemySkillCooldownItemView>(true);
+                if (_enemyHeaderView != null && _enemyHeaderView.StatusEffectRoot != null)
+                {
+                    _enemyStatusEffectView = _enemyHeaderView.StatusEffectRoot
+                        .GetComponentInChildren<StatusEffectItemView>(true);
+                }
+            }
             _synergyController = new SynergyController(
                 rosterData, synergyPanelRoot, synergyItemTemplate,
                 synergyActiveColor, synergyInactiveColor, this);
+            _synergyController.OnEffectApplied = ReportFeedback;
 
             BuildAllyFormation();
             BuildUnitStatLookup();
@@ -154,6 +182,7 @@ namespace OzGameLab01.Combat
             }
 
             _enemyUnit = _allySpawner.SpawnEnemy();
+            _enemyHeaderView?.SetEnemyName(_enemyUnit != null ? _enemyUnit.DisplayName : string.Empty);
 
             RuntimeEffectManager.Instance.LoadTempUnitJsonAndLog();
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
@@ -163,6 +192,50 @@ namespace OzGameLab01.Combat
             // 효과를 놓치지 않는다.
             _combatEffectExecutor = new CombatEffectExecutor(this);
             PassiveEventBus.RaiseBattleStart();
+        }
+
+        private void Update()
+        {
+            UpdateEnemyHeader();
+        }
+
+        /// <summary>
+        /// 적 체력/스킬 쿨타임/상태이상 UI를 매 프레임 실제 수치로 갱신합니다.
+        /// 아이콘(스킬/상태이상)은 아직 원화 에셋이 없어 항상 비어 있고, 게이지·수치만 반영됩니다.
+        /// </summary>
+        private void UpdateEnemyHeader()
+        {
+            if (_enemyUnit == null)
+            {
+                return;
+            }
+
+            _enemyHeaderView?.SetHealth(_enemyUnit.CurrentHp, _enemyUnit.MaxHp);
+
+            if (_enemySkillCooldownView != null)
+            {
+                if (_enemyUnit.TryGetActiveSkillCooldown(out float remaining, out float duration))
+                {
+                    _enemySkillCooldownView.SetCooldown(remaining, duration);
+                }
+                else
+                {
+                    _enemySkillCooldownView.SetVisible(false);
+                }
+            }
+
+            if (_enemyStatusEffectView != null)
+            {
+                if (_enemyUnit.TryGetPrimaryDebuff(out _, out float debuffRemaining, out float debuffDuration))
+                {
+                    _enemyStatusEffectView.SetVisible(true);
+                    _enemyStatusEffectView.SetDuration(debuffRemaining, debuffDuration);
+                }
+                else
+                {
+                    _enemyStatusEffectView.SetVisible(false);
+                }
+            }
         }
 
         private void BuildAllyFormation()

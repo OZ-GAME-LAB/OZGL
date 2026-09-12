@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using OzGameLab01.Managers;
 using OzGameLab01.Data;
+using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Combat
 {
@@ -48,6 +49,8 @@ namespace OzGameLab01.Combat
         public Team TeamValue => team;
         public float CurrentHp => _currentHP;
         public float MaxHp => maxHP;
+        public RectTransform CombatAnchor => _presenter?.CombatAnchor;
+        public string DisplayName { get; private set; }
 
         private float _currentHP;
         private bool _isDead;
@@ -87,6 +90,8 @@ namespace OzGameLab01.Combat
             // 도트 데미지는 기절 중에도 계속 진행되어야 하므로 가장 먼저 처리합니다.
             _status.Tick(Time.deltaTime, dmg => TakeDamage(dmg));
             _presenter.SetDebuffTint(_status.IndicatorColor);
+            bool hasCooldown = TryGetActiveSkillCooldown(out float cdRemaining, out float cdDuration);
+            _presenter.UpdateHud(_currentHP, maxHP, hasCooldown, cdRemaining, cdDuration);
             if (_isDead)
             {
                 return;
@@ -132,6 +137,7 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            DisplayName = data.name;
             maxHP = data.healthPoint;
             attackPoint = data.attackPoint;
             defensePoint = data.defensePoint;
@@ -165,6 +171,7 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            DisplayName = data.name;
             // data는 EnemyManager.BuildCombatSpec()이 턴 성장 배율과 훔친 액티브 스킬까지 반영해
             // 이미 확정한 전투용 스펙입니다. Unit은 그 값을 그대로 받아 런타임 상태(쿨타임/체력
             // 진행)만 관리합니다. 상세: Docs/COMBAT_REFACTOR_TASKS.md 21번.
@@ -244,12 +251,39 @@ namespace OzGameLab01.Combat
         }
 
         /// <summary>
+        /// 1번째 스킬(액티브, 0번째는 기본공격)의 남은/전체 쿨다운. 전투 HUD 게이지 표시용.
+        /// 액티브 스킬이 없으면 false.
+        /// </summary>
+        public bool TryGetActiveSkillCooldown(out float remaining, out float duration)
+        {
+            if (_skills.Count > 1)
+            {
+                RuntimeSkill skill = _skills[1];
+                remaining = Mathf.Max(0f, skill.timer);
+                duration = GetSkillCooldown(skill);
+                return true;
+            }
+
+            remaining = 0f;
+            duration = 0f;
+            return false;
+        }
+
+        /// <summary>
+        /// 전투 HUD 상태이상 아이콘 표시용. UnitStatusEffects.TryGetPrimaryDebuff 그대로 위임.
+        /// </summary>
+        public bool TryGetPrimaryDebuff(out DebuffType type, out float remaining, out float duration)
+        {
+            return _status.TryGetPrimaryDebuff(out type, out remaining, out duration);
+        }
+
+        /// <summary>
         /// 시너지 등 퍼센트 기반 스탯 보너스를 적용합니다. value는 "+20"이면 20%를 뜻하며,
         /// 항상 곱연산(1 + value/100)으로 누적됩니다 — 여러 시너지가 겹치면 중첩 적용됩니다.
         /// 공격력은 유닛에 별도 공격력 스탯이 없어 스킬 데미지 배율(damageMultiplier)에 적용하고,
         /// 공격속도/쿨타임 감소는 기본공격 쿨다운에만 적용합니다(스킬별 쿨다운은 아직 배율 개념이 없음).
         /// </summary>
-        public void ApplyStatEffect(EffectStatType statType, float percentValue)
+        public bool ApplyStatEffect(EffectStatType statType, float percentValue)
         {
             float multiplier = 1f + percentValue / 100f;
 
@@ -262,6 +296,7 @@ namespace OzGameLab01.Combat
                     break;
 
                 case EffectStatType.Attack:
+                    if (_skills.Count == 0) return false;
                     foreach (RuntimeSkill skill in _skills)
                     {
                         skill.damageMultiplier *= multiplier;
@@ -290,8 +325,12 @@ namespace OzGameLab01.Combat
                         float cooldown = GetSkillCooldown(_skills[0]);
                         _skills[0].cooldownOverride = cooldown * (1f - percentValue / 100f);
                     }
+                    else return false;
                     break;
+                default:
+                    return false;
             }
+            return true;
         }
 
         /// <summary>
@@ -309,6 +348,14 @@ namespace OzGameLab01.Combat
         public void BindCombatUI(RectTransform combatAnchor, Image combatImage, UIProjectilePool projectilePool)
         {
             _presenter.BindCombatUI(combatAnchor, combatImage, projectilePool);
+        }
+
+        /// <summary>
+        /// UnitAnchor 아래에 스폰된 아군 전투 HUD(체력/액티브 스킬 쿨다운 게이지)를 바인딩합니다.
+        /// </summary>
+        public void BindHud(AllyUnitCombatHUDView hud)
+        {
+            _presenter.BindHud(hud);
         }
 
         private Unit ResolveTarget()
@@ -365,6 +412,9 @@ namespace OzGameLab01.Combat
                 // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
                 if (!isBasicAttack)
                 {
+                    CombatManager.Instance?.ReportFeedback(new CombatFeedback(
+                        CombatFeedbackKind.Skill, skill.data.name,
+                        $"{DisplayName ?? name} → {target.DisplayName ?? target.name}", this));
                     Debug.Log($"[Unit] {name}({team}) 액티브 스킬 사용: {skill.data.name}");
                     PassiveEventBus.RaiseSkillUsed(this, skill.data);
                 }

@@ -13,6 +13,7 @@ namespace OzGameLab01.Combat
     /// </summary>
     public class SynergyController
     {
+        public System.Action<CombatFeedback> OnEffectApplied { get; set; }
         private readonly UnitRosterData rosterData;
         private readonly Transform synergyPanelRoot;
         private readonly SynergyItemView synergyItemTemplate;
@@ -155,16 +156,23 @@ namespace OzGameLab01.Combat
 
                 if (targetType == SynergyTargetType.SelfSynergy)
                 {
-                    selfUnit.ApplyStatEffect(statType, (float)effect.value);
+                    ApplyAndReport(selfUnit, richData.name, statType, (float)effect.value);
                     continue;
                 }
 
                 foreach (KeyValuePair<CombatManager.SlotKey, int> kvp in spawnedFormation)
                 {
                     Unit unit = slotUnits[kvp.Key.column, (int)kvp.Key.row];
-                    unit?.ApplyStatEffect(statType, (float)effect.value);
+                    ApplyAndReport(unit, richData.name, statType, (float)effect.value);
                 }
             }
+        }
+
+        private void ApplyAndReport(Unit unit, string source, EffectStatType stat, float value)
+        {
+            if (unit != null && unit.ApplyStatEffect(stat, value))
+                OnEffectApplied?.Invoke(new CombatFeedback(CombatFeedbackKind.Synergy,
+                    source, CombatFeedback.StatText(stat, value), unit));
         }
 
         private static SynergyData FindSynergyData(string displayName)

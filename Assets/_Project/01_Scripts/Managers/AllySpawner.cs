@@ -40,6 +40,7 @@ namespace OzGameLab01.Combat
         private readonly float enemyScale;
         private readonly UIProjectilePool uiProjectilePool;
         private readonly MonsterData enemyMonsterData;
+        private readonly AllyUnitCombatHUDView allyHudPrefab;
 
         public AllySpawner(
             BattleMainView battleMainView,
@@ -52,7 +53,8 @@ namespace OzGameLab01.Combat
             string enemyPrefabResourceName,
             float enemyScale,
             UIProjectilePool uiProjectilePool,
-            MonsterData enemyMonsterData = null)
+            MonsterData enemyMonsterData = null,
+            AllyUnitCombatHUDView allyHudPrefab = null)
         {
             this.battleMainView = battleMainView;
             this.allyTemplatePrefab = allyTemplatePrefab;
@@ -65,6 +67,7 @@ namespace OzGameLab01.Combat
             this.enemyScale = enemyScale;
             this.uiProjectilePool = uiProjectilePool;
             this.enemyMonsterData = enemyMonsterData;
+            this.allyHudPrefab = allyHudPrefab;
         }
 
         /// <summary>
@@ -198,6 +201,14 @@ namespace OzGameLab01.Combat
             }
             Image combatImage = CreateCombatImage(slotView.UnitAnchor, $"BattleCombatUnit_{placementIndex:00}", unitSprite, Color.white);
             unit.BindCombatUI(slotView.UnitAnchor as RectTransform, combatImage, uiProjectilePool);
+
+            if (allyHudPrefab != null)
+            {
+                AllyUnitCombatHUDView hud = Object.Instantiate(allyHudPrefab, slotView.UnitAnchor);
+                hud.transform.SetAsLastSibling();
+                unit.BindHud(hud);
+            }
+
             unit.SetVisualsVisible(false);
             instance.SetActive(true);
             return unit;

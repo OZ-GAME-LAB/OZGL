@@ -93,7 +93,19 @@ namespace OzGameLab01.Combat
 
                 foreach (Unit target in ResolveTargets(source, effect, triggeringUnit))
                 {
-                    ApplyEffect(effect, target);
+                    if (ApplyEffect(effect, target))
+                    {
+                        bool relic = source.Kind == RuntimeEffectManager.EffectSourceKind.Relic;
+                        string sourceName = relic
+                            ? RuntimeDataManager.Instance.GetRelic(source.SourceId)?.name
+                            : RuntimeDataManager.Instance.GetUnit(source.SourceId)?.name;
+                        string detail = effect.effect == EffectType.StatModifier
+                            ? CombatFeedback.StatText(effect.statType, effect.effectParam)
+                            : $"피해 {effect.effectParam:0.##}";
+                        _combatManager.ReportFeedback(new CombatFeedback(
+                            relic ? CombatFeedbackKind.Relic : CombatFeedbackKind.Passive,
+                            sourceName ?? $"#{source.SourceId}", detail, target));
+                    }
                 }
 
                 if (effect.once)
@@ -226,22 +238,22 @@ namespace OzGameLab01.Combat
             return alive;
         }
 
-        private static void ApplyEffect(EffectInstance effect, Unit target)
+        private static bool ApplyEffect(EffectInstance effect, Unit target)
         {
             switch (effect.effect)
             {
                 case EffectType.StatModifier:
-                    target.ApplyStatEffect(effect.statType, effect.effectParam);
-                    break;
+                    return target.ApplyStatEffect(effect.statType, effect.effectParam);
 
                 case EffectType.DealDamage:
                     target.TakeDamage(effect.effectParam);
-                    break;
+                    return true;
 
                 // Heal/GrantShield/Revive/CleanseDebuffs/DebuffImmunity/DebuffDurationModifier/
                 // CooldownModifier/NullifyNextSkill/SynergyModifier: 대응 메커니즘이 아직 없어
                 // 의도적으로 건너뜁니다(Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md 참고).
             }
+            return false;
         }
     }
 }
