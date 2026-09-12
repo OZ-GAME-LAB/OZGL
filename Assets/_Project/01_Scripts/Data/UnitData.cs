@@ -24,6 +24,8 @@ namespace OzGameLab01.Data
         public float criticalMult;      // 치명타 배율
         public float criticalRate;      // 치명 확률
         public float dodgeRate;         // 회피율
+        public float recoveryAmount;    // 회복량
+        public float statusDuration;    // 상태 지속시간
         public int bloodDrain;          // 흡혈
         public float basicAttackCooldown = 1f;
 
