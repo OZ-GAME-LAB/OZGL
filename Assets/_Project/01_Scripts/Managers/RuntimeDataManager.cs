@@ -1,37 +1,65 @@
 using System.Collections.Generic;
+using UnityEngine;
 using OzGameLab01.Data;
 using OzGameLab01.Combat;
 
 namespace OzGameLab01.Managers
 {
     /// <summary>
-    /// CombatManager/MapManager/PlayerInventoryManager 등이 유닛·적·시너지 데이터를 가져가는
-    /// 단일 진입점입니다. Unit/Enemy는 다시 파싱하지 않고 이미 로드되어 있는
-    /// UnitRosterData.Active/MonsterRosterData.Active를 그대로 참조합니다 — 두 asset이
-    /// 각자 OnEnable()에서 TempUnitData.json/EnemyData.json을 읽어 캐싱해두는 값을 그대로 쓰는
-    /// 것이라, 씬에 그 asset들이 로드된 이후에만 값이 채워집니다. Synergy는 아직 대응하는
-    /// 라이브 로스터가 없어 GameDataLoader로 직접 캐싱합니다.
+    /// CombatManager/BoardSceneController/PlayerInventoryManager 등 게임 로직이 유닛·적·시너지
+    /// 데이터를 가져가는 단일 진입점입니다. UnitRosterData/MonsterRosterData를 Resources.Load로
+    /// 직접 불러와 등록하므로, CombatManager나 UnitFormationController처럼 씬의 다른 컴포넌트가
+    /// 먼저 활성화되어 RegisterActive를 호출해줄 때까지 기다릴 필요가 없습니다 — 비활성 UI
+    /// 패널(예: 유닛 편성 화면)에 붙어 있어 Start()가 안 도는 컴포넌트에 데이터 등록을
+    /// 의존했다가 유닛 획득이 막히는 문제가 있었습니다. Synergy는 아직 대응하는 라이브
+    /// 로스터가 없어 GameDataLoader로 직접 캐싱합니다.
     /// </summary>
     public sealed class RuntimeDataManager : Singleton<RuntimeDataManager>
     {
         private static readonly List<UnitData> EmptyUnits = new List<UnitData>();
         private static readonly List<MonsterData> EmptyEnemies = new List<MonsterData>();
 
+        private UnitRosterData _unitRosterData;
+        private MonsterRosterData _monsterRosterData;
         private readonly Dictionary<int, SynergyData> _synergiesById = new Dictionary<int, SynergyData>();
 
-        public IReadOnlyList<UnitData> Units => UnitRosterData.Active?.UnitStats ?? EmptyUnits;
-        public IReadOnlyList<MonsterData> Enemies => MonsterRosterData.Active?.MonsterStats ?? EmptyEnemies;
+        public IReadOnlyList<UnitData> Units => _unitRosterData != null ? _unitRosterData.UnitStats : EmptyUnits;
+        public IReadOnlyList<MonsterData> Enemies => _monsterRosterData != null ? _monsterRosterData.MonsterStats : EmptyEnemies;
         public IReadOnlyDictionary<int, SynergyData> Synergies => _synergiesById;
 
         protected override void Awake()
         {
             base.Awake();
+            LoadRosters();
             LoadSynergies();
         }
 
         /// <summary>
-        /// Synergy 캐시를 다시 읽습니다. Unit/Enemy는 UnitRosterData/MonsterRosterData가 이미
-        /// 자체적으로 갱신을 관리하므로 여기서 다시 로드할 필요가 없습니다.
+        /// Resources/UnitRosterData, Resources/MonsterRosterData를 로드합니다. Resources.Load
+        /// 자체가 각 asset의 OnEnable()을 트리거해 JSON(TempUnitData/EnemyData) 역직렬화까지
+        /// 끝마칩니다.
+        /// </summary>
+        public void LoadRosters()
+        {
+            _unitRosterData = Resources.Load<UnitRosterData>("UnitRosterData");
+            if (_unitRosterData != null)
+            {
+                UnitRosterData.RegisterActive(_unitRosterData, this);
+            }
+            else
+            {
+                Debug.LogWarning("[RuntimeDataManager] Resources/UnitRosterData.asset을 찾을 수 없습니다.", this);
+            }
+
+            _monsterRosterData = Resources.Load<MonsterRosterData>("MonsterRosterData");
+            if (_monsterRosterData == null)
+            {
+                Debug.LogWarning("[RuntimeDataManager] Resources/MonsterRosterData.asset을 찾을 수 없습니다.", this);
+            }
+        }
+
+        /// <summary>
+        /// Synergy 캐시를 다시 읽습니다.
         /// </summary>
         public void LoadSynergies()
         {
@@ -65,7 +93,22 @@ namespace OzGameLab01.Managers
             return null;
         }
 
-        public MonsterData GetEnemy(int id) => MonsterRosterData.Active?.GetById(id);
+        public MonsterData GetEnemy(int id) => _monsterRosterData?.GetById(id);
+
+        /// <summary>
+        /// 몬스터 스킬(200번대)을 먼저 찾고 없으면 유닛 스킬(900번대, 훔친 액티브 포함)을
+        /// 찾습니다. Unit.ConfigureEnemy()가 쓰던 두 로스터 순차 조회와 동일한 순서입니다.
+        /// </summary>
+        public SkillData GetSkill(int id)
+        {
+            SkillData monsterSkill = _monsterRosterData?.GetSkill(id);
+            if (monsterSkill != null)
+            {
+                return monsterSkill;
+            }
+
+            return _unitRosterData?.GetSkill(id);
+        }
 
         public SynergyData GetSynergy(int id)
         {

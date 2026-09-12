@@ -5,21 +5,13 @@ using OzGameLab01.Managers;
 /// <summary>
 /// 데이터 파이프라인 전용 샌드박스(TestScenes/SandboxRuntimeDataPipeline.unity)에서
 /// JSON 리소스가 역직렬화되어 RuntimeDataManager에 올바르게 캐싱되는지 확인합니다.
-/// 실전투 씬을 켜지 않고도 UnitRosterData/MonsterRosterData를 로드시켜(OnEnable 트리거)
-/// RuntimeDataManager.Units/Enemies/Synergies 값을 검증합니다.
+/// RuntimeDataManager가 Resources.Load로 UnitRosterData/MonsterRosterData를 직접 불러오므로
+/// 이 스크립트는 참조를 따로 넘기지 않고 RuntimeDataManager.Instance만 확인하면 됩니다.
 /// </summary>
 public class RuntimeDataManagerTestHarness : MonoBehaviour
 {
-    [SerializeField] private UnitRosterData unitRosterData;
-    [SerializeField] private MonsterRosterData monsterRosterData;
-
     private void Start()
     {
-        if (unitRosterData != null)
-        {
-            UnitRosterData.RegisterActive(unitRosterData, this);
-        }
-
         RuntimeDataManager manager = RuntimeDataManager.Instance;
 
         Debug.Log($"[RuntimeDataManagerTest] Units={manager.Units.Count} Enemies={manager.Enemies.Count} Synergies={manager.Synergies.Count}");

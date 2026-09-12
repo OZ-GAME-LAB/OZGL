@@ -12,9 +12,6 @@ namespace OzGameLab01.Managers
     /// </summary>
     public class PlayerInventoryManager : Singleton<PlayerInventoryManager>
     {
-        [Tooltip("게임 시작 시 임시로 지급할 시작 유닛의 원본 데이터. CombatManager/UnitFormationController와 동일한 로스터(UnitRosterData)를 사용해야 id·트레이트가 어긋나지 않습니다.")]
-        [SerializeField] private UnitRosterData startingRoster;
-
         private readonly List<UnitData> _ownedUnits = new List<UnitData>();
 
         /// <summary>
@@ -67,13 +64,6 @@ namespace OzGameLab01.Managers
                 return;
             }
 
-            if (startingRoster == null)
-            {
-                Debug.LogError("[PlayerInventoryManager] 저장된 인벤토리를 복원할 UnitRosterData가 없습니다.", this);
-                RuntimeEffectManager.Instance?.RefreshFromPlayerState();
-                return;
-            }
-
             foreach (UnitStuff savedUnit in savedUnits)
             {
                 if (savedUnit == null || savedUnit.amount <= 0)
@@ -101,17 +91,9 @@ namespace OzGameLab01.Managers
         /// <summary>
         /// 저장된 유닛 ID와 일치하는 로스터 원본을 찾습니다.
         /// </summary>
-        private UnitData FindRosterUnit(int unitId)
+        private static UnitData FindRosterUnit(int unitId)
         {
-            foreach (UnitData rosterUnit in startingRoster.UnitStats)
-            {
-                if (rosterUnit != null && rosterUnit.id == unitId)
-                {
-                    return rosterUnit;
-                }
-            }
-
-            return null;
+            return RuntimeDataManager.Instance.GetUnit(unitId);
         }
 
         /// <summary>

@@ -15,7 +15,7 @@
       "tribeType": "Human",
       "skillIds": [
         900,
-        910
+        920
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -35,7 +35,7 @@
       "tribeType": "Beast",
       "skillIds": [
         900,
-        911
+        921
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -55,7 +55,7 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        912
+        922
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -75,7 +75,7 @@
       "tribeType": "Human",
       "skillIds": [
         900,
-        913
+        923
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -95,7 +95,7 @@
       "tribeType": "Princess",
       "skillIds": [
         900,
-        910
+        924
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -115,7 +115,7 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        911
+        925
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -135,7 +135,7 @@
       "tribeType": "Beast",
       "skillIds": [
         900,
-        912
+        926
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -155,7 +155,7 @@
       "tribeType": "Machine",
       "skillIds": [
         900,
-        913
+        927
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -175,7 +175,7 @@
       "tribeType": "Machine",
       "skillIds": [
         900,
-        910
+        928
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -195,7 +195,7 @@
       "tribeType": "Human",
       "skillIds": [
         900,
-        911
+        929
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -215,7 +215,7 @@
       "tribeType": "Princess",
       "skillIds": [
         900,
-        912
+        930
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -235,7 +235,7 @@
       "tribeType": "Princess",
       "skillIds": [
         900,
-        913
+        931
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -255,7 +255,7 @@
       "tribeType": "Kid",
       "skillIds": [
         900,
-        910
+        932
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -275,7 +275,7 @@
       "tribeType": "Kid",
       "skillIds": [
         900,
-        911
+        933
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -295,7 +295,7 @@
       "tribeType": "Human",
       "skillIds": [
         900,
-        912
+        934
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -315,7 +315,7 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        913
+        935
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -335,7 +335,7 @@
       "tribeType": "Beast",
       "skillIds": [
         900,
-        910
+        936
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -355,7 +355,7 @@
       "tribeType": "Beast",
       "skillIds": [
         900,
-        911
+        937
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -375,7 +375,7 @@
       "tribeType": "Kid",
       "skillIds": [
         900,
-        912
+        938
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -395,7 +395,7 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        913
+        939
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -415,7 +415,7 @@
       "tribeType": "Machine",
       "skillIds": [
         900,
-        910
+        940
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0

@@ -87,7 +87,6 @@ namespace OzGameLab01.Combat
         private SynergyController _synergyController;
 
         public Unit EnemyUnit => _enemyUnit;
-        public UnitRosterData RosterData => rosterData;
 
         private void Awake()
         {

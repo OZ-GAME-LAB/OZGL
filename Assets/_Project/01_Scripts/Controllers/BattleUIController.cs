@@ -274,7 +274,6 @@ namespace OzGameLab01.Controllers
             bool applied = combatManager != null && BattleRewardService.Apply(
                 option.RewardData,
                 combatManager.GetParticipatingAllyUnits(),
-                combatManager.RosterData,
                 this);
 
             if (!applied)

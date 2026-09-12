@@ -142,7 +142,7 @@ namespace OzGameLab01.Combat
                 spriteRenderer.color = data.color;
             }
 
-            ResolveSkills(data.skillIds, UnitRosterData.Active != null ? (System.Func<int, SkillData>)UnitRosterData.Active.GetSkill : null);
+            ResolveSkills(data.skillIds, RuntimeDataManager.Instance.GetSkill);
             SetBasicAttackCooldown(data.attackSpeed);
 
             if (_awakeInitialized)
@@ -173,9 +173,9 @@ namespace OzGameLab01.Combat
             criticalMult = data.criticalMult;
             dodgeRate = data.dodgeRate;
 
-            // 원본 몬스터 스킬(201~203)은 MonsterRosterData에, EnemyManager가 훔쳐온 액티브
-            // 스킬은 UnitRosterData에 정의되어 있어 두 로스터를 순서대로 조회합니다.
-            ResolveSkills(data.skillIds, ResolveEnemySkill);
+            // 원본 몬스터 스킬(201~203)과 EnemyManager가 훔쳐온 유닛 액티브 스킬 모두
+            // RuntimeDataManager.GetSkill()이 두 로스터를 순서대로 조회해 풀어줍니다.
+            ResolveSkills(data.skillIds, RuntimeDataManager.Instance.GetSkill);
             SetBasicAttackCooldown(data.attackSpeed);
 
             if (_awakeInitialized)
@@ -208,21 +208,6 @@ namespace OzGameLab01.Combat
 
                 _skills.Add(new RuntimeSkill { data = data, timer = data.cooldown, damageMultiplier = 1f });
             }
-        }
-
-        /// <summary>
-        /// 적 스킬 id를 MonsterRosterData(원본 몬스터 스킬) → UnitRosterData(훔쳐온 유닛 액티브
-        /// 스킬) 순서로 조회합니다.
-        /// </summary>
-        private static SkillData ResolveEnemySkill(int id)
-        {
-            SkillData monsterSkill = MonsterRosterData.Active != null ? MonsterRosterData.Active.GetSkill(id) : null;
-            if (monsterSkill != null)
-            {
-                return monsterSkill;
-            }
-
-            return UnitRosterData.Active != null ? UnitRosterData.Active.GetSkill(id) : null;
         }
 
         private void InitializeRuntimeState()
