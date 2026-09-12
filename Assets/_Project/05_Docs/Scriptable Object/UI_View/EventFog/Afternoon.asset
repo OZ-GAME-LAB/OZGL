@@ -39,148 +39,90 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   layers:
-  - layerColor: {r: 1, g: 1, b: 1, a: 1}
-    shadowColor: {r: 0, g: 0, b: 0, a: 0.25}
-    holeRadius: 0.35
-    innerSoftness: 0.015
+  - layerColor: {r: 1, g: 1, b: 1, a: 0.9607843}
+    shadowColor: {r: 0, g: 0, b: 0, a: 0.4117647}
+    holeRadius: 0.17
+    innerSoftness: 0.0015
     outerRadius: 0.47
     outerSoftness: 0.02
-    lobeCount: 8
-    lobeStrength: 0.045
-    noiseScale: 5
-    noiseStrength: 0.06
-    fineNoiseScale: 18
+    lobeCount: 2
+    lobeStrength: 0.03
+    noiseScale: 20
+    noiseStrength: 0.1
+    fineNoiseScale: 50
     fineNoiseStrength: 0.015
     noiseOffset: {x: 0, y: 0, z: 0, w: 0}
-    outerLobeCount: 7
-    outerLobeStrength: 0.035
-    outerNoiseScale: 4
+    outerLobeCount: 4
+    outerLobeStrength: 0.03
+    outerNoiseScale: 15
     outerNoiseStrength: 0.025
     outerFineNoiseScale: 15
-    outerFineNoiseStrength: 0.006
+    outerFineNoiseStrength: 0.1
     outerNoiseOffset: {x: 2.37, y: 4.13, z: 1.72, w: 3.51}
-    wobbleSpeed: 0.6
-    wobbleStrength: 0.012
+    wobbleSpeed: 1
+    wobbleStrength: 0.01
     outerWobbleStrength: 0.012
-    wobbleScale: 6
+    wobbleScale: 15
     noiseDrift: 0.025
     shadowExpand: 0.025
     outerShadowExpand: 0.025
     shadowOffsetX: 0
-    shadowOffsetY: -0.015
-  - layerColor: {r: 1, g: 1, b: 1, a: 1}
-    shadowColor: {r: 0, g: 0, b: 0, a: 0.25}
-    holeRadius: 0.35
-    innerSoftness: 0.015
+    shadowOffsetY: -0.03
+  - layerColor: {r: 0.8980392, g: 0.8980392, b: 0.8980392, a: 1}
+    shadowColor: {r: 0.48235294, g: 0.48235294, b: 0.48235294, a: 0.21568628}
+    holeRadius: 0.21
+    innerSoftness: 0.001
     outerRadius: 0.47
     outerSoftness: 0.02
-    lobeCount: 8
-    lobeStrength: 0.045
-    noiseScale: 5
-    noiseStrength: 0.06
-    fineNoiseScale: 18
-    fineNoiseStrength: 0.015
+    lobeCount: 4
+    lobeStrength: 0.03
+    noiseScale: 18
+    noiseStrength: 0.133
+    fineNoiseScale: 15
+    fineNoiseStrength: 0.1
     noiseOffset: {x: 0, y: 0, z: 0, w: 0}
-    outerLobeCount: 7
-    outerLobeStrength: 0.035
-    outerNoiseScale: 4
-    outerNoiseStrength: 0.025
+    outerLobeCount: 4
+    outerLobeStrength: 0.03
+    outerNoiseScale: 15
+    outerNoiseStrength: 0.133
     outerFineNoiseScale: 15
-    outerFineNoiseStrength: 0.006
+    outerFineNoiseStrength: 0.1
     outerNoiseOffset: {x: 2.37, y: 4.13, z: 1.72, w: 3.51}
-    wobbleSpeed: 0.6
-    wobbleStrength: 0.012
+    wobbleSpeed: 1
+    wobbleStrength: 0.01
     outerWobbleStrength: 0.012
     wobbleScale: 6
-    noiseDrift: 0.025
-    shadowExpand: 0.025
+    noiseDrift: 0.02
+    shadowExpand: 0.02
     outerShadowExpand: 0.025
     shadowOffsetX: 0
-    shadowOffsetY: -0.015
-  - layerColor: {r: 1, g: 1, b: 1, a: 1}
-    shadowColor: {r: 0, g: 0, b: 0, a: 0.25}
-    holeRadius: 0.35
-    innerSoftness: 0.015
-    outerRadius: 0.47
+    shadowOffsetY: -0.02
+  - layerColor: {r: 0.9997758, g: 1, b: 0.9882353, a: 1}
+    shadowColor: {r: 0.5283019, g: 0.5283019, b: 0.5283019, a: 0.2509804}
+    holeRadius: 0.26
+    innerSoftness: 0.001
+    outerRadius: 0.8
     outerSoftness: 0.02
-    lobeCount: 8
-    lobeStrength: 0.045
-    noiseScale: 5
-    noiseStrength: 0.06
-    fineNoiseScale: 18
-    fineNoiseStrength: 0.015
+    lobeCount: 4
+    lobeStrength: 0.03
+    noiseScale: 18
+    noiseStrength: 0.133
+    fineNoiseScale: 15
+    fineNoiseStrength: 0.1
     noiseOffset: {x: 0, y: 0, z: 0, w: 0}
-    outerLobeCount: 7
-    outerLobeStrength: 0.035
-    outerNoiseScale: 4
-    outerNoiseStrength: 0.025
+    outerLobeCount: 4
+    outerLobeStrength: 0.03
+    outerNoiseScale: 15
+    outerNoiseStrength: 0.133
     outerFineNoiseScale: 15
-    outerFineNoiseStrength: 0.006
+    outerFineNoiseStrength: 0.1
     outerNoiseOffset: {x: 2.37, y: 4.13, z: 1.72, w: 3.51}
-    wobbleSpeed: 0.6
-    wobbleStrength: 0.012
+    wobbleSpeed: 1
+    wobbleStrength: 0.01
     outerWobbleStrength: 0.012
     wobbleScale: 6
-    noiseDrift: 0.025
-    shadowExpand: 0.025
+    noiseDrift: 0.02
+    shadowExpand: 0.02
     outerShadowExpand: 0.025
     shadowOffsetX: 0
-    shadowOffsetY: -0.015
-  - layerColor: {r: 1, g: 1, b: 1, a: 1}
-    shadowColor: {r: 0, g: 0, b: 0, a: 0.25}
-    holeRadius: 0.35
-    innerSoftness: 0.015
-    outerRadius: 0.47
-    outerSoftness: 0.02
-    lobeCount: 8
-    lobeStrength: 0.045
-    noiseScale: 5
-    noiseStrength: 0.06
-    fineNoiseScale: 18
-    fineNoiseStrength: 0.015
-    noiseOffset: {x: 0, y: 0, z: 0, w: 0}
-    outerLobeCount: 7
-    outerLobeStrength: 0.035
-    outerNoiseScale: 4
-    outerNoiseStrength: 0.025
-    outerFineNoiseScale: 15
-    outerFineNoiseStrength: 0.006
-    outerNoiseOffset: {x: 2.37, y: 4.13, z: 1.72, w: 3.51}
-    wobbleSpeed: 0.6
-    wobbleStrength: 0.012
-    outerWobbleStrength: 0.012
-    wobbleScale: 6
-    noiseDrift: 0.025
-    shadowExpand: 0.025
-    outerShadowExpand: 0.025
-    shadowOffsetX: 0
-    shadowOffsetY: -0.015
-  - layerColor: {r: 1, g: 1, b: 1, a: 1}
-    shadowColor: {r: 0, g: 0, b: 0, a: 0.25}
-    holeRadius: 0.35
-    innerSoftness: 0.015
-    outerRadius: 0.47
-    outerSoftness: 0.02
-    lobeCount: 8
-    lobeStrength: 0.045
-    noiseScale: 5
-    noiseStrength: 0.06
-    fineNoiseScale: 18
-    fineNoiseStrength: 0.015
-    noiseOffset: {x: 0, y: 0, z: 0, w: 0}
-    outerLobeCount: 7
-    outerLobeStrength: 0.035
-    outerNoiseScale: 4
-    outerNoiseStrength: 0.025
-    outerFineNoiseScale: 15
-    outerFineNoiseStrength: 0.006
-    outerNoiseOffset: {x: 2.37, y: 4.13, z: 1.72, w: 3.51}
-    wobbleSpeed: 0.6
-    wobbleStrength: 0.012
-    outerWobbleStrength: 0.012
-    wobbleScale: 6
-    noiseDrift: 0.025
-    shadowExpand: 0.025
-    outerShadowExpand: 0.025
-    shadowOffsetX: 0
-    shadowOffsetY: -0.015
+    shadowOffsetY: -0.02
