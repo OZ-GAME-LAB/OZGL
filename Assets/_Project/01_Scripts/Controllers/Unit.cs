@@ -20,10 +20,20 @@ namespace OzGameLab01.Combat
             public SkillData data;
             public float timer;
             public float damageMultiplier = 1f;
+
+            // 기본공격(0번째)은 유닛마다 다른 공격속도를 가지므로, 여러 유닛이 공유하는
+            // SkillData.cooldown 대신 이 값을 우선 사용합니다. 그 외 스킬은 null로 두어
+            // SkillData.cooldown을 그대로 씁니다.
+            public float? cooldownOverride;
         }
 
         [SerializeField] private Team team;
         [SerializeField] private float maxHP = 100f;
+        private float attackPoint;
+        private float defensePoint;
+        private float criticalRate;
+        private float criticalMult = 150f;
+        private float dodgeRate;
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private GameObject projectilePrefab;
@@ -101,7 +111,7 @@ namespace OzGameLab01.Combat
                 if (skill.timer <= 0f && (isBasicAttack || !_status.IsSilenced))
                 {
                     StartCoroutine(CastSkill(target, skill, isBasicAttack));
-                    skill.timer = skill.data.cooldown;
+                    skill.timer = GetSkillCooldown(skill);
                 }
             }
         }
@@ -121,6 +131,11 @@ namespace OzGameLab01.Combat
             }
 
             maxHP = data.healthPoint;
+            attackPoint = data.attackPoint;
+            defensePoint = data.defensePoint;
+            criticalRate = data.criticalRate;
+            criticalMult = data.criticalMult;
+            dodgeRate = data.dodgeRate;
 
             if (spriteRenderer != null)
             {
@@ -128,6 +143,7 @@ namespace OzGameLab01.Combat
             }
 
             ResolveSkills(data.skillIds, UnitRosterData.Active != null ? (System.Func<int, SkillData>)UnitRosterData.Active.GetSkill : null);
+            SetBasicAttackCooldown(data.attackSpeed);
 
             if (_awakeInitialized)
             {
@@ -151,10 +167,16 @@ namespace OzGameLab01.Combat
             // 이미 확정한 전투용 스펙입니다. Unit은 그 값을 그대로 받아 런타임 상태(쿨타임/체력
             // 진행)만 관리합니다. 상세: Docs/COMBAT_REFACTOR_TASKS.md 21번.
             maxHP = data.healthPoint;
+            attackPoint = data.attackPoint;
+            defensePoint = data.defensePoint;
+            criticalRate = data.criticalRate;
+            criticalMult = data.criticalMult;
+            dodgeRate = data.dodgeRate;
 
             // 원본 몬스터 스킬(201~203)은 MonsterRosterData에, EnemyManager가 훔쳐온 액티브
             // 스킬은 UnitRosterData에 정의되어 있어 두 로스터를 순서대로 조회합니다.
             ResolveSkills(data.skillIds, ResolveEnemySkill);
+            SetBasicAttackCooldown(data.attackSpeed);
 
             if (_awakeInitialized)
             {
@@ -212,8 +234,26 @@ namespace OzGameLab01.Combat
 
             foreach (RuntimeSkill skill in _skills)
             {
-                skill.timer = skill.data.cooldown;
+                skill.timer = GetSkillCooldown(skill);
             }
+        }
+
+        /// <summary>
+        /// 0번째 스킬(기본공격)의 쿨다운을 유닛별 공격속도로 덮어씁니다. 기본공격은 여러 유닛이
+        /// 같은 SkillData(공용 기본공격 정의)를 공유하므로, 그 데이터 자체를 고치는 대신
+        /// RuntimeSkill.cooldownOverride로 유닛별 값을 별도로 둡니다.
+        /// </summary>
+        private void SetBasicAttackCooldown(float attackSpeed)
+        {
+            if (_skills.Count > 0)
+            {
+                _skills[0].cooldownOverride = attackSpeed;
+            }
+        }
+
+        private static float GetSkillCooldown(RuntimeSkill skill)
+        {
+            return skill.cooldownOverride ?? skill.data.cooldown;
         }
 
         public void ApplySynergyBonus(float hpMultiplier, float attackMultiplier)
@@ -260,6 +300,28 @@ namespace OzGameLab01.Combat
 
             // 그을림(공격력 감소) 디버프는 데미지 계산 시점에 반영한다.
             float effectiveDamage = damage * _status.AttackMultiplier;
+
+            if (target != null)
+            {
+                // 회피율은 최대 60%까지만 적용됨(UnitData.xlsx 규칙).
+                float dodgeChance = Mathf.Min(target.dodgeRate, 60f) / 100f;
+                if (Random.value < dodgeChance)
+                {
+                    effectiveDamage = 0f;
+                }
+                else
+                {
+                    if (Random.value < criticalRate / 100f)
+                    {
+                        effectiveDamage *= criticalMult / 100f;
+                    }
+
+                    // 최종 데미지 = 공격력 - 방어력, 소수 둘째자리 반올림, 최소 1.0(UnitData.xlsx 규칙).
+                    effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
+                    effectiveDamage = Mathf.Round(effectiveDamage * 100f) / 100f;
+                }
+            }
+
             _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, effectiveDamage);
 
             PassiveEventBus.RaiseAttackLanded(this, target);

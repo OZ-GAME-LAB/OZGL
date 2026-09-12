@@ -16,7 +16,9 @@ public class MonsterData
 
     public int healthPoint;
     public int attackPoint;
+    public float defensePoint;
     public int criticalRate;
+    public float criticalMult = 150f;
     public int dodgeRate;
     public float attackSpeed;
     public int skillCooldown;
