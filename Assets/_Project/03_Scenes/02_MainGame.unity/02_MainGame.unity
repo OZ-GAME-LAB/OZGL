@@ -316,6 +316,10 @@ PrefabInstance:
       propertyPath: m_RenderMode
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 975896444162454282, guid: 63ccccfdeb7128540b23b3971e318873, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6718776190380385102, guid: 63ccccfdeb7128540b23b3971e318873, type: 3}
       propertyPath: m_Pivot.x
       value: 0
@@ -1116,6 +1120,14 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4311788342251037025, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 4311788342251037025, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 4438618346453924135, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1238,19 +1250,19 @@ PrefabInstance:
       objectReference: {fileID: 21300000, guid: 70462a932a290444282e5f3efc4d8168, type: 3}
     - target: {fileID: 5500621817708378562, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_Color.a
-      value: 1
+      value: 0.4
       objectReference: {fileID: 0}
     - target: {fileID: 5500621817708378562, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_Color.b
-      value: 0.6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5500621817708378562, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_Color.g
-      value: 0.6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5500621817708378562, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_Color.r
-      value: 0.6
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5500621817708378562, guid: 79d3d3c78ea627a45ab63a25b1c567d3, type: 3}
       propertyPath: m_Material
@@ -2146,6 +2158,11 @@ MonoBehaviour:
   warningText: {fileID: 1605771949}
   mapRouteDirector: {fileID: 0}
   boardCameraController: {fileID: 0}
+  mapGenerator: {fileID: 0}
+  autoRollViewOpenDelay: 0.5
+  timeOfDayFeedbackDuration: 1.5
+  nightMessage: Night Has Come
+  dayMessage: Day Has Come
   rollViewCloseDelay: 2
   warningTextDuration: 2
 --- !u!4 &865562948
@@ -2429,7 +2446,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4281479730
   m_fontColor: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -2442,7 +2459,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -2530,6 +2547,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BoardSceneController
   _boardPlayerController: {fileID: 778086451}
+  _mapGenerator: {fileID: 0}
   _nightInterval: 3
   _nightEventPopup: {fileID: 0}
   _timeStatusHud: {fileID: 0}
@@ -2993,6 +3011,7 @@ MonoBehaviour:
   totalNodeCount: 950
   maxRadius: 400
   tileSpacing: 2.03
+  tileScaleMultiplier: 1
   animationDuration: 3
   noiseScale: 0.1
   edgeFalloffStrength: 0.8

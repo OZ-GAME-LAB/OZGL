@@ -96,29 +96,4 @@ public static class TempRosterSeed
             CreateSilenceSkill(),
         };
     }
-
-    /// <summary>
-    /// EnemyData.xlsx가 이름 있는 몬스터 로스터가 아니라 턴 스케일링 커브뿐이라,
-    /// 실제 스키마가 나오기 전까지 쓰는 고정값 몬스터 1종입니다.
-    /// </summary>
-    public static List<MonsterData> CreateMonsterRoster()
-    {
-        return new List<MonsterData>
-        {
-            new MonsterData
-            {
-                id = 1,
-                name = "Enemy_Melee",
-                spriteAddress = "Enemy_Melee",
-                healthPoint = 400,
-                attackPoint = 10,
-                criticalRate = 0,
-                dodgeRate = 0,
-                attackSpeed = 0,
-                skillCooldown = 4,
-                skillIds = new List<int> { 201, 202, 203 },
-                type = MonsterType.normal,
-            },
-        };
-    }
 }

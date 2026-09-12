@@ -40,7 +40,7 @@ namespace OzGameLab01.Map
         // 시작점에서 목표점까지 주사위 값 내에 갈 수 있는 최단 경로를 반환합니다.
         public List<MapNode> FindPath(MapNode startNode, MapNode targetNode, int maxDistance)
         {
-            if (startNode == targetNode || IsObstacle(targetNode.Type)) return null;
+            if (startNode == null || targetNode == null || startNode == targetNode || IsObstacle(targetNode.Type)) return null;
 
             Queue<MapNode> queue = new Queue<MapNode>();
             Dictionary<MapNode, MapNode> cameFrom = new Dictionary<MapNode, MapNode>();

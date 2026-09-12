@@ -14,14 +14,16 @@ namespace OzGameLab01.Managers
         private readonly List<IAttackTriggerRelic> _attackRelics = new();
         private readonly List<IDiceTriggerRelic> _diceRelics = new();
 
+        public IReadOnlyList<RelicRuntimeInstance> OwnedRelics => _allRelics;
+
         /// <summary>
         /// GameDB의 ID 기반 유물 획득
         /// </summary>
         /// <param name="relicId"> 유물 ID </param>
         public void AcquireRelic(int relicId)
         {
-            // 1. GameDB에서 정적 데이터 조회
-            var relicData = DataManager.Relics.Get(relicId);
+            // 1. 정적 데이터 조회 (RuntimeDataManager 단일 진입점)
+            var relicData = RuntimeDataManager.Instance.GetRelic(relicId);
             if (relicData == null)
             {
                 Debug.LogError($"[RelicManager] ID: {relicId}에 해당하는 유물을 발견하지 못 했습니다.");
@@ -33,8 +35,76 @@ namespace OzGameLab01.Managers
             _allRelics.Add(newInstance);
             RegisterRuntimeRelic(newInstance);
             newInstance.OnEquip();
+            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
 
             SaveManager.Instance?.MarkAsDirty();
+        }
+
+        /// <summary>
+        /// dropWeight(RelicData.xlsx "확률" 열) 가중치로 무작위 유물 하나를 뽑아 즉시
+        /// 획득시킵니다. 이미 보유한 유물은 후보에서 제외하고, 전부 보유한 극단적인
+        /// 경우에만 중복을 허용합니다. 뽑을 유물이 전혀 없으면 null을 반환합니다.
+        /// </summary>
+        public RelicData AcquireRandomRelic()
+        {
+            IReadOnlyDictionary<int, RelicData> allRelics = RuntimeDataManager.Instance.Relics;
+            if (allRelics.Count == 0)
+            {
+                return null;
+            }
+
+            HashSet<int> ownedIds = new HashSet<int>();
+            foreach (RelicRuntimeInstance owned in _allRelics)
+            {
+                if (owned?.Data != null)
+                {
+                    ownedIds.Add(owned.Data.id);
+                }
+            }
+
+            List<RelicData> pool = new List<RelicData>();
+            foreach (RelicData relic in allRelics.Values)
+            {
+                if (!ownedIds.Contains(relic.id))
+                {
+                    pool.Add(relic);
+                }
+            }
+
+            if (pool.Count == 0)
+            {
+                pool.AddRange(allRelics.Values);
+            }
+
+            float totalWeight = 0f;
+            foreach (RelicData relic in pool)
+            {
+                totalWeight += Mathf.Max(0f, relic.dropWeight);
+            }
+
+            RelicData picked;
+            if (totalWeight <= 0f)
+            {
+                picked = pool[Random.Range(0, pool.Count)];
+            }
+            else
+            {
+                float roll = Random.value * totalWeight;
+                float cumulative = 0f;
+                picked = pool[pool.Count - 1];
+                foreach (RelicData relic in pool)
+                {
+                    cumulative += Mathf.Max(0f, relic.dropWeight);
+                    if (roll <= cumulative)
+                    {
+                        picked = relic;
+                        break;
+                    }
+                }
+            }
+
+            AcquireRelic(picked.id);
+            return picked;
         }
 
         /// <summary>
@@ -49,13 +119,15 @@ namespace OzGameLab01.Managers
 
             foreach (var entry in saveEntries)
             {
-                RelicData data = DataManager.Relics.Get(entry.relicId);
+                RelicData data = RuntimeDataManager.Instance.GetRelic(entry.relicId);
                 if (data == null) continue;
 
                 var runtime = new RelicRuntimeInstance(data);
                 _allRelics.Add(runtime);
                 runtime.OnEquip();
             }
+
+            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
         }
 
         /// <summary>
@@ -66,6 +138,7 @@ namespace OzGameLab01.Managers
             _allRelics.Clear();
             _attackRelics.Clear();
             _diceRelics.Clear();
+            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
         }
 
         /// <summary>

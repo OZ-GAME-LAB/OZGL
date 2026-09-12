@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using OzGameLab01.Managers;
 using OzGameLab01.Data;
+using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Combat
 {
@@ -20,10 +21,20 @@ namespace OzGameLab01.Combat
             public SkillData data;
             public float timer;
             public float damageMultiplier = 1f;
+
+            // 기본공격(0번째)은 유닛마다 다른 공격속도를 가지므로, 여러 유닛이 공유하는
+            // SkillData.cooldown 대신 이 값을 우선 사용합니다. 그 외 스킬은 null로 두어
+            // SkillData.cooldown을 그대로 씁니다.
+            public float? cooldownOverride;
         }
 
         [SerializeField] private Team team;
         [SerializeField] private float maxHP = 100f;
+        private float attackPoint;
+        private float defensePoint;
+        private float criticalRate;
+        private float criticalMult = 150f;
+        private float dodgeRate;
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private GameObject projectilePrefab;
@@ -36,6 +47,10 @@ namespace OzGameLab01.Combat
 
         public bool IsDead => _isDead;
         public Team TeamValue => team;
+        public float CurrentHp => _currentHP;
+        public float MaxHp => maxHP;
+        public RectTransform CombatAnchor => _presenter?.CombatAnchor;
+        public string DisplayName { get; private set; }
 
         private float _currentHP;
         private bool _isDead;
@@ -75,6 +90,8 @@ namespace OzGameLab01.Combat
             // 도트 데미지는 기절 중에도 계속 진행되어야 하므로 가장 먼저 처리합니다.
             _status.Tick(Time.deltaTime, dmg => TakeDamage(dmg));
             _presenter.SetDebuffTint(_status.IndicatorColor);
+            bool hasCooldown = TryGetActiveSkillCooldown(out float cdRemaining, out float cdDuration);
+            _presenter.UpdateHud(_currentHP, maxHP, hasCooldown, cdRemaining, cdDuration);
             if (_isDead)
             {
                 return;
@@ -101,7 +118,7 @@ namespace OzGameLab01.Combat
                 if (skill.timer <= 0f && (isBasicAttack || !_status.IsSilenced))
                 {
                     StartCoroutine(CastSkill(target, skill, isBasicAttack));
-                    skill.timer = skill.data.cooldown;
+                    skill.timer = GetSkillCooldown(skill);
                 }
             }
         }
@@ -120,14 +137,21 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            DisplayName = data.name;
             maxHP = data.healthPoint;
+            attackPoint = data.attackPoint;
+            defensePoint = data.defensePoint;
+            criticalRate = data.criticalRate;
+            criticalMult = data.criticalMult;
+            dodgeRate = data.dodgeRate;
 
             if (spriteRenderer != null)
             {
                 spriteRenderer.color = data.color;
             }
 
-            ResolveSkills(data.skillIds, UnitRosterData.Active != null ? (System.Func<int, SkillData>)UnitRosterData.Active.GetSkill : null);
+            ResolveSkills(data.skillIds, RuntimeDataManager.Instance.GetSkill);
+            SetBasicAttackCooldown(data.attackSpeed);
 
             if (_awakeInitialized)
             {
@@ -147,9 +171,21 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            DisplayName = data.name;
+            // data는 EnemyManager.BuildCombatSpec()이 턴 성장 배율과 훔친 액티브 스킬까지 반영해
+            // 이미 확정한 전투용 스펙입니다. Unit은 그 값을 그대로 받아 런타임 상태(쿨타임/체력
+            // 진행)만 관리합니다. 상세: Docs/COMBAT_REFACTOR_TASKS.md 21번.
             maxHP = data.healthPoint;
+            attackPoint = data.attackPoint;
+            defensePoint = data.defensePoint;
+            criticalRate = data.criticalRate;
+            criticalMult = data.criticalMult;
+            dodgeRate = data.dodgeRate;
 
-            ResolveSkills(data.skillIds, MonsterRosterData.Active != null ? (System.Func<int, SkillData>)MonsterRosterData.Active.GetSkill : null);
+            // 원본 몬스터 스킬(201~203)과 EnemyManager가 훔쳐온 유닛 액티브 스킬 모두
+            // RuntimeDataManager.GetSkill()이 두 로스터를 순서대로 조회해 풀어줍니다.
+            ResolveSkills(data.skillIds, RuntimeDataManager.Instance.GetSkill);
+            SetBasicAttackCooldown(data.attackSpeed);
 
             if (_awakeInitialized)
             {
@@ -192,20 +228,109 @@ namespace OzGameLab01.Combat
 
             foreach (RuntimeSkill skill in _skills)
             {
-                skill.timer = skill.data.cooldown;
+                skill.timer = GetSkillCooldown(skill);
             }
         }
 
-        public void ApplySynergyBonus(float hpMultiplier, float attackMultiplier)
+        /// <summary>
+        /// 0번째 스킬(기본공격)의 쿨다운을 유닛별 공격속도로 덮어씁니다. 기본공격은 여러 유닛이
+        /// 같은 SkillData(공용 기본공격 정의)를 공유하므로, 그 데이터 자체를 고치는 대신
+        /// RuntimeSkill.cooldownOverride로 유닛별 값을 별도로 둡니다.
+        /// </summary>
+        private void SetBasicAttackCooldown(float attackSpeed)
         {
-            maxHP *= hpMultiplier;
-            _currentHP = maxHP;
-            _presenter.InitHealthBar(maxHP);
-
-            foreach (RuntimeSkill skill in _skills)
+            if (_skills.Count > 0)
             {
-                skill.damageMultiplier *= attackMultiplier;
+                _skills[0].cooldownOverride = attackSpeed;
             }
+        }
+
+        private static float GetSkillCooldown(RuntimeSkill skill)
+        {
+            return skill.cooldownOverride ?? skill.data.cooldown;
+        }
+
+        /// <summary>
+        /// 1번째 스킬(액티브, 0번째는 기본공격)의 남은/전체 쿨다운. 전투 HUD 게이지 표시용.
+        /// 액티브 스킬이 없으면 false.
+        /// </summary>
+        public bool TryGetActiveSkillCooldown(out float remaining, out float duration)
+        {
+            if (_skills.Count > 1)
+            {
+                RuntimeSkill skill = _skills[1];
+                remaining = Mathf.Max(0f, skill.timer);
+                duration = GetSkillCooldown(skill);
+                return true;
+            }
+
+            remaining = 0f;
+            duration = 0f;
+            return false;
+        }
+
+        /// <summary>
+        /// 전투 HUD 상태이상 아이콘 표시용. UnitStatusEffects.TryGetPrimaryDebuff 그대로 위임.
+        /// </summary>
+        public bool TryGetPrimaryDebuff(out DebuffType type, out float remaining, out float duration)
+        {
+            return _status.TryGetPrimaryDebuff(out type, out remaining, out duration);
+        }
+
+        /// <summary>
+        /// 시너지 등 퍼센트 기반 스탯 보너스를 적용합니다. value는 "+20"이면 20%를 뜻하며,
+        /// 항상 곱연산(1 + value/100)으로 누적됩니다 — 여러 시너지가 겹치면 중첩 적용됩니다.
+        /// 공격력은 유닛에 별도 공격력 스탯이 없어 스킬 데미지 배율(damageMultiplier)에 적용하고,
+        /// 공격속도/쿨타임 감소는 기본공격 쿨다운에만 적용합니다(스킬별 쿨다운은 아직 배율 개념이 없음).
+        /// </summary>
+        public bool ApplyStatEffect(EffectStatType statType, float percentValue)
+        {
+            float multiplier = 1f + percentValue / 100f;
+
+            switch (statType)
+            {
+                case EffectStatType.MaxHealth:
+                    maxHP *= multiplier;
+                    _currentHP = maxHP;
+                    _presenter.InitHealthBar(maxHP);
+                    break;
+
+                case EffectStatType.Attack:
+                    if (_skills.Count == 0) return false;
+                    foreach (RuntimeSkill skill in _skills)
+                    {
+                        skill.damageMultiplier *= multiplier;
+                    }
+                    break;
+
+                case EffectStatType.Defense:
+                    defensePoint *= multiplier;
+                    break;
+
+                case EffectStatType.CriticalChance:
+                    criticalRate *= multiplier;
+                    break;
+
+                case EffectStatType.CriticalMultiplier:
+                    criticalMult *= multiplier;
+                    break;
+
+                case EffectStatType.DodgeChance:
+                    dodgeRate *= multiplier;
+                    break;
+
+                case EffectStatType.AttackInterval:
+                    if (_skills.Count > 0)
+                    {
+                        float cooldown = GetSkillCooldown(_skills[0]);
+                        _skills[0].cooldownOverride = cooldown * (1f - percentValue / 100f);
+                    }
+                    else return false;
+                    break;
+                default:
+                    return false;
+            }
+            return true;
         }
 
         /// <summary>
@@ -225,6 +350,14 @@ namespace OzGameLab01.Combat
             _presenter.BindCombatUI(combatAnchor, combatImage, projectilePool);
         }
 
+        /// <summary>
+        /// UnitAnchor 아래에 스폰된 아군 전투 HUD(체력/액티브 스킬 쿨다운 게이지)를 바인딩합니다.
+        /// </summary>
+        public void BindHud(AllyUnitCombatHUDView hud)
+        {
+            _presenter.BindHud(hud);
+        }
+
         private Unit ResolveTarget()
         {
             return team == Team.Ally ? CombatManager.Instance.EnemyUnit : CombatManager.Instance.ResolveAllyTarget();
@@ -240,6 +373,28 @@ namespace OzGameLab01.Combat
 
             // 그을림(공격력 감소) 디버프는 데미지 계산 시점에 반영한다.
             float effectiveDamage = damage * _status.AttackMultiplier;
+
+            if (target != null)
+            {
+                // 회피율은 최대 60%까지만 적용됨(UnitData.xlsx 규칙).
+                float dodgeChance = Mathf.Min(target.dodgeRate, 60f) / 100f;
+                if (Random.value < dodgeChance)
+                {
+                    effectiveDamage = 0f;
+                }
+                else
+                {
+                    if (Random.value < criticalRate / 100f)
+                    {
+                        effectiveDamage *= criticalMult / 100f;
+                    }
+
+                    // 최종 데미지 = 공격력 - 방어력, 소수 둘째자리 반올림, 최소 1.0(UnitData.xlsx 규칙).
+                    effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
+                    effectiveDamage = Mathf.Round(effectiveDamage * 100f) / 100f;
+                }
+            }
+
             _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, effectiveDamage);
 
             PassiveEventBus.RaiseAttackLanded(this, target);
@@ -257,6 +412,9 @@ namespace OzGameLab01.Combat
                 // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
                 if (!isBasicAttack)
                 {
+                    CombatManager.Instance?.ReportFeedback(new CombatFeedback(
+                        CombatFeedbackKind.Skill, skill.data.name,
+                        $"{DisplayName ?? name} → {target.DisplayName ?? target.name}", this));
                     Debug.Log($"[Unit] {name}({team}) 액티브 스킬 사용: {skill.data.name}");
                     PassiveEventBus.RaiseSkillUsed(this, skill.data);
                 }

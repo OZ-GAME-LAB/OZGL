@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Combat
 {
@@ -26,6 +27,7 @@ namespace OzGameLab01.Combat
         private UIProjectilePool _uiProjectilePool;
         private Sprite _projectileSprite;
         private Color _projectileColor = Color.white;
+        private AllyUnitCombatHUDView _hud;
 
         public RectTransform CombatAnchor => _combatAnchor;
 
@@ -109,6 +111,32 @@ namespace OzGameLab01.Combat
             if (team == Unit.Team.Enemy)
             {
                 _projectileColor = Color.red;
+            }
+        }
+
+        /// <summary>
+        /// UnitAnchor 아래에 스폰된 AllyUnitCombatHUDView를 바인딩합니다(아군 전용, 적은 null).
+        /// </summary>
+        public void BindHud(AllyUnitCombatHUDView hud)
+        {
+            _hud = hud;
+        }
+
+        /// <summary>
+        /// 매 프레임 체력/액티브 스킬 쿨다운 게이지를 갱신합니다. HUD가 바인딩되지 않았으면
+        /// (적, 또는 HUD 프리팹 미지정) 아무 것도 하지 않습니다.
+        /// </summary>
+        public void UpdateHud(float currentHp, float maxHp, bool hasCooldown, float cooldownRemaining, float cooldownDuration)
+        {
+            if (_hud == null)
+            {
+                return;
+            }
+
+            _hud.SetHealth(currentHp, maxHp);
+            if (hasCooldown)
+            {
+                _hud.SetSkillCooldown(cooldownRemaining, cooldownDuration);
             }
         }
 

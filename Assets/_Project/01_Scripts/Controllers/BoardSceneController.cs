@@ -28,9 +28,6 @@ namespace OzGameLab01.Controllers
         [Tooltip("전투 시작 전 최소 편성 인원을 확인할 유닛 편성 컨트롤러입니다. 비워두면 씬에서 자동으로 찾습니다.")]
         [SerializeField] private UnitFormationController _unitFormationController;
 
-        [Header("유닛 획득 데이터")]
-        [SerializeField] private UnitRosterData _unitRosterData;
-
         [Header("Event UI")]
         [SerializeField] private ChoiceEventManager _eventUIPanel;
 
@@ -298,11 +295,12 @@ namespace OzGameLab01.Controllers
 
         private bool HandleUnitAcquisitionNode()
         {
-            if (_unitRosterData != null && _unitRosterData.UnitStats.Count > 0)
+            System.Collections.Generic.IReadOnlyList<UnitData> rosterUnits = RuntimeDataManager.Instance.Units;
+            if (rosterUnits.Count > 0)
             {
                 // 프리팹(SpriteAddress)이 세팅된 유닛만 필터링 (테스트 용이성을 위해)
                 System.Collections.Generic.List<UnitData> validUnits = new System.Collections.Generic.List<UnitData>();
-                foreach (var u in _unitRosterData.UnitStats)
+                foreach (var u in rosterUnits)
                 {
                     if (u != null && !string.IsNullOrEmpty(u.spriteAddress))
                     {
@@ -314,7 +312,7 @@ namespace OzGameLab01.Controllers
                 {
                     Debug.LogWarning("[BoardSceneController] 프리팹(SpriteAddress)이 설정된 유닛이 로스터에 하나도 없습니다!");
                     // 전부 없으면 그냥 전체에서 뽑기
-                    foreach (UnitData unitData in _unitRosterData.UnitStats)
+                    foreach (UnitData unitData in rosterUnits)
                     {
                         if (unitData != null)
                         {
@@ -353,7 +351,7 @@ namespace OzGameLab01.Controllers
                 return true;
             }
 
-            Debug.LogWarning("[BoardSceneController] 인스펙터에 UnitRosterData가 할당되지 않아 유닛 획득이 불가능합니다!");
+            Debug.LogWarning("[BoardSceneController] RuntimeDataManager.Units가 비어 있어 유닛 획득이 불가능합니다!");
             return false;
         }
 

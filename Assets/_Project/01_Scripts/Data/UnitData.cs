@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using OzGameLab01.Combat;
 
 namespace OzGameLab01.Data
 {
@@ -23,6 +24,8 @@ namespace OzGameLab01.Data
         public float criticalMult;      // 치명타 배율
         public float criticalRate;      // 치명 확률
         public float dodgeRate;         // 회피율
+        public float recoveryAmount;    // 회복량
+        public float statusDuration;    // 상태 지속시간
         public int bloodDrain;          // 흡혈
         public float basicAttackCooldown = 1f;
 
@@ -34,11 +37,15 @@ namespace OzGameLab01.Data
 
         public string attackKey;
 
+        public List<EffectInstance> passiveEffects = new List<EffectInstance>();
+
         public string synergy;
         public UnitTypeJob jobType;
         public UnitTypeTribe tribeType;
 
-        public Color color = Color.white;
+        // 흰색 원본 스프라이트를 밝은 배경 위에서도 구분되도록 살짝 회색으로 낮춘 기본값.
+        // xlsx에 유닛별 색상 지정이 없어 21명 전부 이 기본값을 그대로 씁니다.
+        public Color color = new Color(0.75f, 0.75f, 0.75f);
     }
 
     public enum UnitTypeJob
