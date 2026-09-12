@@ -16,7 +16,9 @@
       "skillIds": [
         900,
         910
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 101,
@@ -34,7 +36,9 @@
       "skillIds": [
         900,
         911
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 102,
@@ -52,7 +56,9 @@
       "skillIds": [
         900,
         912
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 103,
@@ -70,7 +76,9 @@
       "skillIds": [
         900,
         913
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 104,
@@ -88,7 +96,9 @@
       "skillIds": [
         900,
         910
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 105,
@@ -106,7 +116,9 @@
       "skillIds": [
         900,
         911
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 106,
@@ -124,7 +136,9 @@
       "skillIds": [
         900,
         912
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 107,
@@ -142,7 +156,9 @@
       "skillIds": [
         900,
         913
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 108,
@@ -160,7 +176,9 @@
       "skillIds": [
         900,
         910
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 109,
@@ -178,7 +196,9 @@
       "skillIds": [
         900,
         911
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 110,
@@ -196,7 +216,9 @@
       "skillIds": [
         900,
         912
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 111,
@@ -214,7 +236,9 @@
       "skillIds": [
         900,
         913
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 112,
@@ -232,7 +256,9 @@
       "skillIds": [
         900,
         910
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 113,
@@ -250,7 +276,9 @@
       "skillIds": [
         900,
         911
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 114,
@@ -268,7 +296,9 @@
       "skillIds": [
         900,
         912
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 115,
@@ -286,7 +316,9 @@
       "skillIds": [
         900,
         913
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 116,
@@ -304,7 +336,9 @@
       "skillIds": [
         900,
         910
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 117,
@@ -322,7 +356,9 @@
       "skillIds": [
         900,
         911
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 118,
@@ -340,7 +376,9 @@
       "skillIds": [
         900,
         912
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 119,
@@ -358,7 +396,9 @@
       "skillIds": [
         900,
         913
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     },
     {
       "id": 120,
@@ -376,7 +416,9 @@
       "skillIds": [
         900,
         910
-      ]
+      ],
+      "recoveryAmount": 1.0,
+      "statusDuration": 1.0
     }
   ]
 }
