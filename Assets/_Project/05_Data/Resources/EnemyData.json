@@ -1,0 +1,55 @@
+{
+  "monsterList": [
+    {
+      "id": 1,
+      "name": "Enemy_Melee",
+      "spriteAddress": "Enemy_Melee",
+      "healthPoint": 100,
+      "attackPoint": 5,
+      "criticalRate": 150,
+      "dodgeRate": 10,
+      "attackSpeed": 1.0,
+      "skillCooldown": 4,
+      "skillIds": [
+        201,
+        202,
+        203
+      ],
+      "type": "normal"
+    },
+    {
+      "id": 2,
+      "name": "Enemy_Melee_Night",
+      "spriteAddress": "Enemy_Melee",
+      "healthPoint": 160,
+      "attackPoint": 8,
+      "criticalRate": 150,
+      "dodgeRate": 15,
+      "attackSpeed": 1.0,
+      "skillCooldown": 4,
+      "skillIds": [
+        201,
+        202,
+        203
+      ],
+      "type": "night"
+    },
+    {
+      "id": 3,
+      "name": "Enemy_Melee_Semiboss",
+      "spriteAddress": "Enemy_Melee",
+      "healthPoint": 350,
+      "attackPoint": 20,
+      "criticalRate": 175,
+      "dodgeRate": 15,
+      "attackSpeed": 0.8,
+      "skillCooldown": 4,
+      "skillIds": [
+        201,
+        202,
+        203
+      ],
+      "type": "semiboss"
+    }
+  ]
+}

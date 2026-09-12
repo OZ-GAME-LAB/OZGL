@@ -147,9 +147,14 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            // data는 EnemyManager.BuildCombatSpec()이 턴 성장 배율과 훔친 액티브 스킬까지 반영해
+            // 이미 확정한 전투용 스펙입니다. Unit은 그 값을 그대로 받아 런타임 상태(쿨타임/체력
+            // 진행)만 관리합니다. 상세: Docs/COMBAT_REFACTOR_TASKS.md 21번.
             maxHP = data.healthPoint;
 
-            ResolveSkills(data.skillIds, MonsterRosterData.Active != null ? (System.Func<int, SkillData>)MonsterRosterData.Active.GetSkill : null);
+            // 원본 몬스터 스킬(201~203)은 MonsterRosterData에, EnemyManager가 훔쳐온 액티브
+            // 스킬은 UnitRosterData에 정의되어 있어 두 로스터를 순서대로 조회합니다.
+            ResolveSkills(data.skillIds, ResolveEnemySkill);
 
             if (_awakeInitialized)
             {
@@ -181,6 +186,21 @@ namespace OzGameLab01.Combat
 
                 _skills.Add(new RuntimeSkill { data = data, timer = data.cooldown, damageMultiplier = 1f });
             }
+        }
+
+        /// <summary>
+        /// 적 스킬 id를 MonsterRosterData(원본 몬스터 스킬) → UnitRosterData(훔쳐온 유닛 액티브
+        /// 스킬) 순서로 조회합니다.
+        /// </summary>
+        private static SkillData ResolveEnemySkill(int id)
+        {
+            SkillData monsterSkill = MonsterRosterData.Active != null ? MonsterRosterData.Active.GetSkill(id) : null;
+            if (monsterSkill != null)
+            {
+                return monsterSkill;
+            }
+
+            return UnitRosterData.Active != null ? UnitRosterData.Active.GetSkill(id) : null;
         }
 
         private void InitializeRuntimeState()

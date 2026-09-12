@@ -121,6 +121,10 @@ namespace OzGameLab01.Combat
                 ? monsterRosterData.GetById(enemyMonsterId)
                 : null;
 
+            // 턴/낮밤/중간보스 상태로 스케일링한 체력과 플레이어 보유 유닛에서 훔친 액티브
+            // 스킬까지 반영한 전투용 스펙으로 교체합니다. 원본 로스터 캐시는 수정하지 않습니다.
+            enemyMonsterData = EnemyManager.Instance.BuildCombatSpec(enemyMonsterData);
+
             _allySpawner = new AllySpawner(
                 battleMainView, allyTemplatePrefab, unitsRoot,
                 gridOrigin, columnSpacing, rowSpacing,
