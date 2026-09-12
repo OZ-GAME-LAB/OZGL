@@ -41,6 +41,73 @@ namespace OzGameLab01.Managers
         }
 
         /// <summary>
+        /// dropWeight(RelicData.xlsx "확률" 열) 가중치로 무작위 유물 하나를 뽑아 즉시
+        /// 획득시킵니다. 이미 보유한 유물은 후보에서 제외하고, 전부 보유한 극단적인
+        /// 경우에만 중복을 허용합니다. 뽑을 유물이 전혀 없으면 null을 반환합니다.
+        /// </summary>
+        public RelicData AcquireRandomRelic()
+        {
+            IReadOnlyDictionary<int, RelicData> allRelics = RuntimeDataManager.Instance.Relics;
+            if (allRelics.Count == 0)
+            {
+                return null;
+            }
+
+            HashSet<int> ownedIds = new HashSet<int>();
+            foreach (RelicRuntimeInstance owned in _allRelics)
+            {
+                if (owned?.Data != null)
+                {
+                    ownedIds.Add(owned.Data.id);
+                }
+            }
+
+            List<RelicData> pool = new List<RelicData>();
+            foreach (RelicData relic in allRelics.Values)
+            {
+                if (!ownedIds.Contains(relic.id))
+                {
+                    pool.Add(relic);
+                }
+            }
+
+            if (pool.Count == 0)
+            {
+                pool.AddRange(allRelics.Values);
+            }
+
+            float totalWeight = 0f;
+            foreach (RelicData relic in pool)
+            {
+                totalWeight += Mathf.Max(0f, relic.dropWeight);
+            }
+
+            RelicData picked;
+            if (totalWeight <= 0f)
+            {
+                picked = pool[Random.Range(0, pool.Count)];
+            }
+            else
+            {
+                float roll = Random.value * totalWeight;
+                float cumulative = 0f;
+                picked = pool[pool.Count - 1];
+                foreach (RelicData relic in pool)
+                {
+                    cumulative += Mathf.Max(0f, relic.dropWeight);
+                    if (roll <= cumulative)
+                    {
+                        picked = relic;
+                        break;
+                    }
+                }
+            }
+
+            AcquireRelic(picked.id);
+            return picked;
+        }
+
+        /// <summary>
         /// 유물 세이브 데이터 복원
         /// </summary>
         /// <param name="saveEntries"></param>
