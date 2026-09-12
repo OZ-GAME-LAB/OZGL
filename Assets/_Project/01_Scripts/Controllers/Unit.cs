@@ -256,15 +256,54 @@ namespace OzGameLab01.Combat
             return skill.cooldownOverride ?? skill.data.cooldown;
         }
 
-        public void ApplySynergyBonus(float hpMultiplier, float attackMultiplier)
+        /// <summary>
+        /// 시너지 등 퍼센트 기반 스탯 보너스를 적용합니다. value는 "+20"이면 20%를 뜻하며,
+        /// 항상 곱연산(1 + value/100)으로 누적됩니다 — 여러 시너지가 겹치면 중첩 적용됩니다.
+        /// 공격력은 유닛에 별도 공격력 스탯이 없어 스킬 데미지 배율(damageMultiplier)에 적용하고,
+        /// 공격속도/쿨타임 감소는 기본공격 쿨다운에만 적용합니다(스킬별 쿨다운은 아직 배율 개념이 없음).
+        /// </summary>
+        public void ApplyStatEffect(EffectStatType statType, float percentValue)
         {
-            maxHP *= hpMultiplier;
-            _currentHP = maxHP;
-            _presenter.InitHealthBar(maxHP);
+            float multiplier = 1f + percentValue / 100f;
 
-            foreach (RuntimeSkill skill in _skills)
+            switch (statType)
             {
-                skill.damageMultiplier *= attackMultiplier;
+                case EffectStatType.MaxHealth:
+                    maxHP *= multiplier;
+                    _currentHP = maxHP;
+                    _presenter.InitHealthBar(maxHP);
+                    break;
+
+                case EffectStatType.Attack:
+                    foreach (RuntimeSkill skill in _skills)
+                    {
+                        skill.damageMultiplier *= multiplier;
+                    }
+                    break;
+
+                case EffectStatType.Defense:
+                    defensePoint *= multiplier;
+                    break;
+
+                case EffectStatType.CriticalChance:
+                    criticalRate *= multiplier;
+                    break;
+
+                case EffectStatType.CriticalMultiplier:
+                    criticalMult *= multiplier;
+                    break;
+
+                case EffectStatType.DodgeChance:
+                    dodgeRate *= multiplier;
+                    break;
+
+                case EffectStatType.AttackInterval:
+                    if (_skills.Count > 0)
+                    {
+                        float cooldown = GetSkillCooldown(_skills[0]);
+                        _skills[0].cooldownOverride = cooldown * (1f - percentValue / 100f);
+                    }
+                    break;
             }
         }
 
