@@ -46,6 +46,8 @@ namespace OzGameLab01.Combat
 
         public bool IsDead => _isDead;
         public Team TeamValue => team;
+        public float CurrentHp => _currentHP;
+        public float MaxHp => maxHP;
 
         private float _currentHP;
         private bool _isDead;

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using UnityEngine;
+using OzGameLab01.Data;
 
 /// <summary>
 /// 05_Data/Resources의 JSON을 읽어 역직렬화하는 임시 로더입니다.
@@ -38,5 +39,23 @@ public static class GameDataLoader
         }
 
         return JsonConvert.DeserializeObject<SkillDataList>(asset.text)?.GetList();
+    }
+
+    /// <summary>
+    /// RelicData.xlsx를 그대로 옮긴 임시 데이터입니다. 엑셀에 유물 이름 칸이 비어 있어
+    /// name/description 모두 효과 설명 텍스트를 그대로 씁니다. "획득 시" 트리거나 아군/시너지
+    /// 개수 조건부 효과처럼 대응하는 TriggerType/조건 판정이 없는 항목은 effects가 비어
+    /// 있습니다 — Docs/Database/RelicData.xlsx 참고.
+    /// </summary>
+    public static List<RelicData> LoadRelics()
+    {
+        TextAsset asset = Resources.Load<TextAsset>("RelicData");
+        if (asset == null)
+        {
+            Debug.LogWarning("[GameDataLoader] Resources/RelicData.json을 찾을 수 없습니다.");
+            return null;
+        }
+
+        return JsonConvert.DeserializeObject<RelicDataList>(asset.text)?.GetList();
     }
 }

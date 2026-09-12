@@ -22,8 +22,8 @@ namespace OzGameLab01.Managers
         /// <param name="relicId"> 유물 ID </param>
         public void AcquireRelic(int relicId)
         {
-            // 1. GameDB에서 정적 데이터 조회
-            var relicData = DataManager.Relics.Get(relicId);
+            // 1. 정적 데이터 조회 (RuntimeDataManager 단일 진입점)
+            var relicData = RuntimeDataManager.Instance.GetRelic(relicId);
             if (relicData == null)
             {
                 Debug.LogError($"[RelicManager] ID: {relicId}에 해당하는 유물을 발견하지 못 했습니다.");
@@ -52,7 +52,7 @@ namespace OzGameLab01.Managers
 
             foreach (var entry in saveEntries)
             {
-                RelicData data = DataManager.Relics.Get(entry.relicId);
+                RelicData data = RuntimeDataManager.Instance.GetRelic(entry.relicId);
                 if (data == null) continue;
 
                 var runtime = new RelicRuntimeInstance(data);

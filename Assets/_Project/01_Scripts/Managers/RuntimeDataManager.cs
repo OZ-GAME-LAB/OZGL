@@ -22,16 +22,19 @@ namespace OzGameLab01.Managers
         private UnitRosterData _unitRosterData;
         private MonsterRosterData _monsterRosterData;
         private readonly Dictionary<int, SynergyData> _synergiesById = new Dictionary<int, SynergyData>();
+        private readonly Dictionary<int, RelicData> _relicsById = new Dictionary<int, RelicData>();
 
         public IReadOnlyList<UnitData> Units => _unitRosterData != null ? _unitRosterData.UnitStats : EmptyUnits;
         public IReadOnlyList<MonsterData> Enemies => _monsterRosterData != null ? _monsterRosterData.MonsterStats : EmptyEnemies;
         public IReadOnlyDictionary<int, SynergyData> Synergies => _synergiesById;
+        public IReadOnlyDictionary<int, RelicData> Relics => _relicsById;
 
         protected override void Awake()
         {
             base.Awake();
             LoadRosters();
             LoadSynergies();
+            LoadRelics();
         }
 
         /// <summary>
@@ -114,6 +117,46 @@ namespace OzGameLab01.Managers
         {
             _synergiesById.TryGetValue(id, out SynergyData data);
             return data;
+        }
+
+        /// <summary>
+        /// 유물 캐시를 다시 읽습니다. RelicData.xlsx를 옮긴 Resources/RelicData.json을
+        /// 직접 로드합니다(DataManager.Relics는 Addressables 주소가 비어 있고
+        /// LoadAllDatabase()도 호출되지 않아 항상 비어 있으므로 쓰지 않습니다).
+        /// </summary>
+        public void LoadRelics()
+        {
+            _relicsById.Clear();
+            List<RelicData> loaded = GameDataLoader.LoadRelics();
+            if (loaded == null)
+            {
+                return;
+            }
+
+            foreach (RelicData relic in loaded)
+            {
+                if (relic != null)
+                {
+                    _relicsById[relic.id] = relic;
+                }
+            }
+        }
+
+        public RelicData GetRelic(int id)
+        {
+            _relicsById.TryGetValue(id, out RelicData data);
+            return data;
+        }
+
+        /// <summary>
+        /// 특정 트리거에 연결된 패시브(유닛)/유물 효과 목록입니다. 실제 캐시 구성은
+        /// RuntimeEffectManager가 담당하고(플레이어 보유 상태를 읽어야 해서), 여기서는
+        /// 전투 로직(CombatEffectExecutor)이 RuntimeDataManager 하나만 참조해도 되도록
+        /// 위임만 합니다.
+        /// </summary>
+        public IReadOnlyList<RuntimeEffectManager.EffectSource> GetEffects(TriggerType trigger)
+        {
+            return RuntimeEffectManager.Instance.GetEffects(trigger);
         }
     }
 }

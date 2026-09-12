@@ -26,6 +26,8 @@ namespace OzGameLab01.Data
         public string relicLogic;           // 유물 로직 식별자
 
         public int baseValue;               // 유물의 고유 수치
+        public float dropWeight;            // 전투 승리 보상 뽑기 가중치(RelicData.xlsx "확률" 열)
+        public string targetScene;          // 효과가 적용되는 씬("보드씬"/"전투씬", RelicData.xlsx 원본 그대로)
         public List<EffectInstance> effects = new List<EffectInstance>();
     }
 }

@@ -85,6 +85,7 @@ namespace OzGameLab01.Combat
         private UIProjectilePool _uiProjectilePool;
         private AllySpawner _allySpawner;
         private SynergyController _synergyController;
+        private CombatEffectExecutor _combatEffectExecutor;
 
         public Unit EnemyUnit => _enemyUnit;
 
@@ -157,6 +158,10 @@ namespace OzGameLab01.Combat
             RuntimeEffectManager.Instance.LoadTempUnitJsonAndLog();
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
             RuntimeEffectManager.Instance.RefreshFromPlayerState();
+
+            // PassiveEventBus 구독은 RaiseBattleStart보다 먼저 끝나 있어야 Always/OnBattleStart
+            // 효과를 놓치지 않는다.
+            _combatEffectExecutor = new CombatEffectExecutor(this);
             PassiveEventBus.RaiseBattleStart();
         }
 
@@ -231,6 +236,43 @@ namespace OzGameLab01.Combat
             }
 
             return units;
+        }
+
+        /// <summary>
+        /// 특정 행(front/mid/back)에 살아있는 아군만 반환합니다. CombatEffectExecutor의
+        /// EffectTarget.FrontRow/MidRow/BackRow 해석에 사용합니다.
+        /// </summary>
+        public List<Unit> GetAliveAlliesInRow(SlotRow row)
+        {
+            List<Unit> units = new List<Unit>();
+            for (int column = 0; column < SlotColumns; column++)
+            {
+                Unit unit = _slotUnits[column, (int)row];
+                if (unit != null && !unit.IsDead)
+                {
+                    units.Add(unit);
+                }
+            }
+
+            return units;
+        }
+
+        /// <summary>
+        /// 유닛 id(GameDB 기준)로 현재 전투에 스폰된 아군 Unit을 찾습니다. 패시브 효과의
+        /// Self 타겟(효과를 보유한 유닛 자신)을 해석할 때 사용합니다 — 소유는 하고 있지만
+        /// 이번 전투 편성에는 없는 유닛이면 null을 반환합니다.
+        /// </summary>
+        public Unit GetAllyUnitById(int unitId)
+        {
+            foreach (KeyValuePair<SlotKey, int> kvp in _spawnedFormation)
+            {
+                if (kvp.Value == unitId)
+                {
+                    return _slotUnits[kvp.Key.column, (int)kvp.Key.row];
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
