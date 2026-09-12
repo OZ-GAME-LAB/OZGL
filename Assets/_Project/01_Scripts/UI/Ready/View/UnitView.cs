@@ -77,6 +77,8 @@ namespace OzGameLab01.UI
 
         private void OnEnable()
         {
+            // 화면 재진입 시 이전 유닛 팝업 숨김 처리
+            HideUnitDetail();
             isListening = true;
 
             SubscribeCloseButton();
@@ -85,6 +87,8 @@ namespace OzGameLab01.UI
 
         private void OnDisable()
         {
+            // 화면 종료 시 상세 패널 비활성화
+            HideUnitDetail();
             UnsubscribeCloseButton();
             UnsubscribeItems();
 

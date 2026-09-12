@@ -1,0 +1,646 @@
+{
+  "synergyList": [
+    {
+      "id": 5001,
+      "name": "기사",
+      "subTitle": "",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "전투 시작 시 기사들에게 체력 비례 보호막 부여",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "ShieldOnStart",
+              "statType": "MaxHp",
+              "value": 0.2,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 3,
+          "description": "전투 시작 시 아군에게 체력이 가장 높은 기사의 체력 비례 보호막 부여",
+          "effects": [
+            {
+              "targetType": "HighestHpUnit",
+              "effectType": "ShieldOnStart",
+              "statType": "MaxHp",
+              "value": 0.3,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 3,
+          "requiredCount": 4,
+          "description": "모든 아군이 보호막이 있을 때, 방어력 비례 추가 데미지 / 받는 피해량 감소",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "ShieldBonusDamage",
+              "statType": "Defense",
+              "value": 0.4,
+              "extraParam": 0.2
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5002,
+      "name": "재간둥이",
+      "subTitle": "보이지 않는 손",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "재간둥이가 주는 데미지의 30%가 고정데미지로 들어감",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "FixedDamage",
+              "statType": "Attack",
+              "value": 30.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 3,
+          "description": "재간둥이가 주는 데미지의 60%가 고정데미지로 들어감",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "FixedDamage",
+              "statType": "Attack",
+              "value": 60.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 3,
+          "requiredCount": 4,
+          "description": "재간둥이가 주는 데미지의 100%가 고정데미지로 들어감",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "FixedDamage",
+              "statType": "Attack",
+              "value": 100.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5003,
+      "name": "사냥꾼",
+      "subTitle": "날카로운 눈",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "사냥꾼의 공격시 10% 확률로 임의의 상태이상 부여",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatusEffect",
+              "statType": "Attack",
+              "value": 10.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 4,
+          "description": "상태이상의 적을 공격하면 추가 피해",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "ExtraDamageOnStatus",
+              "statType": "Attack",
+              "value": 15.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5004,
+      "name": "도우미",
+      "subTitle": "치유의 손",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "도우미의 회복량이 증가한다.",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "RecoveryIncrease",
+              "statType": "Attack",
+              "value": 10.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5005,
+      "name": "예언자",
+      "subTitle": "",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "전투 시작 시, 아군의 스킬 쿨타임을 30% 감소",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "CooldownDecrease",
+              "statType": "Cooldown",
+              "value": 30.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 3,
+          "description": "전투 시작 시, 아군의 스킬 쿨타임을 55% 감소",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "CooldownDecrease",
+              "statType": "Cooldown",
+              "value": 55.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5006,
+      "name": "거짓말쟁이",
+      "subTitle": "짓궂은 미소",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 1,
+          "description": "거짓말쟁이가 확정적으로 스킬을 두번 사용",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "UseSkillTwoTimes",
+              "statType": "Cooldown",
+              "value": 2.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 4,
+          "description": "거짓말쟁이들 스킬 사용 불가 / 거짓말쟁이들 스탯 크게 강화",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "NoSkillStatBuff",
+              "statType": "AllStats",
+              "value": 100.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5007,
+      "name": "인간",
+      "subTitle": "이름없는 사람들",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "인간들의 체력 + 5%",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "MaxHp",
+              "value": 5.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 3,
+          "description": "인간들의 체력 + 10% / 공격력 + 10%",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "MaxHp",
+              "value": 10.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "Attack",
+              "value": 10.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 3,
+          "requiredCount": 4,
+          "description": "모든 아군의 체력 + 10% / 공격력 + 10% / 방어력 + 10%",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "MaxHp",
+              "value": 10.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "Attack",
+              "value": 10.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "Defense",
+              "value": 10.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 4,
+          "requiredCount": 5,
+          "description": "모든 아군의 체력 + 15% / 공격력 + 15% / 방어력 + 10% / 공격속도 + 10%",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "MaxHp",
+              "value": 15.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "Attack",
+              "value": 15.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "Defense",
+              "value": 10.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "AttackSpeed",
+              "value": 10.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5008,
+      "name": "야수",
+      "subTitle": "이빨과 발톱",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "야수의 치명타 확률 + 20%",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "CritcalRate",
+              "value": 20.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 3,
+          "description": "야수의 치명타 확률 + 20% / 치명타 배율 + 30%",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "CritcalRate",
+              "value": 20.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "CritcalMult",
+              "value": 30.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 3,
+          "requiredCount": 4,
+          "description": "야수의 치명타 확률 + 30% / 치명타 배율 + 60%",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "CritcalRate",
+              "value": 30.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "CritcalMult",
+              "value": 60.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5009,
+      "name": "요정",
+      "subTitle": "작은 기적",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "아군 전체의 공격력 + 15% / 스킬 피해 + 20%",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "Attack",
+              "value": 15.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "SkillDamage",
+              "value": 20.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 4,
+          "description": "아군 전체의 공격력 + 45% / 스킬 피해 + 50%",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "Attack",
+              "value": 45.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "SkillDamage",
+              "value": 50.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5010,
+      "name": "꼬마",
+      "subTitle": "작은 발자국",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "아군 전체의 쿨타임 감소 20% / 꼬마의 회피 + 10%",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "CooldownDecrease",
+              "statType": "Cooldown",
+              "value": 20.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "DodgeRate",
+              "value": 10.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 3,
+          "description": "아군 전체의 쿨타임 감소 40% / 꼬마의 회피 + 25%",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "CooldownDecrease",
+              "statType": "Cooldown",
+              "value": 40.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "DodgeRate",
+              "value": 25.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5011,
+      "name": "기계",
+      "subTitle": "웃지 않는 자",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "기계의 방어력 + 20% / 기계 유닛의 방어력 10당 받는 피해량 5% 감소.",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "Defense",
+              "value": 20.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "DecreaseDmgDefense",
+              "statType": "Defense",
+              "value": 10.0,
+              "extraParam": 5.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 3,
+          "description": "기계의 방어력 + 35% / 기계 유닛의 방어력 7당 받는 피해량 5% 감소.",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "Defense",
+              "value": 35.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "DecreaseDmgDefense",
+              "statType": "Defense",
+              "value": 7.0,
+              "extraParam": 5.0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 5012,
+      "name": "공주",
+      "subTitle": "꺾이지 않는 꽃",
+      "iconAddress": "",
+      "tiers": [
+        {
+          "tierLevel": 1,
+          "requiredCount": 2,
+          "description": "공주의 체력 + 20% / 공격력 + 20% / 방어력 + 20% / 공격속도 + 10% / 공주가 주는 피해 + 15%",
+          "effects": [
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "MaxHp",
+              "value": 20.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "Attack",
+              "value": 20.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "Defense",
+              "value": 20.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "StatBuff",
+              "statType": "AttackSpeed",
+              "value": 10.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "IncreaseDamage",
+              "statType": "Attack",
+              "value": 15.0,
+              "extraParam": 0.0
+            }
+          ]
+        },
+        {
+          "tierLevel": 2,
+          "requiredCount": 3,
+          "description": "아군 전체의 체력 + 20% / 공격력 + 20% / 방어력 + 20% / 공격속도 + 10% / 공주가 주는 피해 + 15%",
+          "effects": [
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "MaxHp",
+              "value": 20.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "Attack",
+              "value": 20.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "Defense",
+              "value": 20.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "AllAllies",
+              "effectType": "StatBuff",
+              "statType": "AttackSpeed",
+              "value": 10.0,
+              "extraParam": 0.0
+            },
+            {
+              "targetType": "SelfSynergy",
+              "effectType": "IncreaseDamage",
+              "statType": "Attack",
+              "value": 15.0,
+              "extraParam": 0.0
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

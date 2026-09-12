@@ -65,6 +65,19 @@ namespace OzGameLab01.Data
         public static int UnusedActionPoints { get; private set; }
 
         /// <summary>
+        /// 현재 이동에 사용할 수 있는 남은 주사위 눈금을 반환합니다.
+        /// </summary>
+        public static int RemainingDiceValue { get; private set; }
+
+        /// <summary>
+        /// 주사위 획득, 이동 및 턴 종료 후 남은 눈금을 런 상태에 반영합니다.
+        /// </summary>
+        public static void SetRemainingDiceValue(int value)
+        {
+            RemainingDiceValue = Mathf.Max(0, value);
+        }
+
+        /// <summary>
         /// 플레이어가 턴 종료 버튼을 눌러 완료한 누적 턴 수입니다.
         /// 시간 및 밤 시스템에서 경과 턴을 계산하는 데 사용합니다.
         /// </summary>
@@ -111,6 +124,7 @@ namespace OzGameLab01.Data
                 isBossBattle = IsBossBattle,
                 isEliteBattle = IsEliteBattle,
                 isBossDefeated = IsBossDefeated,
+                remainingDiceValue = RemainingDiceValue,
                 unusedActionPoints = UnusedActionPoints,
                 turnCount = TurnCount,
                 defeatedElitesCount = DefeatedElitesCount
@@ -160,6 +174,8 @@ namespace OzGameLab01.Data
             IsBossBattle = saveData.isBossBattle;
             IsEliteBattle = saveData.isEliteBattle;
             IsBossDefeated = saveData.isBossDefeated;
+            // 기존 저장 파일의 누락 필드 기본값 0 및 음수 보정
+            SetRemainingDiceValue(saveData.remainingDiceValue);
             UnusedActionPoints = Mathf.Max(0, saveData.unusedActionPoints);
             TurnCount = Mathf.Max(0, saveData.turnCount);
             DefeatedElitesCount = Mathf.Max(0, saveData.defeatedElitesCount);
@@ -350,6 +366,7 @@ namespace OzGameLab01.Data
             // [추가] New Game에서 이전 엘리트 전투 상태가 남지 않도록 초기화
             IsEliteBattle = false;
 
+            RemainingDiceValue = 0;
             UnusedActionPoints = 0;
             TurnCount = 0;
 
