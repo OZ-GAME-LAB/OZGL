@@ -1,0 +1,683 @@
+{
+  "relicList": [
+    {
+      "id": 0,
+      "name": "이동 주사위 + 1",
+      "description": "이동 주사위 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 15,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 1,
+      "name": "전열에 위치한 아군 기물의 체력 + 10%",
+      "description": "전열에 위치한 아군 기물의 체력 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "FrontRow",
+          "effect": "StatModifier",
+          "statType": "MaxHealth",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "전열에 위치한 아군 기물의 방어력 + 10%",
+      "description": "전열에 위치한 아군 기물의 방어력 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "FrontRow",
+          "effect": "StatModifier",
+          "statType": "Defense",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "전열에 위치한 아군 기물의 공격력 + 10%",
+      "description": "전열에 위치한 아군 기물의 공격력 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "FrontRow",
+          "effect": "StatModifier",
+          "statType": "Attack",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "전열에 위치한 아군 기물의 공격속도 + 10%",
+      "description": "전열에 위치한 아군 기물의 공격속도 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "FrontRow",
+          "effect": "StatModifier",
+          "statType": "AttackInterval",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "전열에 위치한 아군 기물의 스킬 쿨타임 - 10%",
+      "description": "전열에 위치한 아군 기물의 스킬 쿨타임 - 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "FrontRow",
+          "effect": "StatModifier",
+          "statType": "AttackInterval",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "중열에 위치한 아군 기물의 체력 + 10%",
+      "description": "중열에 위치한 아군 기물의 체력 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "MidRow",
+          "effect": "StatModifier",
+          "statType": "MaxHealth",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "중열에 위치한 아군 기물의 방어력 + 10%",
+      "description": "중열에 위치한 아군 기물의 방어력 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "MidRow",
+          "effect": "StatModifier",
+          "statType": "Defense",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "중열에 위치한 아군 기물의 공격력 + 10%",
+      "description": "중열에 위치한 아군 기물의 공격력 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "MidRow",
+          "effect": "StatModifier",
+          "statType": "Attack",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "중열에 위치한 아군 기물의 공격속도 + 10%",
+      "description": "중열에 위치한 아군 기물의 공격속도 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "MidRow",
+          "effect": "StatModifier",
+          "statType": "AttackInterval",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "중열에 위치한 아군 기물의 스킬 쿨타임 - 10%",
+      "description": "중열에 위치한 아군 기물의 스킬 쿨타임 - 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "MidRow",
+          "effect": "StatModifier",
+          "statType": "AttackInterval",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "후열에 위치한 아군 기물의 체력 + 10%",
+      "description": "후열에 위치한 아군 기물의 체력 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "BackRow",
+          "effect": "StatModifier",
+          "statType": "MaxHealth",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "후열에 위치한 아군 기물의 방어력 + 10%",
+      "description": "후열에 위치한 아군 기물의 방어력 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "BackRow",
+          "effect": "StatModifier",
+          "statType": "Defense",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "후열에 위치한 아군 기물의 공격력 + 10%",
+      "description": "후열에 위치한 아군 기물의 공격력 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "BackRow",
+          "effect": "StatModifier",
+          "statType": "Attack",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "후열에 위치한 아군 기물의 공격속도 + 10%",
+      "description": "후열에 위치한 아군 기물의 공격속도 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "BackRow",
+          "effect": "StatModifier",
+          "statType": "AttackInterval",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "후열에 위치한 아군 기물의 스킬 쿨타임 - 10%",
+      "description": "후열에 위치한 아군 기물의 스킬 쿨타임 - 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 7,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "BackRow",
+          "effect": "StatModifier",
+          "statType": "AttackInterval",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "전투 종료 시 모든 기물이 잃은 체력의 5% 회복 (밤에는 발동하지 않음)",
+      "description": "전투 종료 시 모든 기물이 잃은 체력의 5% 회복 (밤에는 발동하지 않음)",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 5,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleEnd",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "Heal",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 5,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 17,
+      "name": "밤이 왔을 때 시야 제한 1 증가",
+      "description": "밤이 왔을 때 시야 제한 1 증가",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 0,
+      "dropWeight": 3,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 18,
+      "name": "상태이상을 부여할 때, 지속 시간 1초 증가",
+      "description": "상태이상을 부여할 때, 지속 시간 1초 증가",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": []
+    },
+    {
+      "id": 19,
+      "name": "최초로 사망한 아군 기물 체력 50%로 부활",
+      "description": "최초로 사망한 아군 기물 체력 50%로 부활",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 50,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnFirstAllyDeath",
+          "triggerParam": 0,
+          "target": "TriggeringUnit",
+          "effect": "Revive",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 50,
+          "chance": 0,
+          "once": true
+        }
+      ]
+    },
+    {
+      "id": 20,
+      "name": "아군에게 버프를 줄 때, 체력을 5% 회복",
+      "description": "아군에게 버프를 줄 때, 체력을 5% 회복",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 5,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnAllyBuffed",
+          "triggerParam": 0,
+          "target": "TriggeringUnit",
+          "effect": "Heal",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 5,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 21,
+      "name": "전투 시작 시, 적의 방어력 10% 감소",
+      "description": "전투 시작 시, 적의 방어력 10% 감소",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "Enemy",
+          "effect": "StatModifier",
+          "statType": "Defense",
+          "operation": "Multiply",
+          "effectParam": -10,
+          "chance": 0,
+          "once": false
+        }
+      ]
+    },
+    {
+      "id": 22,
+      "name": "전열에 유닛이 1마리일 경우 전열 유닛의 체공방 + 10%",
+      "description": "전열에 유닛이 1마리일 경우 전열 유닛의 체공방 + 10%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": []
+    },
+    {
+      "id": 23,
+      "name": "아군 기물이 4개 이하라면 활성화된 시너지의 등급 + 1",
+      "description": "아군 기물이 4개 이하라면 활성화된 시너지의 등급 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": []
+    },
+    {
+      "id": 24,
+      "name": "아군 기물이 4개 이하라면 전체 기물의 공방체 + 30%",
+      "description": "아군 기물이 4개 이하라면 전체 기물의 공방체 + 30%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 30,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": []
+    },
+    {
+      "id": 25,
+      "name": "활성화 된 시너지의 개수가 3개 이상이라면 전체 기물의 공격력 + 20%",
+      "description": "활성화 된 시너지의 개수가 3개 이상이라면 전체 기물의 공격력 + 20%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 20,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": []
+    },
+    {
+      "id": 26,
+      "name": "보조칸에 위치한 아군의 공격속도에 비례하여 후열에 위치한 아군의 공격속도 상승",
+      "description": "보조칸에 위치한 아군의 공격속도에 비례하여 후열에 위치한 아군의 공격속도 상승",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 0,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": []
+    },
+    {
+      "id": 27,
+      "name": "전투 시작 시 스킬 쿨타임의 10%를 회복한 상태로 시작",
+      "description": "전투 시작 시 스킬 쿨타임의 10%를 회복한 상태로 시작",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 10,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": []
+    },
+    {
+      "id": 28,
+      "name": "활성화 된 시너지가 0개라면 전체 기물의 공방체 + 30%",
+      "description": "활성화 된 시너지가 0개라면 전체 기물의 공방체 + 30%",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 30,
+      "dropWeight": 3,
+      "targetScene": "전투씬",
+      "effects": []
+    },
+    {
+      "id": 29,
+      "name": "기사 시너지 + 1",
+      "description": "기사 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 30,
+      "name": "사냥꾼 시너지 + 1",
+      "description": "사냥꾼 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 31,
+      "name": "재간둥이 시너지 + 1",
+      "description": "재간둥이 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 32,
+      "name": "인간 시너지 + 1",
+      "description": "인간 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 33,
+      "name": "야수 시너지 + 1",
+      "description": "야수 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 34,
+      "name": "꼬마 시너지 + 1",
+      "description": "꼬마 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 35,
+      "name": "요정 시너지 + 1",
+      "description": "요정 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 36,
+      "name": "기계 시너지 + 1",
+      "description": "기계 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 37,
+      "name": "공주 시너지 + 1",
+      "description": "공주 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 38,
+      "name": "도우미 시너지 + 1",
+      "description": "도우미 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 39,
+      "name": "예언자 시너지 + 1",
+      "description": "예언자 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    },
+    {
+      "id": 40,
+      "name": "거짓말쟁이 시너지 + 1",
+      "description": "거짓말쟁이 시너지 + 1",
+      "iconAddress": null,
+      "relicLogic": null,
+      "baseValue": 1,
+      "dropWeight": 1,
+      "targetScene": "보드씬",
+      "effects": []
+    }
+  ]
+}

@@ -14,17 +14,17 @@ namespace OzGameLab01.Combat
             public float attackMultiplier;
         }
 
-        [SerializeField] private SynergyTrait trait;
+        [SerializeField] private string displayName;
         [SerializeField] private List<Tier> tiers = new List<Tier>();
 
-        public SynergyTrait Trait => trait;
+        public string DisplayName => displayName;
 
         public bool ValidateConfiguration(UnityEngine.Object context = null)
         {
             bool valid = true;
-            if (trait == null)
+            if (string.IsNullOrWhiteSpace(displayName))
             {
-                Debug.LogError($"[SynergyDefinition] 트레이트가 할당되지 않았습니다: {name}", context);
+                Debug.LogError($"[SynergyDefinition] 표시 이름이 비어 있습니다: {name}", context);
                 return false;
             }
 

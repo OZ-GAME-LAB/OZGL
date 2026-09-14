@@ -16,14 +16,15 @@ public class MonsterData
 
     public int healthPoint;
     public int attackPoint;
+    public float defensePoint;
     public int criticalRate;
+    public float criticalMult = 150f;
     public int dodgeRate;
-    public int attackSpeed;
+    public float attackSpeed;
     public int skillCooldown;
 
-    public string skillKey_one;
-    public string skillKey_two;
-    public string skillKey_three;
+    // 기본공격을 포함한 스킬 목록. SkillData.id 참조, 0번째 항목이 기본공격입니다.
+    public List<int> skillIds = new List<int>();
 
     public MonsterType type;
 }
@@ -31,5 +32,7 @@ public class MonsterData
 public enum MonsterType
 {
     normal,
+    night,
+    semiboss,
     boss
 }

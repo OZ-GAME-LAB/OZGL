@@ -1,37 +1,27 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using OzGameLab01.Combat;
-using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI
 {
+    /// <summary>
+    /// 승리 보상 팝업. 클래스별 경험치 바 연출은 레벨업 기능 폐지로 제거했습니다.
+    /// 유물 시스템이 만들어지면 cellsContainer에 획득한 유물을 표시할 예정이라
+    /// 지금은 배경/제목/확인 버튼만 있는 빈 패널입니다.
+    /// </summary>
     public class BattleRewardPanel : MonoBehaviour
     {
-        private const float ExpPerBattle = 40f;
         private const string TitleLabel = "victory!";
 
         [SerializeField] private GameObject panel;
         [SerializeField] private Transform cellsContainer;
         [SerializeField] private Button confirmButton;
         [SerializeField] private TMP_FontAsset koreanFont;
-        [SerializeField] private float fillAnimationDuration = 2.4f;
-
-        private struct CellVisual
-        {
-            public Image fillImage;
-            public TextMeshProUGUI levelText;
-            public float beforeRatio;
-            public float afterRatio;
-            public bool leveledUp;
-            public int finalLevel;
-        }
 
         private Action _onContinue;
-        private readonly List<CellVisual> _cells = new List<CellVisual>();
 
         private void Awake()
         {
@@ -66,155 +56,10 @@ namespace OzGameLab01.UI
             {
                 Destroy(child.gameObject);
             }
-            _cells.Clear();
-
-            // 클래스별로 경험치를 한 번씩만 적용 (같은 클래스 유닛이 여러 명이어도 중복 지급하지 않음)
-            Dictionary<Unit.SkillType, (float before, float after, bool leveledUp)> progressByType =
-                new Dictionary<Unit.SkillType, (float, float, bool)>();
-
-            foreach (Unit unit in participatingUnits)
-            {
-                if (!progressByType.ContainsKey(unit.Skill))
-                {
-                    float before = SceneTransitioner.GetAllyExpRatio(unit.Skill);
-                    bool leveledUp = SceneTransitioner.AddExp(unit.Skill, ExpPerBattle);
-                    float after = SceneTransitioner.GetAllyExpRatio(unit.Skill);
-                    progressByType[unit.Skill] = (before, after, leveledUp);
-                }
-
-                var progress = progressByType[unit.Skill];
-                CreateCell(unit, progress.before, progress.after, progress.leveledUp);
-            }
 
             if (panel != null)
             {
                 panel.SetActive(true);
-            }
-
-            StopAllCoroutines();
-            StartCoroutine(AnimateFillBars());
-        }
-
-        private void CreateCell(Unit unit, float beforeRatio, float afterRatio, bool leveledUp)
-        {
-            GameObject cell = new GameObject(unit.name, typeof(RectTransform));
-            cell.transform.SetParent(cellsContainer, false);
-
-            GameObject iconObj = new GameObject("Icon", typeof(RectTransform), typeof(Image));
-            iconObj.transform.SetParent(cell.transform, false);
-            RectTransform iconRt = iconObj.GetComponent<RectTransform>();
-            iconRt.anchorMin = new Vector2(0.5f, 1f);
-            iconRt.anchorMax = new Vector2(0.5f, 1f);
-            iconRt.pivot = new Vector2(0.5f, 1f);
-            iconRt.anchoredPosition = new Vector2(0f, 0f);
-            iconRt.sizeDelta = new Vector2(56f, 56f);
-
-            SpriteRenderer spriteRenderer = unit.GetComponentInChildren<SpriteRenderer>();
-            Image icon = iconObj.GetComponent<Image>();
-            if (spriteRenderer != null && spriteRenderer.sprite != null)
-            {
-                icon.sprite = spriteRenderer.sprite;
-            }
-            else
-            {
-                icon.color = new Color(1f, 1f, 1f, 0.3f);
-            }
-
-            GameObject barBg = new GameObject("BarBackground", typeof(RectTransform), typeof(Image));
-            barBg.transform.SetParent(cell.transform, false);
-            RectTransform barBgRt = barBg.GetComponent<RectTransform>();
-            barBgRt.anchorMin = new Vector2(0.5f, 1f);
-            barBgRt.anchorMax = new Vector2(0.5f, 1f);
-            barBgRt.pivot = new Vector2(0.5f, 1f);
-            barBgRt.anchoredPosition = new Vector2(0f, -62f);
-            barBgRt.sizeDelta = new Vector2(90f, 10f);
-            barBg.GetComponent<Image>().color = new Color(0f, 0f, 0f, 0.6f);
-
-            GameObject barFill = new GameObject("BarFill", typeof(RectTransform), typeof(Image));
-            barFill.transform.SetParent(barBg.transform, false);
-            RectTransform barFillRt = barFill.GetComponent<RectTransform>();
-            barFillRt.anchorMin = Vector2.zero;
-            barFillRt.anchorMax = Vector2.one;
-            barFillRt.offsetMin = Vector2.zero;
-            barFillRt.offsetMax = Vector2.zero;
-            Image fillImage = barFill.GetComponent<Image>();
-            fillImage.color = new Color(0.3f, 0.8f, 1f, 1f);
-            fillImage.type = Image.Type.Filled;
-            fillImage.fillMethod = Image.FillMethod.Horizontal;
-            fillImage.fillAmount = beforeRatio;
-
-            TextMeshProUGUI levelText = CreateText(cell.transform, $"Lv.{SceneTransitioner.GetAllyLevel(unit.Skill) - (leveledUp ? 1 : 0)}", 16, TextAlignmentOptions.Top);
-            RectTransform levelRt = levelText.rectTransform;
-            levelRt.anchorMin = new Vector2(0.5f, 1f);
-            levelRt.anchorMax = new Vector2(0.5f, 1f);
-            levelRt.pivot = new Vector2(0.5f, 1f);
-            levelRt.anchoredPosition = new Vector2(0f, -76f);
-            levelRt.sizeDelta = new Vector2(90f, 20f);
-
-            _cells.Add(new CellVisual
-            {
-                fillImage = fillImage,
-                levelText = levelText,
-                beforeRatio = beforeRatio,
-                afterRatio = afterRatio,
-                leveledUp = leveledUp,
-                finalLevel = SceneTransitioner.GetAllyLevel(unit.Skill)
-            });
-        }
-
-        private IEnumerator AnimateFillBars()
-        {
-            float half = fillAnimationDuration * 0.5f;
-
-            // 1단계: 레벨업하는 유닛은 100%까지, 아니면 최종 값까지 채움
-            float t = 0f;
-            while (t < half)
-            {
-                t += Time.unscaledDeltaTime;
-                float ratio = Mathf.Clamp01(t / half);
-                foreach (CellVisual cell in _cells)
-                {
-                    float target = cell.leveledUp ? 1f : cell.afterRatio;
-                    cell.fillImage.fillAmount = Mathf.Lerp(cell.beforeRatio, target, ratio);
-                }
-                yield return null;
-            }
-
-            foreach (CellVisual cell in _cells)
-            {
-                cell.fillImage.fillAmount = cell.leveledUp ? 1f : cell.afterRatio;
-            }
-
-            List<CellVisual> leveledCells = _cells.FindAll(c => c.leveledUp);
-            if (leveledCells.Count == 0)
-            {
-                yield break;
-            }
-
-            yield return new WaitForSecondsRealtime(0.3f);
-
-            // 2단계: 레벨업한 유닛만 0으로 리셋 후 이월 경험치만큼 다시 채움 + 레벨 텍스트 갱신
-            foreach (CellVisual cell in leveledCells)
-            {
-                cell.fillImage.fillAmount = 0f;
-                cell.levelText.text = $"Lv.{cell.finalLevel}";
-            }
-
-            t = 0f;
-            while (t < half)
-            {
-                t += Time.unscaledDeltaTime;
-                float ratio = Mathf.Clamp01(t / half);
-                foreach (CellVisual cell in leveledCells)
-                {
-                    cell.fillImage.fillAmount = Mathf.Lerp(0f, cell.afterRatio, ratio);
-                }
-                yield return null;
-            }
-
-            foreach (CellVisual cell in leveledCells)
-            {
-                cell.fillImage.fillAmount = cell.afterRatio;
             }
         }
 

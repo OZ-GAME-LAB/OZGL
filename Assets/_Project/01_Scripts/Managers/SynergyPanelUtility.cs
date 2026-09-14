@@ -26,22 +26,22 @@ namespace OzGameLab01.Combat
         }
 
         /// <summary>
-        /// 유닛 id 목록을 트레이트 테이블과 대조해 트레이트별 보유 수를 센다.
+        /// 유닛 id 목록을 트레이트 테이블과 대조해 트레이트(=SynergyDefinition)별 보유 수를 센다.
         /// </summary>
-        public static Dictionary<SynergyTrait, int> CountTraits(
+        public static Dictionary<SynergyDefinition, int> CountTraits(
             IEnumerable<int> unitIds,
-            Dictionary<int, List<SynergyTrait>> traitsById)
+            Dictionary<int, List<SynergyDefinition>> traitsById)
         {
-            Dictionary<SynergyTrait, int> traitCounts = new Dictionary<SynergyTrait, int>();
+            Dictionary<SynergyDefinition, int> traitCounts = new Dictionary<SynergyDefinition, int>();
 
             foreach (int unitId in unitIds)
             {
-                if (!traitsById.TryGetValue(unitId, out List<SynergyTrait> traits) || traits == null)
+                if (!traitsById.TryGetValue(unitId, out List<SynergyDefinition> traits) || traits == null)
                 {
                     continue;
                 }
 
-                foreach (SynergyTrait trait in traits)
+                foreach (SynergyDefinition trait in traits)
                 {
                     if (trait == null)
                     {
@@ -61,7 +61,7 @@ namespace OzGameLab01.Combat
         /// </summary>
         public static List<DisplayItem> BuildDisplayItems(
             IReadOnlyList<SynergyDefinition> definitions,
-            Dictionary<SynergyTrait, int> traitCounts)
+            Dictionary<SynergyDefinition, int> traitCounts)
         {
             List<SynergyDefinition> sortedDefinitions = new List<SynergyDefinition>(definitions);
             sortedDefinitions.Sort((a, b) => GetTraitCount(traitCounts, b).CompareTo(GetTraitCount(traitCounts, a)));
@@ -69,7 +69,7 @@ namespace OzGameLab01.Combat
             List<DisplayItem> items = new List<DisplayItem>();
             foreach (SynergyDefinition definition in sortedDefinitions)
             {
-                if (definition == null || definition.Trait == null)
+                if (definition == null)
                 {
                     continue;
                 }
@@ -91,14 +91,14 @@ namespace OzGameLab01.Combat
             return items;
         }
 
-        private static int GetTraitCount(Dictionary<SynergyTrait, int> traitCounts, SynergyDefinition definition)
+        private static int GetTraitCount(Dictionary<SynergyDefinition, int> traitCounts, SynergyDefinition definition)
         {
-            if (definition == null || definition.Trait == null)
+            if (definition == null)
             {
                 return 0;
             }
 
-            traitCounts.TryGetValue(definition.Trait, out int count);
+            traitCounts.TryGetValue(definition, out int count);
             return count;
         }
     }

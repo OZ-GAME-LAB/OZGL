@@ -22,14 +22,31 @@ namespace OzGameLab01.Controllers
         public MapRouteDirector mapRouteDirector;
         public BoardCameraController boardCameraController;
 
+        [Header("Turn Sequence")]
+        [SerializeField] private MapGenerator mapGenerator;
+        [Min(0f)] [SerializeField] private float autoRollViewOpenDelay = 0.5f;
+        [Min(0f)] [SerializeField] private float timeOfDayFeedbackDuration = 1.5f;
+        [SerializeField] private string nightMessage = "Night Has Come";
+        [SerializeField] private string dayMessage = "Day Has Come";
+
         [Header("Settings")]
         public float rollViewCloseDelay = 1.0f;
         public float warningTextDuration = 2.0f;
+
+        private Coroutine _automaticRollViewRoutine;
+        private Coroutine _timeOfDayFeedbackRoutine;
+        private bool _isMapPresentationReady;
 
         private void Start()
         {
             if (mapRouteDirector == null) mapRouteDirector = FindFirstObjectByType<MapRouteDirector>();
             if (boardCameraController == null) boardCameraController = FindFirstObjectByType<BoardCameraController>();
+            if (mapGenerator == null) mapGenerator = FindFirstObjectByType<MapGenerator>();
+
+            if (mapGenerator != null)
+            {
+                mapGenerator.PresentationCompleted += HandleMapPresentationCompleted;
+            }
 
             if (Managers.DiceManager.Instance != null)
                 Managers.DiceManager.Instance.OnDiceRolled += HandleDiceRolled;
@@ -68,11 +85,24 @@ namespace OzGameLab01.Controllers
             {
                 boardSceneController.TurnEnded += HandleTurnEnded;
                 boardSceneController.NightReached += HandleNightReached;
+                boardSceneController.DayReached += HandleDayReached;
+                boardSceneController.PlayerTurnReady += HandlePlayerTurnReady;
+            }
+
+            // 즉시 생성 경로는 MapGenerator.Start에서 먼저 완료될 수 있습니다.
+            if (mapGenerator != null && mapGenerator.IsPresentationComplete)
+            {
+                HandleMapPresentationCompleted();
             }
         }
 
         private void OnDestroy()
         {
+            if (mapGenerator != null)
+            {
+                mapGenerator.PresentationCompleted -= HandleMapPresentationCompleted;
+            }
+
             if (Managers.DiceManager.Instance != null)
                 Managers.DiceManager.Instance.OnDiceRolled -= HandleDiceRolled;
 
@@ -105,6 +135,8 @@ namespace OzGameLab01.Controllers
             {
                 boardSceneController.TurnEnded -= HandleTurnEnded;
                 boardSceneController.NightReached -= HandleNightReached;
+                boardSceneController.DayReached -= HandleDayReached;
+                boardSceneController.PlayerTurnReady -= HandlePlayerTurnReady;
             }
         }
 
@@ -115,16 +147,18 @@ namespace OzGameLab01.Controllers
             bool isActive = !readySceneView.RollView.IsVisible;
             if (isActive)
             {
-                if (Managers.DiceManager.Instance != null && Managers.DiceManager.Instance.HasRolledThisTurn)
+                if (!_isMapPresentationReady || _timeOfDayFeedbackRoutine != null)
                 {
-                    ShowWarning("Please end the turn first!!");
                     return;
                 }
 
-                readySceneView.HideAllOverlayViews();
-                if (resultText != null) resultText.text = "?";
-                readySceneView.RollView.SetInteractable(true);
-                readySceneView.ShowRollView();
+                if (!TryOpenRollView())
+                {
+                    if (Managers.DiceManager.Instance != null && Managers.DiceManager.Instance.HasRolledThisTurn)
+                    {
+                        ShowWarning("Please end the turn first!!");
+                    }
+                }
             }
             else
             {
@@ -207,6 +241,8 @@ namespace OzGameLab01.Controllers
 
         private void HandleDiceRolled(int diceValue)
         {
+            CancelAutomaticRollView();
+
             if (readySceneView == null)
                 return;
 
@@ -266,6 +302,116 @@ namespace OzGameLab01.Controllers
         private void HandleNightReached(int turnCount)
         {
             Debug.Log($"[BoardUIController] {turnCount}턴 째 밤이 되었습니다!");
+            ShowTimeOfDayFeedback(nightMessage);
+        }
+
+        private void HandleDayReached(int turnCount)
+        {
+            Debug.Log($"[BoardUIController] {turnCount}턴 째 낮이 되었습니다!");
+            ShowTimeOfDayFeedback(dayMessage);
+        }
+
+        private void HandlePlayerTurnReady()
+        {
+            ScheduleAutomaticRollView();
+        }
+
+        private void HandleMapPresentationCompleted()
+        {
+            _isMapPresentationReady = true;
+            ScheduleAutomaticRollView();
+        }
+
+        private void ShowTimeOfDayFeedback(string message)
+        {
+            CancelAutomaticRollView();
+
+            if (_timeOfDayFeedbackRoutine != null)
+            {
+                StopCoroutine(_timeOfDayFeedbackRoutine);
+            }
+
+            _timeOfDayFeedbackRoutine = StartCoroutine(ShowTimeOfDayFeedbackRoutine(message));
+        }
+
+        private System.Collections.IEnumerator ShowTimeOfDayFeedbackRoutine(string message)
+        {
+            if (readySceneView != null)
+            {
+                readySceneView.HideAllOverlayViews();
+                readySceneView.ShowFeedbackView(message);
+            }
+
+            yield return new WaitForSecondsRealtime(timeOfDayFeedbackDuration);
+
+            if (readySceneView != null)
+            {
+                readySceneView.HideFeedbackView();
+            }
+
+            _timeOfDayFeedbackRoutine = null;
+            ScheduleAutomaticRollView();
+        }
+
+        private void ScheduleAutomaticRollView()
+        {
+            if (!_isMapPresentationReady)
+            {
+                return;
+            }
+
+            CancelAutomaticRollView();
+            _automaticRollViewRoutine = StartCoroutine(OpenRollViewAfterDelayRoutine());
+        }
+
+        private void CancelAutomaticRollView()
+        {
+            if (_automaticRollViewRoutine == null)
+            {
+                return;
+            }
+
+            StopCoroutine(_automaticRollViewRoutine);
+            _automaticRollViewRoutine = null;
+        }
+
+        private System.Collections.IEnumerator OpenRollViewAfterDelayRoutine()
+        {
+            yield return new WaitForSecondsRealtime(autoRollViewOpenDelay);
+            _automaticRollViewRoutine = null;
+            TryOpenRollView();
+        }
+
+        private bool TryOpenRollView()
+        {
+            if (!_isMapPresentationReady || _timeOfDayFeedbackRoutine != null ||
+                readySceneView == null || readySceneView.RollView == null)
+            {
+                return false;
+            }
+
+            if (readySceneView.RollView.IsVisible)
+            {
+                return true;
+            }
+
+            Managers.DiceManager diceManager = Managers.DiceManager.Instance;
+            if (diceManager == null || diceManager.HasRolledThisTurn)
+            {
+                return false;
+            }
+
+            BoardPlayerController player = BoardPlayerController.Instance;
+            if (player != null && (player.IsMoving || player.CurrentDiceValue > 0))
+            {
+                return false;
+            }
+
+            readySceneView.HideAllOverlayViews();
+            if (resultText != null) resultText.text = "?";
+            readySceneView.RollView.SetInteractable(true);
+            readySceneView.ShowRollView();
+            return true;
         }
 
         private void ShowWarning(string message)

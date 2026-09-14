@@ -1,23 +1,13 @@
 using System;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using OzGameLab01.Combat;
-using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI
 {
+    // 클래스별 레벨업 기능 폐지로 더 이상 사용하지 않습니다. 프리팹 참조가 남아있어
+    // 컴파일만 유지하는 빈 껍데기입니다 — 필요 없어지면 프리팹과 함께 정리하세요.
     public class LevelUpSelector : MonoBehaviour
     {
         [SerializeField] private GameObject panel;
-        [SerializeField] private Button swordButton;
-        [SerializeField] private Button bowButton;
-        [SerializeField] private Button staffButton;
-        [SerializeField] private TextMeshProUGUI swordLevelText;
-        [SerializeField] private TextMeshProUGUI bowLevelText;
-        [SerializeField] private TextMeshProUGUI staffLevelText;
-
-        private Action _onSelected;
 
         private void Awake()
         {
@@ -25,62 +15,10 @@ namespace OzGameLab01.UI
             {
                 panel.SetActive(false);
             }
-
-            if (swordButton != null)
-            {
-                swordButton.onClick.AddListener(() => Select(Unit.SkillType.Warrior));
-            }
-
-            if (bowButton != null)
-            {
-                bowButton.onClick.AddListener(() => Select(Unit.SkillType.Archer));
-            }
-
-            if (staffButton != null)
-            {
-                staffButton.onClick.AddListener(() => Select(Unit.SkillType.Mage));
-            }
         }
 
         public void Show(Action onComplete)
         {
-            _onSelected = onComplete;
-            RefreshLevelTexts();
-
-            if (panel != null)
-            {
-                panel.SetActive(true);
-            }
-        }
-
-        private void RefreshLevelTexts()
-        {
-            if (swordLevelText != null)
-            {
-                swordLevelText.text = "Lv." + SceneTransitioner.SwordLevel;
-            }
-
-            if (bowLevelText != null)
-            {
-                bowLevelText.text = "Lv." + SceneTransitioner.BowLevel;
-            }
-
-            if (staffLevelText != null)
-            {
-                staffLevelText.text = "Lv." + SceneTransitioner.StaffLevel;
-            }
-        }
-
-        private void Select(Unit.SkillType skillType)
-        {
-            SceneTransitioner.LevelUp(skillType);
-
-            if (panel != null)
-            {
-                panel.SetActive(false);
-            }
-
-            _onSelected?.Invoke();
         }
     }
 }

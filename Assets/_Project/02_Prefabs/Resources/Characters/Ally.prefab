@@ -18,7 +18,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7890325404253025538
 Transform:
   m_ObjectHideFlags: 0
@@ -131,18 +131,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Unit
   team: 0
   maxHP: 160
-  basicAttack:
-    damage: 8
-    cooldown: 0.9
   healthBar: {fileID: 7307150004494150493}
   spriteRenderer: {fileID: 1058269725463048863}
   projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
-  skillType: 0
-  skillAttack:
-    damage: 30
-    cooldown: 4
-  skillGlowColor: {r: 1, g: 0.95, b: 0.3, a: 1}
-  skillGlowDuration: 0.35
+  skillNameLabel: {fileID: 2758123782414258855}
+  skillNameDisplayDuration: 0.35
 --- !u!1 &2272395538707758494
 GameObject:
   m_ObjectHideFlags: 0
@@ -339,7 +332,7 @@ RectTransform:
   m_Father: {fileID: 6422596740314462478}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -490,7 +483,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.90000004}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &3703282787511388541

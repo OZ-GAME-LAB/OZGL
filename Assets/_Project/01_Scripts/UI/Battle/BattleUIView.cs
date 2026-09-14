@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace OzGameLab01.UI.Battle
 {
+    /// <summary>
+    /// 전투 UI View입니다.
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed class BattleUIView : MonoBehaviour
     {

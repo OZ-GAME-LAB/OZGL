@@ -1,15 +1,20 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace OzGameLab01.UI.Battle
 {
+    /// <summary>
+    /// 전투 제어 UI View입니다.
+    /// </summary>
     [DisallowMultipleComponent]
     public sealed class BattleControlView : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private Button speedButton;
         [SerializeField] private Button settingsButton;
+        [SerializeField] private TMP_Text speedText;
 
         #region Properties
 
@@ -65,6 +70,18 @@ namespace OzGameLab01.UI.Battle
             gameObject.SetActive(false);
         }
 
+        /// <summary>
+        /// 배속 버튼에 표시할 문구를 설정합니다.
+        /// 실제 게임 배속은 호출하는 쪽에서 처리합니다.
+        /// </summary>
+        public void SetSpeedText(string value)
+        {
+            if (speedText != null)
+            {
+                speedText.text = value ?? string.Empty;
+            }
+        }
+
         public void SetSpeedButtonInteractable(bool value)
         {
             if (speedButton != null)
@@ -83,7 +100,7 @@ namespace OzGameLab01.UI.Battle
 
         #endregion
 
-        #region Private Methods
+        #region Event Handlers
 
         private void HandleSpeedButtonClick()
         {

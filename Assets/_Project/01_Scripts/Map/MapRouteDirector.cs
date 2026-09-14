@@ -109,6 +109,13 @@ namespace OzGameLab01.Map
 
         private void HandleBattleCompleted()
         {
+            if (mapGenerator != null &&
+                BoardRunData.HasPlayerPosition &&
+                mapGenerator.NodeDict.TryGetValue(BoardRunData.PlayerPosition, out MapNode completedNode))
+            {
+                mapGenerator.NormalizeConsumedSpecialTile(completedNode);
+            }
+
             // 전투 씬을 거쳐 보드 씬이 새로 로드되는 경우에는 Start()가 다시 처리합니다.
             // 보드가 유지되는 전환 방식도 지원하도록 한 프레임 뒤에 다시 계산합니다.
             StartCoroutine(RefreshAfterBattle());
@@ -206,7 +213,7 @@ namespace OzGameLab01.Map
             foreach (KeyValuePair<MapNode, int> pair in distanceFromStart)
             {
                 MapNode candidate = pair.Key;
-                if (candidate.Type != NodeType.Normal)
+                if (!IsAvailableObjectiveNode(candidate))
                 {
                     continue;
                 }
@@ -228,7 +235,9 @@ namespace OzGameLab01.Map
             foreach (KeyValuePair<MapNode, int> pair in distanceFromStart)
             {
                 MapNode candidate = pair.Key;
-                if (candidate == startNode || !IsWalkable(candidate))
+                if (candidate == startNode ||
+                    !IsWalkable(candidate) ||
+                    BoardRunData.IsSpecialTileConsumed(candidate.Position))
                 {
                     continue;
                 }
@@ -246,7 +255,7 @@ namespace OzGameLab01.Map
 
         private MapNode SelectBossForCurrentPosition(MapNode currentNode, MapNode plannedBossNode)
         {
-            if (plannedBossNode.Type == NodeType.Normal)
+            if (IsAvailableObjectiveNode(plannedBossNode))
             {
                 Dictionary<MapNode, int> distances = BuildDistanceMap(currentNode);
                 if (distances.TryGetValue(plannedBossNode, out int bossDistance) &&
@@ -264,7 +273,7 @@ namespace OzGameLab01.Map
 
             foreach (KeyValuePair<MapNode, int> pair in fromCurrent)
             {
-                if (pair.Key.Type != NodeType.Normal || pair.Value < minimumBossLegDistance)
+                if (!IsAvailableObjectiveNode(pair.Key) || pair.Value < minimumBossLegDistance)
                 {
                     continue;
                 }
@@ -277,7 +286,7 @@ namespace OzGameLab01.Map
                 }
             }
 
-            return fallback ?? (plannedBossNode.Type == NodeType.Normal ? plannedBossNode : null);
+            return fallback ?? (IsAvailableObjectiveNode(plannedBossNode) ? plannedBossNode : null);
         }
 
         private MapNode SelectEliteNode(
@@ -308,7 +317,7 @@ namespace OzGameLab01.Map
                 MapNode candidate = pair.Key;
                 int distanceFromCurrentNode = pair.Value;
 
-                if (candidate.Type != NodeType.Normal || candidate == bossNode ||
+                if (!IsAvailableObjectiveNode(candidate) || candidate == bossNode ||
                     distanceFromCurrentNode < minimumEliteLegDistance ||
                     distanceFromCurrentNode > maximumEliteLegDistance ||
                     !distanceToBoss.TryGetValue(candidate, out int distanceFromCandidateToBoss))
@@ -406,7 +415,7 @@ namespace OzGameLab01.Map
 
             foreach (KeyValuePair<MapNode, int> pair in distanceFromCurrent)
             {
-                if (pair.Key.Type != NodeType.Normal || pair.Key == bossNode ||
+                if (!IsAvailableObjectiveNode(pair.Key) || pair.Key == bossNode ||
                     pair.Value < 1 || !distanceToBoss.ContainsKey(pair.Key))
                 {
                     continue;
@@ -535,6 +544,13 @@ namespace OzGameLab01.Map
                    node.Type != NodeType.WaterStart &&
                    node.Type != NodeType.WaterBody &&
                    node.Type != NodeType.WaterEnd;
+        }
+
+        private static bool IsAvailableObjectiveNode(MapNode node)
+        {
+            return node != null &&
+                   node.Type == NodeType.Normal &&
+                   !BoardRunData.IsSpecialTileConsumed(node.Position);
         }
 
         private static int CompareCandidates(CandidateScore left, CandidateScore right)

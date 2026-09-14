@@ -22,9 +22,14 @@ namespace OzGameLab01.Data
         public float defensePoint;      // 방어력
         public float attackSpeed;       // 공격 속도
         public float criticalMult;      // 치명타 배율
-        public float criticalRate;        // 치명 확률
+        public float criticalRate;      // 치명 확률
         public float dodgeRate;         // 회피율
+        public float recoveryAmount;    // 회복량
+        public float statusDuration;    // 상태 지속시간
+        public int bloodDrain;          // 흡혈
         public float basicAttackCooldown = 1f;
+
+        public List<int> skillIds = new List<int>();
 
         public string passiveSkillKey;
         public string activeSkillKey;
@@ -32,12 +37,15 @@ namespace OzGameLab01.Data
 
         public string attackKey;
 
-        // 공용 아군 프리팹(Unit.Configure)이 생성 시 참조하는 시각/전투 클래스 정보
-        public Color color = Color.white;
-        public Unit.SkillType skillType;
+        public List<EffectInstance> passiveEffects = new List<EffectInstance>();
 
+        public string synergy;
         public UnitTypeJob jobType;
         public UnitTypeTribe tribeType;
+
+        // 흰색 원본 스프라이트를 밝은 배경 위에서도 구분되도록 살짝 회색으로 낮춘 기본값.
+        // xlsx에 유닛별 색상 지정이 없어 21명 전부 이 기본값을 그대로 씁니다.
+        public Color color = new Color(0.75f, 0.75f, 0.75f);
     }
 
     public enum UnitTypeJob

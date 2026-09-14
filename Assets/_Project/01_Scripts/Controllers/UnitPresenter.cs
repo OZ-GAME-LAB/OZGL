@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
+using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Combat
 {
@@ -15,16 +16,18 @@ namespace OzGameLab01.Combat
         private readonly HealthBar healthBar;
         private readonly SpriteRenderer spriteRenderer;
         private readonly GameObject projectilePrefab;
-        private readonly Color skillGlowColor;
-        private readonly float skillGlowDuration;
+        private readonly TMPro.TextMeshPro skillNameLabel;
+        private readonly float skillNameDisplayDuration;
         private readonly Unit.Team team;
 
         private Color _originalColor;
+        private bool _isColorEffectPlaying;
         private RectTransform _combatAnchor;
         private Image _combatImage;
         private UIProjectilePool _uiProjectilePool;
         private Sprite _projectileSprite;
         private Color _projectileColor = Color.white;
+        private AllyUnitCombatHUDView _hud;
 
         public RectTransform CombatAnchor => _combatAnchor;
 
@@ -32,15 +35,15 @@ namespace OzGameLab01.Combat
             HealthBar healthBar,
             SpriteRenderer spriteRenderer,
             GameObject projectilePrefab,
-            Color skillGlowColor,
-            float skillGlowDuration,
+            TMPro.TextMeshPro skillNameLabel,
+            float skillNameDisplayDuration,
             Unit.Team team)
         {
             this.healthBar = healthBar;
             this.spriteRenderer = spriteRenderer;
             this.projectilePrefab = projectilePrefab;
-            this.skillGlowColor = skillGlowColor;
-            this.skillGlowDuration = skillGlowDuration;
+            this.skillNameLabel = skillNameLabel;
+            this.skillNameDisplayDuration = skillNameDisplayDuration;
             this.team = team;
         }
 
@@ -111,6 +114,32 @@ namespace OzGameLab01.Combat
             }
         }
 
+        /// <summary>
+        /// UnitAnchor 아래에 스폰된 AllyUnitCombatHUDView를 바인딩합니다(아군 전용, 적은 null).
+        /// </summary>
+        public void BindHud(AllyUnitCombatHUDView hud)
+        {
+            _hud = hud;
+        }
+
+        /// <summary>
+        /// 매 프레임 체력/액티브 스킬 쿨다운 게이지를 갱신합니다. HUD가 바인딩되지 않았으면
+        /// (적, 또는 HUD 프리팹 미지정) 아무 것도 하지 않습니다.
+        /// </summary>
+        public void UpdateHud(float currentHp, float maxHp, bool hasCooldown, float cooldownRemaining, float cooldownDuration)
+        {
+            if (_hud == null)
+            {
+                return;
+            }
+
+            _hud.SetHealth(currentHp, maxHp);
+            if (hasCooldown)
+            {
+                _hud.SetSkillCooldown(cooldownRemaining, cooldownDuration);
+            }
+        }
+
         public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, float damage)
         {
             // UI에 배치된 유닛은 자신의 UnitAnchor에서 대상 UnitAnchor로 풀링 투사체를 발사합니다.
@@ -141,32 +170,20 @@ namespace OzGameLab01.Combat
             }
         }
 
-        public IEnumerator SkillGlow()
+        /// <summary>
+        /// 시전자 머리 위 라벨에 스킬 이름을 잠깐 띄웁니다. 스킬 발동을 화면에 알리는 연출로,
+        /// 예전엔 스프라이트 색을 깜빡이는 방식(SkillGlow)이었으나 텍스트 표시로 대체되었습니다.
+        /// </summary>
+        public IEnumerator ShowSkillCastText(string skillName)
         {
-            if (spriteRenderer == null)
+            if (skillNameLabel == null)
             {
                 yield break;
             }
 
-            float half = skillGlowDuration / 2f;
-            float t = 0f;
-
-            while (t < half)
-            {
-                t += Time.deltaTime;
-                spriteRenderer.color = Color.Lerp(_originalColor, skillGlowColor, t / half);
-                yield return null;
-            }
-
-            t = 0f;
-            while (t < half)
-            {
-                t += Time.deltaTime;
-                spriteRenderer.color = Color.Lerp(skillGlowColor, _originalColor, t / half);
-                yield return null;
-            }
-
-            spriteRenderer.color = _originalColor;
+            skillNameLabel.text = skillName;
+            yield return new WaitForSeconds(skillNameDisplayDuration);
+            skillNameLabel.text = string.Empty;
         }
 
         public IEnumerator HitFlash()
@@ -176,6 +193,8 @@ namespace OzGameLab01.Combat
                 yield break;
             }
 
+            _isColorEffectPlaying = true;
+
             for (int i = 0; i < 3; i++)
             {
                 spriteRenderer.color = Color.white;
@@ -183,6 +202,22 @@ namespace OzGameLab01.Combat
                 spriteRenderer.color = _originalColor;
                 yield return new WaitForSeconds(0.05f);
             }
+
+            _isColorEffectPlaying = false;
+        }
+
+        /// <summary>
+        /// 활성 디버프를 나타내는 플레이스홀더 틴트. HitFlash가 진행 중일 때는
+        /// 색상 채널을 두고 다투지 않도록 무시한다(짧게 끝나므로 다음 프레임에 다시 반영됨).
+        /// </summary>
+        public void SetDebuffTint(Color? tint)
+        {
+            if (spriteRenderer == null || _isColorEffectPlaying)
+            {
+                return;
+            }
+
+            spriteRenderer.color = tint ?? _originalColor;
         }
     }
 }

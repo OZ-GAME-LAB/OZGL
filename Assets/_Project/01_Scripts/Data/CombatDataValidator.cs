@@ -35,29 +35,7 @@ namespace OzGameLab01.Combat
                 }
             }
 
-            HashSet<int> traitEntryIds = new HashSet<int>();
-            foreach (UnitRosterData.UnitTraitEntry entry in roster.UnitTraits)
-            {
-                if (!traitEntryIds.Add(entry.id))
-                {
-                    Debug.LogError($"[CombatDataValidator] UnitTraitEntry ID가 중복되었습니다: {entry.id}", context);
-                    valid = false;
-                }
-
-                if (!unitIds.Contains(entry.id))
-                {
-                    Debug.LogError($"[CombatDataValidator] 트레이트가 존재하지 않는 유닛 ID를 참조합니다: {entry.id}", context);
-                    valid = false;
-                }
-
-                if (entry.traits == null)
-                {
-                    Debug.LogError($"[CombatDataValidator] 유닛 트레이트 목록이 null입니다: {entry.id}", context);
-                    valid = false;
-                }
-            }
-
-            HashSet<SynergyTrait> definitionTraits = new HashSet<SynergyTrait>();
+            HashSet<string> definitionNames = new HashSet<string>();
             foreach (SynergyDefinition definition in roster.SynergyDefinitions)
             {
                 if (definition == null || !definition.ValidateConfiguration(context))
@@ -66,10 +44,10 @@ namespace OzGameLab01.Combat
                     continue;
                 }
 
-                if (!definitionTraits.Add(definition.Trait))
+                if (!definitionNames.Add(definition.DisplayName))
                 {
                     Debug.LogError(
-                        $"[CombatDataValidator] 같은 트레이트의 시너지 정의가 중복되었습니다: {definition.Trait.name}",
+                        $"[CombatDataValidator] 같은 이름의 시너지 정의가 중복되었습니다: {definition.DisplayName}",
                         context);
                     valid = false;
                 }
@@ -108,6 +86,12 @@ namespace OzGameLab01.Combat
             if (unit.basicAttackCooldown <= 0f || unit.skillCooldown < 0)
             {
                 Debug.LogError($"[CombatDataValidator] 유닛의 공격 쿨다운 값이 올바르지 않습니다. ID: {unit.id}", context);
+                valid = false;
+            }
+
+            if (unit.skillIds == null || unit.skillIds.Count == 0)
+            {
+                Debug.LogError($"[CombatDataValidator] 유닛에 스킬(0번째=기본공격)이 하나도 없습니다. ID: {unit.id}", context);
                 valid = false;
             }
 

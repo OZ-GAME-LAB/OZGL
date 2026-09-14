@@ -1,13 +1,13 @@
 using OzGameLab01.Controllers;
-using OzGameLab01.Map;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace OzGameLab01.Map
 {
     // 이 스크립트는 모든 타일 프리팹(Normal, Battle, Tree 등)에 부착되어야 합니다.
-    // ※ 주의: 프리팹에 BoxCollider 등 충돌체가 있어야 마우스 이벤트를 감지할 수 있습니다!
+    // ※ 주의: 프리팹에 Collider가 있어야 하며, 보드 카메라에는 PhysicsRaycaster가 필요합니다.
     [RequireComponent(typeof(Collider))]
-    public class TileView : MonoBehaviour
+    public class TileView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         public MapNode MyNode { get; private set; }
 
@@ -23,21 +23,22 @@ namespace OzGameLab01.Map
                 _originalColor = _renderer.material.color;
         }
 
-        private void OnMouseEnter()
+        public void OnPointerEnter(PointerEventData eventData)
         {
             if (BoardPlayerController.Instance == null) return;
             BoardPlayerController.Instance.OnTileHovered(this);
         }
 
-        private void OnMouseExit()
+        public void OnPointerExit(PointerEventData eventData)
         {
             if (BoardPlayerController.Instance == null) return;
             BoardPlayerController.Instance.ClearHover();
             ResetHighlight();
         }
 
-        private void OnMouseDown()
+        public void OnPointerClick(PointerEventData eventData)
         {
+            if (eventData.button != PointerEventData.InputButton.Left) return;
             if (BoardPlayerController.Instance == null) return;
             BoardPlayerController.Instance.OnTileClicked(this);
         }
