@@ -21,13 +21,13 @@ namespace OzGameLab01.Managers
 
         private UnitRosterData _unitRosterData;
         private MonsterRosterData _monsterRosterData;
-        private readonly Dictionary<int, SynergyData> _synergiesById = new Dictionary<int, SynergyData>();
-        private readonly Dictionary<int, RelicData> _relicsById = new Dictionary<int, RelicData>();
+        private readonly IdDataCache<SynergyData> _synergiesById = new IdDataCache<SynergyData>(data => data.id);
+        private readonly IdDataCache<RelicData> _relicsById = new IdDataCache<RelicData>(data => data.id);
 
         public IReadOnlyList<UnitData> Units => _unitRosterData != null ? _unitRosterData.UnitStats : EmptyUnits;
         public IReadOnlyList<MonsterData> Enemies => _monsterRosterData != null ? _monsterRosterData.MonsterStats : EmptyEnemies;
-        public IReadOnlyDictionary<int, SynergyData> Synergies => _synergiesById;
-        public IReadOnlyDictionary<int, RelicData> Relics => _relicsById;
+        public IReadOnlyDictionary<int, SynergyData> Synergies => _synergiesById.Items;
+        public IReadOnlyDictionary<int, RelicData> Relics => _relicsById.Items;
 
         protected override void Awake()
         {
@@ -66,20 +66,8 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadSynergies()
         {
-            _synergiesById.Clear();
             List<SynergyData> loaded = GameDataLoader.LoadSynergies();
-            if (loaded == null)
-            {
-                return;
-            }
-
-            foreach (SynergyData synergy in loaded)
-            {
-                if (synergy != null)
-                {
-                    _synergiesById[synergy.id] = synergy;
-                }
-            }
+            _synergiesById.Replace(loaded ?? new List<SynergyData>());
         }
 
         public UnitData GetUnit(int id)
@@ -115,8 +103,7 @@ namespace OzGameLab01.Managers
 
         public SynergyData GetSynergy(int id)
         {
-            _synergiesById.TryGetValue(id, out SynergyData data);
-            return data;
+            return _synergiesById.Get(id);
         }
 
         /// <summary>
@@ -126,26 +113,13 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadRelics()
         {
-            _relicsById.Clear();
             List<RelicData> loaded = GameDataLoader.LoadRelics();
-            if (loaded == null)
-            {
-                return;
-            }
-
-            foreach (RelicData relic in loaded)
-            {
-                if (relic != null)
-                {
-                    _relicsById[relic.id] = relic;
-                }
-            }
+            _relicsById.Replace(loaded ?? new List<RelicData>());
         }
 
         public RelicData GetRelic(int id)
         {
-            _relicsById.TryGetValue(id, out RelicData data);
-            return data;
+            return _relicsById.Get(id);
         }
 
         /// <summary>
