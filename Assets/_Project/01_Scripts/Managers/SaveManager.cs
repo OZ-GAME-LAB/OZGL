@@ -130,6 +130,10 @@ public class SaveManager : Singleton<SaveManager>
             _isInventoryRestorePending = true;
         }
 
+        // [추가] 유닛 인벤토리와 마찬가지로 보유 유물도 Continue 시 복원합니다.
+        // RelicManager는 Singleton이라 씬에 없어도 Instance 접근 시 자동 생성됩니다.
+        RelicManager.Instance.RestoreFromSave(currentData.relicSaveEntries);
+
         return true;
     }
 
@@ -201,6 +205,8 @@ public class SaveManager : Singleton<SaveManager>
         {
             CaptureInventory(inventoryManager);
         }
+
+        CaptureRelics();
 
         MarkAsDirty();
     }
@@ -326,6 +332,31 @@ public class SaveManager : Singleton<SaveManager>
                 unitId = unitCount.Key,
                 amount = unitCount.Value
             });
+        }
+    }
+
+    /// <summary>
+    /// 현재 보유 유물을 저장합니다. RelicManager는 Singleton이라 씬에 없어도
+    /// Instance 접근 시 자동 생성되므로(보유 유물 0개) null 체크가 필요 없습니다.
+    /// </summary>
+    private void CaptureRelics()
+    {
+        currentData.relicSaveEntries.Clear();
+
+        int index = 0;
+        foreach (RelicRuntimeInstance relic in RelicManager.Instance.OwnedRelics)
+        {
+            if (relic?.Data == null)
+            {
+                continue;
+            }
+
+            currentData.relicSaveEntries.Add(new RelicSaveEntry
+            {
+                relicId = relic.Data.id,
+                relicIndex = index
+            });
+            index++;
         }
     }
 

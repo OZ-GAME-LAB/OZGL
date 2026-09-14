@@ -35,6 +35,7 @@ namespace OzGameLab01.Combat
         {
             public DebuffType type;
             public float remaining;
+            public float duration;
             public float magnitude;
             public float tickInterval;
             public float tickTimer;
@@ -90,6 +91,7 @@ namespace OzGameLab01.Combat
                 if (debuff.type == profile.type)
                 {
                     debuff.remaining = profile.duration;
+                    debuff.duration = profile.duration;
                     debuff.magnitude = profile.magnitude;
                     debuff.tickInterval = profile.tickInterval;
                     return;
@@ -100,10 +102,41 @@ namespace OzGameLab01.Combat
             {
                 type = profile.type,
                 remaining = profile.duration,
+                duration = profile.duration,
                 magnitude = profile.magnitude,
                 tickInterval = profile.tickInterval,
                 tickTimer = profile.tickInterval
             });
+        }
+
+        /// <summary>
+        /// 전투 UI(상태이상 아이콘+지속시간 게이지)에 표시할 대표 디버프 하나를 반환합니다.
+        /// 우선순위는 IndicatorColor와 동일(기절 > 침묵 > 도트 > 그을림). 활성 디버프가
+        /// 여러 개 겹쳐도 UI 슬롯이 하나뿐이라(StatusEffectItemView) 가장 급한 것만 보여줍니다.
+        /// </summary>
+        public bool TryGetPrimaryDebuff(out DebuffType type, out float remaining, out float duration)
+        {
+            foreach (DebuffType priority in new[]
+                     {
+                         DebuffType.Stun, DebuffType.Silence, DebuffType.DamageOverTime, DebuffType.AttackDown
+                     })
+            {
+                foreach (ActiveDebuff debuff in _active)
+                {
+                    if (debuff.type == priority)
+                    {
+                        type = debuff.type;
+                        remaining = debuff.remaining;
+                        duration = debuff.duration;
+                        return true;
+                    }
+                }
+            }
+
+            type = DebuffType.None;
+            remaining = 0f;
+            duration = 0f;
+            return false;
         }
 
         /// <summary>

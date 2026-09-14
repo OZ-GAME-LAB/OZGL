@@ -242,8 +242,13 @@ namespace OzGameLab01.Controllers
 
                     if (battleUIView.ResultView != null)
                     {
+                        // 보상 화면이 구성되지 않은 일반 전투는 승리 시 무작위 유물 1개를
+                        // 자동으로 지급합니다(dropWeight 가중치, RelicManager.AcquireRandomRelic).
+                        var grantedRelic = RelicManager.Instance.AcquireRandomRelic();
+
                         battleUIView.ResultView.SetResultText("Victory!");
-                        battleUIView.ResultView.SetOptionalMessage("Reward data is not configured yet.");
+                        battleUIView.ResultView.SetOptionalMessage(
+                            grantedRelic != null ? $"유물 획득: {grantedRelic.name}" : string.Empty);
                         battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
                     }
 
@@ -274,7 +279,6 @@ namespace OzGameLab01.Controllers
             bool applied = combatManager != null && BattleRewardService.Apply(
                 option.RewardData,
                 combatManager.GetParticipatingAllyUnits(),
-                combatManager.RosterData,
                 this);
 
             if (!applied)

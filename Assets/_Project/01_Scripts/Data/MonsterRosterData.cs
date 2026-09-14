@@ -28,9 +28,44 @@ namespace OzGameLab01.Combat
         {
             Active = this;
 
-            // 실제 몬스터 스키마(EnemyData.xlsx)가 턴 스케일링 커브뿐이라 아직 로스터 형태가 아닙니다.
-            // 그 전까지 쓸 임시 데이터를 TempRosterSeed 한 곳에서 가져와 채웁니다.
-            monsterStats = TempRosterSeed.CreateMonsterRoster();
+            // 실제 몬스터 데이터베이스(JSON)를 로드해 monsterStats를 캐싱합니다.
+            // EnemyData.xlsx의 BaseStat(Turn1 기준) 수치를 담고 있으며, 턴 진행에 따른
+            // 성장(Value 배율)은 EnemyValueResolver가 별도로 계산해 적용합니다.
+            TextAsset jsonFile = Resources.Load<TextAsset>("EnemyData");
+            if (jsonFile == null)
+            {
+                Debug.LogWarning("[MonsterRosterData] 05_Data/Resources/EnemyData.json을 찾을 수 없어 monsterStats가 마지막으로 저장된 값 그대로 유지됩니다.", this);
+                return;
+            }
+
+            List<MonsterData> parsed;
+            try
+            {
+                parsed = ParseMonsterList(jsonFile.text);
+            }
+            catch (Newtonsoft.Json.JsonException e)
+            {
+                Debug.LogWarning($"[MonsterRosterData] EnemyData.json 파싱에 실패해 monsterStats가 마지막으로 저장된 값 그대로 유지됩니다. ({e.Message})", this);
+                return;
+            }
+
+            if (parsed == null)
+            {
+                Debug.LogWarning("[MonsterRosterData] EnemyData.json에 monsterList가 없어 monsterStats가 마지막으로 저장된 값 그대로 유지됩니다.", this);
+                return;
+            }
+
+            monsterStats = parsed;
+        }
+
+        /// <summary>
+        /// 몬스터 JSON 텍스트를 MonsterData 목록으로 역직렬화합니다. OnEnable()에서 분리해둔
+        /// 순수 함수라 Resources/에셋 로드 없이도 EditMode 테스트로 검증할 수 있습니다.
+        /// </summary>
+        public static List<MonsterData> ParseMonsterList(string json)
+        {
+            MonsterDataList list = Newtonsoft.Json.JsonConvert.DeserializeObject<MonsterDataList>(json);
+            return list?.monsterList;
         }
 
         public MonsterData GetById(int id)

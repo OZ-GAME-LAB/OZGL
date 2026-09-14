@@ -20,7 +20,7 @@ namespace OzGameLab01.Managers
                 Monsters.LoadAsync(""),
                 Units.LoadAsync("JSON/UnitJSON"),
                 Relics.LoadAsync(""),
-                Synergies.LoadAsync("JSON/SynergyJSON")
+                Synergies.LoadAsync("JSON/SynergyJSON"),
                 Skills.LoadAsync("")
             );
         }

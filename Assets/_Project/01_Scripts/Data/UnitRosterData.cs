@@ -97,12 +97,21 @@ namespace OzGameLab01.Combat
 
         private void OnEnable()
         {
-            // TempUnitData.json 테스트 유닛이 아직 실제 스킬 기획을 갖지 못해
-            // 임시로 부여하는 공용 기본공격 + 디버프 4종 검증용 액티브를 TempRosterSeed에서 채웁니다.
+            // 공용 기본공격(900)은 TempRosterSeed에서 계속 채웁니다.
             List<SkillData> tempSkills = TempRosterSeed.CreateAllTempUnitSkills();
             HashSet<int> tempSkillIds = new HashSet<int>(tempSkills.ConvertAll(skill => skill.id));
             skillDefinitions.RemoveAll(skill => skill != null && tempSkillIds.Contains(skill.id));
             skillDefinitions.AddRange(tempSkills);
+
+            // 유닛별 고유 액티브 스킬(920번대, UnitSkillData.json). 수치는 전부 기능 검증용
+            // placeholder입니다 — Docs/Database/UnitData.xlsx 스킬 시트의 밸런스 미확정.
+            List<SkillData> unitSkills = GameDataLoader.LoadUnitSkills();
+            if (unitSkills != null)
+            {
+                HashSet<int> unitSkillIds = new HashSet<int>(unitSkills.ConvertAll(skill => skill.id));
+                skillDefinitions.RemoveAll(skill => skill != null && unitSkillIds.Contains(skill.id));
+                skillDefinitions.AddRange(unitSkills);
+            }
 
             // 유닛 데이터베이스(JSON)를 로드해 UnitStats를 캐싱합니다.
             // 지금은 TempUnitData.json(임시)이고, 나중에 실제 UnitJSON으로 바뀌어도 이 asset을

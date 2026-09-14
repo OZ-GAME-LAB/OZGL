@@ -1,0 +1,190 @@
+{
+  "skillList": [
+    {
+      "id": 920,
+      "name": "내 기분은 내가 정해",
+      "damage": 8.0,
+      "cooldown": 5.0,
+      "debuff": {
+        "type": "DamageOverTime",
+        "duration": 4,
+        "magnitude": 4,
+        "tickInterval": 1
+      }
+    },
+    {
+      "id": 921,
+      "name": "시간이 없어!",
+      "damage": 6.0,
+      "cooldown": 6.0
+    },
+    {
+      "id": 922,
+      "name": "어디로 가고 싶어?",
+      "damage": 6.0,
+      "cooldown": 6.0
+    },
+    {
+      "id": 923,
+      "name": "소원의 힘",
+      "damage": 14.0,
+      "cooldown": 6.0
+    },
+    {
+      "id": 924,
+      "name": "독이 든 오아시스",
+      "damage": 6.0,
+      "cooldown": 6.0,
+      "debuff": {
+        "type": "DamageOverTime",
+        "duration": 4,
+        "magnitude": 4,
+        "tickInterval": 1
+      }
+    },
+    {
+      "id": 925,
+      "name": "세가지 소원(물리)",
+      "damage": 16.0,
+      "cooldown": 7.0
+    },
+    {
+      "id": 926,
+      "name": "내가 겁쟁이라고!?",
+      "damage": 6.0,
+      "cooldown": 6.0
+    },
+    {
+      "id": 927,
+      "name": "심장 폭탄",
+      "damage": 14.0,
+      "cooldown": 6.0,
+      "debuff": {
+        "type": "Stun",
+        "duration": 1,
+        "magnitude": 0,
+        "tickInterval": 0
+      }
+    },
+    {
+      "id": 928,
+      "name": "쇠사슬 강타",
+      "damage": 12.0,
+      "cooldown": 5.0
+    },
+    {
+      "id": 929,
+      "name": "바람의 속삭임",
+      "damage": 6.0,
+      "cooldown": 5.0,
+      "debuff": {
+        "type": "AttackDown",
+        "duration": 5,
+        "magnitude": 0.2,
+        "tickInterval": 0
+      }
+    },
+    {
+      "id": 930,
+      "name": "물방울 아리아",
+      "damage": 6.0,
+      "cooldown": 6.0,
+      "debuff": {
+        "type": "Silence",
+        "duration": 5,
+        "magnitude": 0,
+        "tickInterval": 0
+      }
+    },
+    {
+      "id": 931,
+      "name": "독사과 런처",
+      "damage": 10.0,
+      "cooldown": 5.0,
+      "debuff": {
+        "type": "DamageOverTime",
+        "duration": 4,
+        "magnitude": 4,
+        "tickInterval": 1
+      }
+    },
+    {
+      "id": 932,
+      "name": "깜짝 과자 파티",
+      "damage": 10.0,
+      "cooldown": 5.0,
+      "debuff": {
+        "type": "Stun",
+        "duration": 1,
+        "magnitude": 0,
+        "tickInterval": 0
+      }
+    },
+    {
+      "id": 933,
+      "name": "슈가 팝 폭격",
+      "damage": 4.0,
+      "cooldown": 5.0,
+      "debuff": {
+        "type": "AttackDown",
+        "duration": 4,
+        "magnitude": 0.3,
+        "tickInterval": 0
+      }
+    },
+    {
+      "id": 934,
+      "name": "어른이 되기 싫었어",
+      "damage": 8.0,
+      "cooldown": 5.0
+    },
+    {
+      "id": 935,
+      "name": "광기의 집착",
+      "damage": 8.0,
+      "cooldown": 5.0,
+      "debuff": {
+        "type": "AttackDown",
+        "duration": 4,
+        "magnitude": 0.3,
+        "tickInterval": 0
+      }
+    },
+    {
+      "id": 936,
+      "name": "이 몸, 부활.",
+      "damage": 8.0,
+      "cooldown": 5.0
+    },
+    {
+      "id": 937,
+      "name": "조금만 더 버텨!",
+      "damage": 6.0,
+      "cooldown": 6.0
+    },
+    {
+      "id": 938,
+      "name": "단단하기만 한게 아니야",
+      "damage": 12.0,
+      "cooldown": 5.0,
+      "debuff": {
+        "type": "AttackDown",
+        "duration": 4,
+        "magnitude": 0.3,
+        "tickInterval": 0
+      }
+    },
+    {
+      "id": 939,
+      "name": "마리오네트의 실",
+      "damage": 6.0,
+      "cooldown": 6.0
+    },
+    {
+      "id": 940,
+      "name": "너도 고쳐주마",
+      "damage": 6.0,
+      "cooldown": 6.0
+    }
+  ]
+}

@@ -10,7 +10,6 @@ namespace OzGameLab01.Managers
         public static bool Apply(
             BattleRewardData reward,
             IEnumerable<Unit> participatingUnits,
-            UnitRosterData rosterData,
             Object context = null)
         {
             switch (reward.kind)
@@ -20,7 +19,7 @@ namespace OzGameLab01.Managers
                 case BattleRewardKind.Relic:
                     return ApplyRelic(reward.targetId, context);
                 case BattleRewardKind.Unit:
-                    return ApplyUnit(reward.targetId, rosterData, context);
+                    return ApplyUnit(reward.targetId, context);
                 default:
                     Debug.LogError($"[BattleRewardService] 지원하지 않는 보상 유형입니다: {reward.kind}", context);
                     return false;
@@ -47,25 +46,23 @@ namespace OzGameLab01.Managers
             return true;
         }
 
-        private static bool ApplyUnit(int unitId, UnitRosterData rosterData, Object context)
+        private static bool ApplyUnit(int unitId, Object context)
         {
-            if (rosterData == null || PlayerInventoryManager.Instance == null)
+            if (PlayerInventoryManager.Instance == null)
             {
-                Debug.LogError("[BattleRewardService] 유닛 보상을 적용할 로스터 또는 인벤토리가 없습니다.", context);
+                Debug.LogError("[BattleRewardService] 유닛 보상을 적용할 인벤토리가 없습니다.", context);
                 return false;
             }
 
-            foreach (UnitData unit in rosterData.UnitStats)
+            UnitData unit = RuntimeDataManager.Instance.GetUnit(unitId);
+            if (unit == null)
             {
-                if (unit != null && unit.id == unitId)
-                {
-                    PlayerInventoryManager.Instance.AddUnit(PlayerInventoryManager.CloneUnitData(unit));
-                    return true;
-                }
+                Debug.LogError($"[BattleRewardService] 유닛 보상 ID를 찾을 수 없습니다: {unitId}", context);
+                return false;
             }
 
-            Debug.LogError($"[BattleRewardService] 유닛 보상 ID를 찾을 수 없습니다: {unitId}", context);
-            return false;
+            PlayerInventoryManager.Instance.AddUnit(PlayerInventoryManager.CloneUnitData(unit));
+            return true;
         }
     }
 }
