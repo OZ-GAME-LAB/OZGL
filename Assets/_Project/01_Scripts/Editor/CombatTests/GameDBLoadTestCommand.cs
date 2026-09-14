@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Unity.Pipeline.Commands;
+//using Unity.Pipeline.Commands;
 using OzGameLab01.Managers;
 
 namespace OzGameLab01.Tests.EditMode
@@ -14,7 +14,7 @@ namespace OzGameLab01.Tests.EditMode
     {
         private static string _lastResult = "(아직 실행 안 함)";
 
-        [CliCommand("test_unit_gamedb", "DataManager.Units 어드레서블 로드를 시작합니다. 결과는 test_unit_gamedb_result로 폴링.")]
+       // [CliCommand("test_unit_gamedb", "DataManager.Units 어드레서블 로드를 시작합니다. 결과는 test_unit_gamedb_result로 폴링.")]
         public static string TestUnitGameDb()
         {
             _lastResult = "실행 중...";
@@ -22,7 +22,7 @@ namespace OzGameLab01.Tests.EditMode
             return "시작됨. test_unit_gamedb_result로 결과 확인.";
         }
 
-        [CliCommand("test_unit_gamedb_result", "가장 최근 test_unit_gamedb 실행 결과를 반환합니다.")]
+       // [CliCommand("test_unit_gamedb_result", "가장 최근 test_unit_gamedb 실행 결과를 반환합니다.")]
         public static string TestUnitGameDbResult()
         {
             return _lastResult;

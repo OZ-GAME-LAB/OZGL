@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using OzGameLab01.Combat;
 
 namespace OzGameLab01.Data
 {

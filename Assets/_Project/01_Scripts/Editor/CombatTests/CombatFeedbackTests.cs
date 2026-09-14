@@ -2,7 +2,6 @@ using System.Collections;
 using System.Reflection;
 using NUnit.Framework;
 using OzGameLab01.Combat;
-using OzGameLab01.Data;
 using OzGameLab01.UI.Battle;
 using UnityEngine;
 using UnityEngine.UI;
