@@ -33,7 +33,8 @@ namespace OzGameLab01.Managers
             // 2. 런타임 인스턴스 생성, 장착
             var newInstance = new RelicRuntimeInstance(relicData);
             _allRelics.Add(newInstance);
-            RegisterRuntimeRelic(newInstance);
+
+
             newInstance.OnEquip();
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
 
@@ -172,7 +173,6 @@ namespace OzGameLab01.Managers
                 _diceRelics[i].OnDiceRolled();
             }
         }
-        #endregion
     }
 }
 
