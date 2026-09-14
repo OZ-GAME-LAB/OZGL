@@ -8,10 +8,16 @@ using OzGameLab01.Data;
 
 namespace OzGameLab01.Combat
 {
+    /// <summary>
+    /// 전투 시스템의 조립부이자 외부에 노출되는 Facade입니다. 실제 전투 상태는
+    /// <see cref="CombatState"/>(Model)가 들고 있고, 화면 갱신은 출력 컨트롤러
+    /// (<see cref="EnemyHeaderPresenter"/> 등)가 담당합니다. 이 클래스는 하위
+    /// 컨트롤러(AllySpawner/SynergyController/CombatEffectExecutor)를 생성·배선하고,
+    /// 다른 곳에서 필요로 하는 조회 API를 CombatState로 위임만 합니다.
+    /// </summary>
     public class CombatManager : MonoBehaviour
     {
         public static CombatManager Instance { get; private set; }
-
 
         public enum SlotRow { Front, Mid, Back }
 
@@ -26,20 +32,7 @@ namespace OzGameLab01.Combat
             public override int GetHashCode() => (column, row).GetHashCode();
         }
 
-        [System.Serializable]
-        private struct SlotPlacement
-        {
-            public SlotKey slot;
-            public int unitId;
-        }
-
-        private const int SlotColumns = 3;
-        private const int SlotRows = 3;
-
         [SerializeField] private Transform unitsRoot;
-        [SerializeField] private Vector3 gridOrigin = new Vector3(-4.5f, -1.2f, 0f);
-        [SerializeField] private float columnSpacing = 1.2f;
-        [SerializeField] private float rowSpacing = 1.2f;
         [SerializeField] private Vector3 enemyPosition = new Vector3(4.5f, 0f, 0f);
         [SerializeField] private string enemyPrefabResourceName = "Characters/Enemy_Melee";
         [SerializeField] private float enemyScale = 3f;
@@ -52,9 +45,6 @@ namespace OzGameLab01.Combat
 
         [Header("플레이어 전투 슬롯")]
         [SerializeField] private BattleMainView battleMainView;
-
-        [Tooltip("맵 씬에서 미리 정한 아군 배치. 슬롯(열+행)을 키로, 그 슬롯에 들어갈 유닛 id(GameDB 기준)를 값으로 가짐.")]
-        [SerializeField] private List<SlotPlacement> allyFormation = new List<SlotPlacement>();
 
         [Tooltip("유닛 id별 프리팹/트레이트, 시너지 발동 정의. 로스터 준비 화면과 공유하는 데이터입니다.")]
         [SerializeField] private UnitRosterData rosterData;
@@ -73,33 +63,20 @@ namespace OzGameLab01.Combat
         [Tooltip("보유 중이지만 아직 발동하지 않은 시너지 아이템 색상입니다.")]
         [SerializeField] private Color synergyInactiveColor = new Color(1f, 1f, 1f, 0.4f);
 
-        [Header("유닛 정보 UI")]
-        [Tooltip("화면 하단에 현재 전투 중인 아군을 표시하는 패널입니다.")]
-        [SerializeField] private BattleUnitInfoView battleUnitInfoView;
-
-        [Tooltip("전투에 직접 참여하지 않는 서브 유닛 id 목록. 전투 그리드에는 스폰되지 않고 하단 UI에만 표시됩니다.")]
-        [SerializeField] private List<int> supportFormation = new List<int>();
-
-        private Dictionary<SlotKey, int> _allyFormation;
-        private Dictionary<SlotKey, int> _spawnedFormation;
-        private Dictionary<int, UnitData> _unitDataById;
-        private readonly Unit[,] _slotUnits = new Unit[SlotColumns, SlotRows];
-        private Unit _enemyUnit;
+        private readonly CombatState _state = new CombatState();
         private UIProjectilePool _uiProjectilePool;
         private AllySpawner _allySpawner;
         private SynergyController _synergyController;
         private CombatEffectExecutor _combatEffectExecutor;
         private BattleEffectFeedbackView _feedbackView;
-        private BattleEnemyHeaderView _enemyHeaderView;
-        private EnemySkillCooldownItemView _enemySkillCooldownView;
-        private StatusEffectItemView _enemyStatusEffectView;
+        private EnemyHeaderPresenter _enemyHeaderPresenter;
 
         public void ReportFeedback(CombatFeedback feedback)
         {
             if (_feedbackView != null) _feedbackView.Show(feedback);
         }
 
-        public Unit EnemyUnit => _enemyUnit;
+        public Unit EnemyUnit => _state.EnemyUnit;
 
         private void Awake()
         {
@@ -140,7 +117,6 @@ namespace OzGameLab01.Combat
 
             _allySpawner = new AllySpawner(
                 battleMainView, allyTemplatePrefab, unitsRoot,
-                gridOrigin, columnSpacing, rowSpacing,
                 enemyPosition, enemyPrefabResourceName, enemyScale,
                 _uiProjectilePool, enemyMonsterData, allyHudPrefab);
 
@@ -149,40 +125,32 @@ namespace OzGameLab01.Combat
             // 초기값(0)만 보이던 상태였습니다.
             if (battleMainView != null)
             {
-                _enemyHeaderView = battleMainView.EnemyHeaderView;
-                _enemySkillCooldownView = battleMainView.GetComponentInChildren<EnemySkillCooldownItemView>(true);
-                if (_enemyHeaderView != null && _enemyHeaderView.StatusEffectRoot != null)
-                {
-                    _enemyStatusEffectView = _enemyHeaderView.StatusEffectRoot
-                        .GetComponentInChildren<StatusEffectItemView>(true);
-                }
+                BattleEnemyHeaderView enemyHeaderView = battleMainView.EnemyHeaderView;
+                EnemySkillCooldownItemView enemySkillCooldownView =
+                    battleMainView.GetComponentInChildren<EnemySkillCooldownItemView>(true);
+                StatusEffectItemView enemyStatusEffectView =
+                    enemyHeaderView != null && enemyHeaderView.StatusEffectRoot != null
+                        ? enemyHeaderView.StatusEffectRoot.GetComponentInChildren<StatusEffectItemView>(true)
+                        : null;
+                _enemyHeaderPresenter = new EnemyHeaderPresenter(
+                    enemyHeaderView, enemySkillCooldownView, enemyStatusEffectView);
             }
             _synergyController = new SynergyController(
                 rosterData, synergyPanelRoot, synergyItemTemplate,
                 synergyActiveColor, synergyInactiveColor, this);
             _synergyController.OnEffectApplied = ReportFeedback;
 
-            BuildAllyFormation();
             BuildUnitStatLookup();
-            _synergyController.BuildUnitTraitLookup(_unitDataById);
+            _synergyController.BuildUnitTraitLookup(_state.UnitDataById);
 
-            AllySpawner.SpawnResult spawnResult = _allySpawner.SpawnAllies(
-                _slotUnits, _allyFormation, _unitDataById,
-                SceneTransitioner.AllyFormationData, UnitFormationCombatLink.BattleUnits);
-            _spawnedFormation = spawnResult.SpawnedFormation;
+            _state.SpawnedFormation = _allySpawner.SpawnAllies(
+                _state.SlotUnits, SceneTransitioner.AllyFormationData, UnitFormationCombatLink.BattleUnits);
 
-            _synergyController.ApplySynergies(_spawnedFormation, _slotUnits);
+            _synergyController.ApplySynergies(_state.SpawnedFormation, _state.SlotUnits);
             _synergyController.PopulateSynergyPanel();
 
-            // 배치 데이터로 스폰했다면 BattleFormationInfoController가 유닛 정보 패널을
-            // 실제 편성 기준으로 채운다. 인스펙터 폴백 편성일 때만 여기서 직접 채운다.
-            if (!spawnResult.UsedPlacementData)
-            {
-                PopulateUnitInfoPanel();
-            }
-
-            _enemyUnit = _allySpawner.SpawnEnemy();
-            _enemyHeaderView?.SetEnemyName(_enemyUnit != null ? _enemyUnit.DisplayName : string.Empty);
+            _state.EnemyUnit = _allySpawner.SpawnEnemy();
+            _enemyHeaderPresenter?.SetEnemyName(_state.EnemyUnit != null ? _state.EnemyUnit.DisplayName : string.Empty);
 
             RuntimeEffectManager.Instance.LoadTempUnitJsonAndLog();
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
@@ -196,60 +164,11 @@ namespace OzGameLab01.Combat
 
         private void Update()
         {
-            UpdateEnemyHeader();
-        }
-
-        /// <summary>
-        /// 적 체력/스킬 쿨타임/상태이상 UI를 매 프레임 실제 수치로 갱신합니다.
-        /// 아이콘(스킬/상태이상)은 아직 원화 에셋이 없어 항상 비어 있고, 게이지·수치만 반영됩니다.
-        /// </summary>
-        private void UpdateEnemyHeader()
-        {
-            if (_enemyUnit == null)
-            {
-                return;
-            }
-
-            _enemyHeaderView?.SetHealth(_enemyUnit.CurrentHp, _enemyUnit.MaxHp);
-
-            if (_enemySkillCooldownView != null)
-            {
-                if (_enemyUnit.TryGetActiveSkillCooldown(out float remaining, out float duration))
-                {
-                    _enemySkillCooldownView.SetCooldown(remaining, duration);
-                }
-                else
-                {
-                    _enemySkillCooldownView.SetVisible(false);
-                }
-            }
-
-            if (_enemyStatusEffectView != null)
-            {
-                if (_enemyUnit.TryGetPrimaryDebuff(out _, out float debuffRemaining, out float debuffDuration))
-                {
-                    _enemyStatusEffectView.SetVisible(true);
-                    _enemyStatusEffectView.SetDuration(debuffRemaining, debuffDuration);
-                }
-                else
-                {
-                    _enemyStatusEffectView.SetVisible(false);
-                }
-            }
-        }
-
-        private void BuildAllyFormation()
-        {
-            _allyFormation = new Dictionary<SlotKey, int>();
-            foreach (SlotPlacement placement in allyFormation)
-            {
-                _allyFormation[placement.slot] = placement.unitId;
-            }
+            _enemyHeaderPresenter?.Refresh(_state.EnemyUnit);
         }
 
         private void BuildUnitStatLookup()
         {
-            _unitDataById = new Dictionary<int, UnitData>();
             if (rosterData == null)
             {
                 return;
@@ -261,157 +180,25 @@ namespace OzGameLab01.Combat
 
             foreach (UnitData data in rosterData.UnitStats)
             {
-                _unitDataById[data.id] = data;
+                _state.UnitDataById[data.id] = data;
             }
         }
 
-        public Unit ResolveAllyTarget()
-        {
-            List<Unit> exposed = new List<Unit>();
+        public Unit ResolveAllyTarget() => _state.ResolveAllyTarget();
 
-            for (int column = 0; column < SlotColumns; column++)
-            {
-                Unit front = _slotUnits[column, (int)SlotRow.Front];
-                Unit mid = _slotUnits[column, (int)SlotRow.Mid];
-                Unit back = _slotUnits[column, (int)SlotRow.Back];
-
-                if (front != null && !front.IsDead)
-                {
-                    exposed.Add(front);
-                }
-                else if (mid != null && !mid.IsDead)
-                {
-                    exposed.Add(mid);
-                }
-                else if (back != null && !back.IsDead)
-                {
-                    exposed.Add(back);
-                }
-            }
-
-            if (exposed.Count == 0)
-            {
-                return null;
-            }
-
-            return exposed[Random.Range(0, exposed.Count)];
-        }
-
-        public List<Unit> GetParticipatingAllyUnits()
-        {
-            List<Unit> units = new List<Unit>();
-            foreach (Unit unit in _slotUnits)
-            {
-                if (unit != null)
-                {
-                    units.Add(unit);
-                }
-            }
-
-            return units;
-        }
+        public List<Unit> GetParticipatingAllyUnits() => _state.GetParticipatingAllyUnits();
 
         /// <summary>
         /// 특정 행(front/mid/back)에 살아있는 아군만 반환합니다. CombatEffectExecutor의
         /// EffectTarget.FrontRow/MidRow/BackRow 해석에 사용합니다.
         /// </summary>
-        public List<Unit> GetAliveAlliesInRow(SlotRow row)
-        {
-            List<Unit> units = new List<Unit>();
-            for (int column = 0; column < SlotColumns; column++)
-            {
-                Unit unit = _slotUnits[column, (int)row];
-                if (unit != null && !unit.IsDead)
-                {
-                    units.Add(unit);
-                }
-            }
-
-            return units;
-        }
+        public List<Unit> GetAliveAlliesInRow(SlotRow row) => _state.GetAliveAlliesInRow(row);
 
         /// <summary>
         /// 유닛 id(GameDB 기준)로 현재 전투에 스폰된 아군 Unit을 찾습니다. 패시브 효과의
         /// Self 타겟(효과를 보유한 유닛 자신)을 해석할 때 사용합니다 — 소유는 하고 있지만
         /// 이번 전투 편성에는 없는 유닛이면 null을 반환합니다.
         /// </summary>
-        public Unit GetAllyUnitById(int unitId)
-        {
-            foreach (KeyValuePair<SlotKey, int> kvp in _spawnedFormation)
-            {
-                if (kvp.Value == unitId)
-                {
-                    return _slotUnits[kvp.Key.column, (int)kvp.Key.row];
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// 화면 하단 유닛 정보 패널에 현재 전투 중인 아군을 표시합니다.
-        /// 초상화는 스폰된 유닛의 SpriteRenderer에서, 이름은 UnitData에서 가져옵니다.
-        /// </summary>
-        private void PopulateUnitInfoPanel()
-        {
-            if (battleUnitInfoView == null)
-            {
-                return;
-            }
-
-            battleUnitInfoView.ClearUnitInfoItems();
-
-            foreach (KeyValuePair<SlotKey, int> kvp in _spawnedFormation)
-            {
-                Unit unit = _slotUnits[kvp.Key.column, (int)kvp.Key.row];
-                if (unit == null)
-                {
-                    continue;
-                }
-
-                BattleUnitInfoItemView item = battleUnitInfoView.CreateBattleUnitInfoItem();
-                if (item == null)
-                {
-                    continue;
-                }
-
-                SpriteRenderer spriteRenderer = unit.GetComponentInChildren<SpriteRenderer>();
-                if (spriteRenderer != null)
-                {
-                    item.SetPortrait(spriteRenderer.sprite);
-                }
-
-                if (_unitDataById.TryGetValue(kvp.Value, out UnitData data) && data != null)
-                {
-                    item.SetUnitName(data.name);
-                }
-            }
-
-            Sprite allyIconSprite = allyTemplatePrefab != null
-                ? allyTemplatePrefab.GetComponentInChildren<SpriteRenderer>(true)?.sprite
-                : null;
-
-            foreach (int unitId in supportFormation)
-            {
-                if (!_unitDataById.TryGetValue(unitId, out UnitData data) || data == null)
-                {
-                    continue;
-                }
-
-                SupportUnitInfoItemView item = battleUnitInfoView.CreateSupportUnitInfoItem();
-                if (item == null)
-                {
-                    continue;
-                }
-
-                item.SetPortrait(allyIconSprite);
-                if (item.PortraitImage != null)
-                {
-                    item.PortraitImage.color = data.color;
-                }
-
-                item.SetUnitName(data.name);
-            }
-        }
+        public Unit GetAllyUnitById(int unitId) => _state.GetAllyUnitById(unitId);
     }
 }

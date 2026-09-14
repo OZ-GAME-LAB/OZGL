@@ -160,15 +160,7 @@ namespace OzGameLab01.Controllers
                 }
 
                 UnitFormationCombatLink.TransferredUnit unit = supportUnits[slotIndex];
-
-                if (unit == null)
-                {
-                    SetEmptySupportCard(card);
-                }
-                else
-                {
-                    SetSupportCard(card, unit);
-                }
+                SetSupportCard(card, unit);
             }
         }
 
@@ -182,17 +174,15 @@ namespace OzGameLab01.Controllers
 
             int createdBattleCardCount = 0;
 
-            for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
+            for (int slotIndex = 0; slotIndex < BattleSlotCount && createdBattleCardCount < MaxBattleUnitCount; slotIndex++)
             {
                 UnitFormationCombatLink.TransferredUnit unit = battleUnits[slotIndex];
-
                 if (unit == null)
                 {
                     continue;
                 }
 
                 BattleUnitInfoItemView card = unitInfoView.CreateBattleUnitInfoItem();
-
                 if (card == null)
                 {
                     continue;
@@ -200,70 +190,52 @@ namespace OzGameLab01.Controllers
 
                 SetBattleCard(card, unit);
                 createdBattleCardCount++;
-
-                if (createdBattleCardCount >= MaxBattleUnitCount)
-                {
-                    break;
-                }
             }
 
             while (createdBattleCardCount < MaxBattleUnitCount)
             {
                 BattleUnitInfoItemView emptyCard = unitInfoView.CreateBattleUnitInfoItem();
-
                 if (emptyCard == null)
                 {
                     break;
                 }
 
-                SetEmptyBattleCard(emptyCard);
+                SetBattleCard(emptyCard, null);
                 createdBattleCardCount++;
             }
         }
 
+        /// <summary>
+        /// unit이 null이면 빈 카드로 표시합니다.
+        /// </summary>
         private void SetSupportCard(SupportUnitInfoItemView card, UnitFormationCombatLink.TransferredUnit unit)
         {
-            card.SetPortrait(unit.Sprite);
+            card.SetPortrait(unit?.Sprite);
 
-            if (card.PortraitImage != null)
+            if (unit != null && card.PortraitImage != null)
             {
                 card.PortraitImage.color = unit.Color;
             }
 
-            card.SetUnitName(unit.Data.name);
+            card.SetUnitName(unit != null ? unit.Data.name : string.Empty);
             card.SetSkillVisible(false);
             card.SetGraveVisible(false);
             card.Show();
         }
 
+        /// <summary>
+        /// unit이 null이면 빈 카드로 표시합니다.
+        /// </summary>
         private void SetBattleCard(BattleUnitInfoItemView card, UnitFormationCombatLink.TransferredUnit unit)
         {
-            card.SetPortrait(unit.Sprite);
+            card.SetPortrait(unit?.Sprite);
 
-            if (card.PortraitImage != null)
+            if (unit != null && card.PortraitImage != null)
             {
                 card.PortraitImage.color = unit.Color;
             }
 
-            card.SetUnitName(unit.Data.name);
-            card.SetSkillVisible(false);
-            card.SetGraveVisible(false);
-            card.Show();
-        }
-
-        private void SetEmptySupportCard(SupportUnitInfoItemView card)
-        {
-            card.SetPortrait(null);
-            card.SetUnitName(string.Empty);
-            card.SetSkillVisible(false);
-            card.SetGraveVisible(false);
-            card.Show();
-        }
-
-        private void SetEmptyBattleCard(BattleUnitInfoItemView card)
-        {
-            card.SetPortrait(null);
-            card.SetUnitName(string.Empty);
+            card.SetUnitName(unit != null ? unit.Data.name : string.Empty);
             card.SetSkillVisible(false);
             card.SetGraveVisible(false);
             card.Show();
