@@ -8,7 +8,7 @@ namespace OzGameLab01.UI.Battle
     /// 적 이름, 상태이상, 체력 UI를 관리하는 View입니다.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class BattleEnemyHeaderView : MonoBehaviour
+    public sealed class CombatEnemyHeaderView : MonoBehaviour
     {
         [SerializeField] private TMP_Text enemyNameText;
         [SerializeField] private Transform statusEffectRoot;

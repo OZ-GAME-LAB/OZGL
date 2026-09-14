@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace OzGameLab01.UI
 {
     [DisallowMultipleComponent]
-    public sealed class BattleInfoSkillItemView : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
+    public sealed class CombatInfoSkillItemView : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
     {
         [SerializeField] private Image skillIcon;
         [SerializeField] private GameObject hoverVisual;
@@ -17,12 +17,12 @@ namespace OzGameLab01.UI
         /// <summary>
         /// 스킬 아이템에 포인터가 진입했을 때 발생합니다.
         /// </summary>
-        public event Action<BattleInfoSkillItemView> HoverEntered;
+        public event Action<CombatInfoSkillItemView> HoverEntered;
 
         /// <summary>
         /// 스킬 아이템에서 포인터가 벗어났을 때 발생합니다.
         /// </summary>
-        public event Action<BattleInfoSkillItemView> HoverExited;
+        public event Action<CombatInfoSkillItemView> HoverExited;
 
         /// <summary>
         /// 현재 스킬 아이콘입니다.

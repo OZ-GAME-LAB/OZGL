@@ -80,7 +80,7 @@ namespace OzGameLab01.Controllers
             bool allyAlive = false;
             bool enemyAlive = false;
 
-            foreach (Unit unit in BattleUnitRegistry.Units)
+            foreach (Unit unit in CombatUnitRegistry.Units)
             {
                 if (unit == null || unit.IsDead)
                 {

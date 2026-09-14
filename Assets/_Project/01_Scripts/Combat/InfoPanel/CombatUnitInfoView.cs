@@ -4,24 +4,24 @@ using UnityEngine;
 namespace OzGameLab01.UI.Battle
 {
     [DisallowMultipleComponent]
-    public sealed class BattleUnitInfoView : MonoBehaviour
+    public sealed class CombatUnitInfoView : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private Transform unitInfoContentRoot;
-        [SerializeField] private BattleUnitInfoItemView battleUnitInfoItemPrefab;
-        [SerializeField] private BattleUnitInfoItemView supportUnitInfoItemPrefab;
+        [SerializeField] private CombatUnitInfoItemView battleUnitInfoItemPrefab;
+        [SerializeField] private CombatUnitInfoItemView supportUnitInfoItemPrefab;
 
-        private readonly List<BattleUnitInfoItemView> battleUnitInfoItems = new ();
-        private readonly List<BattleUnitInfoItemView> supportUnitInfoItems = new ();
+        private readonly List<CombatUnitInfoItemView> battleUnitInfoItems = new ();
+        private readonly List<CombatUnitInfoItemView> supportUnitInfoItems = new ();
 
         #region Properties
 
         public Transform UnitInfoContentRoot => unitInfoContentRoot;
 
-        public IReadOnlyList<BattleUnitInfoItemView> BattleUnitInfoItems =>
+        public IReadOnlyList<CombatUnitInfoItemView> BattleUnitInfoItems =>
             battleUnitInfoItems;
 
-        public IReadOnlyList<BattleUnitInfoItemView> SupportUnitInfoItems =>
+        public IReadOnlyList<CombatUnitInfoItemView> SupportUnitInfoItems =>
             supportUnitInfoItems;
 
         public bool IsVisible => gameObject.activeSelf;
@@ -40,28 +40,28 @@ namespace OzGameLab01.UI.Battle
             gameObject.SetActive(false);
         }
 
-        public BattleUnitInfoItemView CreateBattleUnitInfoItem()
+        public CombatUnitInfoItemView CreateBattleUnitInfoItem()
         {
             if (battleUnitInfoItemPrefab == null || unitInfoContentRoot == null)
             {
                 return null;
             }
 
-            BattleUnitInfoItemView item = Instantiate(battleUnitInfoItemPrefab,unitInfoContentRoot);
+            CombatUnitInfoItemView item = Instantiate(battleUnitInfoItemPrefab,unitInfoContentRoot);
 
             battleUnitInfoItems.Add(item);
 
             return item;
         }
 
-        public BattleUnitInfoItemView CreateSupportUnitInfoItem()
+        public CombatUnitInfoItemView CreateSupportUnitInfoItem()
         {
             if (supportUnitInfoItemPrefab == null || unitInfoContentRoot == null)
             {
                 return null;
             }
 
-            BattleUnitInfoItemView item = Instantiate(
+            CombatUnitInfoItemView item = Instantiate(
                 supportUnitInfoItemPrefab,
                 unitInfoContentRoot);
 
@@ -72,7 +72,7 @@ namespace OzGameLab01.UI.Battle
 
         public void ClearUnitInfoItems()
         {
-            foreach (BattleUnitInfoItemView item in battleUnitInfoItems)
+            foreach (CombatUnitInfoItemView item in battleUnitInfoItems)
             {
                 if (item != null)
                 {
@@ -80,7 +80,7 @@ namespace OzGameLab01.UI.Battle
                 }
             }
 
-            foreach (BattleUnitInfoItemView item in supportUnitInfoItems)
+            foreach (CombatUnitInfoItemView item in supportUnitInfoItems)
             {
                 if (item != null)
                 {

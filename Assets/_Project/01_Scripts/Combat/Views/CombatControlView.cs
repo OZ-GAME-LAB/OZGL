@@ -9,7 +9,7 @@ namespace OzGameLab01.UI.Battle
     /// 전투 제어 UI View입니다.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class BattleControlView : MonoBehaviour
+    public sealed class CombatControlView : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private Button speedButton;
@@ -23,8 +23,8 @@ namespace OzGameLab01.UI.Battle
 
         public bool IsVisible => gameObject.activeSelf;
 
-        public event Action<BattleControlView> SpeedClicked;
-        public event Action<BattleControlView> SettingsClicked;
+        public event Action<CombatControlView> SpeedClicked;
+        public event Action<CombatControlView> SettingsClicked;
 
         #endregion
 

@@ -13,7 +13,7 @@ namespace OzGameLab01.Combat
     /// </summary>
     public class AllySpawner
     {
-        private readonly BattleMainView battleMainView;
+        private readonly CombatMainView battleMainView;
         private readonly GameObject allyTemplatePrefab;
         private readonly Transform unitsRoot;
         private readonly Vector3 enemyPosition;
@@ -24,7 +24,7 @@ namespace OzGameLab01.Combat
         private readonly AllyUnitCombatHUDView allyHudPrefab;
 
         public AllySpawner(
-            BattleMainView battleMainView,
+            CombatMainView battleMainView,
             GameObject allyTemplatePrefab,
             Transform unitsRoot,
             Vector3 enemyPosition,

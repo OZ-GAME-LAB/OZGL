@@ -4,7 +4,7 @@ using UnityEngine;
 namespace OzGameLab01.UI.Battle
 {
     [DisallowMultipleComponent]
-    public sealed class BattleTimerView : MonoBehaviour
+    public sealed class CombatTimerView : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private TMP_Text timerText;

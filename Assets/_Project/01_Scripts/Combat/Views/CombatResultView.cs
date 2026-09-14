@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace OzGameLab01.UI.Battle
 {
     [DisallowMultipleComponent]
-    public sealed class BattleResultView : MonoBehaviour
+    public sealed class CombatResultView : MonoBehaviour
     {
         private const int MaxDpsInfoCount = 4;
 
@@ -34,7 +34,7 @@ namespace OzGameLab01.UI.Battle
 
         public bool IsVisible => gameObject.activeSelf;
 
-        public event Action<BattleResultView> EndBattleClicked;
+        public event Action<CombatResultView> EndBattleClicked;
 
         #endregion
 
@@ -133,7 +133,7 @@ namespace OzGameLab01.UI.Battle
 
             if (dpsInfoItems.Count >= MaxDpsInfoCount)
             {
-                Debug.LogWarning($"{nameof(BattleResultView)} can display up to {MaxDpsInfoCount} DPS entries.", this);
+                Debug.LogWarning($"{nameof(CombatResultView)} can display up to {MaxDpsInfoCount} DPS entries.", this);
 
                 return null;
             }

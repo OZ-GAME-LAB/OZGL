@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace OzGameLab01.UI
 {
     [DisallowMultipleComponent]
-    public sealed class BattleInfoView : MonoBehaviour
+    public sealed class CombatInfoView : MonoBehaviour
     {
         [Header("Enemy")]
         [SerializeField] private TMP_Text enemyNameText;
@@ -17,11 +17,11 @@ namespace OzGameLab01.UI
         [SerializeField] private Transform skillContentRoot;
 
         [SerializeField]
-        private BattleInfoSkillItemView skillItemPrefab;
+        private CombatInfoSkillItemView skillItemPrefab;
 
         [Header("Stat")]
         [SerializeField] private Transform statContentRoot;
-        [SerializeField] private BattleInfoStatItemView statItemPrefab;
+        [SerializeField] private CombatInfoStatItemView statItemPrefab;
 
         [Header("Skill Hover Info")]
         [SerializeField] private GameObject skillHoverInfoArea;
@@ -37,11 +37,11 @@ namespace OzGameLab01.UI
         [Header("Battle")]
         [SerializeField] private Button battleButton;
 
-        private readonly List<BattleInfoSkillItemView> skillItems = new();
-        private readonly List<BattleInfoStatItemView> statItems = new();
+        private readonly List<CombatInfoSkillItemView> skillItems = new();
+        private readonly List<CombatInfoStatItemView> statItems = new();
 
-        private BattleInfoSkillItemView hoveredSkillItem;
-        private BattleInfoStatItemView hoveredStatItem;
+        private CombatInfoSkillItemView hoveredSkillItem;
+        private CombatInfoStatItemView hoveredStatItem;
 
         private Action battleCallback;
 
@@ -116,14 +116,14 @@ namespace OzGameLab01.UI
         /// TMP Rich Text 문자열을 사용할 수 있습니다.
         /// </param>
         /// <returns>생성된 스킬 아이템 View입니다.</returns>
-        public BattleInfoSkillItemView AddSkill(Sprite icon,string title,string description)
+        public CombatInfoSkillItemView AddSkill(Sprite icon,string title,string description)
         {
             if (skillItemPrefab == null || skillContentRoot == null)
             {
                 return null;
             }
 
-            BattleInfoSkillItemView item = Instantiate(skillItemPrefab, skillContentRoot);
+            CombatInfoSkillItemView item = Instantiate(skillItemPrefab, skillContentRoot);
 
             item.Bind(icon, title, description);
 
@@ -148,14 +148,14 @@ namespace OzGameLab01.UI
         /// TMP Rich Text 문자열을 사용할 수 있습니다.
         /// </param>
         /// <returns>생성된 스탯 아이템 View입니다.</returns>
-        public BattleInfoStatItemView AddStat(Sprite icon,string value,string title,string description)
+        public CombatInfoStatItemView AddStat(Sprite icon,string value,string title,string description)
         {
             if (statItemPrefab == null || statContentRoot == null)
             {
                 return null;
             }
 
-            BattleInfoStatItemView item = Instantiate(statItemPrefab, statContentRoot);
+            CombatInfoStatItemView item = Instantiate(statItemPrefab, statContentRoot);
 
             item.Bind(icon, value, title, description);
 
@@ -178,7 +178,7 @@ namespace OzGameLab01.UI
 
             for (int i = 0; i < skillItems.Count; i++)
             {
-                BattleInfoSkillItemView item = skillItems[i];
+                CombatInfoSkillItemView item = skillItems[i];
 
                 if (item == null)
                 {
@@ -202,7 +202,7 @@ namespace OzGameLab01.UI
 
             for (int i = 0; i < statItems.Count; i++)
             {
-                BattleInfoStatItemView item = statItems[i];
+                CombatInfoStatItemView item = statItems[i];
 
                 if (item == null)
                 {
@@ -278,7 +278,7 @@ namespace OzGameLab01.UI
 
         #region Event Handlers
 
-        private void HandleSkillHoverEntered(BattleInfoSkillItemView item)
+        private void HandleSkillHoverEntered(CombatInfoSkillItemView item)
         {
             if (item == null)
             {
@@ -291,7 +291,7 @@ namespace OzGameLab01.UI
             ShowSkillDetail(item);
         }
 
-        private void HandleSkillHoverExited(BattleInfoSkillItemView item)
+        private void HandleSkillHoverExited(CombatInfoSkillItemView item)
         {
             if (hoveredSkillItem != item)
             {
@@ -302,7 +302,7 @@ namespace OzGameLab01.UI
             HideSkillDetail();
         }
 
-        private void HandleStatHoverEntered(BattleInfoStatItemView item)
+        private void HandleStatHoverEntered(CombatInfoStatItemView item)
         {
             if (item == null)
             {
@@ -315,7 +315,7 @@ namespace OzGameLab01.UI
             ShowStatDetail(item);
         }
 
-        private void HandleStatHoverExited(BattleInfoStatItemView item)
+        private void HandleStatHoverExited(CombatInfoStatItemView item)
         {
             if (hoveredStatItem != item)
             {
@@ -336,7 +336,7 @@ namespace OzGameLab01.UI
 
         #region Private Methods
 
-        private void ShowSkillDetail(BattleInfoSkillItemView item)
+        private void ShowSkillDetail(CombatInfoSkillItemView item)
         {
             if (skillDetailIcon != null)
             {
@@ -368,7 +368,7 @@ namespace OzGameLab01.UI
             }
         }
 
-        private void ShowStatDetail(BattleInfoStatItemView item)
+        private void ShowStatDetail(CombatInfoStatItemView item)
         {
             if (statDetailTitleText != null)
             {
@@ -410,7 +410,7 @@ namespace OzGameLab01.UI
             }
         }
 
-        private void SubscribeSkillItem(BattleInfoSkillItemView item)
+        private void SubscribeSkillItem(CombatInfoSkillItemView item)
         {
             if (item == null)
             {
@@ -421,7 +421,7 @@ namespace OzGameLab01.UI
             item.HoverExited += HandleSkillHoverExited;
         }
 
-        private void UnsubscribeSkillItem(BattleInfoSkillItemView item)
+        private void UnsubscribeSkillItem(CombatInfoSkillItemView item)
         {
             if (item == null)
             {
@@ -448,7 +448,7 @@ namespace OzGameLab01.UI
             }
         }
 
-        private void SubscribeStatItem(BattleInfoStatItemView item)
+        private void SubscribeStatItem(CombatInfoStatItemView item)
         {
             if (item == null)
             {
@@ -459,7 +459,7 @@ namespace OzGameLab01.UI
             item.HoverExited += HandleStatHoverExited;
         }
 
-        private void UnsubscribeStatItem(BattleInfoStatItemView item)
+        private void UnsubscribeStatItem(CombatInfoStatItemView item)
         {
             if (item == null)
             {

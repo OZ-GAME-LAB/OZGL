@@ -10,12 +10,12 @@ namespace OzGameLab01.Combat
     /// </summary>
     public sealed class EnemyHeaderPresenter
     {
-        private readonly BattleEnemyHeaderView headerView;
+        private readonly CombatEnemyHeaderView headerView;
         private readonly EnemySkillCooldownItemView skillCooldownView;
         private readonly StatusEffectItemView statusEffectView;
 
         public EnemyHeaderPresenter(
-            BattleEnemyHeaderView headerView,
+            CombatEnemyHeaderView headerView,
             EnemySkillCooldownItemView skillCooldownView,
             StatusEffectItemView statusEffectView)
         {

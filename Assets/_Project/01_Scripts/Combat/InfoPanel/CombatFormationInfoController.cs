@@ -10,7 +10,7 @@ namespace OzGameLab01.Controllers
     /// 배틀 UI의 3×3 슬롯과 하단 유닛 카드에 표시합니다.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class BattleFormationInfoController : MonoBehaviour
+    public sealed class CombatFormationInfoController : MonoBehaviour
     {
         private const int BattleSlotCount = 9;
         private const int MaxBattleUnitCount = 4;
@@ -19,7 +19,7 @@ namespace OzGameLab01.Controllers
         [Header("배틀 UI")]
         [SerializeField]
         [Tooltip("배틀 UI 전체 화면을 관리하는 View")]
-        private BattleUIView battleUIView;
+        private CombatUIView battleUIView;
 
         private readonly List<GameObject> createdSlotIcons = new List<GameObject>();
 
@@ -35,26 +35,26 @@ namespace OzGameLab01.Controllers
         {
             if (battleUIView == null)
             {
-                Debug.LogError("[BattleFormationInfoController] BattleUIView가 연결되지 않았습니다.", this);
+                Debug.LogError("[CombatFormationInfoController] BattleUIView가 연결되지 않았습니다.", this);
 
                 return;
             }
 
-            BattleMainView mainView = battleUIView.MainView;
+            CombatMainView mainView = battleUIView.MainView;
 
             if (mainView == null)
             {
-                Debug.LogError("[BattleFormationInfoController] BattleMainView가 연결되지 않았습니다.", this);
+                Debug.LogError("[CombatFormationInfoController] BattleMainView가 연결되지 않았습니다.", this);
 
                 return;
             }
 
-            BattleUnitInfoView unitInfoView =
+            CombatUnitInfoView unitInfoView =
                 mainView.UnitInfoView;
 
             if (unitInfoView == null)
             {
-                Debug.LogError("[BattleFormationInfoController] BattleUnitInfoView가 연결되지 않았습니다.", this);
+                Debug.LogError("[CombatFormationInfoController] BattleUnitInfoView가 연결되지 않았습니다.", this);
 
                 return;
             }
@@ -70,14 +70,14 @@ namespace OzGameLab01.Controllers
             CreateSupportCards(unitInfoView);
             CreateBattleCards(unitInfoView);
 
-            Debug.Log("[BattleFormationInfoController] 전투 및 서브 유닛 편성을 표시했습니다.", this);
+            Debug.Log("[CombatFormationInfoController] 전투 및 서브 유닛 편성을 표시했습니다.", this);
         }
 
         /// <summary>
         /// 전투 편성 인덱스 0~8과 동일한 회색 슬롯에
         /// 유닛 아이콘을 생성합니다.
         /// </summary>
-        private void CreateBattleSlotIcons(BattleMainView mainView)
+        private void CreateBattleSlotIcons(CombatMainView mainView)
         {
             IReadOnlyList<PlayerSlotItemView> slotViews = mainView.PlayerSlotViews;
 
@@ -143,18 +143,18 @@ namespace OzGameLab01.Controllers
         /// <summary>
         /// 하단 카드의 앞쪽 두 칸에 서브 유닛을 표시합니다.
         /// </summary>
-        private void CreateSupportCards(BattleUnitInfoView unitInfoView)
+        private void CreateSupportCards(CombatUnitInfoView unitInfoView)
         {
             IReadOnlyList<UnitFormationCombatLink.TransferredUnit>
                 supportUnits = UnitFormationCombatLink.SupportUnits;
 
             for (int slotIndex = 0; slotIndex < SupportSlotCount; slotIndex++)
             {
-                BattleUnitInfoItemView card = unitInfoView.CreateSupportUnitInfoItem();
+                CombatUnitInfoItemView card = unitInfoView.CreateSupportUnitInfoItem();
 
                 if (card == null)
                 {
-                    Debug.LogWarning("[BattleFormationInfoController] 서브 유닛 카드를 생성하지 못했습니다.", this);
+                    Debug.LogWarning("[CombatFormationInfoController] 서브 유닛 카드를 생성하지 못했습니다.", this);
 
                     continue;
                 }
@@ -167,7 +167,7 @@ namespace OzGameLab01.Controllers
         /// <summary>
         /// 하단 카드의 뒤쪽 네 칸에 전투 유닛을 표시합니다.
         /// </summary>
-        private void CreateBattleCards(BattleUnitInfoView unitInfoView)
+        private void CreateBattleCards(CombatUnitInfoView unitInfoView)
         {
             IReadOnlyList<UnitFormationCombatLink.TransferredUnit>
                 battleUnits = UnitFormationCombatLink.BattleUnits;
@@ -182,7 +182,7 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                BattleUnitInfoItemView card = unitInfoView.CreateBattleUnitInfoItem();
+                CombatUnitInfoItemView card = unitInfoView.CreateBattleUnitInfoItem();
                 if (card == null)
                 {
                     continue;
@@ -194,7 +194,7 @@ namespace OzGameLab01.Controllers
 
             while (createdBattleCardCount < MaxBattleUnitCount)
             {
-                BattleUnitInfoItemView emptyCard = unitInfoView.CreateBattleUnitInfoItem();
+                CombatUnitInfoItemView emptyCard = unitInfoView.CreateBattleUnitInfoItem();
                 if (emptyCard == null)
                 {
                     break;
@@ -208,7 +208,7 @@ namespace OzGameLab01.Controllers
         /// <summary>
         /// 전투/서브 카드 공용 표시 로직입니다. unit이 null이면 빈 카드로 표시합니다.
         /// </summary>
-        private void SetUnitInfoCard(BattleUnitInfoItemView card, UnitFormationCombatLink.TransferredUnit unit)
+        private void SetUnitInfoCard(CombatUnitInfoItemView card, UnitFormationCombatLink.TransferredUnit unit)
         {
             card.SetPortrait(unit?.Sprite);
 

@@ -7,23 +7,23 @@ namespace OzGameLab01.UI.Battle
     /// 전투 UI View입니다.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class BattleUIView : MonoBehaviour
+    public sealed class CombatUIView : MonoBehaviour
     {
         [Header("Views")]
-        [SerializeField] private BattleMainView mainView;
+        [SerializeField] private CombatMainView mainView;
         [SerializeField] private BattleRewardView rewardView;
-        [SerializeField] private BattleResultView resultView;
+        [SerializeField] private CombatResultView resultView;
 
         #region Properties
 
-        public BattleMainView MainView => mainView;
+        public CombatMainView MainView => mainView;
         public BattleRewardView RewardView => rewardView;
-        public BattleResultView ResultView => resultView;
+        public CombatResultView ResultView => resultView;
 
         public bool IsVisible => gameObject.activeSelf;
 
         public event Action<RewardOptionItemView> RewardSelected;
-        public event Action<BattleResultView> EndBattleClicked;
+        public event Action<CombatResultView> EndBattleClicked;
 
         #endregion
 
@@ -133,7 +133,7 @@ namespace OzGameLab01.UI.Battle
             RewardSelected?.Invoke(option);
         }
 
-        private void HandleEndBattleClicked(BattleResultView view)
+        private void HandleEndBattleClicked(CombatResultView view)
         {
             EndBattleClicked?.Invoke(view);
         }

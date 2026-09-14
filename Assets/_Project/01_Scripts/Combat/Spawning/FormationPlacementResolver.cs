@@ -26,7 +26,7 @@ namespace OzGameLab01.Combat
         }
 
         /// <summary>
-        /// Inspector 폴백 SlotKey를 BattleMainView.PlayerSlotViews의 0~8 인덱스로 역변환합니다.
+        /// Inspector 폴백 SlotKey를 CombatMainView.PlayerSlotViews의 0~8 인덱스로 역변환합니다.
         /// </summary>
         public static int SlotKeyToPlacementIndex(CombatManager.SlotKey slot)
         {

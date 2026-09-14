@@ -4,14 +4,14 @@ using UnityEngine;
 namespace OzGameLab01.UI.Battle
 {
     [DisallowMultipleComponent]
-    public sealed class BattleMainView : MonoBehaviour
+    public sealed class CombatMainView : MonoBehaviour
     {
-        [SerializeField] private BattleTimerView timerView;
+        [SerializeField] private CombatTimerView timerView;
 
         [Header("Sub Views")]
-        [SerializeField] private BattleEnemyHeaderView enemyHeaderView;
-        [SerializeField] private BattleControlView controlView;
-        [SerializeField] private BattleUnitInfoView unitInfoView;
+        [SerializeField] private CombatEnemyHeaderView enemyHeaderView;
+        [SerializeField] private CombatControlView controlView;
+        [SerializeField] private CombatUnitInfoView unitInfoView;
         [SerializeField] private BattleSynergyView synergyView;
         [SerializeField] private BattleArtifactView artifactView;
 
@@ -24,22 +24,22 @@ namespace OzGameLab01.UI.Battle
         #region Properties
 
         //제거 대상입니다, 컴파일 오류 때문에 임시로 남겨놓습니당
-        public BattleTimerView TimerView => timerView;
+        public CombatTimerView TimerView => timerView;
 
         /// <summary>
         /// 적 이름, 상태이상, 체력 UI를 관리하는 View입니다.
         /// </summary>
-        public BattleEnemyHeaderView EnemyHeaderView => enemyHeaderView;
+        public CombatEnemyHeaderView EnemyHeaderView => enemyHeaderView;
 
         /// <summary>
         /// 전투 제어 UI View입니다.
         /// </summary>
-        public BattleControlView ControlView => controlView;
+        public CombatControlView ControlView => controlView;
 
         /// <summary>
         /// 유닛 정보 UI View입니다.
         /// </summary>
-        public BattleUnitInfoView UnitInfoView => unitInfoView;
+        public CombatUnitInfoView UnitInfoView => unitInfoView;
 
         /// <summary>
         /// 시너지 UI View입니다.

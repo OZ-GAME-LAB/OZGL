@@ -8,7 +8,7 @@ namespace OzGameLab01.UI.Battle
     /// 전투 유닛 정보 UI View입니다.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class BattleUnitInfoItemView : MonoBehaviour
+    public sealed class CombatUnitInfoItemView : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private Image portraitImage;

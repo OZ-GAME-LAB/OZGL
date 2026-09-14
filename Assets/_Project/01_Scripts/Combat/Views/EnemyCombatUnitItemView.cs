@@ -4,27 +4,20 @@ using UnityEngine.UI;
 namespace OzGameLab01.UI.Battle
 {
     [DisallowMultipleComponent]
-    public sealed class PlayerBattleUnitItemView : MonoBehaviour
+    public sealed class EnemyCombatUnitItemView : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private Transform visualRoot;
         [SerializeField] private Image unitImage;
         [SerializeField] private Image healthFillImage;
         [SerializeField] private Image manaFillImage;
-
-        [Header("Effect Anchors")]
-        [SerializeField] private GameObject anchorRoot;
-        [SerializeField] private Transform projectileAnchor;
-        [SerializeField] private Transform hitEffectAnchor;
-        [SerializeField] private Transform skillEffectAnchor;
+        [SerializeField] private Transform statusEffectRoot;
 
         #region Properties
 
         public Transform VisualRoot => visualRoot;
         public Image UnitImage => unitImage;
-        public Transform ProjectileAnchor => projectileAnchor;
-        public Transform HitEffectAnchor => hitEffectAnchor;
-        public Transform SkillEffectAnchor => skillEffectAnchor;
+        public Transform StatusEffectRoot => statusEffectRoot;
 
         public bool IsVisible => gameObject.activeSelf;
 
@@ -71,11 +64,11 @@ namespace OzGameLab01.UI.Battle
             }
         }
 
-        public void SetEffectAnchorsVisible(bool value)
+        public void SetStatusEffectRootVisible(bool value)
         {
-            if (anchorRoot != null)
+            if (statusEffectRoot != null)
             {
-                anchorRoot.SetActive(value);
+                statusEffectRoot.gameObject.SetActive(value);
             }
         }
 

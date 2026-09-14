@@ -7,7 +7,7 @@ namespace OzGameLab01.Combat
     /// Unit이 자신의 생명주기(Awake/OnDisable/OnDestroy/Die)에서 스스로 등록·해제하고,
     /// 승패를 판정하는 쪽(CombatSceneController 등)은 Units로 읽기 전용 조회만 합니다.
     /// </summary>
-    public static class BattleUnitRegistry
+    public static class CombatUnitRegistry
     {
         private static readonly List<Unit> _units = new List<Unit>();
 

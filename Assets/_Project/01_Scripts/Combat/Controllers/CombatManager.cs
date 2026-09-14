@@ -44,7 +44,7 @@ namespace OzGameLab01.Combat
         [SerializeField] private AllyUnitCombatHUDView allyHudPrefab;
 
         [Header("플레이어 전투 슬롯")]
-        [SerializeField] private BattleMainView battleMainView;
+        [SerializeField] private CombatMainView battleMainView;
 
         [Tooltip("유닛 id별 프리팹/트레이트, 시너지 발동 정의. 로스터 준비 화면과 공유하는 데이터입니다.")]
         [SerializeField] private UnitRosterData rosterData;
@@ -68,7 +68,7 @@ namespace OzGameLab01.Combat
         private AllySpawner _allySpawner;
         private SynergyController _synergyController;
         private CombatEffectExecutor _combatEffectExecutor;
-        private BattleEffectFeedbackView _feedbackView;
+        private CombatEffectFeedbackView _feedbackView;
         private EnemyHeaderPresenter _enemyHeaderPresenter;
 
         public void ReportFeedback(CombatFeedback feedback)
@@ -83,17 +83,17 @@ namespace OzGameLab01.Combat
             Instance = this;
             // 정적 상태라 실기기 빌드에서는 씬 전환만으로 비워지지 않는다.
             // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.
-            BattleUnitRegistry.Clear();
+            CombatUnitRegistry.Clear();
             PassiveEventBus.ResetRunState();
             //  씬/프리팹에서 직접 연결하지 못한 경우 비활성 BattleUI까지 포함해 자동으로 찾기
             if (battleMainView == null)
             {
-                battleMainView = FindFirstObjectByType<BattleMainView>(FindObjectsInactive.Include);
+                battleMainView = FindFirstObjectByType<CombatMainView>(FindObjectsInactive.Include);
             }
-            // BattleMainView 아래에 런타임 투사체 풀은 한번만 생성
+            // CombatMainView 아래에 런타임 투사체 풀은 한번만 생성
             if (battleMainView != null)
             {
-                _feedbackView = BattleEffectFeedbackView.Create(battleMainView);
+                _feedbackView = CombatEffectFeedbackView.Create(battleMainView);
                 _uiProjectilePool = battleMainView.GetComponentInChildren<UIProjectilePool>(true);
                 if (_uiProjectilePool == null)
                 {
@@ -125,7 +125,7 @@ namespace OzGameLab01.Combat
             // 초기값(0)만 보이던 상태였습니다.
             if (battleMainView != null)
             {
-                BattleEnemyHeaderView enemyHeaderView = battleMainView.EnemyHeaderView;
+                CombatEnemyHeaderView enemyHeaderView = battleMainView.EnemyHeaderView;
                 EnemySkillCooldownItemView enemySkillCooldownView =
                     battleMainView.GetComponentInChildren<EnemySkillCooldownItemView>(true);
                 StatusEffectItemView enemyStatusEffectView =

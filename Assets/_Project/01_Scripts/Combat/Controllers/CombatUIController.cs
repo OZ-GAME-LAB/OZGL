@@ -10,10 +10,10 @@ using OzGameLab01.Managers;
 
 namespace OzGameLab01.Controllers
 {
-    public class BattleUIController : MonoBehaviour
+    public class CombatUIController : MonoBehaviour
     {
         [Header("Views (UI 연결)")]
-        public BattleUIView battleUIView;
+        public CombatUIView battleUIView;
         public SettingsView settingsView;
         public ConfirmPopupView surrenderPopup;
 
@@ -21,8 +21,8 @@ namespace OzGameLab01.Controllers
         public CombatSceneController combatSceneController;
 
         // 인스펙터 연결 여부와 무관하게 직접 물고 있을 숨겨진 뷰들
-        private BattleControlView _controlView;
-        private BattleTimerView _timerView;
+        private CombatControlView _controlView;
+        private CombatTimerView _timerView;
         
         private float _battleTimer = 0f;
         private bool _rewardApplied;
@@ -33,20 +33,20 @@ namespace OzGameLab01.Controllers
             // 이벤트 시스템 체크 (버튼 클릭 불가 원인 1순위)
             if (EventSystem.current == null)
             {
-                Debug.LogWarning("[BattleUIController] 씬에 EventSystem이 없습니다! UI 버튼이 작동하지 않습니다. EventSystem을 추가해주세요.");
+                Debug.LogWarning("[CombatUIController] 씬에 EventSystem이 없습니다! UI 버튼이 작동하지 않습니다. EventSystem을 추가해주세요.");
             }
 
             // 1. 최상단 UI 및 컨트롤러들을 찾습니다.
-            if (battleUIView == null) battleUIView = FindFirstObjectByType<BattleUIView>(FindObjectsInactive.Include);
+            if (battleUIView == null) battleUIView = FindFirstObjectByType<CombatUIView>(FindObjectsInactive.Include);
             if (settingsView == null) settingsView = FindFirstObjectByType<SettingsView>(FindObjectsInactive.Include);
             if (surrenderPopup == null) surrenderPopup = FindFirstObjectByType<ConfirmPopupView>(FindObjectsInactive.Include);
             if (combatSceneController == null) combatSceneController = FindFirstObjectByType<CombatSceneController>(FindObjectsInactive.Include);
 
-            // 2. BattleUIView 내부 깊숙이 있는 컨트롤 뷰와 타이머 뷰를 직접 찾아냅니다!
+            // 2. CombatUIView 내부 깊숙이 있는 컨트롤 뷰와 타이머 뷰를 직접 찾아냅니다!
             if (battleUIView != null)
             {
-                _controlView = battleUIView.GetComponentInChildren<BattleControlView>(true);
-                _timerView = battleUIView.GetComponentInChildren<BattleTimerView>(true);
+                _controlView = battleUIView.GetComponentInChildren<CombatControlView>(true);
+                _timerView = battleUIView.GetComponentInChildren<CombatTimerView>(true);
             }
         }
 
@@ -134,7 +134,7 @@ namespace OzGameLab01.Controllers
 
         #region 버튼 클릭 이벤트 처리
 
-        private void HandleSpeedClicked(BattleControlView view)
+        private void HandleSpeedClicked(CombatControlView view)
         {
             _isFastForward = !_isFastForward; // 상태 토글 (1배속 <-> 2배속)
 
@@ -155,7 +155,7 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void HandleSettingsClicked(BattleControlView view)
+        private void HandleSettingsClicked(CombatControlView view)
         {
             combatSceneController?.SetPaused(true);
             settingsView?.Show();
@@ -192,7 +192,7 @@ namespace OzGameLab01.Controllers
             surrenderPopup?.Hide();
         }
 
-        private void HandleEndBattleClicked(BattleResultView view)
+        private void HandleEndBattleClicked(CombatResultView view)
         {
             if (combatSceneController != null)
             {

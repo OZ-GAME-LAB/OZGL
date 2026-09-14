@@ -9,7 +9,7 @@ namespace OzGameLab01.UI.Battle
     /// Bounded, non-interactive combat feedback. Uses battle time so pause/speed controls
     /// also control the feedback. Attached before startup effects; no prefab wiring needed.
     /// </summary>
-    public sealed class BattleEffectFeedbackView : MonoBehaviour
+    public sealed class CombatEffectFeedbackView : MonoBehaviour
     {
         private const int MaxEntries = 5;
         private const int MaxMarkers = 12;
@@ -41,13 +41,13 @@ namespace OzGameLab01.UI.Battle
         private GameObject _panel;
         private Font _font;
 
-        public static BattleEffectFeedbackView Create(BattleMainView mainView)
+        public static CombatEffectFeedbackView Create(CombatMainView mainView)
         {
-            var existing = mainView.GetComponentInChildren<BattleEffectFeedbackView>(true);
+            var existing = mainView.GetComponentInChildren<CombatEffectFeedbackView>(true);
             if (existing != null) return existing;
             var go = new GameObject("BattleEffectFeedback", typeof(RectTransform));
             go.transform.SetParent(mainView.transform, false);
-            var view = go.AddComponent<BattleEffectFeedbackView>();
+            var view = go.AddComponent<CombatEffectFeedbackView>();
             view.Initialize();
             return view;
         }

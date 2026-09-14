@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace OzGameLab01.UI
 {
     [DisallowMultipleComponent]
-    public sealed class BattleInfoStatItemView : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
+    public sealed class CombatInfoStatItemView : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler
     {
         [SerializeField] private Image statIcon;
         [SerializeField] private TMP_Text valueText;
@@ -18,12 +18,12 @@ namespace OzGameLab01.UI
         /// <summary>
         /// 스탯 아이템에 포인터가 진입했을 때 발생합니다.
         /// </summary>
-        public event Action<BattleInfoStatItemView> HoverEntered;
+        public event Action<CombatInfoStatItemView> HoverEntered;
 
         /// <summary>
         /// 스탯 아이템에서 포인터가 벗어났을 때 발생합니다.
         /// </summary>
-        public event Action<BattleInfoStatItemView> HoverExited;
+        public event Action<CombatInfoStatItemView> HoverExited;
 
         /// <summary>
         /// 현재 스탯 아이콘입니다.
