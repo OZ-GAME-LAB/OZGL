@@ -96,7 +96,7 @@ MonoBehaviour:
     shadowExpand: 0.02
     outerShadowExpand: 0.025
     shadowOffsetX: 0
-    shadowOffsetY: -0.015
+    shadowOffsetY: 0.015
   - layerColor: {r: 0.9997758, g: 1, b: 0.9882353, a: 1}
     shadowColor: {r: 1, g: 1, b: 1, a: 0.7294118}
     holeRadius: 0.28

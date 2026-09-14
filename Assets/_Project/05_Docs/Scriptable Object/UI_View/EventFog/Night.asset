@@ -39,8 +39,8 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   layers:
-  - layerColor: {r: 0, g: 0, b: 0, a: 0.5882353}
-    shadowColor: {r: 0.4627451, g: 0.4627451, b: 0.4627451, a: 0.101960786}
+  - layerColor: {r: 0.31132078, g: 0.31132078, b: 0.31132078, a: 0.9607843}
+    shadowColor: {r: 0.2264151, g: 0.2264151, b: 0.2264151, a: 0.25490198}
     holeRadius: 0.13
     innerSoftness: 0.0015
     outerRadius: 0.47
@@ -68,8 +68,8 @@ MonoBehaviour:
     outerShadowExpand: 0.025
     shadowOffsetX: 0
     shadowOffsetY: -0.1
-  - layerColor: {r: 0.25490198, g: 0.25490198, b: 0.25490198, a: 0.78431374}
-    shadowColor: {r: 0, g: 0, b: 0, a: 0.16862746}
+  - layerColor: {r: 0.25490198, g: 0.25490198, b: 0.25490198, a: 0.9019608}
+    shadowColor: {r: 0.1509434, g: 0.1509434, b: 0.1509434, a: 0.4392157}
     holeRadius: 0.19
     innerSoftness: 0.001
     outerRadius: 0.8
@@ -93,11 +93,11 @@ MonoBehaviour:
     outerWobbleStrength: 0.012
     wobbleScale: 6
     noiseDrift: 0.02
-    shadowExpand: 0.02
+    shadowExpand: 0.2
     outerShadowExpand: 0.025
     shadowOffsetX: 0
-    shadowOffsetY: -0.03
-  - layerColor: {r: 0.54901963, g: 0.54901963, b: 0.54901963, a: 1}
+    shadowOffsetY: 0.03
+  - layerColor: {r: 0.41509432, g: 0.41509432, b: 0.41509432, a: 1}
     shadowColor: {r: 0.2, g: 0.2, b: 0.2, a: 0.101960786}
     holeRadius: 0.24
     innerSoftness: 0.001

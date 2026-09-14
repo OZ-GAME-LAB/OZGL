@@ -136,6 +136,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b648d693116cb334dae1dceaa0e8a118, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.BoardSightEffectView
+  boardCamera: {fileID: 0}
+  player: {fileID: 0}
+  boardPlane: {fileID: 0}
+  worldUnitsPerPresetUnit: 20
+  radiusScale: 1
   canvasGroup: {fileID: 7683088428859615362}
   sightRect: {fileID: 5785666769051535056}
   fogBaseMaterial: {fileID: 2100000, guid: 1f97b2a17a12a5f4c87939e9e0c3664c, type: 2}
@@ -151,7 +156,7 @@ MonoBehaviour:
     shadowImage: {fileID: 2451406787324959232}
   - layerImage: {fileID: 8818107278735836909}
     shadowImage: {fileID: 7477302059614732147}
-  initialState: 0
+  initialState: 1
   state1Preset: {fileID: 11400000, guid: 9c722855cdcd0b9449b377362f19166b, type: 2}
   state2Preset: {fileID: 11400000, guid: 51d87543e2b6ae140ab57b7feaa1f6b2, type: 2}
   state3Preset: {fileID: 11400000, guid: c3f24e913f66e4641a04b7158160aa8d, type: 2}
