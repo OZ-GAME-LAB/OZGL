@@ -7,7 +7,7 @@ public static class RelicFactory
     {
         return relicLogic switch
         {
-            "AllAtkOne" => new AllUnitAtkPlusOne(),
+            
             _ => null
         };
     }

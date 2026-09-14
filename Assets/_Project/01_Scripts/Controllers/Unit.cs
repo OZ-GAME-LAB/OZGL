@@ -183,7 +183,7 @@ namespace OzGameLab01.Combat
             // 아군이 공격할 때만 유물의 공격 트리거를 발동시킨다(유물은 플레이어 소유 시스템).
             if (team == Team.Ally)
             {
-                RelicManager.Instance?.DispatchAttack();
+                BattleEffectCoordinator.Instance?.DispatchAttack();
             }
 
             _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, damage);
