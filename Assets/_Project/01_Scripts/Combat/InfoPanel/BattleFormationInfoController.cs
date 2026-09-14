@@ -150,7 +150,7 @@ namespace OzGameLab01.Controllers
 
             for (int slotIndex = 0; slotIndex < SupportSlotCount; slotIndex++)
             {
-                SupportUnitInfoItemView card = unitInfoView.CreateSupportUnitInfoItem();
+                BattleUnitInfoItemView card = unitInfoView.CreateSupportUnitInfoItem();
 
                 if (card == null)
                 {
@@ -160,7 +160,7 @@ namespace OzGameLab01.Controllers
                 }
 
                 UnitFormationCombatLink.TransferredUnit unit = supportUnits[slotIndex];
-                SetSupportCard(card, unit);
+                SetUnitInfoCard(card, unit);
             }
         }
 
@@ -188,7 +188,7 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                SetBattleCard(card, unit);
+                SetUnitInfoCard(card, unit);
                 createdBattleCardCount++;
             }
 
@@ -200,33 +200,15 @@ namespace OzGameLab01.Controllers
                     break;
                 }
 
-                SetBattleCard(emptyCard, null);
+                SetUnitInfoCard(emptyCard, null);
                 createdBattleCardCount++;
             }
         }
 
         /// <summary>
-        /// unit이 null이면 빈 카드로 표시합니다.
+        /// 전투/서브 카드 공용 표시 로직입니다. unit이 null이면 빈 카드로 표시합니다.
         /// </summary>
-        private void SetSupportCard(SupportUnitInfoItemView card, UnitFormationCombatLink.TransferredUnit unit)
-        {
-            card.SetPortrait(unit?.Sprite);
-
-            if (unit != null && card.PortraitImage != null)
-            {
-                card.PortraitImage.color = unit.Color;
-            }
-
-            card.SetUnitName(unit != null ? unit.Data.name : string.Empty);
-            card.SetSkillVisible(false);
-            card.SetGraveVisible(false);
-            card.Show();
-        }
-
-        /// <summary>
-        /// unit이 null이면 빈 카드로 표시합니다.
-        /// </summary>
-        private void SetBattleCard(BattleUnitInfoItemView card, UnitFormationCombatLink.TransferredUnit unit)
+        private void SetUnitInfoCard(BattleUnitInfoItemView card, UnitFormationCombatLink.TransferredUnit unit)
         {
             card.SetPortrait(unit?.Sprite);
 

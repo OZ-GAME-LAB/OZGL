@@ -9,10 +9,10 @@ namespace OzGameLab01.UI.Battle
         [Header("References")]
         [SerializeField] private Transform unitInfoContentRoot;
         [SerializeField] private BattleUnitInfoItemView battleUnitInfoItemPrefab;
-        [SerializeField] private SupportUnitInfoItemView supportUnitInfoItemPrefab;
+        [SerializeField] private BattleUnitInfoItemView supportUnitInfoItemPrefab;
 
         private readonly List<BattleUnitInfoItemView> battleUnitInfoItems = new ();
-        private readonly List<SupportUnitInfoItemView> supportUnitInfoItems = new ();
+        private readonly List<BattleUnitInfoItemView> supportUnitInfoItems = new ();
 
         #region Properties
 
@@ -21,7 +21,7 @@ namespace OzGameLab01.UI.Battle
         public IReadOnlyList<BattleUnitInfoItemView> BattleUnitInfoItems =>
             battleUnitInfoItems;
 
-        public IReadOnlyList<SupportUnitInfoItemView> SupportUnitInfoItems =>
+        public IReadOnlyList<BattleUnitInfoItemView> SupportUnitInfoItems =>
             supportUnitInfoItems;
 
         public bool IsVisible => gameObject.activeSelf;
@@ -54,14 +54,14 @@ namespace OzGameLab01.UI.Battle
             return item;
         }
 
-        public SupportUnitInfoItemView CreateSupportUnitInfoItem()
+        public BattleUnitInfoItemView CreateSupportUnitInfoItem()
         {
             if (supportUnitInfoItemPrefab == null || unitInfoContentRoot == null)
             {
                 return null;
             }
 
-            SupportUnitInfoItemView item = Instantiate(
+            BattleUnitInfoItemView item = Instantiate(
                 supportUnitInfoItemPrefab,
                 unitInfoContentRoot);
 
@@ -80,7 +80,7 @@ namespace OzGameLab01.UI.Battle
                 }
             }
 
-            foreach (SupportUnitInfoItemView item in supportUnitInfoItems)
+            foreach (BattleUnitInfoItemView item in supportUnitInfoItems)
             {
                 if (item != null)
                 {
