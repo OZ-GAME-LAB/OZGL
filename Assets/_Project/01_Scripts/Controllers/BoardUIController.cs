@@ -36,6 +36,12 @@ namespace OzGameLab01.Controllers
         private Coroutine _automaticRollViewRoutine;
         private Coroutine _timeOfDayFeedbackRoutine;
         private bool _isMapPresentationReady;
+        private BoardFeedbackView _feedbackView;
+
+        private void Awake()
+        {
+            _feedbackView = new BoardFeedbackView(resultText, warningText);
+        }
 
         private void Start()
         {
@@ -251,8 +257,7 @@ namespace OzGameLab01.Controllers
             if (view == null || !view.IsVisible)
                 return;
 
-            if (resultText != null)
-                resultText.text = "?";
+            _feedbackView.SetDiceResult("?");
 
             view.SetInteractable(false);
 
@@ -261,16 +266,14 @@ namespace OzGameLab01.Controllers
                 if (view == null || !view.IsVisible)
                     return;
 
-                if (resultText != null)
-                    resultText.text = result.ToString();
+                _feedbackView.SetDiceResult(result.ToString());
 
                 StartCoroutine(CloseRollViewRoutine());
             });
 
             if (!started)
             {
-                if (resultText != null)
-                    resultText.text = diceValue.ToString();
+                _feedbackView.SetDiceResult(diceValue.ToString());
 
                 StartCoroutine(CloseRollViewRoutine());
             }
@@ -408,7 +411,7 @@ namespace OzGameLab01.Controllers
             }
 
             readySceneView.HideAllOverlayViews();
-            if (resultText != null) resultText.text = "?";
+            _feedbackView.SetDiceResult("?");
             readySceneView.RollView.SetInteractable(true);
             readySceneView.ShowRollView();
             return true;
@@ -418,9 +421,7 @@ namespace OzGameLab01.Controllers
         {
             if (warningText != null)
             {
-                warningText.text = message;
-                warningText.color = Color.red;
-                warningText.gameObject.SetActive(true);
+                _feedbackView.ShowWarning(message);
 
                 StopCoroutine("HideWarningRoutine");
                 StartCoroutine("HideWarningRoutine");
@@ -430,7 +431,7 @@ namespace OzGameLab01.Controllers
         private System.Collections.IEnumerator HideWarningRoutine()
         {
             yield return new WaitForSeconds(warningTextDuration);
-            if (warningText != null) warningText.gameObject.SetActive(false);
+            _feedbackView.HideWarning();
         }
 
         private System.Collections.IEnumerator CloseRollViewRoutine()

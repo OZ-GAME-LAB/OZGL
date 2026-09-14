@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using OzGameLab01.Data;
-using OzGameLab01.Interfaces;
 
 namespace OzGameLab01.Managers
 {
@@ -9,10 +8,6 @@ namespace OzGameLab01.Managers
     {
         // 전체 보유 유물 목록
         private readonly List<RelicRuntimeInstance> _allRelics = new();
-
-        // 이벤트별 유물 분류 목록
-        private readonly List<IAttackTriggerRelic> _attackRelics = new();
-        private readonly List<IDiceTriggerRelic> _diceRelics = new();
 
         public IReadOnlyList<RelicRuntimeInstance> OwnedRelics => _allRelics;
 
@@ -33,8 +28,6 @@ namespace OzGameLab01.Managers
             // 2. 런타임 인스턴스 생성, 장착
             var newInstance = new RelicRuntimeInstance(relicData);
             _allRelics.Add(newInstance);
-            RegisterRuntimeRelic(newInstance);
-            newInstance.OnEquip();
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
 
             SaveManager.Instance?.MarkAsDirty();
@@ -113,8 +106,7 @@ namespace OzGameLab01.Managers
         /// <param name="saveEntries"></param>
         public void RestoreFromSave(List<RelicSaveEntry> saveEntries)
         {
-            //_allRelics.Clear();
-            // [수정] 보유 목록뿐 아니라 이전 런의 공격 및 주사위 발동 목록도 함께 초기화
+            // [수정] 보유 목록을 이전 런 상태로부터 초기화
             ClearRunState();
 
             foreach (var entry in saveEntries)
@@ -122,9 +114,7 @@ namespace OzGameLab01.Managers
                 RelicData data = RuntimeDataManager.Instance.GetRelic(entry.relicId);
                 if (data == null) continue;
 
-                var runtime = new RelicRuntimeInstance(data);
-                _allRelics.Add(runtime);
-                runtime.OnEquip();
+                _allRelics.Add(new RelicRuntimeInstance(data));
             }
 
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
@@ -136,43 +126,8 @@ namespace OzGameLab01.Managers
         public void ClearRunState()
         {
             _allRelics.Clear();
-            _attackRelics.Clear();
-            _diceRelics.Clear();
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
         }
-
-        /// <summary>
-        /// 유물 분류 메서드
-        /// </summary>
-        /// <param name="instance"></param>
-        public void RegisterRuntimeRelic(RelicRuntimeInstance instance)
-        {
-            if (instance.Logic is IAttackTriggerRelic attackRelic)
-                _attackRelics.Add(attackRelic);
-
-            if (instance.Logic is IDiceTriggerRelic diceRelic)
-                _diceRelics.Add(diceRelic);
-        }
-
-        #region 이벤트 별 디스패치 루프
-        public void DispatchAttack()
-        {
-            int count = _attackRelics.Count;
-            for (int i = 0; i < count; i++)
-            {
-                _attackRelics[i].OnAttack();
-            }
-        }
-
-        public void DispatchDiceRoll()
-        {
-            int count = _diceRelics.Count;
-            for (int i = 0; i < count; i++)
-            {
-                _diceRelics[i].OnDiceRolled();
-            }
-        }
-        #endregion
     }
 }
 
