@@ -1,10 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using OzGameLab01.Data;
-using OzGameLab01.Interfaces;
-// 공용 트리거 인터페이스 전환 전 임시 호환 별칭
-using IAttackTriggerRelic = OzGameLab01.Interfaces.IAttackTrigger;
-using IDiceTriggerRelic = OzGameLab01.Interfaces.IDiceRollTrigger;
+using OzGameLab01.Effects.Models;
 
 namespace OzGameLab01.Managers
 {
@@ -13,9 +10,7 @@ namespace OzGameLab01.Managers
         // 전체 보유 유물 목록
         private readonly List<RelicRuntimeInstance> _allRelics = new();
 
-        // 이벤트별 유물 분류 목록
-        private readonly List<IAttackTriggerRelic> _attackRelics = new();
-        private readonly List<IDiceTriggerRelic> _diceRelics = new();
+        private readonly EffectListenerRegistry _listeners = new EffectListenerRegistry();
 
         public IReadOnlyList<RelicRuntimeInstance> OwnedRelics => _allRelics;
 
@@ -117,7 +112,6 @@ namespace OzGameLab01.Managers
         /// <param name="saveEntries"></param>
         public void RestoreFromSave(List<RelicSaveEntry> saveEntries)
         {
-            //_allRelics.Clear();
             // [수정] 보유 목록뿐 아니라 이전 런의 공격 및 주사위 발동 목록도 함께 초기화
             ClearRunState();
 
@@ -140,8 +134,7 @@ namespace OzGameLab01.Managers
         public void ClearRunState()
         {
             _allRelics.Clear();
-            _attackRelics.Clear();
-            _diceRelics.Clear();
+            _listeners.ClearAllListeners();
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
         }
 
@@ -151,32 +144,17 @@ namespace OzGameLab01.Managers
         /// <param name="instance"></param>
         public void RegisterRuntimeRelic(RelicRuntimeInstance instance)
         {
-            if (instance.Logic is IAttackTriggerRelic attackRelic)
-                _attackRelics.Add(attackRelic);
-
-            if (instance.Logic is IDiceTriggerRelic diceRelic)
-                _diceRelics.Add(diceRelic);
+            _listeners.RegisterListener(instance?.Logic);
         }
 
-        #region 이벤트 별 디스패치 루프
         public void DispatchAttack()
         {
-            int count = _attackRelics.Count;
-            for (int i = 0; i < count; i++)
-            {
-                _attackRelics[i].OnAttack();
-            }
+            _listeners.DispatchAttack();
         }
 
         public void DispatchDiceRoll()
         {
-            int count = _diceRelics.Count;
-            for (int i = 0; i < count; i++)
-            {
-                _diceRelics[i].OnDiceRolled();
-            }
+            _listeners.DispatchDiceRoll();
         }
-        // 이벤트 디스패치 영역 종료 지시문 누락 보완
-        #endregion
     }
 }
