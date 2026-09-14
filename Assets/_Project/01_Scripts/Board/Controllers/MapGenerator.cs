@@ -886,6 +886,8 @@ namespace OzGameLab01.Map
             if (tileView != null)
             {
                 tileView.Init(node);
+                // 생성 및 교체 타일의 입력 수신자 연결
+                tileView.BindInput(OzGameLab01.Controllers.BoardPlayerController.Instance);
             }
 
             if (animateScale)
