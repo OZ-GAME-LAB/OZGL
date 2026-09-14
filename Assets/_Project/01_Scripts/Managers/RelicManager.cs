@@ -10,10 +10,6 @@ namespace OzGameLab01.Managers
         // 전체 보유 유물 목록
         private readonly List<RelicRuntimeInstance> _allRelics = new();
 
-        // 이벤트별 유물 분류 목록
-        private readonly List<IAttackTriggerRelic> _attackRelics = new();
-        private readonly List<IDiceTriggerRelic> _diceRelics = new();
-
         /// <summary>
         /// GameDB의 ID 기반 유물 획득
         /// </summary>
@@ -31,7 +27,8 @@ namespace OzGameLab01.Managers
             // 2. 런타임 인스턴스 생성, 장착
             var newInstance = new RelicRuntimeInstance(relicData);
             _allRelics.Add(newInstance);
-            RegisterRuntimeRelic(newInstance);
+
+
             newInstance.OnEquip();
 
             SaveManager.Instance?.MarkAsDirty();
@@ -64,42 +61,7 @@ namespace OzGameLab01.Managers
         public void ClearRunState()
         {
             _allRelics.Clear();
-            _attackRelics.Clear();
-            _diceRelics.Clear();
         }
-
-        /// <summary>
-        /// 유물 분류 메서드
-        /// </summary>
-        /// <param name="instance"></param>
-        public void RegisterRuntimeRelic(RelicRuntimeInstance instance)
-        {
-            if (instance.Logic is IAttackTriggerRelic attackRelic)
-                _attackRelics.Add(attackRelic);
-
-            if (instance.Logic is IDiceTriggerRelic diceRelic)
-                _diceRelics.Add(diceRelic);
-        }
-
-        #region 이벤트 별 디스패치 루프
-        public void DispatchAttack()
-        {
-            int count = _attackRelics.Count;
-            for (int i = 0; i < count; i++)
-            {
-                _attackRelics[i].OnAttack();
-            }
-        }
-
-        public void DispatchDiceRoll()
-        {
-            int count = _diceRelics.Count;
-            for (int i = 0; i < count; i++)
-            {
-                _diceRelics[i].OnDiceRolled();
-            }
-        }
-        #endregion
     }
 }
 
