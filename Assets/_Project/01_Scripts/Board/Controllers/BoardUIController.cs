@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using TMPro;
 using OzGameLab01.UI;
@@ -38,6 +39,7 @@ namespace OzGameLab01.Controllers
         private bool _isMapPresentationReady;
         private BoardFeedbackView _feedbackView;
 
+        public static event Action OnRollViewClosed;
         private void Awake()
         {
             _feedbackView = new BoardFeedbackView(resultText, warningText);
@@ -438,6 +440,7 @@ namespace OzGameLab01.Controllers
         {
             yield return new WaitForSeconds(rollViewCloseDelay);
             if (readySceneView != null) readySceneView.HideRollView();
+            OnRollViewClosed?.Invoke();
         }
     }
 }
