@@ -61,6 +61,7 @@ namespace OzGameLab01.Map
 
         /// <summary>현재 하이라이트된 목표입니다. 디버그 UI 등에서 읽기 전용으로 사용할 수 있습니다.</summary>
         public MapNode CurrentObjective => currentObjective;
+        public GameObject CurrentObjectiveView => mapGenerator != null ? mapGenerator.GetNodeView(currentObjective) : null;
 
         /// <summary>맵 분석으로 예약된 최종 보스 위치입니다.</summary>
         public MapNode FinalBossNode => finalBossNode;
@@ -507,9 +508,10 @@ namespace OzGameLab01.Map
             mapGenerator.ReplaceTileVisual(targetNode);
             currentObjective = targetNode;
 
-            if (highlightPrefab != null && targetNode.NodeView != null)
+            GameObject targetView = mapGenerator.GetNodeView(targetNode);
+            if (highlightPrefab != null && targetView != null)
             {
-                currentHighlight = Instantiate(highlightPrefab, targetNode.NodeView.transform);
+                currentHighlight = Instantiate(highlightPrefab, targetView.transform);
                 currentHighlight.transform.localPosition = Vector3.up * highlightHeight;
             }
 

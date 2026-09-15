@@ -89,10 +89,11 @@ public class MapObjectiveManager : MonoBehaviour
         mapGenerator.ReplaceTileVisual(targetNode);
 
         // 하이라이트 생성
-        if (highlightPrefab != null)
+        GameObject targetView = mapGenerator.GetNodeView(targetNode);
+        if (highlightPrefab != null && targetView != null)
         {
             if (_currentHighlight != null) Destroy(_currentHighlight);
-            _currentHighlight = Instantiate(highlightPrefab, targetNode.NodeView.transform);
+            _currentHighlight = Instantiate(highlightPrefab, targetView.transform);
             _currentHighlight.transform.localPosition = Vector3.up * 2f;
         }
 
