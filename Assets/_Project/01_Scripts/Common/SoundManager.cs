@@ -69,7 +69,7 @@ namespace OzGameLab01.Managers
     /// GlobalManagers 프리팹에 포함되며 GameBootstrapper와 함께 씬 전환 후에도 유지됩니다.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class SoundManager : MonoBehaviour, IGameManager
+    public sealed class SoundManager : Singleton<SoundManager>, IGameManager
     {
         private const string MasterVolumeKey = "Audio.MasterVolume";
         private const string BgmVolumeKey = "Audio.BgmVolume";
@@ -82,8 +82,6 @@ namespace OzGameLab01.Managers
         private float saveAt;
         private float currentBgmVolume = 1f;
 
-        private static SoundManager instance;
-
         [Header("Sound Library")]
         [Tooltip("SoundId별 AudioClip과 채널을 등록합니다. 음원이 없는 항목은 비워둘 수 있습니다.")]
         [SerializeField] private List<SoundEntry> sounds = new();
@@ -95,10 +93,6 @@ namespace OzGameLab01.Managers
         private readonly Dictionary<SoundId, SoundEntry> soundLookup = new();
         private readonly HashSet<SoundId> missingSoundWarnings = new();
 
-        public static SoundManager Instance => instance != null
-            ? instance
-            : FindFirstObjectByType<SoundManager>(FindObjectsInactive.Include);
-
         public bool IsInitialized { get; private set; }
         public float MasterVolume { get; private set; } = DefaultVolume;
         public float BgmVolume { get; private set; } = DefaultVolume;
@@ -107,16 +101,9 @@ namespace OzGameLab01.Managers
 
         public event Action VolumeSettingsChanged;
 
-        private void Awake()
+        protected override void Awake()
         {
-            if (instance != null && instance != this)
-            {
-                Debug.LogWarning("[SoundManager] 이미 유지 중인 인스턴스가 있어 중복 컴포넌트를 비활성화합니다.", this);
-                enabled = false;
-                return;
-            }
-
-            instance = this;
+            base.Awake();
         }
 
         private void Update()
@@ -130,7 +117,11 @@ namespace OzGameLab01.Managers
             if (paused) SaveVolumeSettings();
         }
 
-        private void OnApplicationQuit() => SaveVolumeSettings();
+        protected override void OnApplicationQuit()
+        {
+            base.OnApplicationQuit();
+            SaveVolumeSettings();
+        }
 
         /// <summary>
         /// 보류된 변경이 있을 때만 디스크에 저장합니다.
@@ -145,10 +136,6 @@ namespace OzGameLab01.Managers
         private void OnDestroy()
         {
             SaveVolumeSettings();
-            if (instance == this)
-            {
-                instance = null;
-            }
         }
 
         public void Initialize()

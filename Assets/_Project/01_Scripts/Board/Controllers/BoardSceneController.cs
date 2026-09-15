@@ -29,7 +29,7 @@ namespace OzGameLab01.Controllers
         [SerializeField] private UnitFormationController _unitFormationController;
 
         [Header("Event UI")]
-        [SerializeField] private ChoiceEventManager _eventUIPanel;
+        [SerializeField] private OzGameLab01.Events.EventSession _eventUIPanel;
 
         // ==================== 외부 시스템 통지용 이벤트 ====================
 
@@ -62,7 +62,7 @@ namespace OzGameLab01.Controllers
 
             if(_eventUIPanel == null)
             {
-                _eventUIPanel = FindFirstObjectByType<ChoiceEventManager>(FindObjectsInactive.Include);
+                _eventUIPanel = FindFirstObjectByType<OzGameLab01.Events.EventSession>(FindObjectsInactive.Include);
                 if (_eventUIPanel != null)
                 {
                     _eventUIPanel.gameObject.SetActive(false);
@@ -103,7 +103,7 @@ namespace OzGameLab01.Controllers
         {
             if (_boardPlayerController == null || !_boardPlayerController.EndTurn()) return;
 
-            DiceManager.Instance.ResetTurnRoll();
+            DiceManager.Instance.Facade.ResetTurnRoll();
             TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
             BoardRunData.AdvanceTurn();
 
@@ -232,10 +232,10 @@ namespace OzGameLab01.Controllers
             if (_eventUIPanel != null)
             {
                 _pendingEventNode = eventNode;
-                _eventUIPanel.EventCompleted -= HandleEventCompleted;
-                _eventUIPanel.EventCompleted += HandleEventCompleted;
+                EventManager.Instance.Facade.EventCompleted -= HandleEventCompleted;
+                EventManager.Instance.Facade.EventCompleted += HandleEventCompleted;
 
-                if (_eventUIPanel.OpenRandomEvent())
+                if (EventManager.Instance.Facade.OpenRandomEvent())
                 {
                     return;
                 }
@@ -262,7 +262,7 @@ namespace OzGameLab01.Controllers
         {
             if (_eventUIPanel != null)
             {
-                _eventUIPanel.EventCompleted -= HandleEventCompleted;
+                EventManager.Instance.Facade.EventCompleted -= HandleEventCompleted;
             }
 
             _pendingEventNode = null;

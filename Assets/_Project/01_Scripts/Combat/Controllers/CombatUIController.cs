@@ -275,10 +275,10 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            CombatManager combatManager = CombatManager.Instance;
-            bool applied = combatManager != null && BattleRewardService.Apply(
+            CombatFacade combatFacade = CombatManager.Instance?.Facade;
+            bool applied = combatFacade != null && BattleRewardService.Apply(
                 option.RewardData,
-                combatManager.GetParticipatingAllyUnits(),
+                combatFacade.GetParticipatingAllyUnits(),
                 this);
 
             if (!applied)
