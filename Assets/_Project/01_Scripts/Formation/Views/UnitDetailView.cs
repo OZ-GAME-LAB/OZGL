@@ -11,6 +11,10 @@ namespace OzGameLab01.UI
     [DisallowMultipleComponent]
     public sealed class UnitDetailView : MonoBehaviour
     {
+        [Header("Stats")]
+        [SerializeField] private BattleInfoStatItemView[] statItems;
+        [SerializeField] private ScrollRect statsScrollRect;
+
         [Header("Selected Unit")]
         [SerializeField] private Image unitIcon;
         [SerializeField] private TMP_Text unitNameText;
@@ -55,28 +59,30 @@ namespace OzGameLab01.UI
                 unitIcon.color = data.color;
             }
             SetUnitName(data.name);
-//            SetSynergies(new[] { data.jobType.ToString(), data.tribeType.ToString() });
+            //            SetSynergies(new[] { data.jobType.ToString(), data.tribeType.ToString() });
             // 고정 UI 보존을 위한 자동 시너지 이름표 생성 제외, SetSynergies 연결 함수 유지
             // 활성 상태에서 유닛 변경으로 생성된 시너지 이름표도 입력 통과 처리
-            foreach (Graphic graphic in GetComponentsInChildren<Graphic>(true))
-                graphic.raycastTarget = false;
-//            SetConceptDescription($" healthPoint  {data.healthPoint:0.##}\n " +
-//                $"attackPoint  {data.attackPoint:0.##}\n defensePoint  {data.defensePoint:0.##}\n " +
-//                $"attackSpeed  {data.attackSpeed:0.##}\n criticalMult   {data.criticalMult:0.##}\n " +
-//                $"criticalRate  {data.criticalRate:0.##}\n dodgeRate  {data.dodgeRate:0.##}");
+
+            //foreach (Graphic graphic in GetComponentsInChildren<Graphic>(true)) //삭제 대상입니다, Inspector에서 켜둔 스크롤 입력도 다시 꺼
+            //graphic.raycastTarget = false;
+
+            //            SetConceptDescription($" healthPoint  {data.healthPoint:0.##}\n " +
+            //                $"attackPoint  {data.attackPoint:0.##}\n defensePoint  {data.defensePoint:0.##}\n " +
+            //                $"attackSpeed  {data.attackSpeed:0.##}\n criticalMult   {data.criticalMult:0.##}\n " +
+            //                $"criticalRate  {data.criticalRate:0.##}\n dodgeRate  {data.dodgeRate:0.##}");
             // 설명 영역의 임시 능력치 출력 제외, SetConceptDescription 연결 함수 유지
         }
 
         private void OnEnable()
         {
-            // 팝업과 자식 그래픽의 클릭 및 드래그 가로채기 방지
-            foreach (Graphic graphic in GetComponentsInChildren<Graphic>(true))
-                graphic.raycastTarget = false;
-            foreach (CanvasGroup group in GetComponentsInChildren<CanvasGroup>(true))
-            {
-                group.blocksRaycasts = false;
-                group.interactable = false;
-            }
+            // 팝업과 자식 그래픽의 클릭 및 드래그 가로채기 방지 //삭제 대상
+            //foreach (Graphic graphic in GetComponentsInChildren<Graphic>(true))
+            //    graphic.raycastTarget = false;
+            //foreach (CanvasGroup group in GetComponentsInChildren<CanvasGroup>(true))
+            //{
+            //    group.blocksRaycasts = false;
+            //    group.interactable = false;
+            //}
         }
 
         #region API
@@ -183,6 +189,44 @@ namespace OzGameLab01.UI
                 SetSkill(index, null, string.Empty);
 
             SetConceptDescription(string.Empty);
+            ClearStats();
+        }
+
+        public void SetStat(int index,Sprite icon,string value,string title,string description)
+        {
+            if (statItems == null || index < 0 || index >= statItems.Length)
+                return;
+
+            if (statItems[index] != null)
+                statItems[index].Bind(icon, value, title, description);
+        }
+
+        public void ClearStats()
+        {
+            if (statItems == null)
+                return;
+
+            foreach (BattleInfoStatItemView item in statItems)
+            {
+                if (item != null)
+                    item.Clear();
+            }
+        }
+
+        /// <summary>
+        /// 활성 상태의 스탯 목록을 맨 위로 이동합니다.
+        /// 패널을 표시한 뒤 외부에서 호출하세요.
+        /// </summary>
+        public void ResetStatsScroll()
+        {
+            if (statsScrollRect == null ||
+                !statsScrollRect.isActiveAndEnabled)
+                return;
+
+            Canvas.ForceUpdateCanvases();
+
+            statsScrollRect.StopMovement();
+            statsScrollRect.verticalNormalizedPosition = 1f;
         }
 
         #endregion
