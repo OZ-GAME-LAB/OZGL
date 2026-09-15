@@ -169,7 +169,7 @@ namespace OzGameLab01.Managers
             PlayerInventoryManager inventory = FindAnyObjectByType<PlayerInventoryManager>();
             if (inventory != null)
             {
-                foreach (UnitData unit in inventory.OwnedUnits)
+                foreach (UnitData unit in inventory.Facade.OwnedUnits)
                 {
                     AddSourceEffects(
                         EffectSourceKind.UnitPassive,

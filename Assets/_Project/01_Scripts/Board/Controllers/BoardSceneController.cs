@@ -1,6 +1,7 @@
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
+using OzGameLab01.Player;
 using OzGameLab01.UI;
 using OzGameLab01.Map;
 using System;
@@ -332,8 +333,8 @@ namespace OzGameLab01.Controllers
                 UnitData randomUnit = validUnits[randomIndex];
                 
                 // 2. 누락되는 스탯(color, skillType 등)이 없도록 완전한 복사본을 만듭니다.
-                UnitData acquiredUnit = PlayerInventoryManager.CloneUnitData(randomUnit);
-                
+                UnitData acquiredUnit = PlayerFacade.CloneUnitData(randomUnit);
+
                 // 3. 글로벌 인벤토리에 추가! (추후 로스터 패널과 연동됨)
                 PlayerInventoryManager inventoryManager = PlayerInventoryManager.Instance;
                 if (inventoryManager == null)
@@ -342,12 +343,12 @@ namespace OzGameLab01.Controllers
                     return false;
                 }
 
-                inventoryManager.AddUnit(acquiredUnit);
+                inventoryManager.Facade.AddUnit(acquiredUnit);
 
                 // 4. 밤 이벤트용 범용 알림UI를 활용해서 획득 안내창을 띄웁니다.
                 if (_nightEventPopup == null) _nightEventPopup = FindFirstObjectByType<NightEventPopupView>();
                 if (_nightEventPopup == null) _nightEventPopup = new GameObject("NightEventPopup").AddComponent<NightEventPopupView>();
-                _nightEventPopup.Show($"New Unit Acquired!\n[{acquiredUnit.name}]\n(Currently {inventoryManager.OwnedUnits.Count} units owned)");
+                _nightEventPopup.Show($"New Unit Acquired!\n[{acquiredUnit.name}]\n(Currently {inventoryManager.Facade.OwnedUnits.Count} units owned)");
                 return true;
             }
 
