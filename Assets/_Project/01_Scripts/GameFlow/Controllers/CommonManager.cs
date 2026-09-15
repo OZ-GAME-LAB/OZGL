@@ -11,8 +11,15 @@ namespace OzGameLab01.Managers
     /// GameBootstrapper를 통해 초기화 및 종료되며,
     /// 현재 게임 상태와 상태 변경 이벤트를 제공합니다.
     /// </summary>
-    public class CommonManager : MonoBehaviour, IGameManager
+    public class CommonManager : MonoBehaviour, OzGameLab01.GameFlow.Contracts.IGameFlowNotificationSource, IGameManager
     {
+        private readonly OzGameLab01.GameFlow.Controllers.GameFlowNotificationPublisher _notifications = new OzGameLab01.GameFlow.Controllers.GameFlowNotificationPublisher();
+        public event System.Action<OzGameLab01.GameFlow.Models.GameFlowNotification> Notification
+        {
+            add => _notifications.Notification += value;
+            remove => _notifications.Notification -= value;
+        }
+
         [Header("게임 상태")]
         [Tooltip("현재 게임의 진행 상태입니다.")]
         [SerializeField] private GameState _currentState = GameState.Boot;
@@ -23,7 +30,8 @@ namespace OzGameLab01.Managers
         /// 외부에서는 값을 확인할 수 있지만,
         /// 값의 변경은 CommonManager 내부에서만 가능합니다.
         /// </summary>
-        public bool IsInitialized { get; private set; }
+        private readonly OzGameLab01.GameFlow.Models.GameStateModel _model = new OzGameLab01.GameFlow.Models.GameStateModel();
+        public bool IsInitialized => _model.IsInitialized;
 
         // ==================== 게임 상태 관리 ====================
 
@@ -33,7 +41,7 @@ namespace OzGameLab01.Managers
         /// 외부에서는 현재 상태를 확인할 수 있지만,
         /// 상태 변경은 ChangeState()를 통해서만 가능합니다.
         /// </summary>
-        public GameState CurrentState => _currentState;
+        public GameState CurrentState => IsInitialized ? _model.CurrentState : _currentState;
 
         /// <summary>
         /// 게임 상태가 변경될 때 호출되는 이벤트입니다.
@@ -66,7 +74,7 @@ namespace OzGameLab01.Managers
             _currentState = GameState.Boot;
 
             // 모든 준비 작업 완료 후 초기화 상태로 변경
-            IsInitialized = true;
+            _model.Initialize();
 
             Debug.Log(
                 $"[CommonManager] 초기화 완료 | 현재 상태: {_currentState}",
@@ -104,7 +112,7 @@ namespace OzGameLab01.Managers
             }
 
             // 이벤트 전달을 위한 이전 상태 보관
-            GameState previousState = _currentState;
+            _model.TryChange(newState, out GameState previousState);
 
             // 현재 게임 상태 변경
             _currentState = newState;
@@ -116,7 +124,8 @@ namespace OzGameLab01.Managers
                 this);
 
             // 이전 상태와 새로운 상태 전달
-            GameStateChanged?.Invoke(previousState, _currentState);
+            _notifications.Publish(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.GameStateChanged, previous: previousState, current: newState);
+            GameStateChanged?.Invoke(previousState, newState);
 
             return true;
         }
@@ -141,7 +150,8 @@ namespace OzGameLab01.Managers
             _currentState = GameState.Boot;
 
             // 초기화 상태 해제
-            IsInitialized = false;
+            _model.Reset();
+            _notifications.ClearSubscribers();
 
             Debug.Log(
                 "[CommonManager] 종료 완료 | 상태 및 이벤트 초기화",

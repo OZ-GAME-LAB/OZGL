@@ -7,25 +7,34 @@ namespace OzGameLab01.UI.Title
     public sealed class TitleUIView : MonoBehaviour
     {
         [Header("Main Canvas")]
-        [SerializeField] private Image backgroundVisual;
-        [SerializeField] private Image titleVisual;
+        [UnityEngine.Serialization.FormerlySerializedAs("backgroundVisual")]
+        [SerializeField] private Image _backgroundVisual;
+        [UnityEngine.Serialization.FormerlySerializedAs("titleVisual")]
+        [SerializeField] private Image _titleVisual;
 
-        [SerializeField] private Button startButton;
-        [SerializeField] private Button continueButton;
-        [SerializeField] private Button settingsButton;
-        [SerializeField] private Button exitButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("startButton")]
+
+        [SerializeField] private Button _startButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("continueButton")]
+        [SerializeField] private Button _continueButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("settingsButton")]
+        [SerializeField] private Button _settingsButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("exitButton")]
+        [SerializeField] private Button _exitButton;
 
         [Header("Overlay / Popup")]
-        [SerializeField] private TitleSettingsView settingsView;
-        [SerializeField] private ExitConfirmView exitConfirmView;
+        [UnityEngine.Serialization.FormerlySerializedAs("settingsView")]
+        [SerializeField] private TitleSettingsView _settingsView;
+        [UnityEngine.Serialization.FormerlySerializedAs("exitConfirmView")]
+        [SerializeField] private ExitConfirmView _exitConfirmView;
 
         #region Properties
 
-        public TitleSettingsView Settings => settingsView; //타이틀 화면에 연결됨, 외부에서 설정 때문에 ui에 접근할 때 사용해요
-        public ExitConfirmView ExitConfirm => exitConfirmView;
+        public TitleSettingsView Settings => _settingsView; //타이틀 화면에 연결됨, 외부에서 설정 때문에 ui에 접근할 때 사용해요
+        public ExitConfirmView ExitConfirm => _exitConfirmView;
         public bool IsVisible => gameObject.activeSelf;
-        public bool IsSettingsVisible => settingsView != null && settingsView.IsVisible;
-        public bool IsExitConfirmVisible => exitConfirmView != null && exitConfirmView.IsVisible;
+        public bool IsSettingsVisible => _settingsView != null && _settingsView.IsVisible;
+        public bool IsExitConfirmVisible => _exitConfirmView != null && _exitConfirmView.IsVisible;
 
         #endregion
 
@@ -41,15 +50,15 @@ namespace OzGameLab01.UI.Title
 
         private void Awake()
         {
-            startButton.onClick.AddListener(OnStartClicked);
-            continueButton.onClick.AddListener(OnContinueClicked);
-            settingsButton.onClick.AddListener(OnSettingsClicked);
-            exitButton.onClick.AddListener(OnExitClicked);
+            _startButton.onClick.AddListener(OnStartClicked);
+            _continueButton.onClick.AddListener(OnContinueClicked);
+            _settingsButton.onClick.AddListener(OnSettingsClicked);
+            _exitButton.onClick.AddListener(OnExitClicked);
 
-            settingsView.CloseRequested += HideSettings;
+            _settingsView.CloseRequested += HideSettings;
 
-            exitConfirmView.ConfirmRequested += OnExitConfirmed;
-            exitConfirmView.CancelRequested += HideExitConfirm;
+            _exitConfirmView.ConfirmRequested += OnExitConfirmed;
+            _exitConfirmView.CancelRequested += HideExitConfirm;
 
             HideSettings();
             HideExitConfirm();
@@ -57,15 +66,15 @@ namespace OzGameLab01.UI.Title
 
         private void OnDestroy()
         {
-            startButton.onClick.RemoveListener(OnStartClicked);
-            continueButton.onClick.RemoveListener(OnContinueClicked);
-            settingsButton.onClick.RemoveListener(OnSettingsClicked);
-            exitButton.onClick.RemoveListener(OnExitClicked);
+            _startButton.onClick.RemoveListener(OnStartClicked);
+            _continueButton.onClick.RemoveListener(OnContinueClicked);
+            _settingsButton.onClick.RemoveListener(OnSettingsClicked);
+            _exitButton.onClick.RemoveListener(OnExitClicked);
 
-            settingsView.CloseRequested -= HideSettings;
+            _settingsView.CloseRequested -= HideSettings;
 
-            exitConfirmView.ConfirmRequested -= OnExitConfirmed;
-            exitConfirmView.CancelRequested -= HideExitConfirm;
+            _exitConfirmView.ConfirmRequested -= OnExitConfirmed;
+            _exitConfirmView.CancelRequested -= HideExitConfirm;
         }
 
         #endregion
@@ -84,12 +93,12 @@ namespace OzGameLab01.UI.Title
 
         public void ShowSettings(SettingsTab tab = SettingsTab.Game)
         {
-            settingsView.Show(tab);
+            _settingsView.Show(tab);
         }
 
         public void HideSettings()
         {
-            settingsView.Hide();
+            _settingsView.Hide();
         }
         
         /// <summary>
@@ -97,17 +106,17 @@ namespace OzGameLab01.UI.Title
         /// </summary>
         public void ShowExitConfirm()
         {
-            exitConfirmView.Show();
+            _exitConfirmView.Show();
         }
 
         public void HideExitConfirm()
         {
-            exitConfirmView.Hide();
+            _exitConfirmView.Hide();
         }
 
         public void SetContinueInteractable(bool isInteractable)
         {
-            continueButton.interactable = isInteractable;
+            _continueButton.interactable = isInteractable;
         }
 
         #endregion

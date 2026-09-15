@@ -10,36 +10,32 @@ namespace OzGameLab01.Data
     /// </summary>
     public static class SceneNames
     {
+        public const string BOOT = "00_Boot";
+        public const string TITLE = "01_Title";
+        public const string BOARD = "02_MainGame";
+        public const string COMBAT = "03_Combat";
+
+        // 기존 외부 호출과 상수식의 호환 별칭
         /// <summary>
         /// 전역 매니저를 초기화하는 부트 씬입니다.
         /// </summary>
-        public const string Boot = "00_Boot";
+        public const string Boot = BOOT;
 
         /// <summary>
         /// 게임 시작과 종료 후 돌아오는 타이틀 씬입니다.
         /// </summary>
-        public const string Title = "01_Title";
+        public const string Title = TITLE;
 
         /// <summary>
         /// 주사위와 타일 이벤트가 진행되는 보드 씬입니다.
         /// </summary>
-        public const string Board = "02_MainGame";
+        public const string Board = BOARD;
 
         /// <summary>
         /// 일반 전투와 보스 전투가 진행되는 전투 씬입니다.
         /// </summary>
-        public const string Combat = "03_Combat";
+        public const string Combat = COMBAT;
 
-        #region 테스트용, 불필요 - 삭제한 Proto 씬 전환 기록
-        /* 테스트용, 불필요: ProtoScenes 삭제로 사용하지 않는 기존 코드 보존.
-        //public const string Boss = "ProtoBossScene";
-
-        /// <summary>
-        /// 최종 승리 또는 패배를 표시하는 결과 씬입니다.
-        /// </summary>
-        //public const string Result = "ProtoResult";
-        */
-        #endregion
 
         
     }
