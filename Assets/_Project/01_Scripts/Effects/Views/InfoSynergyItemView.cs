@@ -6,13 +6,14 @@ namespace OzGameLab01.UI
     [DisallowMultipleComponent]
     public sealed class InfoSynergyItemView : MonoBehaviour
     {
-        [SerializeField] private TMP_Text nameText;
+        [UnityEngine.Serialization.FormerlySerializedAs("nameText")]
+        [SerializeField] private TMP_Text _nameText;
 
         public void SetName(string synergyName)
         {
-            if (nameText != null)
+            if (_nameText != null)
             {
-                nameText.text = synergyName;
+                _nameText.text = synergyName;
             }
         }
 

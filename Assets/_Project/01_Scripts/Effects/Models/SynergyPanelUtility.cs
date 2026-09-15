@@ -13,9 +13,9 @@ namespace OzGameLab01.Combat
     {
         public readonly struct DisplayItem
         {
-            public readonly SynergyDefinition Definition;
-            public readonly bool IsActive;
-            public readonly string StackText;
+            public SynergyDefinition Definition { get; }
+            public bool IsActive { get; }
+            public string StackText { get; }
 
             public DisplayItem(SynergyDefinition definition, bool isActive, string stackText)
             {
@@ -28,32 +28,9 @@ namespace OzGameLab01.Combat
         /// <summary>
         /// 유닛 id 목록을 트레이트 테이블과 대조해 트레이트(=SynergyDefinition)별 보유 수를 센다.
         /// </summary>
-        public static Dictionary<SynergyDefinition, int> CountTraits(
-            IEnumerable<int> unitIds,
-            Dictionary<int, List<SynergyDefinition>> traitsById)
+        public static Dictionary<SynergyDefinition, int> CountTraits(IEnumerable<int> unitIds, Dictionary<int, List<SynergyDefinition>> traitsById)
         {
-            Dictionary<SynergyDefinition, int> traitCounts = new Dictionary<SynergyDefinition, int>();
-
-            foreach (int unitId in unitIds)
-            {
-                if (!traitsById.TryGetValue(unitId, out List<SynergyDefinition> traits) || traits == null)
-                {
-                    continue;
-                }
-
-                foreach (SynergyDefinition trait in traits)
-                {
-                    if (trait == null)
-                    {
-                        continue;
-                    }
-
-                    traitCounts.TryGetValue(trait, out int count);
-                    traitCounts[trait] = count + 1;
-                }
-            }
-
-            return traitCounts;
+            return OzGameLab01.Effects.Models.SynergyModel.CountTraits(unitIds, traitsById);
         }
 
         /// <summary>

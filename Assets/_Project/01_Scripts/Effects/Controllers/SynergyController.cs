@@ -11,15 +11,19 @@ namespace OzGameLab01.Combat
     /// Inspector 참조는 CombatManager가 그대로 들고 있고, 이 클래스는 그 값을
     /// 생성자로 전달받아 사용하는 순수 C# 클래스입니다(씬/프리팹 재배선 불필요).
     /// </summary>
-    public class SynergyController
+    public class SynergyController : OzGameLab01.Effects.Contracts.IEffectsNotificationSource
     {
+        private readonly OzGameLab01.Effects.Controllers.EffectsNotificationPublisher _notifications = new OzGameLab01.Effects.Controllers.EffectsNotificationPublisher();
+        public event System.Action<OzGameLab01.Effects.Models.EffectsNotification> Notification
+        {
+            add => _notifications.Notification += value;
+            remove => _notifications.Notification -= value;
+        }
+
         public System.Action<CombatFeedback> OnEffectApplied { get; set; }
-        private readonly UnitRosterData rosterData;
-        private readonly Transform synergyPanelRoot;
-        private readonly SynergyItemView synergyItemTemplate;
-        private readonly Color synergyActiveColor;
-        private readonly Color synergyInactiveColor;
-        private readonly Object logContext;
+        private readonly UnitRosterData _rosterData;
+        private readonly Object _logContext;
+        private readonly OzGameLab01.Effects.Views.SynergyPanelView _panelView;
 
         private Dictionary<int, List<SynergyDefinition>> _unitTraitsById;
         private Dictionary<SynergyDefinition, int> _traitCounts;
@@ -32,12 +36,9 @@ namespace OzGameLab01.Combat
             Color synergyInactiveColor,
             Object logContext)
         {
-            this.rosterData = rosterData;
-            this.synergyPanelRoot = synergyPanelRoot;
-            this.synergyItemTemplate = synergyItemTemplate;
-            this.synergyActiveColor = synergyActiveColor;
-            this.synergyInactiveColor = synergyInactiveColor;
-            this.logContext = logContext;
+            _rosterData = rosterData;
+            _logContext = logContext;
+            _panelView = new OzGameLab01.Effects.Views.SynergyPanelView(synergyPanelRoot, synergyItemTemplate, synergyActiveColor, synergyInactiveColor);
         }
 
         /// <summary>
@@ -48,31 +49,14 @@ namespace OzGameLab01.Combat
         public void BuildUnitTraitLookup(Dictionary<int, UnitData> unitDataById)
         {
             _unitTraitsById = new Dictionary<int, List<SynergyDefinition>>();
-            if (rosterData == null || unitDataById == null)
+            if (_rosterData == null || unitDataById == null)
             {
                 return;
             }
 
-            UnitRosterData.RegisterActive(rosterData, logContext);
+            UnitRosterData.RegisterActive(_rosterData, _logContext);
 
-            foreach (KeyValuePair<int, UnitData> kvp in unitDataById)
-            {
-                List<SynergyDefinition> traits = new List<SynergyDefinition>();
-
-                SynergyDefinition jobTrait = rosterData.GetJobTrait(kvp.Value.jobType);
-                if (jobTrait != null)
-                {
-                    traits.Add(jobTrait);
-                }
-
-                SynergyDefinition tribeTrait = rosterData.GetTribeTrait(kvp.Value.tribeType);
-                if (tribeTrait != null)
-                {
-                    traits.Add(tribeTrait);
-                }
-
-                _unitTraitsById[kvp.Key] = traits;
-            }
+            _unitTraitsById = OzGameLab01.Effects.Models.SynergyModel.BuildTraitLookup(unitDataById, _rosterData.GetJobTrait, _rosterData.GetTribeTrait);
         }
 
         public void ApplySynergies(Dictionary<CombatManager.SlotKey, int> spawnedFormation, Unit[,] slotUnits)
@@ -124,6 +108,7 @@ namespace OzGameLab01.Combat
                     ApplyTierEffects(definition, count, SynergyTargetType.AllAllies, null, spawnedFormation, slotUnits);
                 }
             }
+            _notifications.Publish(OzGameLab01.Effects.Models.EffectsNotificationKind.SynergiesEvaluated, 0, _traitCounts.Count);
         }
 
         /// <summary>
@@ -195,21 +180,7 @@ namespace OzGameLab01.Combat
 
         private static SynergyTier FindActiveTier(SynergyData data, int count)
         {
-            if (data == null || data.tiers == null)
-            {
-                return null;
-            }
-
-            SynergyTier active = null;
-            foreach (SynergyTier tier in data.tiers)
-            {
-                if (tier.requiredCount <= count && (active == null || tier.requiredCount > active.requiredCount))
-                {
-                    active = tier;
-                }
-            }
-
-            return active;
+            return OzGameLab01.Effects.Models.SynergyModel.FindActiveTier(data, count);
         }
 
         /// <summary>
@@ -220,32 +191,7 @@ namespace OzGameLab01.Combat
         /// </summary>
         private static bool TryResolveStatType(SynergyEffectNode effect, out EffectStatType statType)
         {
-            statType = EffectStatType.Unknown;
-
-            if (effect.effectType == "CooldownDecrease")
-            {
-                statType = EffectStatType.AttackInterval;
-                return true;
-            }
-
-            if (effect.effectType != "StatBuff" && effect.effectType != "IncreaseDamage")
-            {
-                return false;
-            }
-
-            switch (effect.statType)
-            {
-                case "MaxHp": statType = EffectStatType.MaxHealth; return true;
-                case "Attack": statType = EffectStatType.Attack; return true;
-                // 이 코드베이스엔 스킬 전용 데미지 배율이 없어 SkillDamage도 Attack과 동일하게 취급한다.
-                case "SkillDamage": statType = EffectStatType.Attack; return true;
-                case "Defense": statType = EffectStatType.Defense; return true;
-                case "AttackSpeed": statType = EffectStatType.AttackInterval; return true;
-                case "CritcalRate": statType = EffectStatType.CriticalChance; return true;
-                case "CritcalMult": statType = EffectStatType.CriticalMultiplier; return true;
-                case "DodgeRate": statType = EffectStatType.DodgeChance; return true;
-                default: return false; // AllStats 등 1단계 미지원
-            }
+            return OzGameLab01.Effects.Models.SynergyModel.TryResolveStatType(effect, out statType);
         }
 
         /// <summary>
@@ -254,27 +200,11 @@ namespace OzGameLab01.Combat
         /// </summary>
         public void PopulateSynergyPanel()
         {
-            if (rosterData == null || synergyPanelRoot == null || synergyItemTemplate == null)
+            if (_rosterData == null || !_panelView.IsAvailable)
             {
                 return;
             }
-
-            for (int i = synergyPanelRoot.childCount - 1; i >= 0; i--)
-            {
-                Object.Destroy(synergyPanelRoot.GetChild(i).gameObject);
-            }
-
-            List<SynergyPanelUtility.DisplayItem> displayItems =
-                SynergyPanelUtility.BuildDisplayItems(rosterData.SynergyDefinitions, _traitCounts);
-
-            foreach (SynergyPanelUtility.DisplayItem displayItem in displayItems)
-            {
-                SynergyItemView item = Object.Instantiate(synergyItemTemplate, synergyPanelRoot);
-                item.gameObject.SetActive(true);
-                item.SetTitle(displayItem.Definition.DisplayName);
-                item.SetStackText(displayItem.StackText);
-                item.SetBackgroundColor(displayItem.IsActive ? synergyActiveColor : synergyInactiveColor);
-            }
+            _panelView.Render(SynergyPanelUtility.BuildDisplayItems(_rosterData.SynergyDefinitions, _traitCounts));
         }
     }
 }

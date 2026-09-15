@@ -7,11 +7,12 @@ namespace OzGameLab01.UI.Battle
     public sealed class BattleSynergyView : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private Transform synergyContentRoot;
+        [UnityEngine.Serialization.FormerlySerializedAs("synergyContentRoot")]
+        [SerializeField] private Transform _synergyContentRoot;
 
         #region Properties
 
-        public Transform SynergyContentRoot => synergyContentRoot;
+        public Transform SynergyContentRoot => _synergyContentRoot;
 
         public bool IsVisible => gameObject.activeSelf;
 
@@ -31,7 +32,7 @@ namespace OzGameLab01.UI.Battle
 
         public void RefreshLayout()
         {
-            if (synergyContentRoot is RectTransform rectTransform)
+            if (_synergyContentRoot is RectTransform rectTransform)
             {
                 LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
             }
