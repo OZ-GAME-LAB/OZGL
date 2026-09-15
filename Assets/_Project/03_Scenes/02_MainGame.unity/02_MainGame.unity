@@ -2262,7 +2262,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 332ec179d01e4ca4687fd19649f3b8f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.PlayerInventoryManager
-  startingRoster: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
 --- !u!4 &1212898610
 Transform:
   m_ObjectHideFlags: 0
@@ -2552,7 +2551,6 @@ MonoBehaviour:
   _nightEventPopup: {fileID: 0}
   _timeStatusHud: {fileID: 0}
   _unitFormationController: {fileID: 0}
-  _unitRosterData: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
   _eventUIPanel: {fileID: 756050375}
 --- !u!4 &1575848855
 Transform:
