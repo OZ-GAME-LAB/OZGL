@@ -1,7 +1,7 @@
 using TMPro;
 using UnityEngine;
 
-namespace OzGameLab01.Controllers
+namespace OzGameLab01.Board.Views
 {
     /// <summary>
     /// BoardUIController에서 분리된 텍스트 표시(주사위 결과, 경고 배너) 책임을 담당합니다.

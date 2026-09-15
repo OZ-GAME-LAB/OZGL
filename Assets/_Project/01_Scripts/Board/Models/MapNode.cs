@@ -27,6 +27,6 @@ namespace OzGameLab01.Map
         public Vector2Int Position;
         public NodeType Type;
         public List<MapNode> ConnectedNodes = new List<MapNode>();
-        public GameObject NodeView;
+        // 화면 오브젝트 대응 관계는 MapGenerator에서 관리
     }
 }
