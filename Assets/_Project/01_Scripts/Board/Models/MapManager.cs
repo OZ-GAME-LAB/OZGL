@@ -89,5 +89,49 @@ namespace OzGameLab01.Map
 
             return path;
         }
+
+        /// <summary>
+        /// 시작 노드로부터 특정 거리(행동력) 내에 도달할 수 있는 모든 노드를 찾아 반환합니다.
+        /// </summary>
+        public System.Collections.Generic.HashSet<MapNode> GetReachableNodes(MapNode startNode, int maxDistance)
+        {
+            var reachable = new System.Collections.Generic.HashSet<MapNode>();
+            if (startNode == null) return reachable;
+            var queue = new System.Collections.Generic.Queue<MapNode>();
+            var costSoFar = new System.Collections.Generic.Dictionary<MapNode, int>();
+            queue.Enqueue(startNode);
+            costSoFar[startNode] = 0;
+            reachable.Add(startNode);
+            while (queue.Count > 0)
+            {
+                MapNode current = queue.Dequeue();
+                int currentCost = costSoFar[current];
+                // 최대 행동력에 도달한 노드라면, 더 이상 뻗어나가지 않음
+                if (currentCost >= maxDistance) continue;
+                // 상하좌우 4방향 탐색
+                Vector2Int[] directions = { Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right };
+                foreach (Vector2Int dir in directions)
+                {
+                    Vector2Int nextPos = current.Position + dir;
+
+                    // MapManager가 가지고 있는 _nodeDict를 통해 이웃 타일 확인
+                    if (_nodeDict.TryGetValue(nextPos, out MapNode nextNode))
+                    {
+                        // 장애물이 아닌 경우에만 이동 가능
+                        if (!IsObstacle(nextNode.Type))
+                        {
+                            int newCost = currentCost + 1;
+                            if (!costSoFar.ContainsKey(nextNode) || newCost < costSoFar[nextNode])
+                            {
+                                costSoFar[nextNode] = newCost;
+                                queue.Enqueue(nextNode);
+                                reachable.Add(nextNode);
+                            }
+                        }
+                    }
+                }
+            }
+            return reachable;
+        }
     }
 }

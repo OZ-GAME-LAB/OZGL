@@ -21,7 +21,12 @@ namespace OzGameLab01.Controllers
         [SerializeField] private int _currentDiceValue = 0;
         [Tooltip("남은 행동력을 상시 표시하는 HUD입니다. 비워두면 씬에서 자동으로 찾거나 새로 생성합니다.")]
         [SerializeField] private ActionPowerHUDView _actionPowerHud;
+
+        public static event Action OnPlayerStartedMoving;
+        public static event Action OnPlayerFinishedMoving;
+
         private MapNode _currentNode;
+        public MapNode CurrentNode => _currentNode;
         private bool _isMoving = false;
 
         // DiceManager 등 외부 시스템에서 현재 행동력을 확인하거나 변경하기 위한 프로퍼티
@@ -182,6 +187,7 @@ namespace OzGameLab01.Controllers
 
             if (_validPath != null && _validPath.Count > 0)
             {
+                OnPlayerStartedMoving?.Invoke();
                 // 이동 가능
                 StartCoroutine(MoveAlongPathRoutine());
             }
@@ -222,8 +228,8 @@ namespace OzGameLab01.Controllers
             }
 
             _isMoving = false;
+            OnPlayerFinishedMoving?.Invoke();
 
-            // _validPath.Clear(); <--- 이 줄은 삭제되었습니다! (위에서 복사본을 썼기 때문)
 
             // 이동 완료 후 도착한 타일의 이벤트(전투, 상점 등) 실행
             //Debug.Log($"도착한 타일: {_currentNode.Type}");
