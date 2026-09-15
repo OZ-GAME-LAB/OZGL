@@ -5,11 +5,13 @@ using OzGameLab01.UI;
 using OzGameLab01.Map;
 using System;
 using UnityEngine;
-using UnityEngine.UI;
+using OzGameLab01.Board.Models;
+using OzGameLab01.Board.Views;
+using OzGameLab01.Board.Controllers;
 
 namespace OzGameLab01.Controllers
 {
-    public sealed class BoardSceneController : MonoBehaviour
+    public sealed class BoardSceneController : MonoBehaviour, IBoardNotificationSource
     {
         [Header("보드 씬 연결")]
         [SerializeField] private BoardPlayerController _boardPlayerController;
@@ -18,8 +20,7 @@ namespace OzGameLab01.Controllers
         [Header("시간 시스템")]
         [SerializeField] private int _nightInterval = 3;
 
-        // [수정] UI 컨트롤러가 방어막 역할을 하도록 직접 연결을 해제합니다.
-        // [SerializeField] private Button _endTurnButton;
+        // 버튼 입력의 BoardUIController 전담
 
         [SerializeField] private NightEventPopupView _nightEventPopup;
         [SerializeField] private TimeStatusHUDView _timeStatusHud;
@@ -40,9 +41,19 @@ namespace OzGameLab01.Controllers
         // [추가] 저장 대기 중 중복 타이틀 이동 요청 방지
         private bool _isReturningToTitle;
         private MapNode _pendingEventNode;
+        private OzGameLab01.Events.EventFacade _subscribedEvent;
+        private BoardSceneFeedbackView _feedback;
+        public event Action<BoardNotification> Notification;
+
+        // 상태 확정 후 값 스냅샷 발행
+        private void Publish(BoardNotificationKind kind, MapNode node = null, int unitId = 0, NodeType? tileType = null)
+        {
+            Notification?.Invoke(new BoardNotification(kind, node != null ? node.Position : BoardRunData.PlayerPosition, tileType ?? (node != null ? node.Type : NodeType.Normal), BoardRunData.TurnCount, BoardRunData.RemainingDiceValue, unitId, BoardRunData.UnusedActionPoints, BoardTurnRules.IsNight(BoardRunData.TurnCount, _nightInterval)));
+        }
 
         private void Awake()
         {
+            _feedback = new BoardSceneFeedbackView(_nightEventPopup, _timeStatusHud);
             if (_boardPlayerController == null)
             {
                 _boardPlayerController = BoardPlayerController.Instance;
@@ -70,13 +81,6 @@ namespace OzGameLab01.Controllers
             }
 
             // [수정] 버튼 클릭 처리는 BoardUIController가 전담
-            //
-            //if (_endTurnButton != null)
-            //    _endTurnButton.onClick.AddListener(EndTurn);
-            //else
-            //    Debug.LogError("[BoardSceneController] 턴 종료 버튼이 연결되지 않았습니다.", this);
-            //
-
             if (_unitFormationController == null)
             {
                 _unitFormationController = FindFirstObjectByType<UnitFormationController>(FindObjectsInactive.Include);
@@ -106,12 +110,12 @@ namespace OzGameLab01.Controllers
             DiceManager.Instance.Facade.ResetTurnRoll();
             TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
             BoardRunData.AdvanceTurn();
+            Publish(BoardNotificationKind.TurnAdvanced);
 
             bool hasTimeOfDayChanged = false;
-            if (_nightInterval > 0 && BoardRunData.TurnCount % _nightInterval == 0)
+            if (BoardTurnRules.ChangesPhase(BoardRunData.TurnCount, _nightInterval))
             {
-                int phaseIndex = BoardRunData.TurnCount / _nightInterval;
-                bool isNight = phaseIndex % 2 == 1;
+                bool isNight = BoardTurnRules.IsNight(BoardRunData.TurnCount, _nightInterval);
 
                 if (isNight)
                 {
@@ -135,18 +139,10 @@ namespace OzGameLab01.Controllers
 
         private void UpdateTimeStatusHud()
         {
-            if (_nightInterval <= 0) return;
-            if (_timeStatusHud == null) _timeStatusHud = FindFirstObjectByType<TimeStatusHUDView>();
-            if (_timeStatusHud == null) _timeStatusHud = new GameObject("TimeStatusHUD").AddComponent<TimeStatusHUDView>();
-
-            int turnsUntilNight = _nightInterval - (BoardRunData.TurnCount % _nightInterval);
-            _timeStatusHud.SetTurnsUntilNight(turnsUntilNight);
+            if (_nightInterval <= 0) { return; }
+            _feedback.ShowTurns(BoardTurnRules.TurnsUntilPhase(BoardRunData.TurnCount, _nightInterval));
         }
 
-        /// <summary>
-        /// 전투 진입 전 최소 편성 인원(1명 이상)을 확인합니다.
-        /// 편성 컨트롤러를 찾을 수 없으면 확인 없이 통과시킵니다.
-        /// </summary>
         private bool EnsureCanStartBattle()
         {
             if (_unitFormationController == null || _unitFormationController.CanStartBattle)
@@ -154,22 +150,10 @@ namespace OzGameLab01.Controllers
                 return true;
             }
 
-            if (_nightEventPopup == null)
-            {
-                _nightEventPopup = FindFirstObjectByType<NightEventPopupView>();
-            }
-
-            if (_nightEventPopup == null)
-            {
-                _nightEventPopup = new GameObject("NightEventPopup").AddComponent<NightEventPopupView>();
-            }
-
-            _nightEventPopup.Show("To start a battle, you must place at least one combat unit.");
+            _feedback.Show("To start a battle, you must place at least one combat unit.");
 
             return false;
         }
-
-        //public void ReturnToTitle()
         /// <summary>
         /// [수정] 현재 런 저장 완료 후 타이틀 씬으로 이동
         /// </summary>
@@ -183,8 +167,6 @@ namespace OzGameLab01.Controllers
             if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
             _isReturningToTitle = true;
             Time.timeScale = 1f;
-
-            //BoardRunData.Clear();
             // [수정] 타이틀 복귀는 런 포기가 아니라 Continue 저장 시점으로 처리
             SaveManager saveManager = SaveManager.Instance;
             saveManager.CaptureCurrentRun();
@@ -201,8 +183,9 @@ namespace OzGameLab01.Controllers
         {
             if (arrivedNode == null) return;
             BoardRunData.SavePlayerPosition(arrivedNode.Position);
+            Publish(BoardNotificationKind.PlayerArrived, arrivedNode);
 
-            if (BoardRunData.IsSpecialTileConsumed(arrivedNode.Position))
+            if (!BoardTileRules.CanProcess(arrivedNode, BoardRunData.IsSpecialTileConsumed(arrivedNode.Position)))
             {
                 NormalizeConsumedNode(arrivedNode);
                 return;
@@ -215,13 +198,14 @@ namespace OzGameLab01.Controllers
                 case NodeType.Boss: HandleBossNode(arrivedNode); break;
                 case NodeType.Event: HandleEventNode(arrivedNode); break;
                 case NodeType.UnitAcquisition:
-                    if (HandleUnitAcquisitionNode())
+                    if (HandleUnitAcquisitionNode(out int acquiredUnitId))
                     {
                         ConsumeSpecialNode(arrivedNode);
+                        Publish(BoardNotificationKind.UnitGranted, arrivedNode, acquiredUnitId, NodeType.UnitAcquisition);
                     }
                     break;
                 case NodeType.Shop:
-                    // 현재 상점 동작은 구현되어 있지 않으므로 도착 자체를 1회 발동으로 처리합니다.
+                    // 상점 구현 전 도착 시 일회성 소비
                     ConsumeSpecialNode(arrivedNode);
                     break;
             }
@@ -231,11 +215,13 @@ namespace OzGameLab01.Controllers
         {
             if (_eventUIPanel != null)
             {
+                // 진행 중 이벤트의 중복 시작 방지
+                if (_pendingEventNode != null) { return; }
                 _pendingEventNode = eventNode;
-                EventManager.Instance.Facade.EventCompleted -= HandleEventCompleted;
-                EventManager.Instance.Facade.EventCompleted += HandleEventCompleted;
+                _subscribedEvent = EventManager.Instance.Facade;
+                _subscribedEvent.EventCompleted += HandleEventCompleted;
 
-                if (EventManager.Instance.Facade.OpenRandomEvent())
+                if (_subscribedEvent.OpenRandomEvent())
                 {
                     return;
                 }
@@ -243,12 +229,7 @@ namespace OzGameLab01.Controllers
                 UnsubscribeEventCompletion();
             }
 
-            if (_nightEventPopup == null)
-            {
-                _nightEventPopup = FindFirstObjectByType<NightEventPopupView>();
-            }
-
-            _nightEventPopup?.Show("Event data is not configured yet.");
+            _feedback.Show("Event data is not configured yet.", false);
         }
 
         private void HandleEventCompleted()
@@ -260,9 +241,10 @@ namespace OzGameLab01.Controllers
 
         private void UnsubscribeEventCompletion()
         {
-            if (_eventUIPanel != null)
+            if (_subscribedEvent != null)
             {
-                EventManager.Instance.Facade.EventCompleted -= HandleEventCompleted;
+                _subscribedEvent.EventCompleted -= HandleEventCompleted;
+                _subscribedEvent = null;
             }
 
             _pendingEventNode = null;
@@ -275,6 +257,7 @@ namespace OzGameLab01.Controllers
             if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
 
             BoardRunData.BeginBattle(battleNode.Position, false, isElite);
+            Publish(BoardNotificationKind.BattleRequested, battleNode);
             transitioner.LoadCombatScene();
         }
 
@@ -284,6 +267,7 @@ namespace OzGameLab01.Controllers
             if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
 
             BoardRunData.BeginBattle(bossNode.Position, true);
+            Publish(BoardNotificationKind.BattleRequested, bossNode);
             transitioner.LoadCombatScene();
         }
 
@@ -293,109 +277,50 @@ namespace OzGameLab01.Controllers
             return transitioner != null && !transitioner.IsTransitioning;
         }
 
-        private bool HandleUnitAcquisitionNode()
+        private bool HandleUnitAcquisitionNode(out int acquiredUnitId)
         {
-            System.Collections.Generic.IReadOnlyList<UnitData> rosterUnits = RuntimeDataManager.Instance.Units;
-            if (rosterUnits.Count > 0)
+            acquiredUnitId = 0;
+            UnitData selected = BoardUnitSelection.Select(RuntimeDataManager.Instance.Units, count => UnityEngine.Random.Range(0, count));
+            if (selected == null)
             {
-                // 프리팹(SpriteAddress)이 세팅된 유닛만 필터링 (테스트 용이성을 위해)
-                System.Collections.Generic.List<UnitData> validUnits = new System.Collections.Generic.List<UnitData>();
-                foreach (var u in rosterUnits)
-                {
-                    if (u != null && !string.IsNullOrEmpty(u.spriteAddress))
-                    {
-                        validUnits.Add(u);
-                    }
-                }
-
-                if (validUnits.Count == 0)
-                {
-                    Debug.LogWarning("[BoardSceneController] 프리팹(SpriteAddress)이 설정된 유닛이 로스터에 하나도 없습니다!");
-                    // 전부 없으면 그냥 전체에서 뽑기
-                    foreach (UnitData unitData in rosterUnits)
-                    {
-                        if (unitData != null)
-                        {
-                            validUnits.Add(unitData);
-                        }
-                    }
-                }
-
-                if (validUnits.Count == 0)
-                {
-                    Debug.LogWarning("[BoardSceneController] 획득 가능한 유닛 데이터가 없습니다!", this);
-                    return false;
-                }
-
-                // 1. 유효한 유닛 중 무작위 하나를 뽑습니다.
-                int randomIndex = UnityEngine.Random.Range(0, validUnits.Count);
-                UnitData randomUnit = validUnits[randomIndex];
-                
-                // 2. 누락되는 스탯(color, skillType 등)이 없도록 완전한 복사본을 만듭니다.
-                UnitData acquiredUnit = PlayerInventoryManager.CloneUnitData(randomUnit);
-                
-                // 3. 글로벌 인벤토리에 추가! (추후 로스터 패널과 연동됨)
-                PlayerInventoryManager inventoryManager = PlayerInventoryManager.Instance;
-                if (inventoryManager == null)
-                {
-                    Debug.LogWarning("[BoardSceneController] PlayerInventoryManager가 없어 유닛을 지급할 수 없습니다!", this);
-                    return false;
-                }
-
-                inventoryManager.AddUnit(acquiredUnit);
-
-                // 4. 밤 이벤트용 범용 알림UI를 활용해서 획득 안내창을 띄웁니다.
-                if (_nightEventPopup == null) _nightEventPopup = FindFirstObjectByType<NightEventPopupView>();
-                if (_nightEventPopup == null) _nightEventPopup = new GameObject("NightEventPopup").AddComponent<NightEventPopupView>();
-                _nightEventPopup.Show($"New Unit Acquired!\n[{acquiredUnit.name}]\n(Currently {inventoryManager.OwnedUnits.Count} units owned)");
-                return true;
+                Debug.LogWarning("[BoardSceneController] 획득 가능한 유닛 데이터가 없습니다.", this);
+                return false;
             }
-
-            Debug.LogWarning("[BoardSceneController] RuntimeDataManager.Units가 비어 있어 유닛 획득이 불가능합니다!");
-            return false;
+            PlayerInventoryManager inventory = PlayerInventoryManager.Instance;
+            if (inventory == null)
+            {
+                Debug.LogWarning("[BoardSceneController] 유닛 지급 대상 인벤토리가 없습니다.", this);
+                return false;
+            }
+            UnitData acquired = PlayerInventoryManager.CloneUnitData(selected);
+            inventory.AddUnit(acquired);
+            _feedback.ShowUnit(acquired.name, inventory.OwnedUnits.Count);
+            acquiredUnitId = acquired.id;
+            return true;
         }
 
         private void ConsumeSpecialNode(MapNode node)
         {
-            if (node == null)
-            {
-                return;
-            }
-
-            if (_mapGenerator == null)
-            {
-                _mapGenerator = FindFirstObjectByType<MapGenerator>();
-            }
-
+            if (node == null || BoardRunData.IsSpecialTileConsumed(node.Position)) { return; }
+            NodeType consumedType = node.Type;
+            if (_mapGenerator == null) { _mapGenerator = FindFirstObjectByType<MapGenerator>(); }
             if (_mapGenerator != null)
             {
-                _mapGenerator.ConsumeSpecialTile(node);
-                return;
+                if (!_mapGenerator.ConsumeSpecialTile(node)) { return; }
             }
-
-            BoardRunData.ConsumeSpecialTile(node.Position);
-            node.Type = NodeType.Normal;
-            Debug.LogWarning(
-                "[BoardSceneController] MapGenerator를 찾지 못해 특수 타일의 외형은 즉시 교체하지 못했습니다.",
-                this);
+            else
+            {
+                BoardRunData.ConsumeSpecialTile(node.Position);
+                node.Type = NodeType.Normal;
+            }
+            Publish(BoardNotificationKind.SpecialTileConsumed, node, tileType: consumedType);
         }
 
         private void NormalizeConsumedNode(MapNode node)
         {
-            if (!MapGenerator.IsSingleUseSpecialTile(node.Type))
-            {
-                return;
-            }
-
-            if (_mapGenerator == null)
-            {
-                _mapGenerator = FindFirstObjectByType<MapGenerator>();
-            }
-
-            if (_mapGenerator != null)
-            {
-                _mapGenerator.NormalizeConsumedSpecialTile(node);
-            }
+            if (!BoardTileRules.IsSingleUse(node.Type)) { return; }
+            if (_mapGenerator == null) { _mapGenerator = FindFirstObjectByType<MapGenerator>(); }
+            if (_mapGenerator != null) { _mapGenerator.NormalizeConsumedSpecialTile(node); }
         }
     }
 }
