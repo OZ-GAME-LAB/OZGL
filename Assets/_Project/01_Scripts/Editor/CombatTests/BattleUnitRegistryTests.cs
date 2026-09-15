@@ -10,7 +10,7 @@ namespace OzGameLab01.Tests.EditMode
         private readonly List<GameObject> spawned = new List<GameObject>();
 
         [SetUp]
-        public void SetUp() => BattleUnitRegistry.Clear();
+        public void SetUp() => CombatUnitRegistry.Clear();
 
         [TearDown]
         public void TearDown()
@@ -21,7 +21,7 @@ namespace OzGameLab01.Tests.EditMode
             }
 
             spawned.Clear();
-            BattleUnitRegistry.Clear();
+            CombatUnitRegistry.Clear();
         }
 
         private Unit CreateUnit()
@@ -35,41 +35,41 @@ namespace OzGameLab01.Tests.EditMode
         public void Register_AddsUnitOnce()
         {
             Unit unit = CreateUnit();
-            BattleUnitRegistry.Register(unit);
-            Assert.That(BattleUnitRegistry.Units, Does.Contain(unit));
-            Assert.AreEqual(1, BattleUnitRegistry.Units.Count);
+            CombatUnitRegistry.Register(unit);
+            Assert.That(CombatUnitRegistry.Units, Does.Contain(unit));
+            Assert.AreEqual(1, CombatUnitRegistry.Units.Count);
         }
 
         [Test]
         public void Register_SameUnitTwice_DoesNotDuplicate()
         {
             Unit unit = CreateUnit();
-            BattleUnitRegistry.Register(unit);
-            BattleUnitRegistry.Register(unit);
-            Assert.AreEqual(1, BattleUnitRegistry.Units.Count);
+            CombatUnitRegistry.Register(unit);
+            CombatUnitRegistry.Register(unit);
+            Assert.AreEqual(1, CombatUnitRegistry.Units.Count);
         }
 
         [Test]
         public void Register_Null_DoesNothing()
         {
-            BattleUnitRegistry.Register(null);
-            Assert.AreEqual(0, BattleUnitRegistry.Units.Count);
+            CombatUnitRegistry.Register(null);
+            Assert.AreEqual(0, CombatUnitRegistry.Units.Count);
         }
 
         [Test]
         public void Unregister_RemovesUnit()
         {
             Unit unit = CreateUnit();
-            BattleUnitRegistry.Unregister(unit);
-            Assert.AreEqual(0, BattleUnitRegistry.Units.Count);
+            CombatUnitRegistry.Unregister(unit);
+            Assert.AreEqual(0, CombatUnitRegistry.Units.Count);
         }
 
         [Test]
         public void Unregister_UnknownUnit_DoesNotThrow()
         {
             Unit unit = CreateUnit();
-            BattleUnitRegistry.Clear();
-            Assert.DoesNotThrow(() => BattleUnitRegistry.Unregister(unit));
+            CombatUnitRegistry.Clear();
+            Assert.DoesNotThrow(() => CombatUnitRegistry.Unregister(unit));
         }
 
         [Test]
@@ -77,8 +77,8 @@ namespace OzGameLab01.Tests.EditMode
         {
             CreateUnit();
             CreateUnit();
-            BattleUnitRegistry.Clear();
-            Assert.AreEqual(0, BattleUnitRegistry.Units.Count);
+            CombatUnitRegistry.Clear();
+            Assert.AreEqual(0, CombatUnitRegistry.Units.Count);
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace OzGameLab01.Tests.EditMode
             GameObject go = unit.gameObject;
             Object.DestroyImmediate(go);
             spawned.Remove(go);
-            Assert.AreEqual(0, BattleUnitRegistry.Units.Count);
+            Assert.AreEqual(0, CombatUnitRegistry.Units.Count);
         }
     }
 }

@@ -1,4 +1,6 @@
 using UnityEngine;
+using OzGameLab01.Board.Models;
+using OzGameLab01.Board.Views;
 using UnityEngine.InputSystem;
 using OzGameLab01.Controllers;
 using System.Collections;
@@ -28,7 +30,9 @@ public class BoardCameraController : MonoBehaviour
     [Tooltip("Locate 대상 타일을 보여주는 시간입니다.")]
     [Min(0f)] public float locateHoldDuration = 1.5f;
 
-    private float _currentZoom = 1.0f;
+    private readonly BoardCameraModel _model = new BoardCameraModel();
+    private BoardCameraView _view;
+    private BoardCameraView View => _view ?? (_view = new BoardCameraView(transform));
     private Coroutine _locateRoutine;
 
     public bool IsLocating => _locateRoutine != null;
@@ -53,20 +57,8 @@ public class BoardCameraController : MonoBehaviour
         // 2. Input System을 통해 마우스 휠 스크롤 값 받기
         Mouse mouse = Mouse.current;
         float scroll = mouse != null ? mouse.scroll.ReadValue().y : 0f;
-        if (Mathf.Abs(scroll) > 0.01f)
-        {
-            // 휠을 위로 굴리면(+) 줌 인, 아래로 굴리면(-) 줌 아웃되도록 처리
-            _currentZoom -= Mathf.Sign(scroll) * zoomSpeed * 0.1f;
-
-            // 너무 줌아웃되거나 줌인되는 것을 방지
-            _currentZoom = Mathf.Clamp(_currentZoom, minZoomMultiplier, maxZoomMultiplier);
-        }
-
-        // 3. 목표 위치 계산 (기본 거리 오프셋에 줌 배율을 곱함)
-        Vector3 desiredPosition = target.position + (defaultOffset * _currentZoom);
-
-        // 4. 현재 위치에서 목표 위치로 부드럽게 이동 (Lerp 보간)
-        transform.position = Vector3.Lerp(transform.position, desiredPosition, followSpeed * Time.deltaTime);
+        _model.ApplyScroll(scroll, zoomSpeed, minZoomMultiplier, maxZoomMultiplier);
+        View.Follow(target.position, defaultOffset, _model.Zoom, followSpeed, Time.deltaTime);
     }
 
     /// <summary>
@@ -116,19 +108,12 @@ public class BoardCameraController : MonoBehaviour
             yield break;
         }
 
-        Vector3 startPosition = transform.position;
-        Vector3 destination = destinationTarget.position + (defaultOffset * _currentZoom);
-        float elapsed = 0f;
-        float duration = Mathf.Max(0.01f, locateMoveDuration);
+        yield return View.MoveTo(destinationTarget.position, defaultOffset, _model.Zoom, locateMoveDuration);
+    }
 
-        while (elapsed < duration)
-        {
-            elapsed += Time.unscaledDeltaTime;
-            float progress = Mathf.SmoothStep(0f, 1f, elapsed / duration);
-            transform.position = Vector3.Lerp(startPosition, destination, progress);
-            yield return null;
-        }
-
-        transform.position = destination;
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        _locateRoutine = null;
     }
 }

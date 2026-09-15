@@ -66,18 +66,18 @@ namespace OzGameLab01.Combat
             _presenter = new UnitPresenter(healthBar, spriteRenderer, projectilePrefab, skillNameLabel, skillNameDisplayDuration, team);
             _status = new UnitStatusEffects();
             InitializeRuntimeState();
-            BattleUnitRegistry.Register(this);
+            CombatUnitRegistry.Register(this);
             _awakeInitialized = true;
         }
 
         private void OnDestroy()
         {
-            BattleUnitRegistry.Unregister(this);
+            CombatUnitRegistry.Unregister(this);
         }
 
         private void OnDisable()
         {
-            BattleUnitRegistry.Unregister(this);
+            CombatUnitRegistry.Unregister(this);
         }
 
         private void Update()
@@ -360,7 +360,7 @@ namespace OzGameLab01.Combat
 
         private Unit ResolveTarget()
         {
-            return team == Team.Ally ? CombatManager.Instance.EnemyUnit : CombatManager.Instance.ResolveAllyTarget();
+            return team == Team.Ally ? CombatManager.Instance.Facade.EnemyUnit : CombatManager.Instance.Facade.ResolveAllyTarget();
         }
 
         private void FireProjectile(Unit target, float damage)
@@ -412,7 +412,7 @@ namespace OzGameLab01.Combat
                 // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
                 if (!isBasicAttack)
                 {
-                    CombatManager.Instance?.ReportFeedback(new CombatFeedback(
+                    CombatManager.Instance?.Facade.ReportFeedback(new CombatFeedback(
                         CombatFeedbackKind.Skill, skill.data.name,
                         $"{DisplayName ?? name} → {target.DisplayName ?? target.name}", this));
                     Debug.Log($"[Unit] {name}({team}) 액티브 스킬 사용: {skill.data.name}");
@@ -444,7 +444,7 @@ namespace OzGameLab01.Combat
         private void Die()
         {
             _isDead = true;
-            BattleUnitRegistry.Unregister(this);
+            CombatUnitRegistry.Unregister(this);
 
             _presenter.HideCombatImage();
             gameObject.SetActive(false);

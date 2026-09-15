@@ -45,13 +45,13 @@ namespace OzGameLab01.Tests.EditMode
             var second = new GameObject("Second");
             try
             {
-                var view = BattleEffectFeedbackView.Create(root.AddComponent<BattleMainView>());
-                Assert.AreSame(view, BattleEffectFeedbackView.Create(root.GetComponent<BattleMainView>()));
+                var view = CombatEffectFeedbackView.Create(root.AddComponent<CombatMainView>());
+                Assert.AreSame(view, CombatEffectFeedbackView.Create(root.GetComponent<CombatMainView>()));
                 var one = first.AddComponent<Unit>();
                 var two = second.AddComponent<Unit>();
                 view.Show(new CombatFeedback(CombatFeedbackKind.Synergy, "Human", "Attack +20%", one));
                 view.Show(new CombatFeedback(CombatFeedbackKind.Synergy, "Human", "Attack +20%", two));
-                var entries = (IList)typeof(BattleEffectFeedbackView).GetField("_entries",
+                var entries = (IList)typeof(CombatEffectFeedbackView).GetField("_entries",
                     BindingFlags.Instance | BindingFlags.NonPublic).GetValue(view);
                 Assert.AreEqual(1, entries.Count);
                 Assert.IsTrue(System.Array.Exists(root.GetComponentsInChildren<Text>(true),

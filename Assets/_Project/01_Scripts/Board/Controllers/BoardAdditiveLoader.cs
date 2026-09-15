@@ -1,4 +1,5 @@
 using System.Collections;
+using OzGameLab01.Board.Views;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using OzGameLab01.Data; // SceneNames 상수를 가져오기 위함
@@ -43,7 +44,7 @@ namespace OzGameLab01.Map // Map 파트 네임스페이스
             // 1. 보드 맵의 카메라 및 환경 비활성화 (충돌 방지)
             if (_boardEnvironmentRoot != null)
             {
-                _boardEnvironmentRoot.SetActive(false);
+                BoardEnvironmentView.SetVisible(_boardEnvironmentRoot, false);
             }
 
             // 2. 비동기로 Additive 씬 로드
@@ -75,10 +76,14 @@ namespace OzGameLab01.Map // Map 파트 네임스페이스
             // 3. 꺼두었던 보드 맵 환경(카메라 등) 재활성화
             if (_boardEnvironmentRoot != null)
             {
-                _boardEnvironmentRoot.SetActive(true);
+                BoardEnvironmentView.SetVisible(_boardEnvironmentRoot, true);
             }
 
             Debug.Log($"[BoardAdditiveLoader] {sceneName} 언로드 완료, 보드 맵 복귀!");
+        }
+        private void OnDestroy()
+        {
+            if (Instance == this) { Instance = null; }
         }
     }
 }

@@ -468,6 +468,38 @@ PrefabInstance:
       propertyPath: m_Name
       value: CombatManager
       objectReference: {fileID: 0}
+    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: unitsRoot
+      value: 
+      objectReference: {fileID: 1032302331}
+    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: enemyScale
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: rosterData
+      value: 
+      objectReference: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
+    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: allyHudPrefab
+      value: 
+      objectReference: {fileID: 6512804900257678260, guid: a5853972a94e8f847b461a72cfb559f8, type: 3}
+    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: synergyPanelRoot
+      value: 
+      objectReference: {fileID: 1309662701}
+    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: monsterRosterData
+      value: 
+      objectReference: {fileID: 11400000, guid: 35f100bb41c1ba44283329792840be6a, type: 2}
+    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: allyTemplatePrefab
+      value: 
+      objectReference: {fileID: 1608710449723199639, guid: 029ad7777ac8ace4bb5444feb35b6365, type: 3}
+    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: synergyItemTemplate
+      value: 
+      objectReference: {fileID: 2963044796329331369, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
     - target: {fileID: 4304981792502521584, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
       propertyPath: enemyScale
       value: 1
@@ -577,6 +609,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+--- !u!4 &1032302331 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 636346463687936712, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+  m_PrefabInstance: {fileID: 1032302330}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1295932623
 PrefabInstance:
   m_ObjectHideFlags: 0

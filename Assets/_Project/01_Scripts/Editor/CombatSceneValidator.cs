@@ -33,26 +33,26 @@ namespace OzGameLab01.Editor
             int errorCount = 0;
 
             CombatSceneController sceneController = FindInScene<CombatSceneController>(scene);
-            BattleUIController uiController = FindInScene<BattleUIController>(scene);
-            CombatManager combatManager = FindInScene<CombatManager>(scene);
-            BattleUIView battleUIView = FindInScene<BattleUIView>(scene);
+            CombatUIController uiController = FindInScene<CombatUIController>(scene);
+            CombatSession combatSession = FindInScene<CombatSession>(scene);
+            CombatUIView battleUIView = FindInScene<CombatUIView>(scene);
 
             errorCount += Require(sceneController, "CombatSceneController");
-            errorCount += Require(uiController, "BattleUIController");
-            errorCount += Require(combatManager, "CombatManager");
-            errorCount += Require(battleUIView, "BattleUIView");
+            errorCount += Require(uiController, "CombatUIController");
+            errorCount += Require(combatSession, "CombatSession");
+            errorCount += Require(battleUIView, "CombatUIView");
 
             if (uiController != null)
             {
-                errorCount += RequireReference(uiController, uiController.battleUIView, "BattleUIController.battleUIView");
-                errorCount += RequireReference(uiController, uiController.combatSceneController, "BattleUIController.combatSceneController");
+                errorCount += RequireReference(uiController, uiController.battleUIView, "CombatUIController.battleUIView");
+                errorCount += RequireReference(uiController, uiController.combatSceneController, "CombatUIController.combatSceneController");
             }
 
             if (battleUIView != null)
             {
-                errorCount += Require(battleUIView.MainView, "BattleUIView.MainView");
-                errorCount += Require(battleUIView.RewardView, "BattleUIView.RewardView");
-                errorCount += Require(battleUIView.ResultView, "BattleUIView.ResultView");
+                errorCount += Require(battleUIView.MainView, "CombatUIView.MainView");
+                errorCount += Require(battleUIView.RewardView, "CombatUIView.RewardView");
+                errorCount += Require(battleUIView.ResultView, "CombatUIView.ResultView");
 
                 if (battleUIView.RewardView != null)
                 {
@@ -70,17 +70,17 @@ namespace OzGameLab01.Editor
 
                 if (battleUIView.MainView != null)
                 {
-                    errorCount += Require(battleUIView.MainView.TimerView, "BattleMainView.TimerView");
-                    errorCount += Require(battleUIView.MainView.ControlView, "BattleMainView.ControlView");
-                    errorCount += Require(battleUIView.MainView.UnitInfoView, "BattleMainView.UnitInfoView");
-                    errorCount += Require(battleUIView.MainView.SynergyView, "BattleMainView.SynergyView");
-                    errorCount += Require(battleUIView.MainView.AllyCombatArea, "BattleMainView.AllyCombatArea");
-                    errorCount += Require(battleUIView.MainView.EnemyCombatArea, "BattleMainView.EnemyCombatArea");
+                    errorCount += Require(battleUIView.MainView.TimerView, "CombatMainView.TimerView");
+                    errorCount += Require(battleUIView.MainView.ControlView, "CombatMainView.ControlView");
+                    errorCount += Require(battleUIView.MainView.UnitInfoView, "CombatMainView.UnitInfoView");
+                    errorCount += Require(battleUIView.MainView.SynergyView, "CombatMainView.SynergyView");
+                    errorCount += Require(battleUIView.MainView.AllyCombatArea, "CombatMainView.AllyCombatArea");
+                    errorCount += Require(battleUIView.MainView.EnemyCombatArea, "CombatMainView.EnemyCombatArea");
 
                     IReadOnlyList<PlayerSlotItemView> slots = battleUIView.MainView.PlayerSlotViews;
                     if (slots == null || slots.Count < 9)
                     {
-                        LogError($"BattleMainView.PlayerSlotViews는 9개 이상이어야 합니다. 현재: {slots?.Count ?? 0}");
+                        LogError($"CombatMainView.PlayerSlotViews는 9개 이상이어야 합니다. 현재: {slots?.Count ?? 0}");
                         errorCount++;
                     }
                     else
@@ -89,7 +89,7 @@ namespace OzGameLab01.Editor
                         {
                             if (slots[i] == null || slots[i].UnitAnchor == null)
                             {
-                                LogError($"BattleMainView.PlayerSlotViews[{i}]의 UnitAnchor가 없습니다.");
+                                LogError($"CombatMainView.PlayerSlotViews[{i}]의 UnitAnchor가 없습니다.");
                                 errorCount++;
                             }
                         }
@@ -97,13 +97,13 @@ namespace OzGameLab01.Editor
                 }
             }
 
-            if (combatManager != null)
+            if (combatSession != null)
             {
-                errorCount += RequireSerializedReference(combatManager, "allyTemplatePrefab");
-                LogOptionalReference(combatManager, "battleMainView", "CombatManager가 런타임 자동 탐색합니다.");
-                errorCount += RequireSerializedReference(combatManager, "rosterData");
-                errorCount += RequireSerializedReference(combatManager, "synergyPanelRoot");
-                errorCount += RequireSerializedReference(combatManager, "synergyItemTemplate");
+                errorCount += RequireSerializedReference(combatSession, "allyTemplatePrefab");
+                LogOptionalReference(combatSession, "battleMainView", "CombatSession이 런타임 자동 탐색합니다.");
+                errorCount += RequireSerializedReference(combatSession, "rosterData");
+                errorCount += RequireSerializedReference(combatSession, "synergyPanelRoot");
+                errorCount += RequireSerializedReference(combatSession, "synergyItemTemplate");
             }
 
             EditorSceneManager.CloseScene(scene, false);

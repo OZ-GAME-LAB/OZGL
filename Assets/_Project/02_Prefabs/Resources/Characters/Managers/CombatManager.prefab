@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7404062802079038445}
-  - component: {fileID: 4304981792502521584}
+  - component: {fileID: 1922386724310859879}
   m_Layer: 0
   m_Name: CombatManager
   m_TagString: Untagged
@@ -33,7 +33,7 @@ Transform:
   - {fileID: 636346463687936712}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4304981792502521584
+--- !u!114 &1922386724310859879
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -42,41 +42,23 @@ MonoBehaviour:
   m_GameObject: {fileID: 156691275583828989}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab9f26703fd94625b53035f7e1678862, type: 3}
+  m_Script: {fileID: 11500000, guid: 4e63d92052db74e4081031f3543a90c6, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CombatManager
-  unitsRoot: {fileID: 636346463687936712}
-  gridOrigin: {x: -4.5, y: -1.2, z: 0}
-  columnSpacing: 1.2
-  rowSpacing: 1.2
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.CombatSession
+  unitsRoot: {fileID: 0}
   enemyPosition: {x: 4.5, y: 0, z: 0}
   enemyPrefabResourceName: Characters/Enemy_Melee
   enemyScale: 3
-  allyTemplatePrefab: {fileID: 1608710449723199639, guid: 029ad7777ac8ace4bb5444feb35b6365, type: 3}
-  allyFormation:
-  - slot:
-      column: 0
-      row: 0
-    unitId: 1
-  - slot:
-      column: 0
-      row: 1
-    unitId: 6
-  - slot:
-      column: 1
-      row: 0
-    unitId: 11
-  - slot:
-      column: 1
-      row: 1
-    unitId: 4
-  rosterData: {fileID: 11400000, guid: e98720fd12013bc40a762ef45209a2a6, type: 2}
+  allyTemplatePrefab: {fileID: 0}
+  allyHudPrefab: {fileID: 0}
+  battleMainView: {fileID: 0}
+  rosterData: {fileID: 0}
+  monsterRosterData: {fileID: 0}
+  enemyMonsterId: 1
   synergyPanelRoot: {fileID: 0}
   synergyItemTemplate: {fileID: 0}
   synergyActiveColor: {r: 1, g: 1, b: 1, a: 1}
   synergyInactiveColor: {r: 1, g: 1, b: 1, a: 0.4}
-  battleUnitInfoView: {fileID: 0}
-  supportFormation: 0800000009000000
 --- !u!1 &5232707624466829553
 GameObject:
   m_ObjectHideFlags: 0

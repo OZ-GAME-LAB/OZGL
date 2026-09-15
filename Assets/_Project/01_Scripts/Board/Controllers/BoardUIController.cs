@@ -1,4 +1,6 @@
 using UnityEngine;
+using OzGameLab01.Board.Models;
+using OzGameLab01.Board.Views;
 using TMPro;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
@@ -37,6 +39,8 @@ namespace OzGameLab01.Controllers
         private Coroutine _timeOfDayFeedbackRoutine;
         private bool _isMapPresentationReady;
         private BoardFeedbackView _feedbackView;
+        private OzGameLab01.Dice.DiceFacade _subscribedDice;
+        private bool _started;
 
         private void Awake()
         {
@@ -44,6 +48,17 @@ namespace OzGameLab01.Controllers
         }
 
         private void Start()
+        {
+            _started = true;
+            BindEvents();
+        }
+
+        private void OnEnable()
+        {
+            if (_started) { BindEvents(); }
+        }
+
+        private void BindEvents()
         {
             if (mapRouteDirector == null) mapRouteDirector = FindFirstObjectByType<MapRouteDirector>();
             if (boardCameraController == null) boardCameraController = FindFirstObjectByType<BoardCameraController>();
@@ -54,8 +69,8 @@ namespace OzGameLab01.Controllers
                 mapGenerator.PresentationCompleted += HandleMapPresentationCompleted;
             }
 
-            if (Managers.DiceManager.Instance != null)
-                Managers.DiceManager.Instance.OnDiceRolled += HandleDiceRolled;
+            _subscribedDice = Managers.DiceManager.Instance?.Facade;
+            if (_subscribedDice != null) { _subscribedDice.OnDiceRolled += HandleDiceRolled; }
 
             if (readySceneView != null)
             {
@@ -70,9 +85,9 @@ namespace OzGameLab01.Controllers
                     readySceneView.MainView.EndTurnClicked += HandleEndTurnButtonClicked;
 
                     // [수정됨] 시작할 때 "현재 플레이 중인 턴(경과 턴 + 1)"을 표시합니다.
-                    int initialTurn = BoardRunData.TurnCount + 1;
+                    int initialTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
                     readySceneView.MainView.SetCurrentTurn(initialTurn);
-                    readySceneView.MainView.SetClockHandAngle(initialTurn * -30f);
+                    readySceneView.MainView.SetClockHandAngle(BoardTurnRules.ClockAngle(BoardRunData.TurnCount));
                 }
 
                 if (readySceneView.SettingsView != null)
@@ -102,15 +117,23 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
+            StopAllCoroutines();
+            _automaticRollViewRoutine = null;
+            _timeOfDayFeedbackRoutine = null;
+            _isMapPresentationReady = false;
+            _feedbackView?.HideWarning();
             if (mapGenerator != null)
             {
                 mapGenerator.PresentationCompleted -= HandleMapPresentationCompleted;
             }
 
-            if (Managers.DiceManager.Instance != null)
-                Managers.DiceManager.Instance.OnDiceRolled -= HandleDiceRolled;
+            if (_subscribedDice != null)
+            {
+                _subscribedDice.OnDiceRolled -= HandleDiceRolled;
+                _subscribedDice = null;
+            }
 
             if (readySceneView != null)
             {
@@ -160,7 +183,7 @@ namespace OzGameLab01.Controllers
 
                 if (!TryOpenRollView())
                 {
-                    if (Managers.DiceManager.Instance != null && Managers.DiceManager.Instance.HasRolledThisTurn)
+                    if (Managers.DiceManager.Instance != null && Managers.DiceManager.Instance.Facade.HasRolledThisTurn)
                     {
                         ShowWarning("Please end the turn first!!");
                     }
@@ -198,21 +221,21 @@ namespace OzGameLab01.Controllers
                 boardCameraController = FindFirstObjectByType<BoardCameraController>();
             }
 
-            MapNode objective = mapRouteDirector != null
-                ? mapRouteDirector.CurrentObjective
+            GameObject objectiveView = mapRouteDirector != null
+                ? mapRouteDirector.CurrentObjectiveView
                 : null;
 
-            if (objective?.NodeView == null || boardCameraController == null)
+            if (objectiveView == null || boardCameraController == null)
             {
                 return;
             }
 
-            boardCameraController.Locate(objective.NodeView.transform);
+            boardCameraController.Locate(objectiveView.transform);
         }
 
         private void HandleEndTurnButtonClicked(ReadyMainView view)
         {
-            if (Managers.DiceManager.Instance != null && !Managers.DiceManager.Instance.HasRolledThisTurn)
+            if (Managers.DiceManager.Instance != null && !Managers.DiceManager.Instance.Facade.HasRolledThisTurn)
             {
                 ShowWarning("Please roll the dice first!");
                 return;
@@ -242,7 +265,7 @@ namespace OzGameLab01.Controllers
         private void HandleRollButtonClicked(RollView view)
         {
             if (Managers.DiceManager.Instance != null)
-                Managers.DiceManager.Instance.RollDice();
+                Managers.DiceManager.Instance.Facade.RollDice();
         }
 
         private void HandleDiceRolled(int diceValue)
@@ -254,7 +277,7 @@ namespace OzGameLab01.Controllers
 
             RollView view = readySceneView.RollView;
 
-            if (view == null || !view.IsVisible)
+            if (!isActiveAndEnabled || view == null || !view.IsVisible)
                 return;
 
             _feedbackView.SetDiceResult("?");
@@ -263,7 +286,7 @@ namespace OzGameLab01.Controllers
 
             bool started = view.PlayRoll(diceValue, result =>
             {
-                if (view == null || !view.IsVisible)
+                if (!isActiveAndEnabled || view == null || !view.IsVisible)
                     return;
 
                 _feedbackView.SetDiceResult(result.ToString());
@@ -293,11 +316,11 @@ namespace OzGameLab01.Controllers
             if (readySceneView != null && readySceneView.MainView != null)
             {
                 // 증가가 끝난 진짜 TurnCount 값에 +1을 더해서 "이번에 시작될 턴"을 표시합니다.
-                int displayTurn = BoardRunData.TurnCount + 1;
+                int displayTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
 
                 readySceneView.MainView.SetCurrentTurn(displayTurn);
 
-                float angle = displayTurn * -30f;
+                float angle = BoardTurnRules.ClockAngle(BoardRunData.TurnCount);
                 readySceneView.MainView.SetClockHandAngle(angle);
             }
         }
@@ -398,14 +421,9 @@ namespace OzGameLab01.Controllers
                 return true;
             }
 
-            Managers.DiceManager diceManager = Managers.DiceManager.Instance;
-            if (diceManager == null || diceManager.HasRolledThisTurn)
-            {
-                return false;
-            }
-
+            var diceFacade = Managers.DiceManager.Instance?.Facade;
             BoardPlayerController player = BoardPlayerController.Instance;
-            if (player != null && (player.IsMoving || player.CurrentDiceValue > 0))
+            if (!BoardTurnRules.CanOpenRoll(diceFacade != null, diceFacade != null && diceFacade.HasRolledThisTurn, player != null && player.IsMoving, player != null ? player.CurrentDiceValue : 0))
             {
                 return false;
             }
