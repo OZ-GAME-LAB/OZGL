@@ -69,14 +69,15 @@ namespace OzGameLab01.Map
                 ? mapRouteDirector.CurrentObjective
                 : null;
 
-            if (playerTarget == null || objective == null || objective.NodeView == null ||
+            GameObject objectiveView = mapRouteDirector != null ? mapRouteDirector.CurrentObjectiveView : null;
+            if (playerTarget == null || objective == null || objectiveView == null ||
                 (objective.Type != NodeType.Elite && objective.Type != NodeType.Boss))
             {
                 HideNeedle();
                 return;
             }
 
-            Vector3 direction = objective.NodeView.transform.position - playerTarget.position;
+            Vector3 direction = objectiveView.transform.position - playerTarget.position;
             direction.y = 0f;
             float threshold = Mathf.Max(0.001f, hideDistance);
 

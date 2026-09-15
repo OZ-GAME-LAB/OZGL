@@ -1,4 +1,5 @@
 using UnityEngine;
+using OzGameLab01.Board.Views;
 using TMPro;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
@@ -198,16 +199,16 @@ namespace OzGameLab01.Controllers
                 boardCameraController = FindFirstObjectByType<BoardCameraController>();
             }
 
-            MapNode objective = mapRouteDirector != null
-                ? mapRouteDirector.CurrentObjective
+            GameObject objectiveView = mapRouteDirector != null
+                ? mapRouteDirector.CurrentObjectiveView
                 : null;
 
-            if (objective?.NodeView == null || boardCameraController == null)
+            if (objectiveView == null || boardCameraController == null)
             {
                 return;
             }
 
-            boardCameraController.Locate(objective.NodeView.transform);
+            boardCameraController.Locate(objectiveView.transform);
         }
 
         private void HandleEndTurnButtonClicked(ReadyMainView view)

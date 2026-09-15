@@ -31,6 +31,7 @@ namespace OzGameLab01.Controllers
 
         private BoardMovementModel _model;
         private BoardPlayerView _view;
+        private MapGenerator _mapGenerator;
         private TileView _hoveredTile;
         private bool _isFeedbackPlaying;
 
@@ -78,8 +79,8 @@ namespace OzGameLab01.Controllers
             }
             Model.Setup(startNode);
             RefreshActionPowerHud();
-            MapGenerator generator = FindFirstObjectByType<MapGenerator>();
-            float spacing = generator != null ? generator.tileSpacing : 2f;
+            _mapGenerator = FindFirstObjectByType<MapGenerator>();
+            float spacing = _mapGenerator != null ? _mapGenerator.tileSpacing : 2f;
             _view.Setup(new Vector3(startNode.Position.x * spacing, 0.5f, startNode.Position.y * spacing), _playerTokenPrefab);
         }
 
@@ -158,11 +159,12 @@ namespace OzGameLab01.Controllers
             {
                 foreach (MapNode node in path)
                 {
-                    if (node.NodeView == null)
+                    GameObject nodeView = _mapGenerator != null ? _mapGenerator.GetNodeView(node) : null;
+                    if (nodeView == null)
                     {
                         yield break;
                     }
-                    yield return _view.MoveTo(node.NodeView.transform.position, _moveSpeed);
+                    yield return _view.MoveTo(nodeView.transform.position, _moveSpeed);
                     Model.CompleteStep(node);
                     RefreshActionPowerHud();
                 }

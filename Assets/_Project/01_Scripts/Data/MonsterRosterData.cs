@@ -64,8 +64,12 @@ namespace OzGameLab01.Combat
         /// </summary>
         public static List<MonsterData> ParseMonsterList(string json)
         {
-            MonsterDataList list = Newtonsoft.Json.JsonConvert.DeserializeObject<MonsterDataList>(json);
-            return list?.monsterList;
+            // 기존 빈 JSON 입력의 null 반환 계약 유지
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+            return OzGameLab01.Data.JsonDataParser.Parse<MonsterData, MonsterDataList>(json);
         }
 
         public MonsterData GetById(int id)

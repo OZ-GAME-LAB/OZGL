@@ -99,6 +99,20 @@ namespace OzGameLab01.Map
         private Dictionary<Vector2Int, MapNode> _nodeDict = new Dictionary<Vector2Int, MapNode>();
         private List<MapNode> _allNodes = new List<MapNode>();
         public IReadOnlyDictionary<Vector2Int, MapNode> NodeDict => _nodeDict;
+        private readonly Dictionary<MapNode, GameObject> _nodeViews = new Dictionary<MapNode, GameObject>();
+
+        /// <summary>
+        /// 논리 노드에 대응하는 현재 화면 오브젝트를 반환합니다.
+        /// </summary>
+        public GameObject GetNodeView(MapNode node)
+        {
+            if (node == null)
+            {
+                return null;
+            }
+            _nodeViews.TryGetValue(node, out GameObject view);
+            return view;
+        }
 
         /// <summary>
         /// 논리 좌표 기준으로 설정된 맵의 최대 생성 반경입니다.
@@ -167,6 +181,14 @@ namespace OzGameLab01.Map
 
             try
             {
+                foreach (GameObject view in _nodeViews.Values)
+                {
+                    if (view != null)
+                    {
+                        Destroy(view);
+                    }
+                }
+                _nodeViews.Clear();
                 _nodeDict.Clear();
                 _allNodes.Clear();
 
@@ -876,13 +898,14 @@ namespace OzGameLab01.Map
                 0f,
                 node.Position.y * tileSpacing);
 
-            node.NodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, transform);
-            Transform nodeTransform = node.NodeView.transform;
+            GameObject nodeView = Instantiate(targetPrefab, worldPos, Quaternion.identity, transform);
+            _nodeViews[node] = nodeView;
+            Transform nodeTransform = nodeView.transform;
             nodeTransform.localScale = Vector3.Scale(
                 nodeTransform.localScale,
                 new Vector3(tileScaleMultiplier, 1f, tileScaleMultiplier));
 
-            TileView tileView = node.NodeView.GetComponent<TileView>();
+            TileView tileView = nodeView.GetComponent<TileView>();
             if (tileView != null)
             {
                 tileView.Init(node);
@@ -953,7 +976,12 @@ namespace OzGameLab01.Map
                 return;
             }
 
-            if (node.NodeView != null) Destroy(node.NodeView); // 기존 평범한 타일 모델 삭제
+            GameObject previousView = GetNodeView(node);
+            if (previousView != null)
+            {
+                Destroy(previousView);
+            }
+            _nodeViews.Remove(node);
             CreateNodeView(node, false);
         }
 
