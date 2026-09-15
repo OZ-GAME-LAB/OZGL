@@ -1,34 +1,40 @@
 using OzGameLab01.Effects.Models;
 
-/// <summary>
-/// 기존 싱글톤 API를 유지하고 리스너 관리를 독립 모델에 위임합니다.
-/// </summary>
-public class BattleEffectCoordinator : Singleton<BattleEffectCoordinator>
+namespace OzGameLab01.Managers
 {
-    private readonly EffectListenerRegistry _listeners = new EffectListenerRegistry();
-
-    public void RegisterListener(object target)
+    /// <summary>
+    /// 기존 싱글톤 API를 유지하고 리스너 관리를 독립 모델에 위임합니다.
+    /// </summary>
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "", sourceAssembly: null, sourceClassName: null)]
+    public class BattleEffectCoordinator : Singleton<BattleEffectCoordinator>
     {
-        _listeners.RegisterListener(target);
-    }
+        private readonly EffectListenerRegistry _listeners = new EffectListenerRegistry();
 
-    public void UnregisterListener(object target)
-    {
-        _listeners.UnregisterListener(target);
-    }
+        private void OnDestroy() => _listeners.ClearAllListeners();
 
-    public void ClearAllListeners()
-    {
-        _listeners.ClearAllListeners();
-    }
+        public void RegisterListener(object target)
+        {
+            _listeners.RegisterListener(target);
+        }
 
-    public void DispatchAttack()
-    {
-        _listeners.DispatchAttack();
-    }
+        public void UnregisterListener(object target)
+        {
+            _listeners.UnregisterListener(target);
+        }
 
-    public void DispatchDiceRoll()
-    {
-        _listeners.DispatchDiceRoll();
+        public void ClearAllListeners()
+        {
+            _listeners.ClearAllListeners();
+        }
+
+        public void DispatchAttack()
+        {
+            _listeners.DispatchAttack();
+        }
+
+        public void DispatchDiceRoll()
+        {
+            _listeners.DispatchDiceRoll();
+        }
     }
 }

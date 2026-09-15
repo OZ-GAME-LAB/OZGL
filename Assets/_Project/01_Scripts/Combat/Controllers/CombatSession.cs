@@ -130,7 +130,6 @@ namespace OzGameLab01.Combat
             _state.EnemyUnit = _allySpawner.SpawnEnemy();
             _enemyHeaderPresenter?.SetEnemyName(_state.EnemyUnit != null ? _state.EnemyUnit.DisplayName : string.Empty);
 
-            RuntimeEffectManager.Instance.LoadTempUnitJsonAndLog();
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
             RuntimeEffectManager.Instance.RefreshFromPlayerState();
 

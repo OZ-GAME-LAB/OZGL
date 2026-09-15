@@ -37,8 +37,8 @@ namespace OzGameLab01.Effects.Models
 
         private readonly struct StatCacheKey : IEquatable<StatCacheKey>
         {
-            public readonly EffectStatType StatType;
-            public readonly EffectTarget Target;
+            public EffectStatType StatType { get; }
+            public EffectTarget Target { get; }
 
             public StatCacheKey(EffectStatType statType, EffectTarget target)
             {
@@ -67,9 +67,9 @@ namespace OzGameLab01.Effects.Models
 
         public readonly struct EffectStatModifier
         {
-            public readonly float Additive;
-            public readonly float Multiplicative;
-            public readonly int SourceCount;
+            public float Additive { get; }
+            public float Multiplicative { get; }
+            public int SourceCount { get; }
 
             public EffectStatModifier(float additive, float multiplicative, int sourceCount)
             {

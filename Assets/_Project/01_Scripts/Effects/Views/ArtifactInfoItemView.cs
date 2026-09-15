@@ -9,23 +9,26 @@ namespace OzGameLab01.UI
     public sealed class ArtifactInfoItemView : MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler
     {
         [Header("References")]
-        [SerializeField] private RectTransform rectTransform;
-        [SerializeField] private Image background;
-        [SerializeField] private Image icon;
+        [UnityEngine.Serialization.FormerlySerializedAs("rectTransform")]
+        [SerializeField] private RectTransform _rectTransform;
+        [UnityEngine.Serialization.FormerlySerializedAs("background")]
+        [SerializeField] private Image _background;
+        [UnityEngine.Serialization.FormerlySerializedAs("icon")]
+        [SerializeField] private Image _icon;
 
-        private bool isInteractable = true;
+        private bool _isInteractable = true;
 
         #region Properties
 
-        public RectTransform RectTransform => rectTransform;
-        public RectTransform TooltipAnchor => rectTransform;
+        public RectTransform RectTransform => _rectTransform;
+        public RectTransform TooltipAnchor => _rectTransform;
 
-        public Image Background => background;
-        public Image Icon => icon;
+        public Image Background => _background;
+        public Image Icon => _icon;
 
         public bool IsInteractable
         {
-            get => isInteractable;
+            get => _isInteractable;
             set => SetInteractable(value);
         }
 
@@ -39,43 +42,43 @@ namespace OzGameLab01.UI
 
         public void SetIcon(Sprite sprite)
         {
-            if (icon != null)
+            if (_icon != null)
             {
-                icon.sprite = sprite;
+                _icon.sprite = sprite;
             }
         }
 
         public void SetIconVisible(bool visible)
         {
-            if (icon != null)
+            if (_icon != null)
             {
-                icon.enabled = visible;
+                _icon.enabled = visible;
             }
         }
 
         public void SetIconColor(Color color)
         {
-            if (icon != null)
+            if (_icon != null)
             {
-                icon.color = color;
+                _icon.color = color;
             }
         }
 
         public void SetBackgroundColor(Color color)
         {
-            if (background != null)
+            if (_background != null)
             {
-                background.color = color;
+                _background.color = color;
             }
         }
 
         public void SetInteractable(bool value)
         {
-            isInteractable = value;
+            _isInteractable = value;
 
-            if (background != null)
+            if (_background != null)
             {
-                background.raycastTarget = value;
+                _background.raycastTarget = value;
             }
         }
 
@@ -86,7 +89,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -96,7 +99,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -106,7 +109,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }

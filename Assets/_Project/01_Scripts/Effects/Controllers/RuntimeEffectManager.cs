@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
-using Newtonsoft.Json;
 using UnityEngine;
 
 namespace OzGameLab01.Managers
@@ -15,8 +14,17 @@ namespace OzGameLab01.Managers
     /// 효과가 추가·제거될 때만 RefreshFromPlayerState()를 호출해 캐시를 재구성합니다.
     /// 실제 전투 유닛의 초 단위 디버프(UnitStatusEffects)는 별도 시스템으로 유지합니다.
     /// </summary>
-    public sealed class RuntimeEffectManager : Singleton<RuntimeEffectManager>
+    public sealed class RuntimeEffectManager : Singleton<RuntimeEffectManager>, OzGameLab01.Effects.Contracts.IEffectsNotificationSource
     {
+        private void OnDestroy() => _notifications.ClearSubscribers();
+
+        private readonly OzGameLab01.Effects.Controllers.EffectsNotificationPublisher _notifications = new OzGameLab01.Effects.Controllers.EffectsNotificationPublisher();
+        public event System.Action<OzGameLab01.Effects.Models.EffectsNotification> Notification
+        {
+            add => _notifications.Notification += value;
+            remove => _notifications.Notification -= value;
+        }
+
         public enum EffectSourceKind
         {
             UnitPassive,
@@ -25,10 +33,10 @@ namespace OzGameLab01.Managers
 
         public readonly struct EffectSource
         {
-            public readonly EffectSourceKind Kind;
-            public readonly int SourceId;
-            public readonly EffectInstance Definition;
-            public readonly int DeclarationIndex;
+            public EffectSourceKind Kind { get; }
+            public int SourceId { get; }
+            public EffectInstance Definition { get; }
+            public int DeclarationIndex { get; }
 
             public EffectSource(
                 EffectSourceKind kind,
@@ -45,9 +53,9 @@ namespace OzGameLab01.Managers
 
         public readonly struct StatModifierCache
         {
-            public readonly float Additive;
-            public readonly float Multiplicative;
-            public readonly int SourceCount;
+            public float Additive { get; }
+            public float Multiplicative { get; }
+            public int SourceCount { get; }
 
             public StatModifierCache(float additive, float multiplicative, int sourceCount)
             {
@@ -69,51 +77,6 @@ namespace OzGameLab01.Managers
         public int CachedEffectCount => _cache.CachedEffectCount;
         public IReadOnlyList<EffectSource> AllEffects => _cache.AllEffects;
         public IReadOnlyList<EffectSource> OrderedEffects => _cache.OrderedEffects;
-        /// <summary>
-        /// 임시 검증용 JSON 로더입니다. 실제 효과 캐시 입력과 분리되어 있으며,
-        /// 전투 씬 진입 시 TempUnitData.json 역직렬화 결과를 Unity Console에 출력합니다.
-        /// </summary>
-        [ContextMenu("Debug/Load Temp Unit JSON")]
-        public bool LoadTempUnitJsonAndLog()
-        {
-            const string resourcePath = "TempUnitData";
-            TextAsset jsonFile = Resources.Load<TextAsset>(resourcePath);
-            if (jsonFile == null)
-            {
-                Debug.LogError(
-                    $"[RuntimeEffectManager][TempJson] Resources/{resourcePath}.json을 찾지 못했습니다.",
-                    this);
-                return false;
-            }
-
-            try
-            {
-                UnitDataList data = JsonConvert.DeserializeObject<UnitDataList>(jsonFile.text);
-                if (data?.unitList == null || data.unitList.Count == 0)
-                {
-                    Debug.LogError(
-                        "[RuntimeEffectManager][TempJson] 역직렬화는 되었지만 unitList가 비어 있습니다.",
-                        this);
-                    return false;
-                }
-
-                UnitData first = data.unitList[0];
-                Debug.Log(
-                    $"[RuntimeEffectManager][TempJson] Load OK: count={data.unitList.Count}, " +
-                    $"first.id={first.id}, first.name={first.name}, " +
-                    $"first.skillIds.Count={(first.skillIds?.Count ?? 0)}",
-                    this);
-                return true;
-            }
-            catch (JsonException exception)
-            {
-                Debug.LogError(
-                    $"[RuntimeEffectManager][TempJson] JSON 역직렬화 실패: {exception.Message}",
-                    this);
-                return false;
-            }
-        }
-
         /// <summary>
         /// PlayerInventoryManager와 RelicManager의 현재 상태를 읽어 효과 캐시를 재생성합니다.
         /// 보유 목록이 변경되는 획득·복원·초기화 시점에만 호출합니다.
@@ -152,6 +115,7 @@ namespace OzGameLab01.Managers
             }
 
             _cache.Rebuild(sources);
+            _notifications.Publish(OzGameLab01.Effects.Models.EffectsNotificationKind.CacheRebuilt, 0, CachedEffectCount);
         }
 
         /// <summary>

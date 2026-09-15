@@ -13,9 +13,9 @@ namespace OzGameLab01.Combat
     {
         public readonly struct DisplayItem
         {
-            public readonly SynergyDefinition Definition;
-            public readonly bool IsActive;
-            public readonly string StackText;
+            public SynergyDefinition Definition { get; }
+            public bool IsActive { get; }
+            public string StackText { get; }
 
             public DisplayItem(SynergyDefinition definition, bool isActive, string stackText)
             {

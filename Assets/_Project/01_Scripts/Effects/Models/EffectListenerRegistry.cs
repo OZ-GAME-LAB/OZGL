@@ -11,7 +11,7 @@ namespace OzGameLab01.Effects.Models
     {
         private sealed class Entry
         {
-            public readonly object Target;
+            public object Target { get; }
             public Entry(object target)
             {
                 Target = target;

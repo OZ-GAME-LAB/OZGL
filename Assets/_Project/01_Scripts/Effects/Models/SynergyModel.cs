@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OzGameLab01.Data;
 using OzGameLab01.Combat;
 
 namespace OzGameLab01.Effects.Models
@@ -8,6 +9,25 @@ namespace OzGameLab01.Effects.Models
     /// </summary>
     public static class SynergyModel
     {
+        /// <summary>직업·종족 조회 결과 기반 유닛별 트레이트 구성</summary>
+        public static Dictionary<int, List<SynergyDefinition>> BuildTraitLookup(
+            Dictionary<int, OzGameLab01.Data.UnitData> units,
+            System.Func<OzGameLab01.Data.UnitTypeJob, SynergyDefinition> getJob,
+            System.Func<OzGameLab01.Data.UnitTypeTribe, SynergyDefinition> getTribe)
+        {
+            var result = new Dictionary<int, List<SynergyDefinition>>();
+            foreach (var pair in units)
+            {
+                var traits = new List<SynergyDefinition>();
+                SynergyDefinition job = getJob(pair.Value.jobType);
+                SynergyDefinition tribe = getTribe(pair.Value.tribeType);
+                if (job != null) traits.Add(job);
+                if (tribe != null) traits.Add(tribe);
+                result[pair.Key] = traits;
+            }
+            return result;
+        }
+
         public static Dictionary<SynergyDefinition, int> CountTraits(
             IEnumerable<int> unitIds,
             Dictionary<int, List<SynergyDefinition>> traitsById)

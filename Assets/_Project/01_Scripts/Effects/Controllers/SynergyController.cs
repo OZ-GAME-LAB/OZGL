@@ -11,11 +11,18 @@ namespace OzGameLab01.Combat
     /// Inspector 참조는 CombatManager가 그대로 들고 있고, 이 클래스는 그 값을
     /// 생성자로 전달받아 사용하는 순수 C# 클래스입니다(씬/프리팹 재배선 불필요).
     /// </summary>
-    public class SynergyController
+    public class SynergyController : OzGameLab01.Effects.Contracts.IEffectsNotificationSource
     {
+        private readonly OzGameLab01.Effects.Controllers.EffectsNotificationPublisher _notifications = new OzGameLab01.Effects.Controllers.EffectsNotificationPublisher();
+        public event System.Action<OzGameLab01.Effects.Models.EffectsNotification> Notification
+        {
+            add => _notifications.Notification += value;
+            remove => _notifications.Notification -= value;
+        }
+
         public System.Action<CombatFeedback> OnEffectApplied { get; set; }
-        private readonly UnitRosterData rosterData;
-        private readonly Object logContext;
+        private readonly UnitRosterData _rosterData;
+        private readonly Object _logContext;
         private readonly OzGameLab01.Effects.Views.SynergyPanelView _panelView;
 
         private Dictionary<int, List<SynergyDefinition>> _unitTraitsById;
@@ -29,8 +36,8 @@ namespace OzGameLab01.Combat
             Color synergyInactiveColor,
             Object logContext)
         {
-            this.rosterData = rosterData;
-            this.logContext = logContext;
+            _rosterData = rosterData;
+            _logContext = logContext;
             _panelView = new OzGameLab01.Effects.Views.SynergyPanelView(synergyPanelRoot, synergyItemTemplate, synergyActiveColor, synergyInactiveColor);
         }
 
@@ -42,31 +49,14 @@ namespace OzGameLab01.Combat
         public void BuildUnitTraitLookup(Dictionary<int, UnitData> unitDataById)
         {
             _unitTraitsById = new Dictionary<int, List<SynergyDefinition>>();
-            if (rosterData == null || unitDataById == null)
+            if (_rosterData == null || unitDataById == null)
             {
                 return;
             }
 
-            UnitRosterData.RegisterActive(rosterData, logContext);
+            UnitRosterData.RegisterActive(_rosterData, _logContext);
 
-            foreach (KeyValuePair<int, UnitData> kvp in unitDataById)
-            {
-                List<SynergyDefinition> traits = new List<SynergyDefinition>();
-
-                SynergyDefinition jobTrait = rosterData.GetJobTrait(kvp.Value.jobType);
-                if (jobTrait != null)
-                {
-                    traits.Add(jobTrait);
-                }
-
-                SynergyDefinition tribeTrait = rosterData.GetTribeTrait(kvp.Value.tribeType);
-                if (tribeTrait != null)
-                {
-                    traits.Add(tribeTrait);
-                }
-
-                _unitTraitsById[kvp.Key] = traits;
-            }
+            _unitTraitsById = OzGameLab01.Effects.Models.SynergyModel.BuildTraitLookup(unitDataById, _rosterData.GetJobTrait, _rosterData.GetTribeTrait);
         }
 
         public void ApplySynergies(Dictionary<CombatManager.SlotKey, int> spawnedFormation, Unit[,] slotUnits)
@@ -118,6 +108,7 @@ namespace OzGameLab01.Combat
                     ApplyTierEffects(definition, count, SynergyTargetType.AllAllies, null, spawnedFormation, slotUnits);
                 }
             }
+            _notifications.Publish(OzGameLab01.Effects.Models.EffectsNotificationKind.SynergiesEvaluated, 0, _traitCounts.Count);
         }
 
         /// <summary>
@@ -209,11 +200,11 @@ namespace OzGameLab01.Combat
         /// </summary>
         public void PopulateSynergyPanel()
         {
-            if (rosterData == null || !_panelView.IsAvailable)
+            if (_rosterData == null || !_panelView.IsAvailable)
             {
                 return;
             }
-            _panelView.Render(SynergyPanelUtility.BuildDisplayItems(rosterData.SynergyDefinitions, _traitCounts));
+            _panelView.Render(SynergyPanelUtility.BuildDisplayItems(_rosterData.SynergyDefinitions, _traitCounts));
         }
     }
 }

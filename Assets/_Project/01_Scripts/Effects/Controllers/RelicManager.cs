@@ -5,14 +5,27 @@ using OzGameLab01.Effects.Models;
 
 namespace OzGameLab01.Managers
 {
-    public class RelicManager : Singleton<RelicManager>
+    public class RelicManager : Singleton<RelicManager>, OzGameLab01.Effects.Contracts.IEffectsNotificationSource
     {
+        private void OnDestroy()
+        {
+            _notifications.ClearSubscribers();
+            _listeners.ClearAllListeners();
+        }
+
+        private readonly OzGameLab01.Effects.Controllers.EffectsNotificationPublisher _notifications = new OzGameLab01.Effects.Controllers.EffectsNotificationPublisher();
+        public event System.Action<OzGameLab01.Effects.Models.EffectsNotification> Notification
+        {
+            add => _notifications.Notification += value;
+            remove => _notifications.Notification -= value;
+        }
+
         // 전체 보유 유물 목록
-        private readonly List<RelicRuntimeInstance> _allRelics = new();
+        private readonly RelicCollectionModel<RelicRuntimeInstance> _relics = new RelicCollectionModel<RelicRuntimeInstance>();
 
         private readonly EffectListenerRegistry _listeners = new EffectListenerRegistry();
 
-        public IReadOnlyList<RelicRuntimeInstance> OwnedRelics => _allRelics;
+        public IReadOnlyList<RelicRuntimeInstance> OwnedRelics => _relics.Items;
 
         /// <summary>
         /// GameDB의 ID 기반 유물 획득
@@ -30,13 +43,14 @@ namespace OzGameLab01.Managers
 
             // 2. 런타임 인스턴스 생성, 장착
             var newInstance = new RelicRuntimeInstance(relicData);
-            _allRelics.Add(newInstance);
+            _relics.Add(newInstance);
 
 
             newInstance.OnEquip();
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
 
             SaveManager.Instance?.MarkAsDirty();
+            _notifications.Publish(EffectsNotificationKind.RelicAcquired, relicId, _relics.Count);
         }
 
         /// <summary>
@@ -46,62 +60,14 @@ namespace OzGameLab01.Managers
         /// </summary>
         public RelicData AcquireRandomRelic()
         {
-            IReadOnlyDictionary<int, RelicData> allRelics = RuntimeDataManager.Instance.Relics;
-            if (allRelics.Count == 0)
+            List<int> ownedIds = new List<int>();
+            foreach (RelicRuntimeInstance owned in OwnedRelics)
             {
-                return null;
+                if (owned?.Data != null) ownedIds.Add(owned.Data.id);
             }
-
-            HashSet<int> ownedIds = new HashSet<int>();
-            foreach (RelicRuntimeInstance owned in _allRelics)
-            {
-                if (owned?.Data != null)
-                {
-                    ownedIds.Add(owned.Data.id);
-                }
-            }
-
-            List<RelicData> pool = new List<RelicData>();
-            foreach (RelicData relic in allRelics.Values)
-            {
-                if (!ownedIds.Contains(relic.id))
-                {
-                    pool.Add(relic);
-                }
-            }
-
-            if (pool.Count == 0)
-            {
-                pool.AddRange(allRelics.Values);
-            }
-
-            float totalWeight = 0f;
-            foreach (RelicData relic in pool)
-            {
-                totalWeight += Mathf.Max(0f, relic.dropWeight);
-            }
-
-            RelicData picked;
-            if (totalWeight <= 0f)
-            {
-                picked = pool[Random.Range(0, pool.Count)];
-            }
-            else
-            {
-                float roll = Random.value * totalWeight;
-                float cumulative = 0f;
-                picked = pool[pool.Count - 1];
-                foreach (RelicData relic in pool)
-                {
-                    cumulative += Mathf.Max(0f, relic.dropWeight);
-                    if (roll <= cumulative)
-                    {
-                        picked = relic;
-                        break;
-                    }
-                }
-            }
-
+            RelicData picked = RelicSelectionModel.Select(RuntimeDataManager.Instance.Relics,
+                ownedIds, count => Random.Range(0, count), () => Random.value);
+            if (picked == null) return null;
             AcquireRelic(picked.id);
             return picked;
         }
@@ -113,7 +79,7 @@ namespace OzGameLab01.Managers
         public void RestoreFromSave(List<RelicSaveEntry> saveEntries)
         {
             // [수정] 보유 목록뿐 아니라 이전 런의 공격 및 주사위 발동 목록도 함께 초기화
-            ClearRunState();
+            ClearRunStateCore();
 
             foreach (var entry in saveEntries)
             {
@@ -121,11 +87,12 @@ namespace OzGameLab01.Managers
                 if (data == null) continue;
 
                 var runtime = new RelicRuntimeInstance(data);
-                _allRelics.Add(runtime);
+                _relics.Add(runtime);
                 runtime.OnEquip();
             }
 
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
+            _notifications.Publish(EffectsNotificationKind.RelicsRestored, 0, _relics.Count);
         }
 
         /// <summary>
@@ -133,7 +100,13 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void ClearRunState()
         {
-            _allRelics.Clear();
+            ClearRunStateCore();
+            _notifications.Publish(EffectsNotificationKind.RelicsCleared, 0, 0);
+        }
+
+        private void ClearRunStateCore()
+        {
+            _relics.Clear();
             _listeners.ClearAllListeners();
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
         }
