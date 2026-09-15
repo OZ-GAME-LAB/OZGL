@@ -1,6 +1,7 @@
+using UnityEngine.Serialization;
+using OzGameLab01.Data;
 using System.Collections.Generic;
 using UnityEngine;
-using OzGameLab01.Data;
 
 namespace OzGameLab01.Combat
 {
@@ -33,26 +34,31 @@ namespace OzGameLab01.Combat
         }
 
         [Tooltip("유닛 데이터베이스(JSON)에서 로드해 캐싱한 값입니다. 직접 편집하지 마세요 — OnEnable()에서 덮어씁니다.")]
-        [SerializeField] private List<UnitData> unitStats = new List<UnitData>();
+        [FormerlySerializedAs("unitStats")]
+        [SerializeField] private List<UnitData> _unitStats = new List<UnitData>();
 
         [Tooltip("UnitData.skillIds가 참조하는 스킬 정의 테이블. SkillData.id와 매칭.")]
-        [SerializeField] private List<SkillData> skillDefinitions = new List<SkillData>();
+        [FormerlySerializedAs("skillDefinitions")]
+        [SerializeField] private List<SkillData> _skillDefinitions = new List<SkillData>();
 
         [Tooltip("UnitData.jobType별 시너지 트레이트. 실제 유닛 데이터베이스(JSON) 기반 전투에서 사용.")]
-        [SerializeField] private List<JobTraitEntry> jobTraits = new List<JobTraitEntry>();
+        [FormerlySerializedAs("jobTraits")]
+        [SerializeField] private List<JobTraitEntry> _jobTraits = new List<JobTraitEntry>();
 
         [Tooltip("UnitData.tribeType별 시너지 트레이트. 실제 유닛 데이터베이스(JSON) 기반 전투에서 사용.")]
-        [SerializeField] private List<TribeTraitEntry> tribeTraits = new List<TribeTraitEntry>();
+        [FormerlySerializedAs("tribeTraits")]
+        [SerializeField] private List<TribeTraitEntry> _tribeTraits = new List<TribeTraitEntry>();
 
         [Tooltip("트레이트 조합으로 발동 가능한 시너지 목록.")]
-        [SerializeField] private List<SynergyDefinition> synergyDefinitions = new List<SynergyDefinition>();
+        [FormerlySerializedAs("synergyDefinitions")]
+        [SerializeField] private List<SynergyDefinition> _synergyDefinitions = new List<SynergyDefinition>();
 
-        public IReadOnlyList<UnitData> UnitStats => unitStats;
-        public IReadOnlyList<SynergyDefinition> SynergyDefinitions => synergyDefinitions;
+        public IReadOnlyList<UnitData> UnitStats => _unitStats;
+        public IReadOnlyList<SynergyDefinition> SynergyDefinitions => _synergyDefinitions;
 
         public SynergyDefinition GetJobTrait(UnitTypeJob job)
         {
-            foreach (JobTraitEntry entry in jobTraits)
+            foreach (JobTraitEntry entry in _jobTraits)
             {
                 if (entry.job == job)
                 {
@@ -65,7 +71,7 @@ namespace OzGameLab01.Combat
 
         public SynergyDefinition GetTribeTrait(UnitTypeTribe tribe)
         {
-            foreach (TribeTraitEntry entry in tribeTraits)
+            foreach (TribeTraitEntry entry in _tribeTraits)
             {
                 if (entry.tribe == tribe)
                 {
@@ -82,65 +88,11 @@ namespace OzGameLab01.Combat
         /// </summary>
         public static UnitRosterData Active => _activeInstance;
 
-        public SkillData GetSkill(int id)
-        {
-            foreach (SkillData skill in skillDefinitions)
-            {
-                if (skill != null && skill.id == id)
-                {
-                    return skill;
-                }
-            }
-
-            return null;
-        }
+        public SkillData GetSkill(int id) => RosterDataRules.FindFirst(_skillDefinitions, id, skill => skill.id);
 
         private void OnEnable()
         {
-            // 공용 기본공격(900)은 TempRosterSeed에서 계속 채웁니다.
-            List<SkillData> tempSkills = TempRosterSeed.CreateAllTempUnitSkills();
-            HashSet<int> tempSkillIds = new HashSet<int>(tempSkills.ConvertAll(skill => skill.id));
-            skillDefinitions.RemoveAll(skill => skill != null && tempSkillIds.Contains(skill.id));
-            skillDefinitions.AddRange(tempSkills);
-
-            // 유닛별 고유 액티브 스킬(920번대, UnitSkillData.json). 수치는 전부 기능 검증용
-            // placeholder입니다 — Docs/Database/UnitData.xlsx 스킬 시트의 밸런스 미확정.
-            List<SkillData> unitSkills = GameDataLoader.LoadUnitSkills();
-            if (unitSkills != null)
-            {
-                HashSet<int> unitSkillIds = new HashSet<int>(unitSkills.ConvertAll(skill => skill.id));
-                skillDefinitions.RemoveAll(skill => skill != null && unitSkillIds.Contains(skill.id));
-                skillDefinitions.AddRange(unitSkills);
-            }
-
-            // 유닛 데이터베이스(JSON)를 로드해 UnitStats를 캐싱합니다.
-            // 지금은 TempUnitData.json(임시)이고, 나중에 실제 UnitJSON으로 바뀌어도 이 asset을
-            // 참조하는 CombatManager/PlayerInventoryManager 등은 그대로 둘 수 있습니다.
-            TextAsset jsonFile = Resources.Load<TextAsset>("TempUnitData");
-            if (jsonFile == null)
-            {
-                Debug.LogWarning("[UnitRosterData] 05_Data/Resources/TempUnitData.json을 찾을 수 없어 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다.", this);
-                return;
-            }
-
-            List<UnitData> parsed;
-            try
-            {
-                parsed = ParseUnitList(jsonFile.text);
-            }
-            catch (Newtonsoft.Json.JsonException e)
-            {
-                Debug.LogWarning($"[UnitRosterData] TempUnitData.json 파싱에 실패해 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다. ({e.Message})", this);
-                return;
-            }
-
-            if (parsed == null)
-            {
-                Debug.LogWarning("[UnitRosterData] TempUnitData.json에 unitList가 없어 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다.", this);
-                return;
-            }
-
-            unitStats = parsed;
+            RosterDataLoader.LoadUnit(ref _unitStats, _skillDefinitions, this);
         }
 
         /// <summary>
@@ -149,12 +101,7 @@ namespace OzGameLab01.Combat
         /// </summary>
         public static List<UnitData> ParseUnitList(string json)
         {
-            // 기존 빈 JSON 입력의 null 반환 계약 유지
-            if (string.IsNullOrWhiteSpace(json))
-            {
-                return null;
-            }
-            return OzGameLab01.Data.JsonDataParser.Parse<UnitData, UnitDataList>(json);
+            return JsonDataParser.ParseOptional<UnitData, UnitDataList>(json);
         }
 
         private void OnValidate()
