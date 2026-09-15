@@ -17,7 +17,7 @@ namespace OzGameLab01.Managers
         {
             base.Awake();
             // [추가] Continue에서 보류된 인벤토리를 로스터 참조가 준비된 시점에 복원
-            SaveManager.Instance.RestorePendingInventory(Facade);
+            SaveManager.Instance.Facade.RestorePendingInventory(Facade);
         }
     }
 }

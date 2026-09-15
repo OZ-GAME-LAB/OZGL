@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
+using OzGameLab01.Save;
 
 namespace OzGameLab01.Controllers
 {
@@ -182,9 +183,9 @@ namespace OzGameLab01.Controllers
             ResetTimeScale();
 
             // [수정] 런타임 상태와 저장 파일의 Continue 데이터를 함께 초기화 (BoardRunData.Clear()를 포함)
-            SaveManager saveManager = SaveManager.Instance;
-            saveManager.ClearCurrentRun();
-            bool saved = await saveManager.SaveAsync();
+            SaveFacade saveFacade = SaveManager.Instance.Facade;
+            saveFacade.ClearCurrentRun();
+            bool saved = await saveFacade.SaveAsync();
             if (!saved)
             {
                 Debug.LogError("[CombatSceneController] 종료된 런 데이터 정리에 실패했습니다.", this);

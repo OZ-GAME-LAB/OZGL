@@ -2,7 +2,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using OzGameLab01.Combat;
 using OzGameLab01.Data;
 
 namespace OzGameLab01.Managers
@@ -18,12 +17,6 @@ namespace OzGameLab01.Managers
 
         public static SceneTransitioner Instance { get; set; }
         public static int MapTileIndex { get; set; } = 0;
-
-        /// <summary>
-        /// UnitPlaceScene의 FormationManager(레거시, 프로덕션 미사용)가 채우는 배치 결과입니다.
-        /// CombatManager는 더 이상 이 필드를 읽지 않습니다 - 실제 배치 전달은 AllyFormationData를 사용합니다.
-        /// </summary>
-        public static Unit[] AllyFormationSlots { get; set; }
 
         /// <summary>
         /// 유닛 편성 화면(UnitFormationCombatLink)이 채우는 배치 결과(인덱스 0-8, 3x3 row-major).

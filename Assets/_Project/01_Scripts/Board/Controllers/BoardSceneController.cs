@@ -2,6 +2,7 @@ using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
 using OzGameLab01.Player;
+using OzGameLab01.Save;
 using OzGameLab01.UI;
 using OzGameLab01.Map;
 using System;
@@ -169,9 +170,9 @@ namespace OzGameLab01.Controllers
             _isReturningToTitle = true;
             Time.timeScale = 1f;
             // [수정] 타이틀 복귀는 런 포기가 아니라 Continue 저장 시점으로 처리
-            SaveManager saveManager = SaveManager.Instance;
-            saveManager.CaptureCurrentRun();
-            bool saved = await saveManager.SaveAsync();
+            SaveFacade saveFacade = SaveManager.Instance.Facade;
+            saveFacade.CaptureCurrentRun();
+            bool saved = await saveFacade.SaveAsync();
             if (!saved)
             {
                 Debug.LogError("[BoardSceneController] 타이틀 복귀 전 런 데이터 저장에 실패했습니다.", this);

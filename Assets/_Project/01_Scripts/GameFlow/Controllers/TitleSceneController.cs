@@ -1,4 +1,5 @@
 using OzGameLab01.Managers;
+using OzGameLab01.Save;
 using OzGameLab01.UI.Title;
 using UnityEngine;
 
@@ -43,7 +44,7 @@ namespace OzGameLab01.Controllers
             _subscribedTitle.ExitConfirmed += HandleExitConfirmed;
 
             // [추가] 유효한 런 저장 파일이 있을 때만 Continue 버튼 활성화
-            _titleView.SetContinueInteractable(SaveManager.Instance.HasContinueData);
+            _titleView.SetContinueInteractable(SaveManager.Instance.Facade.HasContinueData);
         }
 
         private void OnDisable()
@@ -94,9 +95,9 @@ namespace OzGameLab01.Controllers
                     "[TitleSceneController] 게임 시작 요청 | 보드 씬 이동",
                     this);
                 // [수정] 이전 런을 초기화하고 새 Map Seed와 빈 편성을 저장한 뒤 이동
-                SaveManager saveManager = SaveManager.Instance;
-                saveManager.BeginNewRun();
-                bool saved = await saveManager.SaveAsync();
+                SaveFacade saveFacade = SaveManager.Instance.Facade;
+                saveFacade.BeginNewRun();
+                bool saved = await saveFacade.SaveAsync();
                 if (this == null || !isActiveAndEnabled || version != _requestVersion) return;
                 if (!saved)
                 {
@@ -126,8 +127,8 @@ namespace OzGameLab01.Controllers
 
             _isStartingGame = true;
 
-            SaveManager saveManager = SaveManager.Instance;
-            if (!saveManager.RestoreCurrentRun())
+            SaveFacade saveFacade = SaveManager.Instance.Facade;
+            if (!saveFacade.RestoreCurrentRun())
             {
                 Debug.LogWarning("[TitleSceneController] 복원 가능한 Continue 데이터가 없습니다.", this);
                 _titleView.SetContinueInteractable(false);

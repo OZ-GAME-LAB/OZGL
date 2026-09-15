@@ -49,7 +49,7 @@ namespace OzGameLab01.Managers
             newInstance.OnEquip();
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
 
-            SaveManager.Instance?.MarkAsDirty();
+            SaveManager.Instance?.Facade.MarkAsDirty();
             _notifications.Publish(EffectsNotificationKind.RelicAcquired, relicId, _relics.Count);
         }
 
