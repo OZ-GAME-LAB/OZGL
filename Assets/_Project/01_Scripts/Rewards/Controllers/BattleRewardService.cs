@@ -49,7 +49,8 @@ namespace OzGameLab01.Managers
 
         private static bool ApplyUnit(int unitId, Object context)
         {
-            if (PlayerInventoryManager.Instance == null)
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            if (playerFacade == null)
             {
                 Debug.LogError("[BattleRewardService] 유닛 보상을 적용할 인벤토리가 없습니다.", context);
                 return false;
@@ -62,7 +63,7 @@ namespace OzGameLab01.Managers
                 return false;
             }
 
-            PlayerInventoryManager.Instance.Facade.AddUnit(PlayerFacade.CloneUnitData(unit));
+            playerFacade.AddUnit(PlayerFacade.CloneUnitData(unit));
             return true;
         }
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using OzGameLab01.Events;
 
 namespace OzGameLab01.UI
 {

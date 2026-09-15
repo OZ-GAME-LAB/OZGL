@@ -1,7 +1,4 @@
 using UnityEngine;
-using System;
-using System.IO;
-using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using OzGameLab01.Controllers;
@@ -13,13 +10,14 @@ namespace OzGameLab01.Save
 {
     /// <summary>
     /// Save 시스템 외부(TitleSceneController/BoardSceneController 등)가 호출하는
-    /// 유일한 진입점입니다. 실제 상태는 <see cref="SaveState"/>가 들고 있고, 이
-    /// 클래스는 파일 I/O와 런 생명주기 오케스트레이션을 담당합니다.
+    /// 유일한 진입점입니다. 실제 상태는 <see cref="SaveState"/>가, 파일 I/O는
+    /// <see cref="SaveFileStore"/>가 각각 전담하고, 이 클래스는 런 생명주기
+    /// 오케스트레이션(New Game/Continue/런 종료 시 여러 시스템 상태 조율)만 담당합니다.
     /// </summary>
     public class SaveFacade
     {
         private readonly SaveState _state = new SaveState();
-        private readonly object _ioLock = new object();
+        private readonly SaveFileStore _fileStore = new SaveFileStore(Application.persistentDataPath);
 
         public SaveData CurrentData => _state.CurrentData;
 
@@ -30,13 +28,6 @@ namespace OzGameLab01.Save
             _state.CurrentData.boardRun.hasActiveRun &&
             _state.CurrentData.boardRun.mapSeed > 0;
 
-        // 정상 세이브 경로
-        private string savePath => Path.Combine(Application.persistentDataPath, "save.json");
-        // 저장 도중 임시 파일 경로
-        private string tempPath => Path.Combine(Application.persistentDataPath, "save_tmp.json");
-        // 세이브 백업 파일 경로
-        private string backUpPath => Path.Combine(Application.persistentDataPath, "save_backUp.json");
-
         // 데이터가 수정됐을 때 플래그 켜기
         public void MarkAsDirty()
         {
@@ -46,40 +37,30 @@ namespace OzGameLab01.Save
         // 데이터 로드
         public void Load()
         {
-            lock (_ioLock)
+            SaveLoadResult result = _fileStore.Load();
+            switch (result.Source)
             {
-                // 1. 원본 파일 검사
-                if (File.Exists(savePath))
-                {
-                    if (TryDeserialize(savePath, out SaveData data))
-                    {
-                        _state.CurrentData = data;
-                        // [추가] 이전 버전 저장 파일의 null 목록을 현재 구조에 맞게 보정
-                        NormalizeSaveData(_state.CurrentData);
-                        _state.IsDirty = false;
-                        Debug.Log("[SaveFacade] 세이브 파일 로드 성공");
-                        return;
-                    }
-                }
+                case SaveLoadSource.Primary:
+                    _state.CurrentData = result.Data;
+                    // [추가] 이전 버전 저장 파일의 null 목록을 현재 구조에 맞게 보정
+                    NormalizeSaveData(_state.CurrentData);
+                    _state.IsDirty = false;
+                    Debug.Log("[SaveFacade] 세이브 파일 로드 성공");
+                    break;
 
-                // 2. 원본 파손 시 백업 파일 검사
-                if (File.Exists(backUpPath))
-                {
+                case SaveLoadSource.Backup:
                     Debug.LogWarning("[SaveFacade] 원본 파일 로드 실패. 백업 파일로 복구.");
-                    if (TryDeserialize(backUpPath, out SaveData backupData))
-                    {
-                        _state.CurrentData = backupData;
-                        // [추가] 백업 파일도 현재 저장 구조에 맞게 보정
-                        NormalizeSaveData(_state.CurrentData);
-                        _state.IsDirty = true;    // 원본 재작성을 위해
-                        return;
-                    }
-                }
+                    _state.CurrentData = result.Data;
+                    // [추가] 백업 파일도 현재 저장 구조에 맞게 보정
+                    NormalizeSaveData(_state.CurrentData);
+                    _state.IsDirty = true;    // 원본 재작성을 위해
+                    break;
 
-                // 3. 신규 플레이
-                Debug.Log("[SaveFacade] 기존 데이터가 없어 기본 데이터로 시작");
-                _state.CurrentData = SaveData.CreateDefault();
-                _state.IsDirty = true;
+                default:
+                    Debug.Log("[SaveFacade] 기존 데이터가 없어 기본 데이터로 시작");
+                    _state.CurrentData = SaveData.CreateDefault();
+                    _state.IsDirty = true;
+                    break;
             }
         }
 
@@ -203,66 +184,15 @@ namespace OzGameLab01.Save
         // 비동기 파일 저장
         public async Task<bool> SaveAsync()
         {
-            // [추가] Unity API를 사용하는 저장 경로는 메인 스레드에서 미리 확정
-            string resolvedSavePath = savePath;
-            string resolvedTempPath = tempPath;
-            string resolvedBackUpPath = backUpPath;
+            if (!_state.IsDirty && _fileStore.SaveFileExists) return true;
 
-            // [수정] 백그라운드 저장 작업과 동일한 확정 경로 사용
-            if (!_state.IsDirty && File.Exists(resolvedSavePath)) return true;
-
-            string json = JsonUtility.ToJson(_state.CurrentData, true);
-
-            return await Task.Run(() =>
+            bool saved = await _fileStore.SaveAsync(_state.CurrentData);
+            if (saved)
             {
-                lock (_ioLock)
-                {
-                    try
-                    {
-                        // 1. 임시 파일에 쓰기
-                        // [수정] Task.Run 내부에서는 Unity API를 호출하지 않고 확정된 경로만 사용
-                        File.WriteAllText(resolvedTempPath, json, Encoding.UTF8);
-
-                        // 2. 파일 교체 (Temp -> Save, 기존 Save -> Backup)
-                        // [수정] 저장 파일 검사에도 메인 스레드에서 확정한 경로 사용
-                        if (File.Exists(resolvedSavePath))
-                        {
-                            // [수정] 임시, 원본, 백업 경로를 순수 문자열로 전달
-                            File.Replace(resolvedTempPath, resolvedSavePath, resolvedBackUpPath);
-                        }
-                        else
-                        {
-                            // [수정] 최초 저장도 확정된 경로만 사용
-                            File.Move(resolvedTempPath, resolvedSavePath);
-                        }
-
-                        _state.IsDirty = false;
-                        return true;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError($"[SaveFacade] 파일 저장 실패: {ex.Message}");
-                        return false;
-                    }
-                }
-            });
-        }
-
-        // 저장된 데이터 역직렬화 시도
-        private bool TryDeserialize(string path, out SaveData result)
-        {
-            try
-            {
-                string json = File.ReadAllText(path, Encoding.UTF8);
-                result = JsonUtility.FromJson<SaveData>(json);
-                return result != null;
+                _state.IsDirty = false;
             }
-            catch (Exception ex)
-            {
-                Debug.LogError($"[SaveFacade] 파싱 실패 ({path}): {ex.Message}");
-                result = null;
-                return false;
-            }
+
+            return saved;
         }
 
         /// <summary>

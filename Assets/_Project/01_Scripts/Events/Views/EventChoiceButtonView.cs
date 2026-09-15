@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using OzGameLab01.Events;
 
 namespace OzGameLab01.UI
 {

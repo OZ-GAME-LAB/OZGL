@@ -9,7 +9,9 @@ namespace OzGameLab01.Events
     /// 이 클래스는 게임 부팅 후 계속 살아있는 EventManager가 들고 있는 반면,
     /// 실제로 조작할 UI/데이터는 씬에 배치된 EventSession이 갖고 있으므로
     /// 필요할 때마다 EventSession을 찾아 사용합니다(EventSession의 GameObject가
-    /// 비활성 상태로 시작해도 Awake 시점에 의존하지 않도록).
+    /// 비활성 상태로 시작해도 Awake 시점에 의존하지 않도록). 유효성 검사와 선택지
+    /// 상태(EventState) 조율만 담당하고, 실제 표시는 EventSession.ShowEvent/CloseEvent에
+    /// 위임합니다 — Facade는 View 타입을 직접 참조하지 않습니다.
     /// </summary>
     public class EventFacade
     {
@@ -81,28 +83,12 @@ namespace OzGameLab01.Events
                 return false;
             }
 
-            if (session.EventUIView == null)
+            if (!session.ShowEvent(choiceEvent, ChoiceResult))
             {
-                Debug.LogError("[EventFacade] 이벤트 UI 참조가 완전히 연결되지 않았습니다.", session.PanelObject);
                 return false;
             }
 
-            session.PanelObject.SetActive(true);
-
-            session.EventUIView.SetTitle(choiceEvent.eventTitle);
-            session.EventUIView.SetDescription(choiceEvent.eventDialog);
-
-            if (choiceEvent.eventCategory == EventCategory.Choice)
-            {
-                session.EventUIView.ShowChoices(choiceEvent.choices, ChoiceResult);
-                _state.SetChoiceList(choiceEvent.choices);
-            }
-            else if (choiceEvent.eventCategory == EventCategory.Action)
-            {
-                session.EventUIView.ShowAction(choiceEvent.choices, ChoiceResult);
-                _state.SetChoiceList(choiceEvent.choices);
-            }
-
+            _state.SetChoiceList(choiceEvent.choices);
             return true;
         }
 
@@ -123,8 +109,7 @@ namespace OzGameLab01.Events
 
         private void CloseCanvas()
         {
-            Debug.Log("canvas close");
-            GetSession()?.PanelObject.SetActive(false);
+            GetSession()?.CloseEvent();
         }
     }
 }
