@@ -22,6 +22,21 @@ namespace OzGameLab01.Board.Models
             _settings = settings;
         }
 
+        // 진행 상태 기준 목표 종류 및 후보 결정
+        public BoardRouteDecision SelectNext(bool hasPlayerPosition, Vector2Int playerPosition)
+        {
+            MapNode start = FindStartNode();
+            if (start == null) { return new BoardRouteDecision(BoardRouteStatus.MissingStart); }
+            var distances = BuildDistanceMap(start);
+            MapNode boss = SelectFinalBossNode(start, distances);
+            if (boss == null) { return new BoardRouteDecision(BoardRouteStatus.MissingBoss); }
+            Vector2Int position = hasPlayerPosition ? playerPosition : start.Position;
+            if (!_nodes.TryGetValue(position, out MapNode current) || !IsWalkable(current)) { current = start; }
+            NodeType type = _defeatedCount >= _settings.eliteCount ? NodeType.Boss : NodeType.Elite;
+            MapNode target = type == NodeType.Boss ? SelectBossForCurrentPosition(current, boss) : SelectEliteNode(current, start, boss, distances);
+            return new BoardRouteDecision(target != null ? BoardRouteStatus.Ready : BoardRouteStatus.MissingTarget, boss, target, type);
+        }
+
         public MapNode FindStartNode()
         {
             foreach (MapNode node in _nodes.Values)

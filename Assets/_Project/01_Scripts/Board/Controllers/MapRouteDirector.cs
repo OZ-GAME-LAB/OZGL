@@ -11,8 +11,8 @@ namespace OzGameLab01.Map
     /// 절차적으로 생성된 보드 위에 '중간 보스 -> 최종 보스' 진행 경로를 후처리로 배치합니다.
     ///
     /// 기존 MapGenerator를 수정하지 않고 NodeDict와 ReplaceTileVisual만 사용합니다.
-    /// 같은 씬에서 MapObjectiveManager와 함께 활성화하면 목표가 중복 생성되므로,
-    /// 이 컴포넌트를 사용할 때는 기존 MapObjectiveManager 컴포넌트를 비활성화해야 합니다.
+    /// 보드 목표 선정과 화면 갱신의 단일 진입점
+
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class MapRouteDirector : MonoBehaviour
@@ -132,9 +132,8 @@ namespace OzGameLab01.Map
 
         /// <summary>
         /// 현재 플레이어 위치와 중간 보스 처치 수를 기준으로 다음 목표를 배치하고 하이라이트합니다.
-        /// 인스펙터의 Context Menu로 현재 맵에서 반복 시험할 수 있습니다.
+        /// 보드 진입 및 전투 종료 후 목표 갱신
         /// </summary>
-        [ContextMenu("Refresh Next Objective")]
         public void RefreshNextObjective()
         {
             if (mapGenerator == null || mapGenerator.NodeDict.Count == 0)
@@ -170,47 +169,14 @@ namespace OzGameLab01.Map
                 maximumDetourRatio = maximumDetourRatio,
             };
             BoardRouteModel model = new BoardRouteModel(mapGenerator.NodeDict, consumed, BoardRunData.DefeatedElitesCount, settings);
-            MapNode startNode = model.FindStartNode();
-            if (startNode == null)
+            BoardRouteDecision decision = model.SelectNext(BoardRunData.HasPlayerPosition, BoardRunData.PlayerPosition);
+            if (decision.Status != BoardRouteStatus.MissingStart) { finalBossNode = decision.Boss; }
+            if (decision.Status != BoardRouteStatus.Ready)
             {
-                Debug.LogError("[MapRouteDirector] Start 노드를 찾지 못했습니다.", this);
+                Debug.LogError("[MapRouteDirector] 목표 선정 실패: " + decision.Status, this);
                 return;
             }
-
-            Dictionary<MapNode, int> distanceFromStart = model.BuildDistanceMap(startNode);
-            finalBossNode = model.SelectFinalBossNode(startNode, distanceFromStart);
-
-            if (finalBossNode == null)
-            {
-                Debug.LogError("[MapRouteDirector] 최종 보스 후보를 찾지 못했습니다.", this);
-                return;
-            }
-
-            Vector2Int currentPosition = BoardRunData.HasPlayerPosition
-                ? BoardRunData.PlayerPosition
-                : startNode.Position;
-
-            if (!mapGenerator.NodeDict.TryGetValue(currentPosition, out MapNode currentNode) ||
-                !BoardRouteModel.IsWalkable(currentNode))
-            {
-                currentNode = startNode;
-            }
-
-            NodeType targetType = BoardRunData.DefeatedElitesCount >= eliteCount
-                ? NodeType.Boss
-                : NodeType.Elite;
-
-            MapNode targetNode = targetType == NodeType.Boss
-                ? model.SelectBossForCurrentPosition(currentNode, finalBossNode)
-                : model.SelectEliteNode(currentNode, startNode, finalBossNode, distanceFromStart);
-
-            if (targetNode == null)
-            {
-                Debug.LogError("[MapRouteDirector] 다음 목표에 쓸 수 있는 Normal 타일을 찾지 못했습니다.", this);
-                return;
-            }
-
-            SetObjective(targetNode, targetType);
+            SetObjective(decision.Target, decision.Type);
         }
 
         private void SetObjective(MapNode targetNode, NodeType targetType)

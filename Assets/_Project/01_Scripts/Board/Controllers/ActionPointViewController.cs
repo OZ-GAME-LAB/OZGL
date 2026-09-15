@@ -1,4 +1,5 @@
 using UnityEngine;
+using OzGameLab01.Board.Views;
 using TMPro; // TextMeshPro 사용
 
 namespace OzGameLab01.UI
@@ -15,6 +16,7 @@ namespace OzGameLab01.UI
 
         // 숫자가 바뀔 때만 텍스트를 갱신하기 위해 이전 값을 기억해두는 변수입니다.
         private int _lastValue = -1;
+        private readonly BoardActionPointView _view = new BoardActionPointView();
 
         private void Update()
         {
@@ -32,7 +34,7 @@ namespace OzGameLab01.UI
 
                 if (valueText != null)
                 {
-                    valueText.text = currentActionPoint.ToString();
+                    _view.Show(valueText, currentActionPoint);
                 }
             }
         }

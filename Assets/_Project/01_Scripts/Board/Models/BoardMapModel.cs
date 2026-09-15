@@ -139,16 +139,14 @@ namespace OzGameLab01.Board.Models
 
             // 3. 타일 배치 (isSequential 옵션을 true로 주면 순차적으로 더 깊은 곳에 스폰됨)
             // 최종 보스: 순차 배치 켬 (점점 깊은 곳)
-            //PlaceNodesOfType(NodeType.Boss, _settings.bossCount, _settings.minBossDistance, availableNodes, _settings.minBossDistanceFromStart, _settings.maxBossDistanceFromStart, true);
 
             // [추가됨] 랜덤 유닛 획득 타일 배치
             PlaceNodesOfType(NodeType.UnitAcquisition, _settings.unitAcquisitionCount, _settings.minUnitAcquisitionDistance, availableNodes, _settings.minUnitAcquisitionDistFromStart, _settings.maxUnitAcquisitionDistFromStart, false);
 
-            // 삭제 예정이라 하셨지만 일단 둡니다.
+            // 상점 타일 배치
             PlaceNodesOfType(NodeType.Shop, _settings.shopCount, _settings.minShopDistance, availableNodes, _settings.minShopDistFromStart, _settings.maxShopDistFromStart, false);
 
             // 엘리트: 순차 배치 켬! (엘리트1 -> 2 -> 3 순으로 맵의 더 깊은 곳으로 강제 전진)
-            //PlaceNodesOfType(NodeType.Elite, _settings.eliteCount, _settings.minEliteDistance, availableNodes, _settings.minEliteDistFromStart, _settings.maxEliteDistFromStart, true);
 
             PlaceNodesOfType(NodeType.Event, _settings.eventCount, _settings.minEventDistance, availableNodes, _settings.minEventDistFromStart, _settings.maxEventDistFromStart, false);
             PlaceNodesOfType(NodeType.Battle, _settings.battleCount, _settings.minBattleDistance, availableNodes, _settings.minBattleDistFromStart, _settings.maxBattleDistFromStart, false);

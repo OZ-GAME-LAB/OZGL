@@ -473,12 +473,7 @@ namespace OzGameLab01.Map
         /// </summary>
         public static bool IsSingleUseSpecialTile(NodeType type)
         {
-            return type == NodeType.Battle ||
-                   type == NodeType.Event ||
-                   type == NodeType.Shop ||
-                   type == NodeType.Elite ||
-                   type == NodeType.Boss ||
-                   type == NodeType.UnitAcquisition;
+            return BoardTileRules.IsSingleUse(type);
         }
     }
 }
