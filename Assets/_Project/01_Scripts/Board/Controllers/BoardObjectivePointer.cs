@@ -1,11 +1,11 @@
-using OzGameLab01.Map;
+using OzGameLab01.Board.Views;
 using OzGameLab01.Controllers;
 using UnityEngine;
 
 namespace OzGameLab01.Map
 {
     /// <summary>
-    /// 플레이어 주변에서 현재 중간 보스/보스 목표의 직선 방향을 표시합니다.
+    /// 플레이어와 목표 정보를 조회하여 방향 표시 뷰에 전달합니다.
     /// 씬의 독립된 루트에 부착하고, 바늘 모델은 자식 오브젝트로 연결합니다.
     /// </summary>
     [DisallowMultipleComponent]
@@ -40,21 +40,20 @@ namespace OzGameLab01.Map
         [Tooltip("목표까지의 수평 거리가 이 값 이하이면 바늘을 숨깁니다.")]
         [Min(0f)] [SerializeField] private float hideDistance = 0.15f;
 
-        private Quaternion currentHeading;
-        private bool hasHeading;
+        private BoardObjectivePointerView _view;
 
         private void OnEnable()
         {
-            hasHeading = false;
+            _view = new BoardObjectivePointerView(transform, needle);
 
-            if (needle == null || needle == transform || !needle.IsChildOf(transform))
+            if (!_view.HasValidNeedle)
             {
                 Debug.LogError("[BoardObjectivePointer] Needle에 이 루트의 자식 바늘 오브젝트를 연결하세요.", this);
                 enabled = false;
                 return;
             }
 
-            SetNeedleVisible(false);
+            _view.Hide();
         }
 
         private void LateUpdate()
@@ -73,53 +72,16 @@ namespace OzGameLab01.Map
             if (playerTarget == null || objective == null || objectiveView == null ||
                 (objective.Type != NodeType.Elite && objective.Type != NodeType.Boss))
             {
-                HideNeedle();
+                _view.Hide();
                 return;
             }
 
-            Vector3 direction = objectiveView.transform.position - playerTarget.position;
-            direction.y = 0f;
-            float threshold = Mathf.Max(0.001f, hideDistance);
-
-            if (direction.sqrMagnitude <= threshold * threshold)
-            {
-                HideNeedle();
-                return;
-            }
-
-            Quaternion desiredHeading = Quaternion.LookRotation(direction, Vector3.up);
-            currentHeading = !hasHeading || rotationSpeed <= 0f
-                ? desiredHeading
-                : Quaternion.RotateTowards(currentHeading, desiredHeading, rotationSpeed * Time.unscaledDeltaTime);
-            hasHeading = true;
-
-            transform.position = playerTarget.position + Vector3.up * heightOffset;
-            needle.position = transform.position + currentHeading * Vector3.forward * Mathf.Max(0f, distanceFromPlayer);
-            // 스프라이트를 X축 90도로 눕힌 상태에서 월드 Y축 방향만 회전합니다.
-            needle.rotation = currentHeading * Quaternion.Euler(0f, needleYawOffset, 0f)
-                * Quaternion.Euler(90f, 0f, 0f);
-            SetNeedleVisible(true);
+            _view.Show(playerTarget.position, objectiveView.transform.position, distanceFromPlayer, heightOffset, rotationSpeed, needleYawOffset, hideDistance, Time.unscaledDeltaTime);
         }
 
         private void OnDisable()
         {
-            HideNeedle();
-        }
-
-        private void HideNeedle()
-        {
-            hasHeading = false;
-            SetNeedleVisible(false);
-        }
-
-        private void SetNeedleVisible(bool visible)
-        {
-            // 잘못된 참조로 루트나 플레이어를 비활성화하지 않도록 자식 바늘만 제어합니다.
-            if (needle != null && needle != transform && needle.IsChildOf(transform) &&
-                needle.gameObject.activeSelf != visible)
-            {
-                needle.gameObject.SetActive(visible);
-            }
+            _view?.Hide();
         }
     }
 }
