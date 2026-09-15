@@ -55,7 +55,7 @@ namespace OzGameLab01.Controllers
             }
 
             if (Managers.DiceManager.Instance != null)
-                Managers.DiceManager.Instance.OnDiceRolled += HandleDiceRolled;
+                Managers.DiceManager.Instance.Facade.OnDiceRolled += HandleDiceRolled;
 
             if (readySceneView != null)
             {
@@ -110,7 +110,7 @@ namespace OzGameLab01.Controllers
             }
 
             if (Managers.DiceManager.Instance != null)
-                Managers.DiceManager.Instance.OnDiceRolled -= HandleDiceRolled;
+                Managers.DiceManager.Instance.Facade.OnDiceRolled -= HandleDiceRolled;
 
             if (readySceneView != null)
             {
@@ -160,7 +160,7 @@ namespace OzGameLab01.Controllers
 
                 if (!TryOpenRollView())
                 {
-                    if (Managers.DiceManager.Instance != null && Managers.DiceManager.Instance.HasRolledThisTurn)
+                    if (Managers.DiceManager.Instance != null && Managers.DiceManager.Instance.Facade.HasRolledThisTurn)
                     {
                         ShowWarning("Please end the turn first!!");
                     }
@@ -212,7 +212,7 @@ namespace OzGameLab01.Controllers
 
         private void HandleEndTurnButtonClicked(ReadyMainView view)
         {
-            if (Managers.DiceManager.Instance != null && !Managers.DiceManager.Instance.HasRolledThisTurn)
+            if (Managers.DiceManager.Instance != null && !Managers.DiceManager.Instance.Facade.HasRolledThisTurn)
             {
                 ShowWarning("Please roll the dice first!");
                 return;
@@ -242,7 +242,7 @@ namespace OzGameLab01.Controllers
         private void HandleRollButtonClicked(RollView view)
         {
             if (Managers.DiceManager.Instance != null)
-                Managers.DiceManager.Instance.RollDice();
+                Managers.DiceManager.Instance.Facade.RollDice();
         }
 
         private void HandleDiceRolled(int diceValue)
@@ -398,8 +398,8 @@ namespace OzGameLab01.Controllers
                 return true;
             }
 
-            Managers.DiceManager diceManager = Managers.DiceManager.Instance;
-            if (diceManager == null || diceManager.HasRolledThisTurn)
+            var diceFacade = Managers.DiceManager.Instance?.Facade;
+            if (diceFacade == null || diceFacade.HasRolledThisTurn)
             {
                 return false;
             }

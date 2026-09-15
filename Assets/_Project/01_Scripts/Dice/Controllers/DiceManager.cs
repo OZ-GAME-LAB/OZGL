@@ -1,8 +1,12 @@
 using UnityEngine;
-using OzGameLab01.Controllers;
+using OzGameLab01.Dice;
 
 namespace OzGameLab01.Managers
 {
+    /// <summary>
+    /// Dice 시스템의 Unity 라이프사이클(싱글톤 초기화, Facade/State 배선)만 담당합니다.
+    /// 외부 호출은 Facade가, 내부 상태/로직은 State가 각각 전담합니다.
+    /// </summary>
     public class DiceManager : Singleton<DiceManager>
     {
         [Header("Dice Settings")]
@@ -11,12 +15,7 @@ namespace OzGameLab01.Managers
         [Tooltip("주사위의 최대 눈금")]
         [SerializeField] private int _maxDice = 6;
 
-        private bool _hasRolledThisTurn;
-
-        // 추가된 부분: 외부(UI)에서 주사위를 굴렸는지 확인할 수 있도록 상태를 열어둡니다.
-        public bool HasRolledThisTurn => _hasRolledThisTurn;
-
-        public event System.Action<int> OnDiceRolled;
+        public DiceFacade Facade { get; private set; }
 
         protected override void Awake()
         {
@@ -26,45 +25,7 @@ namespace OzGameLab01.Managers
                 return;
             }
             base.Awake();
-        }
-
-        public void RollDice()
-        {
-            if (BoardPlayerController.Instance == null) return;
-
-            if (_hasRolledThisTurn)
-            {
-                Debug.LogWarning("[DiceManager] 이번 턴에는 이미 주사위를 굴렸습니다. 턴을 종료해야 다시 굴릴 수 있습니다.");
-                return;
-            }
-
-            if (BoardPlayerController.Instance.IsMoving || BoardPlayerController.Instance.CurrentDiceValue > 0)
-            {
-                Debug.LogWarning("[DiceManager] 아직 이전 주사위 값을 소모하지 않았거나 이동 중입니다.");
-                return;
-            }
-
-            int result = Random.Range(_minDice, _maxDice + 1);
-            Debug.Log($"[DiceManager] 주사위를 굴렸습니다! 눈금: {result}");
-
-            BoardPlayerController.Instance.CurrentDiceValue = result;
-            _hasRolledThisTurn = true;
-
-            OnDiceRolled?.Invoke(result);
-        }
-
-        public void ResetTurnRoll()
-        {
-            _hasRolledThisTurn = false;
-        }
-
-        /// <summary>
-        /// New Game과 런 종료 시 이전 턴의 주사위 상태와 구독 정보를 초기화
-        /// </summary>
-        public void ResetRunState()
-        {
-            ResetTurnRoll();
-            OnDiceRolled = null;
+            Facade = new DiceFacade(new DiceState(), _minDice, _maxDice);
         }
     }
 }

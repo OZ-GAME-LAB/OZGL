@@ -376,9 +376,9 @@ public class SaveManager : Singleton<SaveManager>
         Time.timeScale = 1f;
 
         DiceManager diceManager = UnityEngine.Object.FindFirstObjectByType<DiceManager>(FindObjectsInactive.Include);
-        if (diceManager != null)
+        if (diceManager != null && diceManager.Facade != null)
         {
-            diceManager.ResetRunState();
+            diceManager.Facade.ResetRunState();
         }
 
         RelicManager relicManager = UnityEngine.Object.FindFirstObjectByType<RelicManager>(FindObjectsInactive.Include);
