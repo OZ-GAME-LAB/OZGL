@@ -9,12 +9,25 @@ using OzGameLab01.Save;
 public class SaveManager : Singleton<SaveManager>
 {
     private SaveFacade _facade;
-    public SaveFacade Facade => _facade ??= new SaveFacade();
+    public SaveFacade Facade => _facade ??= CreateFacade();
+
+    private SaveFacade CreateFacade()
+    {
+        SaveFacade facade = new SaveFacade();
+        SystemBus.Register(facade);
+        return facade;
+    }
 
     protected override void Awake()
     {
+        if (Instance != this) { Destroy(gameObject); return; }
         base.Awake();
         Facade.Load();
+    }
+
+    private void OnDestroy()
+    {
+        if (_facade != null) SystemBus.Unregister(_facade);
     }
 
     // 게임 일시중지 시 저장

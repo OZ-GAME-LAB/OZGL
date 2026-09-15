@@ -1,4 +1,5 @@
 using UnityEngine;
+using OzGameLab01.Dice.Contracts;
 using OzGameLab01.Board.Models;
 using OzGameLab01.Board.Views;
 using TMPro;
@@ -39,7 +40,7 @@ namespace OzGameLab01.Controllers
         private Coroutine _timeOfDayFeedbackRoutine;
         private bool _isMapPresentationReady;
         private BoardFeedbackView _feedbackView;
-        private OzGameLab01.Dice.DiceFacade _subscribedDice;
+        private System.IDisposable _diceSubscription;
         private bool _started;
 
         private void Awake()
@@ -69,8 +70,9 @@ namespace OzGameLab01.Controllers
                 mapGenerator.PresentationCompleted += HandleMapPresentationCompleted;
             }
 
-            _subscribedDice = Managers.DiceManager.Instance?.Facade;
-            if (_subscribedDice != null) { _subscribedDice.OnDiceRolled += HandleDiceRolled; }
+            _ = Managers.DiceManager.Instance.Facade; // 씬 직접 실행 시 시스템 구성
+            _diceSubscription?.Dispose();
+            _diceSubscription = SystemBus.Messages.Subscribe<DiceRolled>(message => HandleDiceRolled(message.Value));
 
             if (readySceneView != null)
             {
@@ -129,11 +131,8 @@ namespace OzGameLab01.Controllers
                 mapGenerator.PresentationCompleted -= HandleMapPresentationCompleted;
             }
 
-            if (_subscribedDice != null)
-            {
-                _subscribedDice.OnDiceRolled -= HandleDiceRolled;
-                _subscribedDice = null;
-            }
+            _diceSubscription?.Dispose();
+            _diceSubscription = null;
 
             if (readySceneView != null)
             {
@@ -183,7 +182,7 @@ namespace OzGameLab01.Controllers
 
                 if (!TryOpenRollView())
                 {
-                    if (Managers.DiceManager.Instance != null && Managers.DiceManager.Instance.Facade.HasRolledThisTurn)
+                    if (SystemBus.Messages.Request<DiceSnapshotRequested, DiceSnapshot>(default).HasRolledThisTurn)
                     {
                         ShowWarning("Please end the turn first!!");
                     }
@@ -235,7 +234,7 @@ namespace OzGameLab01.Controllers
 
         private void HandleEndTurnButtonClicked(ReadyMainView view)
         {
-            if (Managers.DiceManager.Instance != null && !Managers.DiceManager.Instance.Facade.HasRolledThisTurn)
+            if (!SystemBus.Messages.Request<DiceSnapshotRequested, DiceSnapshot>(default).HasRolledThisTurn)
             {
                 ShowWarning("Please roll the dice first!");
                 return;
@@ -264,8 +263,7 @@ namespace OzGameLab01.Controllers
 
         private void HandleRollButtonClicked(RollView view)
         {
-            if (Managers.DiceManager.Instance != null)
-                Managers.DiceManager.Instance.Facade.RollDice();
+            SystemBus.Messages.Request<DiceRollRequested, DiceRollResult>(default);
         }
 
         private void HandleDiceRolled(int diceValue)
@@ -421,9 +419,9 @@ namespace OzGameLab01.Controllers
                 return true;
             }
 
-            var diceFacade = Managers.DiceManager.Instance?.Facade;
+            var diceSnapshot = SystemBus.Messages.Request<DiceSnapshotRequested, DiceSnapshot>(default);
             BoardPlayerController player = BoardPlayerController.Instance;
-            if (!BoardTurnRules.CanOpenRoll(diceFacade != null, diceFacade != null && diceFacade.HasRolledThisTurn, player != null && player.IsMoving, player != null ? player.CurrentDiceValue : 0))
+            if (!BoardTurnRules.CanOpenRoll(true, diceSnapshot.HasRolledThisTurn, player != null && player.IsMoving, player != null ? player.CurrentDiceValue : 0))
             {
                 return false;
             }

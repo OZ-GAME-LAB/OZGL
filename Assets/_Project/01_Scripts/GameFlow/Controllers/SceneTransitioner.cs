@@ -42,7 +42,7 @@ namespace OzGameLab01.Managers
         /// <summary>
         /// 현재 씬 전환이 진행 중인지 나타냅니다.
         /// </summary>
-        private readonly OzGameLab01.GameFlow.Models.SceneTransitionModel _transition = new OzGameLab01.GameFlow.Models.SceneTransitionModel();
+        private OzGameLab01.GameFlow.Models.SceneTransitionModel _transition = new OzGameLab01.GameFlow.Models.SceneTransitionModel();
         private OzGameLab01.GameFlow.Views.SceneFadeView _fadeView;
         private Coroutine _initialFade;
         private AsyncOperation _activeLoad;
@@ -61,6 +61,7 @@ namespace OzGameLab01.Managers
             }
 
             Instance = this;
+            _transition = new OzGameLab01.GameFlow.Models.SceneTransitionModel(SystemBus.Operations);
             _fadeView = new OzGameLab01.GameFlow.Views.SceneFadeView(_fadeImage, _fadeDuration);
             DontDestroyOnLoad(gameObject);
         }
@@ -138,7 +139,7 @@ namespace OzGameLab01.Managers
         private IEnumerator LoadSceneRoutine(string sceneName)
         {
             // 씬 전환 시작
-            _transition.TryBegin(SceneManager.GetActiveScene().name, sceneName);
+            if (!_transition.TryBegin(SceneManager.GetActiveScene().name, sceneName)) yield break;
             PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.TransitionStarted);
             if (!IsTransitioning) yield break;
 
@@ -177,7 +178,7 @@ namespace OzGameLab01.Managers
 
                 yield return Fade(1f, 0f);
 
-                _transition.Finish();
+                _transition.Cancel();
                 PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.TransitionFailed);
                 yield break;
             }
@@ -215,7 +216,12 @@ namespace OzGameLab01.Managers
             if (Instance != this) return;
             StopAllCoroutines();
             if (!IsTransitioning) return;
-            _transition.Finish();
+            // 코루틴 중단으로 이미 시작된 엔진 로드가 취소되지는 않는다.
+            // 실제 로드가 끝날 때까지 전역 작업 잠금을 유지한다.
+            if (_activeLoad != null && !_activeLoad.isDone)
+                _activeLoad.completed += _ => _transition.Cancel();
+            else
+                _transition.Cancel();
             PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.TransitionInterrupted);
         }
 

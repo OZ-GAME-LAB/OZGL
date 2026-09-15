@@ -79,9 +79,26 @@ namespace OzGameLab01.Managers
                 return;
             }
 
+            EnsureSystemBusReady();
+
             // 모든 Awake() 콜백 완료 후 매니저 초기화 시작
             InitializeManagers();
 
+        }
+
+        /// <summary>
+        /// SystemBus에 등록되는 매니저(Dice/Combat/Event/Player/Save)는 각자
+        /// 최초 .Instance 접근 시점에 스스로 등록되므로, 아무도 먼저 건드리지 않으면
+        /// 계속 미등록 상태로 남아 SystemBus.Get&lt;T&gt;()가 항상 null을 반환합니다.
+        /// 부팅 시 한 번씩 직접 접근해 전부 미리 등록해 둡니다.
+        /// </summary>
+        private void EnsureSystemBusReady()
+        {
+            _ = DiceManager.Instance.Facade;
+            _ = OzGameLab01.Combat.CombatManager.Instance.Facade;
+            _ = EventManager.Instance.Facade;
+            _ = PlayerInventoryManager.Instance.Facade;
+            _ = SaveManager.Instance.Facade;
         }
 
         /// <summary>

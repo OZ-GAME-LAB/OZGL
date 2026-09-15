@@ -34,6 +34,7 @@ namespace OzGameLab01.Controllers
         private MapGenerator _mapGenerator;
         private TileView _hoveredTile;
         private bool _isFeedbackPlaying;
+        private BoardDiceRequestAdapter _diceRequests;
 
         private BoardMovementModel Model
         {
@@ -69,6 +70,7 @@ namespace OzGameLab01.Controllers
             }
             Instance = this;
             _view = new BoardPlayerView(transform);
+            _diceRequests = new BoardDiceRequestAdapter(SystemBus.Messages);
         }
 
         public void SetupPlayer(MapNode startNode)
@@ -204,6 +206,7 @@ namespace OzGameLab01.Controllers
 
         private void OnDestroy()
         {
+            _diceRequests?.Dispose();
             if (Instance == this)
             {
                 Instance = null;

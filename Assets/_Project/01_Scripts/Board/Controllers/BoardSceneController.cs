@@ -109,7 +109,7 @@ namespace OzGameLab01.Controllers
         {
             if (_boardPlayerController == null || !_boardPlayerController.EndTurn()) return;
 
-            DiceManager.Instance.Facade.ResetTurnRoll();
+            SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
             TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
             BoardRunData.AdvanceTurn();
             Publish(BoardNotificationKind.TurnAdvanced);
@@ -170,7 +170,12 @@ namespace OzGameLab01.Controllers
             _isReturningToTitle = true;
             Time.timeScale = 1f;
             // [수정] 타이틀 복귀는 런 포기가 아니라 Continue 저장 시점으로 처리
-            SaveFacade saveFacade = SaveManager.Instance.Facade;
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                Debug.LogError("[BoardSceneController] SaveFacade를 찾을 수 없어 런 데이터를 저장할 수 없습니다.", this);
+                return;
+            }
             saveFacade.CaptureCurrentRun();
             bool saved = await saveFacade.SaveAsync();
             if (!saved)
@@ -215,12 +220,13 @@ namespace OzGameLab01.Controllers
 
         private void HandleEventNode(MapNode eventNode)
         {
-            if (_eventUIPanel != null)
+            OzGameLab01.Events.EventFacade eventFacade = SystemBus.Get<OzGameLab01.Events.EventFacade>();
+            if (_eventUIPanel != null && eventFacade != null)
             {
                 // 진행 중 이벤트의 중복 시작 방지
                 if (_pendingEventNode != null) { return; }
                 _pendingEventNode = eventNode;
-                _subscribedEvent = EventManager.Instance.Facade;
+                _subscribedEvent = eventFacade;
                 _subscribedEvent.EventCompleted += HandleEventCompleted;
 
                 if (_subscribedEvent.OpenRandomEvent())
@@ -288,15 +294,15 @@ namespace OzGameLab01.Controllers
                 Debug.LogWarning("[BoardSceneController] 획득 가능한 유닛 데이터가 없습니다.", this);
                 return false;
             }
-            PlayerInventoryManager inventory = PlayerInventoryManager.Instance;
-            if (inventory == null)
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            if (playerFacade == null)
             {
                 Debug.LogWarning("[BoardSceneController] 유닛 지급 대상 인벤토리가 없습니다.", this);
                 return false;
             }
             UnitData acquired = PlayerFacade.CloneUnitData(selected);
-            inventory.Facade.AddUnit(acquired);
-            _feedback.ShowUnit(acquired.name, inventory.Facade.OwnedUnits.Count);
+            playerFacade.AddUnit(acquired);
+            _feedback.ShowUnit(acquired.name, playerFacade.OwnedUnits.Count);
             acquiredUnitId = acquired.id;
             return true;
         }

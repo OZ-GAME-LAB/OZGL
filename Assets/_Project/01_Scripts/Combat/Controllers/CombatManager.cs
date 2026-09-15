@@ -22,6 +22,18 @@ namespace OzGameLab01.Combat
         }
 
         private CombatFacade _facade;
-        public CombatFacade Facade => _facade ??= new CombatFacade();
+        public CombatFacade Facade => _facade ??= CreateFacade();
+
+        private CombatFacade CreateFacade()
+        {
+            CombatFacade facade = new CombatFacade();
+            SystemBus.Register(facade);
+            return facade;
+        }
+
+        private void OnDestroy()
+        {
+            if (_facade != null) SystemBus.Unregister(_facade);
+        }
     }
 }

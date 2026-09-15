@@ -11,6 +11,18 @@ namespace OzGameLab01.Managers
     public class EventManager : Singleton<EventManager>
     {
         private EventFacade _facade;
-        public EventFacade Facade => _facade ??= new EventFacade();
+        public EventFacade Facade => _facade ??= CreateFacade();
+
+        private EventFacade CreateFacade()
+        {
+            EventFacade facade = new EventFacade();
+            SystemBus.Register(facade);
+            return facade;
+        }
+
+        private void OnDestroy()
+        {
+            if (_facade != null) SystemBus.Unregister(_facade);
+        }
     }
 }

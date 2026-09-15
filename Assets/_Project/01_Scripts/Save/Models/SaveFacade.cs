@@ -93,11 +93,7 @@ namespace OzGameLab01.Save
             ResetLegacyBoardTransitionState();
             ResetPersistentRunManagers();
 
-            PlayerInventoryManager inventoryManager = UnityEngine.Object.FindFirstObjectByType<PlayerInventoryManager>(FindObjectsInactive.Include);
-            if (inventoryManager != null)
-            {
-                inventoryManager.Facade.ClearInventory();
-            }
+            SystemBus.Get<PlayerFacade>()?.ClearInventory();
 
             _state.CurrentData = SaveData.CreateDefault();
             CaptureCurrentRun();
@@ -116,10 +112,10 @@ namespace OzGameLab01.Save
 
             UnitFormationCombatLink.RestoreFormationFromSaveData(_state.CurrentData.boardRun);
 
-            PlayerInventoryManager inventoryManager = UnityEngine.Object.FindFirstObjectByType<PlayerInventoryManager>(FindObjectsInactive.Include);
-            if (inventoryManager != null)
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            if (playerFacade != null)
             {
-                inventoryManager.Facade.RestoreFromSave(_state.CurrentData.units);
+                playerFacade.RestoreFromSave(_state.CurrentData.units);
                 _state.IsInventoryRestorePending = false;
             }
             else
@@ -144,11 +140,7 @@ namespace OzGameLab01.Save
             ResetLegacyBoardTransitionState();
             ResetPersistentRunManagers();
 
-            PlayerInventoryManager inventoryManager = UnityEngine.Object.FindFirstObjectByType<PlayerInventoryManager>(FindObjectsInactive.Include);
-            if (inventoryManager != null)
-            {
-                inventoryManager.Facade.ClearInventory();
-            }
+            SystemBus.Get<PlayerFacade>()?.ClearInventory();
 
             if (_state.CurrentData == null)
             {
@@ -197,10 +189,10 @@ namespace OzGameLab01.Save
             UnitFormationCombatLink.WriteFormationToSaveData(boardRunSaveData);
             _state.CurrentData.boardRun = boardRunSaveData;
 
-            PlayerInventoryManager inventoryManager = UnityEngine.Object.FindFirstObjectByType<PlayerInventoryManager>(FindObjectsInactive.Include);
-            if (inventoryManager != null)
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            if (playerFacade != null)
             {
-                CaptureInventory(inventoryManager.Facade);
+                CaptureInventory(playerFacade);
             }
 
             CaptureRelics();
@@ -364,11 +356,7 @@ namespace OzGameLab01.Save
         {
             Time.timeScale = 1f;
 
-            DiceManager diceManager = UnityEngine.Object.FindFirstObjectByType<DiceManager>(FindObjectsInactive.Include);
-            if (diceManager != null && diceManager.Facade != null)
-            {
-                diceManager.Facade.ResetRunState();
-            }
+            SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
 
             RelicManager relicManager = UnityEngine.Object.FindFirstObjectByType<RelicManager>(FindObjectsInactive.Include);
             if (relicManager != null)
