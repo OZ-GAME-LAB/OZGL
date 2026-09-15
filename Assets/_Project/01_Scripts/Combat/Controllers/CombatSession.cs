@@ -11,7 +11,8 @@ namespace OzGameLab01.Combat
     /// "이번 전투" 하나에 대한 씬 소속 데이터/배선을 담당합니다. 게임 부팅 후 계속
     /// 살아있는 <see cref="CombatManager"/>(Facade 보유)와 달리 이 오브젝트는 전투 씬이
     /// 떠 있는 동안만 존재합니다. <see cref="CombatFacade"/>가 필요할 때 이 컴포넌트를
-    /// 찾아 <see cref="State"/>/<see cref="FeedbackView"/>를 읽어갑니다.
+    /// 찾아 <see cref="State"/>를 읽고 <see cref="ReportFeedback"/>으로 피드백 표시를
+    /// 위임합니다 — Facade는 View 타입을 직접 참조하지 않습니다.
     /// </summary>
     public class CombatSession : MonoBehaviour
     {
@@ -52,10 +53,14 @@ namespace OzGameLab01.Combat
         private SynergyController _synergyController;
         private CombatEffectExecutor _combatEffectExecutor;
         private CombatEffectFeedbackView _feedbackView;
-        private EnemyHeaderPresenter _enemyHeaderPresenter;
+        private EnemyHeaderController _enemyHeaderController;
 
         public CombatState State => _state;
-        public CombatEffectFeedbackView FeedbackView => _feedbackView;
+
+        public void ReportFeedback(CombatFeedback feedback)
+        {
+            _feedbackView?.Show(feedback);
+        }
 
         private void Awake()
         {
@@ -91,7 +96,7 @@ namespace OzGameLab01.Combat
 
             // 턴/낮밤/중간보스 상태로 스케일링한 체력과 플레이어 보유 유닛에서 훔친 액티브
             // 스킬까지 반영한 전투용 스펙으로 교체합니다. 원본 로스터 캐시는 수정하지 않습니다.
-            enemyMonsterData = EnemyManager.Instance.BuildCombatSpec(enemyMonsterData);
+            enemyMonsterData = EnemyManager.Instance.Facade.BuildCombatSpec(enemyMonsterData);
 
             _allySpawner = new AllySpawner(
                 battleMainView, allyTemplatePrefab, unitsRoot,
@@ -110,7 +115,7 @@ namespace OzGameLab01.Combat
                     enemyHeaderView != null && enemyHeaderView.StatusEffectRoot != null
                         ? enemyHeaderView.StatusEffectRoot.GetComponentInChildren<StatusEffectItemView>(true)
                         : null;
-                _enemyHeaderPresenter = new EnemyHeaderPresenter(
+                _enemyHeaderController = new EnemyHeaderController(
                     enemyHeaderView, enemySkillCooldownView, enemyStatusEffectView);
             }
             _synergyController = new SynergyController(
@@ -128,7 +133,7 @@ namespace OzGameLab01.Combat
             _synergyController.PopulateSynergyPanel();
 
             _state.EnemyUnit = _allySpawner.SpawnEnemy();
-            _enemyHeaderPresenter?.SetEnemyName(_state.EnemyUnit != null ? _state.EnemyUnit.DisplayName : string.Empty);
+            _enemyHeaderController?.SetEnemyName(_state.EnemyUnit != null ? _state.EnemyUnit.DisplayName : string.Empty);
 
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
             RuntimeEffectManager.Instance.RefreshFromPlayerState();
@@ -141,7 +146,7 @@ namespace OzGameLab01.Combat
 
         private void Update()
         {
-            _enemyHeaderPresenter?.Refresh(_state.EnemyUnit);
+            _enemyHeaderController?.Refresh(_state.EnemyUnit);
         }
 
         private void BuildUnitStatLookup()

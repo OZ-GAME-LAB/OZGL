@@ -10,7 +10,7 @@ namespace OzGameLab01.UI
         [UnityEngine.Serialization.FormerlySerializedAs("mainView")]
         [SerializeField] private ReadyMainView _mainView;
         [UnityEngine.Serialization.FormerlySerializedAs("rollView")]
-        [SerializeField] private RollView _rollView;
+        [SerializeField] private DiceRollView _rollView;
         [UnityEngine.Serialization.FormerlySerializedAs("unitView")]
         [SerializeField] private UnitView _unitView;
         [UnityEngine.Serialization.FormerlySerializedAs("tooltipView")]
@@ -25,7 +25,7 @@ namespace OzGameLab01.UI
         #region Properties
 
         public ReadyMainView MainView => _mainView;
-        public RollView RollView => _rollView;
+        public DiceRollView RollView => _rollView;
         public UnitView UnitView => _unitView;
         public TooltipView TooltipView => _tooltipView;
         public ReadySettingsView SettingsView => _settingsView;

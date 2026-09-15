@@ -7,7 +7,7 @@ using UnityEngine.UI;
 namespace OzGameLab01.UI
 {
     [DisallowMultipleComponent]
-    public sealed class RollView : MonoBehaviour
+    public sealed class DiceRollView : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private Button rollButton;
@@ -59,7 +59,7 @@ namespace OzGameLab01.UI
 
         #region Events
 
-        public event Action<RollView> RollClicked;
+        public event Action<DiceRollView> RollClicked;
 
         #endregion
 
@@ -134,7 +134,7 @@ namespace OzGameLab01.UI
 
             if (!diceTransform.gameObject.activeInHierarchy || !diceCamera.gameObject.activeInHierarchy)
             {
-                Debug.LogWarning( "[RollView] DiceCube와 DiceCamera를 활성화하세요.", this);
+                Debug.LogWarning( "[DiceRollView] DiceCube와 DiceCamera를 활성화하세요.", this);
                 return false;
             }
 
@@ -337,13 +337,13 @@ namespace OzGameLab01.UI
         {
             if (result < 1 || result > 6)
             {
-                Debug.LogWarning("[RollView] 주사위 결과는 1~6이어야 합니다.",this);
+                Debug.LogWarning("[DiceRollView] 주사위 결과는 1~6이어야 합니다.",this);
                 return false;
             }
 
             if (diceTransform == null || diceCamera == null)
             {
-                Debug.LogWarning("[RollView] Dice Transform과 Dice Camera를 연결하세요.", this);
+                Debug.LogWarning("[DiceRollView] Dice Transform과 Dice Camera를 연결하세요.", this);
                 return false;
             }
 
@@ -387,7 +387,7 @@ namespace OzGameLab01.UI
         {
             if (!Application.isPlaying || !isActiveAndEnabled)
             {
-                Debug.LogWarning("[RollView] Play 모드에서 RollView를 활성화한 뒤 테스트하세요.", this);
+                Debug.LogWarning("[DiceRollView] Play 모드에서 DiceRollView를 활성화한 뒤 테스트하세요.", this);
                 return;
             }
 
@@ -395,12 +395,12 @@ namespace OzGameLab01.UI
 
             bool started = PlayRoll(randomResult, result =>
             {
-                Debug.Log( $"[RollView] 연출 테스트 완료: {result}", this);
+                Debug.Log( $"[DiceRollView] 연출 테스트 완료: {result}", this);
             });
 
             if (!started)
             {
-                Debug.LogWarning("[RollView] 테스트를 시작하지 못했습니다. " +"진행 중인 연출과 참조 연결을 확인하세요.", this);
+                Debug.LogWarning("[DiceRollView] 테스트를 시작하지 못했습니다. " +"진행 중인 연출과 참조 연결을 확인하세요.", this);
             }
         }
 #endif

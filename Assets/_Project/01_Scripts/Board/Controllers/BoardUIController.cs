@@ -261,7 +261,7 @@ namespace OzGameLab01.Controllers
             if (readySceneView != null) readySceneView.HideUnitView();
         }
 
-        private void HandleRollButtonClicked(RollView view)
+        private void HandleRollButtonClicked(DiceRollView view)
         {
             SystemBus.Messages.Request<DiceRollRequested, DiceRollResult>(default);
         }
@@ -273,7 +273,7 @@ namespace OzGameLab01.Controllers
             if (readySceneView == null)
                 return;
 
-            RollView view = readySceneView.RollView;
+            DiceRollView view = readySceneView.RollView;
 
             if (!isActiveAndEnabled || view == null || !view.IsVisible)
                 return;

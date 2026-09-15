@@ -27,7 +27,7 @@ namespace OzGameLab01.Combat
 
         public void ReportFeedback(CombatFeedback feedback)
         {
-            GetSession()?.FeedbackView?.Show(feedback);
+            GetSession()?.ReportFeedback(feedback);
         }
 
         public Unit ResolveAllyTarget() => GetSession()?.State.ResolveAllyTarget();
