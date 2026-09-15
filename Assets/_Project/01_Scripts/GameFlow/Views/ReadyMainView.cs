@@ -19,8 +19,10 @@ namespace OzGameLab01.UI
 
         [SerializeField] private Button endTurnButton;
         [SerializeField] private RectTransform clockHand;
-        [SerializeField] private TMP_Text currentTurnValueText;
-        [SerializeField] private TMP_Text bossRemainingTurnValueText;
+        [SerializeField] private RollingNumberView currentTurnNumber;
+        [SerializeField] private RollingNumberView bossRemainingTurnNumber;
+
+        [SerializeField] private EndTurnButtonFeedbackView endTurnFeedback;
 
         private readonly List<SynergyItemView> synergyItems = new List<SynergyItemView>();
         private readonly List<ArtifactInfoItemView> artifactItems = new List<ArtifactInfoItemView>();
@@ -121,8 +123,7 @@ namespace OzGameLab01.UI
 
             if (synergyContentRoot != null)
             {
-                synergyItems.AddRange(
-                    synergyContentRoot.GetComponentsInChildren<SynergyItemView>(true));
+                synergyItems.AddRange(synergyContentRoot.GetComponentsInChildren<SynergyItemView>(true));
             }
 
             if (isListening)
@@ -142,8 +143,7 @@ namespace OzGameLab01.UI
 
             if (artifactContentRoot != null)
             {
-                artifactItems.AddRange(
-                    artifactContentRoot.GetComponentsInChildren<ArtifactInfoItemView>(true));
+                artifactItems.AddRange(artifactContentRoot.GetComponentsInChildren<ArtifactInfoItemView>(true));
             }
 
             if (isListening)
@@ -216,19 +216,30 @@ namespace OzGameLab01.UI
             }
         }
 
+        /// <summary>
+        /// 턴 종료 버튼의 안내 연출을 켜거나 끕니다.
+        /// 행동력과 턴 상태는 외부에서 판단하여 전달합니다.
+        /// </summary>
+        /// <param name="active">안내 연출 활성 여부</param>
+        /// <param name="immediate">애니메이션 없이 즉시 반영할지 여부</param>
+        public void SetEndTurnAttention(bool active, bool immediate = false)
+        {
+            endTurnFeedback?.SetAttention(active, immediate);
+        }
+
         public void SetCurrentTurn(int turn)
         {
-            if (currentTurnValueText != null)
+            if (currentTurnNumber != null)
             {
-                currentTurnValueText.text = turn.ToString();
+                currentTurnNumber.SetValue(turn);
             }
         }
 
         public void SetBossRemainingTurn(int remainingTurns)
         {
-            if (bossRemainingTurnValueText != null)
+            if (bossRemainingTurnNumber != null)
             {
-                bossRemainingTurnValueText.text = remainingTurns.ToString();
+                bossRemainingTurnNumber.SetValue(remainingTurns);
             }
         }
 
