@@ -1359,8 +1359,8 @@ GameObject:
   m_Component:
   - component: {fileID: 576300207169925741}
   - component: {fileID: 2599459832272954032}
-  - component: {fileID: 7155524704347658056}
   - component: {fileID: 8077309810475195865}
+  - component: {fileID: 6509127625923498183}
   m_Layer: 0
   m_Name: EventUi
   m_TagString: Untagged
@@ -1410,25 +1410,6 @@ MonoBehaviour:
   choiceButtonPrefab: {fileID: 5210905250746118847, guid: ba87736e0145c144dbdf4e7e2b7e1946, type: 3}
   actionButtonPrefab: {fileID: 5018876570960597052, guid: 736bc9e68cd7ead49971bbe99cb156b6, type: 3}
   eventViewCanvasGroup: {fileID: 7430702293198676656}
---- !u!114 &7155524704347658056
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6880439430386520786}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5410d7e5c9be9d54e8365da781278024, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.ChoiceEventManager
-  choiceArea: {fileID: 7407865000633747387}
-  eventUIView: {fileID: 2599459832272954032}
-  eventPool:
-  - {fileID: 11400000, guid: 7e92f108f9ef49d4d97893c2de6215d5, type: 2}
-  - {fileID: 11400000, guid: ab50b9a0a17a11f4482e3cdddf2f8cf3, type: 2}
-  - {fileID: 11400000, guid: c02bd15c9bda0634c877000015df1104, type: 2}
-  - {fileID: 11400000, guid: bed29eeefeb159c4abce8f13921304df, type: 2}
 --- !u!114 &8077309810475195865
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1442,6 +1423,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIVisibilityToggle
   targetUIToHide: {fileID: 0}
+--- !u!114 &6509127625923498183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6880439430386520786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3a98d86677e08e4dac18cc95b9b1531, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Events.EventSession
+  eventUIView: {fileID: 2599459832272954032}
+  eventPool:
+  - {fileID: 11400000, guid: 7e92f108f9ef49d4d97893c2de6215d5, type: 2}
+  - {fileID: 11400000, guid: ab50b9a0a17a11f4482e3cdddf2f8cf3, type: 2}
+  - {fileID: 11400000, guid: c02bd15c9bda0634c877000015df1104, type: 2}
+  - {fileID: 11400000, guid: bed29eeefeb159c4abce8f13921304df, type: 2}
 --- !u!1 &7490045068334050397
 GameObject:
   m_ObjectHideFlags: 0
