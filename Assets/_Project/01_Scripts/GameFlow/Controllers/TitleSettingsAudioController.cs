@@ -10,23 +10,25 @@ namespace OzGameLab01.UI.Title
     [RequireComponent(typeof(TitleSettingsView))]
     public sealed class TitleSettingsAudioController : MonoBehaviour
     {
-        [SerializeField] private TitleSettingsView settingsView;
+        [UnityEngine.Serialization.FormerlySerializedAs("settingsView")]
+        [SerializeField] private TitleSettingsView _settingsView;
 
-        private SoundManager soundManager;
-        private bool isSubscribed;
+        private SoundManager _soundManager;
+        private bool _isSubscribed;
+        private TitleSettingsView _subscribedView;
 
         private void OnEnable()
         {
-            soundManager = SoundManager.Instance;
-            if (soundManager == null)
+            _soundManager = SoundManager.Instance;
+            if (_soundManager == null)
             {
                 Debug.LogWarning("[TitleSettingsAudioController] SoundManager를 찾을 수 없습니다.", this);
                 return;
             }
 
-            if (!soundManager.IsInitialized)
+            if (!_soundManager.IsInitialized)
             {
-                soundManager.Initialize();
+                _soundManager.Initialize();
             }
 
             Subscribe();
@@ -35,78 +37,83 @@ namespace OzGameLab01.UI.Title
 
         private void OnDisable()
         {
-            if (soundManager != null) soundManager.SaveVolumeSettings();
+            if (_soundManager != null) _soundManager.SaveVolumeSettings();
             Unsubscribe();
         }
 
         private void Subscribe()
         {
-            if (isSubscribed || settingsView == null)
+            if (_isSubscribed || _settingsView == null)
             {
                 return;
             }
 
-            settingsView.CloseRequested += SaveSettings;
-            settingsView.TabSelected += HandleTabSelected;
-            settingsView.MasterVolumeChanged += soundManager.SetMasterVolume;
-            settingsView.BgmVolumeChanged += soundManager.SetBgmVolume;
-            settingsView.SfxVolumeChanged += soundManager.SetSfxVolume;
-            settingsView.MuteAllChanged += soundManager.SetMuteAll;
-            soundManager.VolumeSettingsChanged += RefreshView;
-            isSubscribed = true;
+            _subscribedView = _settingsView;
+            _settingsView.CloseRequested += SaveSettings;
+            _settingsView.TabSelected += HandleTabSelected;
+            _settingsView.MasterVolumeChanged += _soundManager.SetMasterVolume;
+            _settingsView.BgmVolumeChanged += _soundManager.SetBgmVolume;
+            _settingsView.SfxVolumeChanged += _soundManager.SetSfxVolume;
+            _settingsView.MuteAllChanged += _soundManager.SetMuteAll;
+            _soundManager.VolumeSettingsChanged += RefreshView;
+            _isSubscribed = true;
         }
 
         private void Unsubscribe()
         {
-            if (!isSubscribed)
+            if (!_isSubscribed)
             {
                 return;
             }
 
-            if (settingsView != null && soundManager != null)
+            if (_subscribedView != null)
             {
-                settingsView.CloseRequested -= SaveSettings;
-                settingsView.TabSelected -= HandleTabSelected;
-                settingsView.MasterVolumeChanged -= soundManager.SetMasterVolume;
-                settingsView.BgmVolumeChanged -= soundManager.SetBgmVolume;
-                settingsView.SfxVolumeChanged -= soundManager.SetSfxVolume;
-                settingsView.MuteAllChanged -= soundManager.SetMuteAll;
+                _subscribedView.CloseRequested -= SaveSettings;
+                _subscribedView.TabSelected -= HandleTabSelected;
+                if (!ReferenceEquals(_soundManager, null))
+                {
+                    _subscribedView.MasterVolumeChanged -= _soundManager.SetMasterVolume;
+                    _subscribedView.BgmVolumeChanged -= _soundManager.SetBgmVolume;
+                    _subscribedView.SfxVolumeChanged -= _soundManager.SetSfxVolume;
+                    _subscribedView.MuteAllChanged -= _soundManager.SetMuteAll;
+                }
             }
 
-            if (soundManager != null)
+            if (!ReferenceEquals(_soundManager, null))
             {
-                soundManager.VolumeSettingsChanged -= RefreshView;
+                _soundManager.VolumeSettingsChanged -= RefreshView;
             }
 
-            isSubscribed = false;
+            _isSubscribed = false;
+            _subscribedView = null;
         }
 
         private void SaveSettings()
         {
-            if (soundManager != null) soundManager.SaveVolumeSettings();
+            if (_soundManager != null) _soundManager.SaveVolumeSettings();
         }
 
         private void HandleTabSelected(SettingsTab tab) => SaveSettings();
 
         private void RefreshView()
         {
-            if (soundManager == null || settingsView == null)
+            if (_soundManager == null || _settingsView == null)
             {
                 return;
             }
 
-            settingsView.MasterVolume = soundManager.MasterVolume;
-            settingsView.BgmVolume = soundManager.BgmVolume;
-            settingsView.SfxVolume = soundManager.SfxVolume;
-            settingsView.IsMuted = soundManager.IsMuted;
+            _settingsView.MasterVolume = _soundManager.MasterVolume;
+            _settingsView.BgmVolume = _soundManager.BgmVolume;
+            _settingsView.SfxVolume = _soundManager.SfxVolume;
+            _settingsView.IsMuted = _soundManager.IsMuted;
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            if (settingsView == null)
+            if (_settingsView == null)
             {
-                settingsView = GetComponent<TitleSettingsView>();
+                _settingsView = GetComponent<TitleSettingsView>();
             }
         }
 #endif
