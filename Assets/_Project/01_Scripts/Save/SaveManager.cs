@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
+using OzGameLab01.Player;
 
 public class SaveManager : Singleton<SaveManager>
 {
@@ -98,7 +99,7 @@ public class SaveManager : Singleton<SaveManager>
         PlayerInventoryManager inventoryManager = FindFirstObjectByType<PlayerInventoryManager>(FindObjectsInactive.Include);
         if (inventoryManager != null)
         {
-            inventoryManager.ClearInventory();
+            inventoryManager.Facade.ClearInventory();
         }
 
         currentData = SaveData.CreateDefault();
@@ -122,7 +123,7 @@ public class SaveManager : Singleton<SaveManager>
         PlayerInventoryManager inventoryManager = FindFirstObjectByType<PlayerInventoryManager>(FindObjectsInactive.Include);
         if (inventoryManager != null)
         {
-            inventoryManager.RestoreFromSave(currentData.units);
+            inventoryManager.Facade.RestoreFromSave(currentData.units);
             _isInventoryRestorePending = false;
         }
         else
@@ -150,7 +151,7 @@ public class SaveManager : Singleton<SaveManager>
         PlayerInventoryManager inventoryManager = FindFirstObjectByType<PlayerInventoryManager>(FindObjectsInactive.Include);
         if (inventoryManager != null)
         {
-            inventoryManager.ClearInventory();
+            inventoryManager.Facade.ClearInventory();
         }
 
         if (currentData == null)
@@ -169,14 +170,14 @@ public class SaveManager : Singleton<SaveManager>
     /// <summary>
     /// 메인보드 씬의 PlayerInventoryManager가 준비된 뒤 대기 중인 인벤토리를 복원합니다.
     /// </summary>
-    public void RestorePendingInventory(PlayerInventoryManager inventoryManager)
+    public void RestorePendingInventory(PlayerFacade facade)
     {
-        if (!_isInventoryRestorePending || inventoryManager == null || currentData == null)
+        if (!_isInventoryRestorePending || facade == null || currentData == null)
         {
             return;
         }
 
-        inventoryManager.RestoreFromSave(currentData.units);
+        facade.RestoreFromSave(currentData.units);
         _isInventoryRestorePending = false;
     }
 
@@ -203,7 +204,7 @@ public class SaveManager : Singleton<SaveManager>
         PlayerInventoryManager inventoryManager = FindFirstObjectByType<PlayerInventoryManager>(FindObjectsInactive.Include);
         if (inventoryManager != null)
         {
-            CaptureInventory(inventoryManager);
+            CaptureInventory(inventoryManager.Facade);
         }
 
         CaptureRelics();
@@ -309,12 +310,12 @@ public class SaveManager : Singleton<SaveManager>
     /// <summary>
     /// 현재 보유 유닛을 ID와 수량으로 저장합니다.
     /// </summary>
-    private void CaptureInventory(PlayerInventoryManager inventoryManager)
+    private void CaptureInventory(PlayerFacade facade)
     {
         currentData.units.Clear();
         Dictionary<int, int> unitCounts = new Dictionary<int, int>();
 
-        foreach (UnitData unitData in inventoryManager.OwnedUnits)
+        foreach (UnitData unitData in facade.OwnedUnits)
         {
             if (unitData == null)
             {

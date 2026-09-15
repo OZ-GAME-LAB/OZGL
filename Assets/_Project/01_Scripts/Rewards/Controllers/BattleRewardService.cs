@@ -2,6 +2,7 @@ using OzGameLab01.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Combat;
+using OzGameLab01.Player;
 
 namespace OzGameLab01.Managers
 {
@@ -61,7 +62,7 @@ namespace OzGameLab01.Managers
                 return false;
             }
 
-            PlayerInventoryManager.Instance.AddUnit(PlayerInventoryManager.CloneUnitData(unit));
+            PlayerInventoryManager.Instance.Facade.AddUnit(PlayerFacade.CloneUnitData(unit));
             return true;
         }
     }

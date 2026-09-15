@@ -80,7 +80,7 @@ namespace OzGameLab01.Managers
             }
 
             List<int> candidates = new List<int>();
-            foreach (UnitData unit in inventory.OwnedUnits)
+            foreach (UnitData unit in inventory.Facade.OwnedUnits)
             {
                 if (unit?.skillIds != null && unit.skillIds.Count > ActiveSkillIndex)
                 {

@@ -1,6 +1,7 @@
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
+using OzGameLab01.Player;
 using OzGameLab01.UI;
 using OzGameLab01.Map;
 using System;
@@ -292,9 +293,9 @@ namespace OzGameLab01.Controllers
                 Debug.LogWarning("[BoardSceneController] 유닛 지급 대상 인벤토리가 없습니다.", this);
                 return false;
             }
-            UnitData acquired = PlayerInventoryManager.CloneUnitData(selected);
-            inventory.AddUnit(acquired);
-            _feedback.ShowUnit(acquired.name, inventory.OwnedUnits.Count);
+            UnitData acquired = PlayerFacade.CloneUnitData(selected);
+            inventory.Facade.AddUnit(acquired);
+            _feedback.ShowUnit(acquired.name, inventory.Facade.OwnedUnits.Count);
             acquiredUnitId = acquired.id;
             return true;
         }

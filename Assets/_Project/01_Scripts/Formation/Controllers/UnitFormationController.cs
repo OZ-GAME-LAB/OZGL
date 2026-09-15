@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using OzGameLab01.Combat;
 using OzGameLab01.Managers;
+using OzGameLab01.Player;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
 using UnityEngine;
@@ -218,7 +219,7 @@ namespace OzGameLab01.Controllers
 
             if (Managers.PlayerInventoryManager.Instance != null)
             {
-                Managers.PlayerInventoryManager.Instance.OnUnitAdded += AddNewUnitItem;
+                Managers.PlayerInventoryManager.Instance.Facade.OnUnitAdded += AddNewUnitItem;
             }
         }
 
@@ -234,7 +235,7 @@ namespace OzGameLab01.Controllers
         {
             if (Managers.PlayerInventoryManager.Instance != null)
             {
-                Managers.PlayerInventoryManager.Instance.OnUnitAdded -= AddNewUnitItem;
+                Managers.PlayerInventoryManager.Instance.Facade.OnUnitAdded -= AddNewUnitItem;
             }
         }
 
@@ -291,7 +292,7 @@ namespace OzGameLab01.Controllers
             // [수정됨] 이제 씬 전환 시에도 파괴되지 않는 전역 인벤토리에서 유닛 목록을 가져옵니다!
             if (Managers.PlayerInventoryManager.Instance != null)
             {
-                foreach (UnitData source in Managers.PlayerInventoryManager.Instance.OwnedUnits)
+                foreach (UnitData source in Managers.PlayerInventoryManager.Instance.Facade.OwnedUnits)
                 {
                     if (source == null)
                     {
@@ -418,13 +419,13 @@ namespace OzGameLab01.Controllers
                 {
                     if (rosterUnit != null && rosterUnit.id == ownedUnit.id)
                     {
-                        return PlayerInventoryManager.CloneUnitData(rosterUnit);
+                        return PlayerFacade.CloneUnitData(rosterUnit);
                     }
                 }
             }
 
-            // 로스터에 없는 런타임 유닛은 기존 인벤토리 데이터를 복사해 유지 
-            return PlayerInventoryManager.CloneUnitData(ownedUnit);
+            // 로스터에 없는 런타임 유닛은 기존 인벤토리 데이터를 복사해 유지
+            return PlayerFacade.CloneUnitData(ownedUnit);
         }
 
         /// <summary>
@@ -1511,9 +1512,9 @@ namespace OzGameLab01.Controllers
         {
             if (source == null || unitItemTemplate == null || unitView == null) return;
             // 1. 편성창 전용 독립 데이터로 복사하여 내부 리스트에 추가
-            // (필드를 직접 나열하지 않고 PlayerInventoryManager.CloneUnitData를 재사용해
+            // (필드를 직접 나열하지 않고 PlayerFacade.CloneUnitData를 재사용해
             //  UnitData에 필드가 추가되어도 이 복사가 누락되지 않도록 한다.)
-            UnitData newData = PlayerInventoryManager.CloneUnitData(source);
+            UnitData newData = PlayerFacade.CloneUnitData(source);
             testUnitDataList.Add(newData);
             // 2. UI 아이템(프리팹) 1개 새로 생성 후 셋팅
             UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
