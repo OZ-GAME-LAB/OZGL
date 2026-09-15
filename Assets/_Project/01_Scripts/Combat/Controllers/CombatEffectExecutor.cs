@@ -7,7 +7,7 @@ namespace OzGameLab01.Combat
     /// <summary>
     /// 유닛 패시브/유물의 EffectInstance를 실제로 실행하는 트리거→타겟→이펙트 실행기입니다.
     /// 데이터는 RuntimeDataManager.GetEffects(trigger) 하나만 참조하고, 전투 상태(행 배치·
-    /// 생존 여부)는 CombatManager/BattleUnitRegistry에서 읽습니다 — PlayerInventoryManager나
+    /// 생존 여부)는 CombatFacade/BattleUnitRegistry에서 읽습니다 — PlayerInventoryManager나
     /// RelicManager를 직접 참조하지 않습니다(그 둘의 보유 목록 취합은 RuntimeEffectManager가
     /// 이미 담당).
     ///
@@ -20,13 +20,13 @@ namespace OzGameLab01.Combat
     /// </summary>
     public sealed class CombatEffectExecutor
     {
-        private readonly CombatManager _combatManager;
+        private readonly CombatFacade _facade;
         private readonly HashSet<(RuntimeEffectManager.EffectSourceKind, int, int)> _firedOnce = new();
         private bool _firstAllyDeathFired;
 
-        public CombatEffectExecutor(CombatManager combatManager)
+        public CombatEffectExecutor(CombatFacade facade)
         {
-            _combatManager = combatManager;
+            _facade = facade;
 
             PassiveEventBus.OnBattleStart += HandleBattleStart;
             PassiveEventBus.OnSelfDeath += HandleSelfDeath;
@@ -102,7 +102,7 @@ namespace OzGameLab01.Combat
                         string detail = effect.effect == EffectType.StatModifier
                             ? CombatFeedback.StatText(effect.statType, effect.effectParam)
                             : $"피해 {effect.effectParam:0.##}";
-                        _combatManager.ReportFeedback(new CombatFeedback(
+                        _facade.ReportFeedback(new CombatFeedback(
                             relic ? CombatFeedbackKind.Relic : CombatFeedbackKind.Passive,
                             sourceName ?? $"#{source.SourceId}", detail, target));
                     }
@@ -124,7 +124,7 @@ namespace OzGameLab01.Combat
                     // 유물은 특정 유닛 소유가 아니라 Self가 성립하지 않습니다.
                     if (source.Kind == RuntimeEffectManager.EffectSourceKind.UnitPassive)
                     {
-                        Unit owner = _combatManager.GetAllyUnitById(source.SourceId);
+                        Unit owner = _facade.GetAllyUnitById(source.SourceId);
                         if (owner != null && !owner.IsDead)
                         {
                             yield return owner;
@@ -142,7 +142,7 @@ namespace OzGameLab01.Combat
                     break;
 
                 case EffectTarget.AllAllies:
-                    foreach (Unit unit in _combatManager.GetParticipatingAllyUnits())
+                    foreach (Unit unit in _facade.GetParticipatingAllyUnits())
                     {
                         if (!unit.IsDead)
                         {
@@ -153,7 +153,7 @@ namespace OzGameLab01.Combat
                     break;
 
                 case EffectTarget.FrontRow:
-                    foreach (Unit unit in _combatManager.GetAliveAlliesInRow(CombatManager.SlotRow.Front))
+                    foreach (Unit unit in _facade.GetAliveAlliesInRow(CombatManager.SlotRow.Front))
                     {
                         yield return unit;
                     }
@@ -161,7 +161,7 @@ namespace OzGameLab01.Combat
                     break;
 
                 case EffectTarget.MidRow:
-                    foreach (Unit unit in _combatManager.GetAliveAlliesInRow(CombatManager.SlotRow.Mid))
+                    foreach (Unit unit in _facade.GetAliveAlliesInRow(CombatManager.SlotRow.Mid))
                     {
                         yield return unit;
                     }
@@ -169,7 +169,7 @@ namespace OzGameLab01.Combat
                     break;
 
                 case EffectTarget.BackRow:
-                    foreach (Unit unit in _combatManager.GetAliveAlliesInRow(CombatManager.SlotRow.Back))
+                    foreach (Unit unit in _facade.GetAliveAlliesInRow(CombatManager.SlotRow.Back))
                     {
                         yield return unit;
                     }
@@ -215,9 +215,9 @@ namespace OzGameLab01.Combat
                 }
 
                 case EffectTarget.Enemy:
-                    if (_combatManager.EnemyUnit != null && !_combatManager.EnemyUnit.IsDead)
+                    if (_facade.EnemyUnit != null && !_facade.EnemyUnit.IsDead)
                     {
-                        yield return _combatManager.EnemyUnit;
+                        yield return _facade.EnemyUnit;
                     }
 
                     break;
@@ -227,7 +227,7 @@ namespace OzGameLab01.Combat
         private List<Unit> GetAliveAllies()
         {
             List<Unit> alive = new List<Unit>();
-            foreach (Unit unit in _combatManager.GetParticipatingAllyUnits())
+            foreach (Unit unit in _facade.GetParticipatingAllyUnits())
             {
                 if (!unit.IsDead)
                 {

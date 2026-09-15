@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
@@ -9,15 +8,16 @@ using OzGameLab01.Data;
 namespace OzGameLab01.Combat
 {
     /// <summary>
-    /// 전투 시스템의 조립부이자 외부에 노출되는 Facade입니다. 실제 전투 상태는
-    /// <see cref="CombatState"/>(Model)가 들고 있고, 화면 갱신은 출력 컨트롤러
-    /// (<see cref="EnemyHeaderPresenter"/> 등)가 담당합니다. 이 클래스는 하위
-    /// 컨트롤러(AllySpawner/SynergyController/CombatEffectExecutor)를 생성·배선하고,
-    /// 다른 곳에서 필요로 하는 조회 API를 CombatState로 위임만 합니다.
+    /// 전투 시스템의 Unity 라이프사이클(Awake 배선)만 담당합니다. 외부(그리고 Combat
+    /// 내부 협력 클래스)가 호출하는 진입점은 <see cref="CombatFacade"/>이고, 실제 전투
+    /// 상태는 <see cref="CombatState"/>(Model)가 들고 있습니다. 이 클래스는 하위 협력
+    /// 클래스(AllySpawner/SynergyController/CombatEffectExecutor 등)를 생성·배선해서
+    /// Facade/State에 연결하는 것 외의 공개 API를 갖지 않습니다.
     /// </summary>
     public class CombatManager : MonoBehaviour
     {
         public static CombatManager Instance { get; private set; }
+        public CombatFacade Facade { get; private set; }
 
         public enum SlotRow { Front, Mid, Back }
 
@@ -71,13 +71,6 @@ namespace OzGameLab01.Combat
         private CombatEffectFeedbackView _feedbackView;
         private EnemyHeaderPresenter _enemyHeaderPresenter;
 
-        public void ReportFeedback(CombatFeedback feedback)
-        {
-            if (_feedbackView != null) _feedbackView.Show(feedback);
-        }
-
-        public Unit EnemyUnit => _state.EnemyUnit;
-
         private void Awake()
         {
             Instance = this;
@@ -104,6 +97,8 @@ namespace OzGameLab01.Combat
                     _uiProjectilePool = poolObject.GetComponent<UIProjectilePool>();
                 }
             }
+
+            Facade = new CombatFacade(_state, _feedbackView);
 
             // 스폰/시너지 책임은 별도 클래스로 분리되어 있다. Inspector 참조는 CombatManager가
             // 그대로 들고 있고, 생성자로 넘겨주기만 한다(씬/프리팹 재배선 불필요).
@@ -138,7 +133,7 @@ namespace OzGameLab01.Combat
             _synergyController = new SynergyController(
                 rosterData, synergyPanelRoot, synergyItemTemplate,
                 synergyActiveColor, synergyInactiveColor, this);
-            _synergyController.OnEffectApplied = ReportFeedback;
+            _synergyController.OnEffectApplied = Facade.ReportFeedback;
 
             BuildUnitStatLookup();
             _synergyController.BuildUnitTraitLookup(_state.UnitDataById);
@@ -158,7 +153,7 @@ namespace OzGameLab01.Combat
 
             // PassiveEventBus 구독은 RaiseBattleStart보다 먼저 끝나 있어야 Always/OnBattleStart
             // 효과를 놓치지 않는다.
-            _combatEffectExecutor = new CombatEffectExecutor(this);
+            _combatEffectExecutor = new CombatEffectExecutor(Facade);
             PassiveEventBus.RaiseBattleStart();
         }
 
@@ -183,22 +178,5 @@ namespace OzGameLab01.Combat
                 _state.UnitDataById[data.id] = data;
             }
         }
-
-        public Unit ResolveAllyTarget() => _state.ResolveAllyTarget();
-
-        public List<Unit> GetParticipatingAllyUnits() => _state.GetParticipatingAllyUnits();
-
-        /// <summary>
-        /// 특정 행(front/mid/back)에 살아있는 아군만 반환합니다. CombatEffectExecutor의
-        /// EffectTarget.FrontRow/MidRow/BackRow 해석에 사용합니다.
-        /// </summary>
-        public List<Unit> GetAliveAlliesInRow(SlotRow row) => _state.GetAliveAlliesInRow(row);
-
-        /// <summary>
-        /// 유닛 id(GameDB 기준)로 현재 전투에 스폰된 아군 Unit을 찾습니다. 패시브 효과의
-        /// Self 타겟(효과를 보유한 유닛 자신)을 해석할 때 사용합니다 — 소유는 하고 있지만
-        /// 이번 전투 편성에는 없는 유닛이면 null을 반환합니다.
-        /// </summary>
-        public Unit GetAllyUnitById(int unitId) => _state.GetAllyUnitById(unitId);
     }
 }
