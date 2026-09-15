@@ -103,7 +103,7 @@ namespace OzGameLab01.Controllers
         {
             if (_boardPlayerController == null || !_boardPlayerController.EndTurn()) return;
 
-            DiceManager.Instance.ResetTurnRoll();
+            DiceManager.Instance.Facade.ResetTurnRoll();
             TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
             BoardRunData.AdvanceTurn();
 
