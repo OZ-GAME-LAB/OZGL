@@ -35,13 +35,6 @@ public class EventChoice
     public EventChoiceCategory ChoiceCategory => choiceCategory;
     public string ResultTargetID => resultTargetID;
 }
-//전체 이벤트 리스트를 관리할 용도
-public class ChoiceEventList : IDataList<ChoiceEventSO>
-{
-    public List<ChoiceEventSO> eventList;
-    public List<ChoiceEventSO> GetList() => eventList;
-}
-
 public enum EventChoiceCategory
 {
     Relic,
