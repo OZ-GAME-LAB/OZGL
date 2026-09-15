@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.UI;
 
-[CreateAssetMenu(fileName = "ChoiceEventSO_", menuName = "OzGameLab01/Data/ChoiceEvent")]
-public class ChoiceEventSO : ScriptableObject
+[CreateAssetMenu(fileName = "EventSO_", menuName = "OzGameLab01/Data/Event")]
+public class EventSO : ScriptableObject
 {
     public int id;
     public string eventTitle;
@@ -12,7 +12,6 @@ public class ChoiceEventSO : ScriptableObject
     public EventCategory eventCategory;
 
     public List<EventChoice> choices;
-    //public List<EventChoiceDisplayData> choices_;
 }
 //이벤트 매니저에서 각 선택지의 데이터를 관리할 클래스
 [System.Serializable]
@@ -35,13 +34,6 @@ public class EventChoice
     public EventChoiceCategory ChoiceCategory => choiceCategory;
     public string ResultTargetID => resultTargetID;
 }
-//전체 이벤트 리스트를 관리할 용도
-public class ChoiceEventList : IDataList<ChoiceEventSO>
-{
-    public List<ChoiceEventSO> eventList;
-    public List<ChoiceEventSO> GetList() => eventList;
-}
-
 public enum EventChoiceCategory
 {
     Relic,

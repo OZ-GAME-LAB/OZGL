@@ -34,12 +34,12 @@ namespace OzGameLab01.Editor
 
             CombatSceneController sceneController = FindInScene<CombatSceneController>(scene);
             CombatUIController uiController = FindInScene<CombatUIController>(scene);
-            CombatManager combatManager = FindInScene<CombatManager>(scene);
+            CombatSession combatSession = FindInScene<CombatSession>(scene);
             CombatUIView battleUIView = FindInScene<CombatUIView>(scene);
 
             errorCount += Require(sceneController, "CombatSceneController");
             errorCount += Require(uiController, "CombatUIController");
-            errorCount += Require(combatManager, "CombatManager");
+            errorCount += Require(combatSession, "CombatSession");
             errorCount += Require(battleUIView, "CombatUIView");
 
             if (uiController != null)
@@ -97,13 +97,13 @@ namespace OzGameLab01.Editor
                 }
             }
 
-            if (combatManager != null)
+            if (combatSession != null)
             {
-                errorCount += RequireSerializedReference(combatManager, "allyTemplatePrefab");
-                LogOptionalReference(combatManager, "battleMainView", "CombatManager가 런타임 자동 탐색합니다.");
-                errorCount += RequireSerializedReference(combatManager, "rosterData");
-                errorCount += RequireSerializedReference(combatManager, "synergyPanelRoot");
-                errorCount += RequireSerializedReference(combatManager, "synergyItemTemplate");
+                errorCount += RequireSerializedReference(combatSession, "allyTemplatePrefab");
+                LogOptionalReference(combatSession, "battleMainView", "CombatSession이 런타임 자동 탐색합니다.");
+                errorCount += RequireSerializedReference(combatSession, "rosterData");
+                errorCount += RequireSerializedReference(combatSession, "synergyPanelRoot");
+                errorCount += RequireSerializedReference(combatSession, "synergyItemTemplate");
             }
 
             EditorSceneManager.CloseScene(scene, false);
