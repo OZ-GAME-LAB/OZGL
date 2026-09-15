@@ -1361,6 +1361,8 @@ GameObject:
   - component: {fileID: 2599459832272954032}
   - component: {fileID: 7155524704347658056}
   - component: {fileID: 8077309810475195865}
+  - component: {fileID: 1286095641504349637}
+  - component: {fileID: 8087806294422214097}
   m_Layer: 0
   m_Name: EventUi
   m_TagString: Untagged
@@ -1442,6 +1444,39 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIVisibilityToggle
   targetUIToHide: {fileID: 0}
+--- !u!225 &1286095641504349637
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6880439430386520786}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &8087806294422214097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6880439430386520786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36c13b630094f104d85e92abfdeea6be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.OverlayTransitionView
+  rootGroup: {fileID: 1286095641504349637}
+  dimmerGroup: {fileID: 7385615779326195782}
+  panelGroup: {fileID: 7430702293198676656}
+  panelRoot: {fileID: 6943211173368488317}
+  showDuration: 0.2
+  hideDuration: 0.15
+  slideDistance: 20
+  showEase: 9
+  hideEase: 8
 --- !u!1 &7490045068334050397
 GameObject:
   m_ObjectHideFlags: 0
@@ -1528,6 +1563,7 @@ GameObject:
   - component: {fileID: 3629587239263541629}
   - component: {fileID: 8635783333069661803}
   - component: {fileID: 2401118612285610497}
+  - component: {fileID: 7385615779326195782}
   m_Layer: 0
   m_Name: Background
   m_TagString: Untagged
@@ -1592,3 +1628,15 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &7385615779326195782
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8436358271353184224}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
