@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Data;
@@ -14,20 +15,31 @@ namespace OzGameLab01.Managers
     /// 의존했다가 유닛 획득이 막히는 문제가 있었습니다. Synergy는 아직 대응하는 라이브
     /// 로스터가 없어 GameDataLoader로 직접 캐싱합니다.
     /// </summary>
-    public sealed class RuntimeDataManager : Singleton<RuntimeDataManager>
+    public sealed class RuntimeDataManager : Singleton<RuntimeDataManager>, IDataNotificationSource
     {
-        private static readonly List<UnitData> EmptyUnits = new List<UnitData>();
-        private static readonly List<MonsterData> EmptyEnemies = new List<MonsterData>();
+        private static readonly List<UnitData> _emptyUnits = new List<UnitData>();
+        private static readonly List<MonsterData> _emptyEnemies = new List<MonsterData>();
 
         private UnitRosterData _unitRosterData;
         private MonsterRosterData _monsterRosterData;
-        private readonly Dictionary<int, SynergyData> _synergiesById = new Dictionary<int, SynergyData>();
-        private readonly Dictionary<int, RelicData> _relicsById = new Dictionary<int, RelicData>();
+        private readonly RuntimeDataCache _cache = new RuntimeDataCache();
+        private readonly DataNotificationPublisher _notifications = new DataNotificationPublisher();
 
-        public IReadOnlyList<UnitData> Units => _unitRosterData != null ? _unitRosterData.UnitStats : EmptyUnits;
-        public IReadOnlyList<MonsterData> Enemies => _monsterRosterData != null ? _monsterRosterData.MonsterStats : EmptyEnemies;
-        public IReadOnlyDictionary<int, SynergyData> Synergies => _synergiesById;
-        public IReadOnlyDictionary<int, RelicData> Relics => _relicsById;
+        public event Action<DataNotification> Notification
+        {
+            add => _notifications.Notification += value;
+            remove => _notifications.Notification -= value;
+        }
+
+        public bool TryGetLatestNotification(string dataset, out DataNotification notification)
+            => _notifications.TryGetLatestNotification(dataset, out notification);
+
+        private void OnDestroy() => _notifications.ClearSubscribers();
+
+        public IReadOnlyList<UnitData> Units => _unitRosterData != null ? _unitRosterData.UnitStats : _emptyUnits;
+        public IReadOnlyList<MonsterData> Enemies => _monsterRosterData != null ? _monsterRosterData.MonsterStats : _emptyEnemies;
+        public IReadOnlyDictionary<int, SynergyData> Synergies => _cache.Synergies;
+        public IReadOnlyDictionary<int, RelicData> Relics => _cache.Relics;
 
         protected override void Awake()
         {
@@ -59,6 +71,9 @@ namespace OzGameLab01.Managers
             {
                 Debug.LogWarning("[RuntimeDataManager] Resources/MonsterRosterData.asset을 찾을 수 없습니다.", this);
             }
+            // 두 로스터 참조 확정 이후 순차 알림
+            _notifications.Publish(typeof(UnitData).FullName, _unitRosterData != null ? DataNotificationKind.RosterBound : DataNotificationKind.SourceUnavailable, Units.Count);
+            _notifications.Publish(typeof(MonsterData).FullName, _monsterRosterData != null ? DataNotificationKind.RosterBound : DataNotificationKind.SourceUnavailable, Enemies.Count);
         }
 
         /// <summary>
@@ -66,35 +81,12 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadSynergies()
         {
-            _synergiesById.Clear();
             List<SynergyData> loaded = GameDataLoader.LoadSynergies();
-            if (loaded == null)
-            {
-                return;
-            }
-
-            foreach (SynergyData synergy in loaded)
-            {
-                if (synergy != null)
-                {
-                    _synergiesById[synergy.id] = synergy;
-                }
-            }
+            _cache.ReplaceSynergies(loaded);
+            _notifications.Publish(typeof(SynergyData).FullName, loaded == null ? DataNotificationKind.SourceUnavailable : DataNotificationKind.CacheReplaced, Synergies.Count);
         }
 
-        public UnitData GetUnit(int id)
-        {
-            IReadOnlyList<UnitData> units = Units;
-            for (int i = 0; i < units.Count; i++)
-            {
-                if (units[i] != null && units[i].id == id)
-                {
-                    return units[i];
-                }
-            }
-
-            return null;
-        }
+        public UnitData GetUnit(int id) => RosterDataRules.FindFirst(Units, id, data => data.id);
 
         public MonsterData GetEnemy(int id) => _monsterRosterData?.GetById(id);
 
@@ -115,8 +107,7 @@ namespace OzGameLab01.Managers
 
         public SynergyData GetSynergy(int id)
         {
-            _synergiesById.TryGetValue(id, out SynergyData data);
-            return data;
+            return _cache.GetSynergy(id);
         }
 
         /// <summary>
@@ -126,26 +117,14 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadRelics()
         {
-            _relicsById.Clear();
             List<RelicData> loaded = GameDataLoader.LoadRelics();
-            if (loaded == null)
-            {
-                return;
-            }
-
-            foreach (RelicData relic in loaded)
-            {
-                if (relic != null)
-                {
-                    _relicsById[relic.id] = relic;
-                }
-            }
+            _cache.ReplaceRelics(loaded);
+            _notifications.Publish(typeof(RelicData).FullName, loaded == null ? DataNotificationKind.SourceUnavailable : DataNotificationKind.CacheReplaced, Relics.Count);
         }
 
         public RelicData GetRelic(int id)
         {
-            _relicsById.TryGetValue(id, out RelicData data);
-            return data;
+            return _cache.GetRelic(id);
         }
 
         /// <summary>
