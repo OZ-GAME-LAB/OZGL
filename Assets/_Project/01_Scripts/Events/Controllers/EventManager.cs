@@ -8,7 +8,7 @@ namespace OzGameLab01.Managers
     /// 따로 들고 있고, 이 클래스는 항상 존재하는 <see cref="EventFacade"/>를 노출하는
     /// 것 외의 일을 하지 않습니다.
     /// </summary>
-    public class ChoiceEventManager : Singleton<ChoiceEventManager>
+    public class EventManager : Singleton<EventManager>
     {
         private EventFacade _facade;
         public EventFacade Facade => _facade ??= new EventFacade();

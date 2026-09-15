@@ -6,7 +6,7 @@ namespace OzGameLab01.Events
 {
     /// <summary>
     /// Events 시스템 외부(BoardSceneController 등)가 호출하는 유일한 진입점입니다.
-    /// 이 클래스는 게임 부팅 후 계속 살아있는 ChoiceEventManager가 들고 있는 반면,
+    /// 이 클래스는 게임 부팅 후 계속 살아있는 EventManager가 들고 있는 반면,
     /// 실제로 조작할 UI/데이터는 씬에 배치된 EventSession이 갖고 있으므로
     /// 필요할 때마다 EventSession을 찾아 사용합니다(EventSession의 GameObject가
     /// 비활성 상태로 시작해도 Awake 시점에 의존하지 않도록).
@@ -40,16 +40,16 @@ namespace OzGameLab01.Events
                 return false;
             }
 
-            ChoiceEventSO[] eventPool = session.EventPool;
+            EventSO[] eventPool = session.EventPool;
             if (eventPool == null || eventPool.Length == 0)
             {
                 Debug.LogWarning("[EventFacade] 등록된 런타임 이벤트 데이터가 없습니다.", session.PanelObject);
                 return false;
             }
 
-            List<ChoiceEventSO> validEvents = new();
+            List<EventSO> validEvents = new();
 
-            foreach (ChoiceEventSO choiceEvent in eventPool)
+            foreach (EventSO choiceEvent in eventPool)
             {
                 if (choiceEvent != null && choiceEvent.choices != null && choiceEvent.choices.Count > 0)
                 {
@@ -66,7 +66,7 @@ namespace OzGameLab01.Events
             return OpenChoiceEvent(validEvents[UnityEngine.Random.Range(0, validEvents.Count)]);
         }
 
-        public bool OpenChoiceEvent(ChoiceEventSO choiceEvent)
+        public bool OpenChoiceEvent(EventSO choiceEvent)
         {
             EventSession session = GetSession();
             if (session == null)

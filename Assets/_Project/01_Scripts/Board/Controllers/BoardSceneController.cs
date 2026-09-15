@@ -232,10 +232,10 @@ namespace OzGameLab01.Controllers
             if (_eventUIPanel != null)
             {
                 _pendingEventNode = eventNode;
-                ChoiceEventManager.Instance.Facade.EventCompleted -= HandleEventCompleted;
-                ChoiceEventManager.Instance.Facade.EventCompleted += HandleEventCompleted;
+                EventManager.Instance.Facade.EventCompleted -= HandleEventCompleted;
+                EventManager.Instance.Facade.EventCompleted += HandleEventCompleted;
 
-                if (ChoiceEventManager.Instance.Facade.OpenRandomEvent())
+                if (EventManager.Instance.Facade.OpenRandomEvent())
                 {
                     return;
                 }
@@ -262,7 +262,7 @@ namespace OzGameLab01.Controllers
         {
             if (_eventUIPanel != null)
             {
-                ChoiceEventManager.Instance.Facade.EventCompleted -= HandleEventCompleted;
+                EventManager.Instance.Facade.EventCompleted -= HandleEventCompleted;
             }
 
             _pendingEventNode = null;
