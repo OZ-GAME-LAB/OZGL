@@ -15,8 +15,6 @@ namespace OzGameLab01.Managers
         [SerializeField] private ChoiceEventSO[] eventPool;
 
         private readonly List<EventChoice> _choices = new();
-        private ChoiceEventSO currentEvent;
-
 
         /// <summary>
         /// 선택지 효과가 정상 처리되어 이벤트 UI가 닫힐 때 발생합니다.
@@ -25,12 +23,6 @@ namespace OzGameLab01.Managers
 
         private void Awake()
         {
-            ResetState();
-        }
-
-        private void ResetState()
-        {
-            currentEvent = null;
             _choices.Clear();
         }
 
@@ -95,7 +87,6 @@ namespace OzGameLab01.Managers
                 return false;
             }
 
-            //if (choiceArea == null || choicePrefab == null || actionPrefab == null || eventUIView == null)
             if (choiceArea == null || eventUIView == null)
             {
                 Debug.LogError("[ChoiceEventManager] 이벤트 UI 참조가 완전히 연결되지 않았습니다.", this);
@@ -119,51 +110,6 @@ namespace OzGameLab01.Managers
             }
 
             return true;
-            
-            //gameObject.SetActive(true);
-            //ChoiceEventReset();
-            //currentEvent = choiceEvent;
-
-            //foreach (EventChoice choiceData in choiceEvent.choices)
-            //{
-            //    if (choiceData == null)
-            //    {
-            //        continue;
-            //    }
-
-            //    choices.Add(choiceData);
-            //    EventChoiceUI choiceView;
-
-            //    switch (choiceData.ChoiceCategory)
-            //    {
-            //        case EventChoiceCategory.Unit:
-            //        case EventChoiceCategory.Relic:
-            //            choiceView = Instantiate(choicePrefab, choiceArea, false);
-            //            choiceView.SetEventChoiceUI(choiceData);
-            //            break;
-            //        case EventChoiceCategory.Event:
-            //        case EventChoiceCategory.Battle:
-            //        case EventChoiceCategory.Heal:
-            //        case EventChoiceCategory.Upgrade:
-            //        case EventChoiceCategory.Flag:
-            //        case EventChoiceCategory.Exit:
-            //            choiceView = Instantiate(actionPrefab, choiceArea, false);
-            //            choiceView.SetEventActionUI(choiceData);
-            //            break;
-            //        default:
-            //            Debug.LogWarning($"[ChoiceEventManager] 지원하지 않는 선택지 유형입니다: {choiceData.ChoiceCategory}", this);
-            //            continue;
-            //    }
-
-            //    choiceView.eventChoiceIndex = choices.Count - 1;
-            //    choiceView.OnChoice -= ChoiceResult;
-            //    choiceView.OnChoice += ChoiceResult;
-            //}
-
-            //eventUIView.SetTitle(choiceEvent.eventTitle);
-            //eventUIView.SetDescription(choiceEvent.eventDialog);
-            //return choices.Count > 0;
-
         }
         public bool SetChoiceList(List<EventChoice> choices)
         {
@@ -191,10 +137,6 @@ namespace OzGameLab01.Managers
 
             CloseCanvas();
             EventCompleted?.Invoke();
-            //if (ExecuteChoice(choices[choiceIndex]))
-            //{
-            //    gameObject.SetActive(false);
-            //}
         }
 
         private void ExecuteChoice(EventChoice selectedChoice)
@@ -228,23 +170,8 @@ namespace OzGameLab01.Managers
                     Debug.Log("Event Exit");
                     break;
                 default:
-                    return;// false;
+                    return;
             }
-            //gameObject.SetActive(false);
-
-            return; // true;
-
-
-        }
-        private bool ExcuteChoicea(EventChoiceCategory choiceCategory, string targetID)
-        {
-
-            return true;
-        }
-        private void ExcuteChoicec(EventChoice choice)
-        {
-
-            
         }
     }
 }

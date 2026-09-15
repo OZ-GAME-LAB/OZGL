@@ -80,7 +80,7 @@ namespace OzGameLab01.Controllers
             bool allyAlive = false;
             bool enemyAlive = false;
 
-            foreach (Unit unit in BattleUnitRegistry.Units)
+            foreach (Unit unit in CombatUnitRegistry.Units)
             {
                 if (unit == null || unit.IsDead)
                 {
@@ -152,12 +152,9 @@ namespace OzGameLab01.Controllers
             transitioner.LoadBoardScene();
         }
 
-        // <summary>
-        // 보스전 승리 후 현재 게임 진행을 종료하고 타이틀 씬으로 이동합니다.
-        // </summary>
-        //public void ReturnToTitle()
         /// <summary>
-        /// [수정] 종료된 런의 Continue 데이터를 제거한 뒤 타이틀로 이동
+        /// 보스전 승리 후 현재 게임 진행을 종료하고, 종료된 런의 Continue 데이터를
+        /// 제거한 뒤 타이틀 씬으로 이동합니다.
         /// </summary>
         public async void ReturnToTitle()
         {

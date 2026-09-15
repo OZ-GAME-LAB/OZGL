@@ -66,18 +66,18 @@ namespace OzGameLab01.Combat
             _presenter = new UnitPresenter(healthBar, spriteRenderer, projectilePrefab, skillNameLabel, skillNameDisplayDuration, team);
             _status = new UnitStatusEffects();
             InitializeRuntimeState();
-            BattleUnitRegistry.Register(this);
+            CombatUnitRegistry.Register(this);
             _awakeInitialized = true;
         }
 
         private void OnDestroy()
         {
-            BattleUnitRegistry.Unregister(this);
+            CombatUnitRegistry.Unregister(this);
         }
 
         private void OnDisable()
         {
-            BattleUnitRegistry.Unregister(this);
+            CombatUnitRegistry.Unregister(this);
         }
 
         private void Update()
@@ -444,7 +444,7 @@ namespace OzGameLab01.Combat
         private void Die()
         {
             _isDead = true;
-            BattleUnitRegistry.Unregister(this);
+            CombatUnitRegistry.Unregister(this);
 
             _presenter.HideCombatImage();
             gameObject.SetActive(false);

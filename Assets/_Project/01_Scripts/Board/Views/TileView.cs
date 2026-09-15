@@ -1,4 +1,5 @@
-using OzGameLab01.Controllers;
+// 입력 인터페이스 의존성 전환
+using OzGameLab01.Board.Controllers;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -10,6 +11,12 @@ namespace OzGameLab01.Map
     public class TileView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
         public MapNode MyNode { get; private set; }
+        private IBoardTileInput _input;
+
+        public void BindInput(IBoardTileInput input)
+        {
+            _input = input;
+        }
 
         [SerializeField] private MeshRenderer _renderer;
         private Color _originalColor;
@@ -17,35 +24,46 @@ namespace OzGameLab01.Map
         public void Init(MapNode node)
         {
             MyNode = node;
-            if (_renderer == null) _renderer = GetComponentInChildren<MeshRenderer>();
+            if (_renderer == null)
+            {
+                _renderer = GetComponentInChildren<MeshRenderer>();
+            }
 
             if (_renderer != null)
+            {
                 _originalColor = _renderer.material.color;
+            }
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (BoardPlayerController.Instance == null) return;
-            BoardPlayerController.Instance.OnTileHovered(this);
+            // 주입된 입력 수신자 연결
+            _input?.OnTileHovered(this);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (BoardPlayerController.Instance == null) return;
-            BoardPlayerController.Instance.ClearHover();
+            // 주입된 입력 수신자 연결
+            _input?.ClearHover();
             ResetHighlight();
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (eventData.button != PointerEventData.InputButton.Left) return;
-            if (BoardPlayerController.Instance == null) return;
-            BoardPlayerController.Instance.OnTileClicked(this);
+            if (eventData.button != PointerEventData.InputButton.Left)
+            {
+                return;
+            }
+            // 주입된 입력 수신자 연결
+            _input?.OnTileClicked(this);
         }
 
         public void SetHighlight(bool isReachable)
         {
-            if (_renderer == null) return;
+            if (_renderer == null)
+            {
+                return;
+            }
 
             // 이동 가능하면 흰색, 불가능하면 붉은색
             _renderer.material.color = isReachable ? Color.white : Color.red;
@@ -53,7 +71,10 @@ namespace OzGameLab01.Map
 
         public void ResetHighlight()
         {
-            if (_renderer == null) return;
+            if (_renderer == null)
+            {
+                return;
+            }
             _renderer.material.color = _originalColor;
         }
     }
