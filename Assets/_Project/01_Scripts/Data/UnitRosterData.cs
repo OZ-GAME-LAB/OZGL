@@ -149,8 +149,12 @@ namespace OzGameLab01.Combat
         /// </summary>
         public static List<UnitData> ParseUnitList(string json)
         {
-            UnitDataList list = Newtonsoft.Json.JsonConvert.DeserializeObject<UnitDataList>(json);
-            return list?.unitList;
+            // 기존 빈 JSON 입력의 null 반환 계약 유지
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return null;
+            }
+            return OzGameLab01.Data.JsonDataParser.Parse<UnitData, UnitDataList>(json);
         }
 
         private void OnValidate()
