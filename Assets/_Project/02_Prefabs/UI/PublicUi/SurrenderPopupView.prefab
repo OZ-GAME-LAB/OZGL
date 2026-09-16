@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7758465157459600252}
   - component: {fileID: 4743417057239458150}
   - component: {fileID: 4143934400169096750}
+  - component: {fileID: 8075027098052914598}
   m_Layer: 0
   m_Name: Dimmer
   m_TagString: Untagged
@@ -76,6 +77,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &8075027098052914598
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 55210619393565529}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &973976511929173580
 GameObject:
   m_ObjectHideFlags: 0
@@ -917,6 +930,7 @@ GameObject:
   - component: {fileID: 3077937646055779397}
   - component: {fileID: 5641830848049233915}
   - component: {fileID: 3371787946225739805}
+  - component: {fileID: 306162366535462475}
   m_Layer: 0
   m_Name: PopupPanel
   m_TagString: Untagged
@@ -982,6 +996,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &306162366535462475
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5127633099641719025}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5995256375827369861
 GameObject:
   m_ObjectHideFlags: 0
@@ -992,6 +1018,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2621956695822323283}
   - component: {fileID: 6225729817990851366}
+  - component: {fileID: 5273139654907736890}
+  - component: {fileID: 5369464240564700355}
   m_Layer: 0
   m_Name: SurrenderPopupView
   m_TagString: Untagged
@@ -1037,6 +1065,40 @@ MonoBehaviour:
   confirmButtonText: {fileID: 3016859565784697235}
   cancelButton: {fileID: 3694197989963035001}
   cancelButtonText: {fileID: 4149875560015429774}
+  overlayTransition: {fileID: 5369464240564700355}
+--- !u!225 &5273139654907736890
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5995256375827369861}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &5369464240564700355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5995256375827369861}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36c13b630094f104d85e92abfdeea6be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.OverlayTransitionView
+  rootGroup: {fileID: 5273139654907736890}
+  dimmerGroup: {fileID: 8075027098052914598}
+  panelGroup: {fileID: 306162366535462475}
+  panelRoot: {fileID: 3077937646055779397}
+  showDuration: 0.2
+  hideDuration: 0.15
+  slideDistance: 20
+  showEase: 9
+  hideEase: 8
 --- !u!1 &6348764437453542401
 GameObject:
   m_ObjectHideFlags: 0

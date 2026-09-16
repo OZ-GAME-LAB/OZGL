@@ -16,6 +16,9 @@ namespace OzGameLab01.UI.Settings
         [SerializeField] private Button returnToMainButton;
         [SerializeField] private Button backButton;
 
+        [Header("Transition")]
+        [SerializeField] private OverlayTransitionView overlayTransition;
+
         [Header("Setting Items")]
         [SerializeField] private List<SliderItemView> sliderItems = new List<SliderItemView>();
         [SerializeField] private List<ToggleItemView> toggleItems = new List<ToggleItemView>();
@@ -104,11 +107,34 @@ namespace OzGameLab01.UI.Settings
 
         public void Show()
         {
+            if (overlayTransition != null)
+            {
+                overlayTransition.Show();
+                return;
+            }
+
             gameObject.SetActive(true);
         }
 
         public void Hide()
         {
+            if (overlayTransition != null)
+            {
+                overlayTransition.Hide();
+                return;
+            }
+
+            gameObject.SetActive(false);
+        }
+
+        public void HideImmediate()
+        {
+            if (overlayTransition != null)
+            {
+                overlayTransition.HideImmediate();
+                return;
+            }
+
             gameObject.SetActive(false);
         }
 

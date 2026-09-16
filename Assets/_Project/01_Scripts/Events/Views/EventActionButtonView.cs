@@ -18,6 +18,7 @@ namespace OzGameLab01.UI
         [SerializeField] private Image iconImage;
 
         private Action<int> _onClick;
+        [SerializeField]
         private int _choiceIndex;
         #region Unity Lifecycle
 

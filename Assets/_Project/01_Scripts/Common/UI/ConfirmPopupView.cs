@@ -16,6 +16,9 @@ namespace OzGameLab01.UI
         [SerializeField] private Button cancelButton;
         [SerializeField] private TMP_Text cancelButtonText;
 
+        [Header("Transition")]
+        [SerializeField] private OverlayTransitionView overlayTransition;
+
         #region Properties
 
         public TMP_Text MessageText => messageText;
@@ -112,6 +115,12 @@ namespace OzGameLab01.UI
 
         public void Show()
         {
+            if (overlayTransition != null)
+            {
+                overlayTransition.Show();
+                return;
+            }
+
             gameObject.SetActive(true);
         }
 
@@ -131,6 +140,23 @@ namespace OzGameLab01.UI
 
         public void Hide()
         {
+            if (overlayTransition != null)
+            {
+                overlayTransition.Hide();
+                return;
+            }
+
+            gameObject.SetActive(false);
+        }
+
+        public void HideImmediate()
+        {
+            if (overlayTransition != null)
+            {
+                overlayTransition.HideImmediate();
+                return;
+            }
+
             gameObject.SetActive(false);
         }
 

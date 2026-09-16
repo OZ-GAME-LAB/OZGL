@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
+using OzGameLab01.Data;
+using OzGameLab01.Effects.Models;
 using OzGameLab01.Events.Contracts;
 
 namespace OzGameLab01.Events
@@ -38,8 +40,8 @@ namespace OzGameLab01.Events
                 return false;
             }
 
-            EventSO[] eventPool = session.EventPool;
-            if (eventPool == null || eventPool.Length == 0)
+            EventDB eventDB = session.EventDB;
+            if (eventDB == null || eventDB.EventList_Event.Count == 0)
             {
                 Debug.LogWarning("[EventFacade] 등록된 런타임 이벤트 데이터가 없습니다.", session.PanelObject);
                 return false;
@@ -47,7 +49,7 @@ namespace OzGameLab01.Events
 
             List<EventSO> validEvents = new();
 
-            foreach (EventSO choiceEvent in eventPool)
+            foreach (EventSO choiceEvent in eventDB.EventList_Event)
             {
                 if (choiceEvent != null && choiceEvent.choices != null && choiceEvent.choices.Count > 0)
                 {
@@ -79,6 +81,11 @@ namespace OzGameLab01.Events
                 return false;
             }
 
+            if (choiceEvent.eventCategory == EventCategory.Action)
+            {
+                ApplyRelicChoiceRewards(choiceEvent.choices);
+            }
+
             if (!session.ShowEvent(choiceEvent, ChoiceResult))
             {
                 return false;
@@ -86,6 +93,35 @@ namespace OzGameLab01.Events
 
             _state.SetChoiceList(choiceEvent.choices);
             return true;
+        }
+
+        /// <summary>
+        /// 유물 획득 선택지는 열리는 시점에 실제로 유물 하나를 뽑아 획득시키고,
+        /// 표시용 이름/타겟 ID를 그 결과로 채웁니다(dev 원본 ChoiceEventManager 동작).
+        /// </summary>
+        private void ApplyRelicChoiceRewards(List<EventChoice> choices)
+        {
+            RelicFacade relicFacade = SystemBus.Get<RelicFacade>();
+            if (relicFacade == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < choices.Count; i++)
+            {
+                if (choices[i].ChoiceCategory != EventChoiceCategory.Relic)
+                {
+                    continue;
+                }
+
+                RelicData relic = relicFacade.AcquireRandomRelic();
+                if (relic == null)
+                {
+                    continue;
+                }
+
+                choices[i].SetEventChoice(relic.name, relic.id.ToString(), null);
+            }
         }
 
         public void ChoiceResult(int choiceIndex)
@@ -97,10 +133,50 @@ namespace OzGameLab01.Events
                 return;
             }
 
-            _state.ExecuteChoice(selected);
-
-            CloseCanvas();
+            ExecuteChoice(selected);
             SystemBus.Messages.Publish(new EventChoiceCompleted());
+        }
+
+        private void ExecuteChoice(EventChoice selectedChoice)
+        {
+            EventDB eventDB = GetSession()?.EventDB;
+
+            switch (selectedChoice.ChoiceCategory)
+            {
+                case EventChoiceCategory.Relic:
+                    Debug.Log($"Get [{selectedChoice.ResultTargetID}] Relic");
+                    CloseCanvas();
+                    break;
+                case EventChoiceCategory.Unit:
+                    Debug.Log($"Get [{selectedChoice.ResultTargetID}] Unit");
+                    CloseCanvas();
+                    break;
+                case EventChoiceCategory.Battle:
+                    Debug.Log("Go To Battle Scene");
+                    CloseCanvas();
+                    break;
+                case EventChoiceCategory.Quiz:
+                    if (eventDB != null)
+                    {
+                        OpenChoiceEvent(eventDB.GetRandomTypeEvent(EventChoiceCategory.Quiz));
+                    }
+                    break;
+                case EventChoiceCategory.Event:
+                    if (eventDB != null)
+                    {
+                        OpenChoiceEvent(eventDB.GetEventById(selectedChoice.ResultTargetID));
+                    }
+                    Debug.Log($"다음 선택지로 이동[{selectedChoice.ResultTargetID}]");
+                    break;
+                case EventChoiceCategory.Heal:
+                    Debug.LogWarning("[EventFacade] 회복 효과가 아직 등록되지 않았습니다.");
+                    CloseCanvas();
+                    break;
+                case EventChoiceCategory.Exit:
+                    Debug.Log("Event Exit");
+                    CloseCanvas();
+                    break;
+            }
         }
 
         private void CloseCanvas()

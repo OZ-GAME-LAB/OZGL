@@ -16,6 +16,11 @@ namespace OzGameLab01.UI.Battle
         [SerializeField] private Button settingsButton;
         [SerializeField] private TMP_Text speedText;
 
+        [Header("Speed Icons")]
+        [SerializeField] private Image speedIconImage;
+        [SerializeField] private Sprite normalSpeedSprite;
+        [SerializeField] private Sprite fastSpeedSprite;
+
         #region Properties
 
         public Button SpeedButton => speedButton;
@@ -80,6 +85,21 @@ namespace OzGameLab01.UI.Battle
             {
                 speedText.text = value ?? string.Empty;
             }
+        }
+
+        /// <summary>
+        /// 현재 배속에 맞는 아이콘을 표시합니다.
+        /// 실제 배속 변경과 클릭 처리는 호출하는 쪽에서 담당합니다.
+        /// </summary>
+        /// <param name="isFastForward">false: 1x, true: 2x</param>
+        public void SetSpeedVisual(bool isFastForward)
+        {
+            if (speedIconImage == null)
+            {
+                return;
+            }
+
+            speedIconImage.sprite = isFastForward ? fastSpeedSprite : normalSpeedSprite;
         }
 
         public void SetSpeedButtonInteractable(bool value)

@@ -54,8 +54,9 @@ namespace OzGameLab01.Managers
         }
 
         // 게임 꺼질 때 저장
-        private async void OnApplicationQuit()
+        protected override async void OnApplicationQuit()
         {
+            base.OnApplicationQuit();
             // [추가] 종료 저장 전에 최신 런 상태를 저장 객체에 반영
             Facade.CaptureCurrentRun();
             await Facade.SaveAsync();

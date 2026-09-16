@@ -1115,7 +1115,7 @@ MonoBehaviour:
   targetCanvasGroup: {fileID: 3919572342645761193}
   burnMaskImage: {fileID: 792589111408350111}
   burnOverlay: {fileID: 1844520796690660990}
-  burnDuration: 4.2
+  burnDuration: 2.2
 --- !u!114 &3959275483108331219
 MonoBehaviour:
   m_ObjectHideFlags: 0

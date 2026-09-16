@@ -18,11 +18,16 @@ namespace OzGameLab01.Events
         [SerializeField] private EventUiView eventUIView;
 
         [Header("Runtime Event Data")]
-        [SerializeField] private EventSO[] eventPool;
+        [SerializeField] private EventDB eventDB;
 
         public EventUiView EventUIView => eventUIView;
-        public EventSO[] EventPool => eventPool;
+        public EventDB EventDB => eventDB;
         public GameObject PanelObject => gameObject;
+
+        private void Awake()
+        {
+            eventDB?.SetDictionary();
+        }
 
         /// <summary>
         /// 이벤트 패널을 열고 제목/설명/선택지를 표시합니다. UI 참조가 없으면 false를

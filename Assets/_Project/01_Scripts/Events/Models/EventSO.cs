@@ -8,10 +8,11 @@ namespace OzGameLab01.Events
     [CreateAssetMenu(fileName = "EventSO_", menuName = "OzGameLab01/Data/Event")]
     public class EventSO : ScriptableObject
     {
-        public int id;
+        public string id;
         public string eventTitle;
         public string eventDialog;
         public EventCategory eventCategory;
+        public EventChoiceCategory choiceCategory;
 
         public List<EventChoice> choices;
     }
@@ -35,6 +36,13 @@ namespace OzGameLab01.Events
         public Sprite ChoiceSprite => choiceSprite;
         public EventChoiceCategory ChoiceCategory => choiceCategory;
         public string ResultTargetID => resultTargetID;
+
+        public void SetEventChoice(string dialog, string targetID, Sprite sprite = null)
+        {
+            choiceDialog = dialog;
+            choiceSprite = sprite;
+            resultTargetID = targetID;
+        }
     }
     public enum EventChoiceCategory
     {
@@ -43,10 +51,8 @@ namespace OzGameLab01.Events
         Battle,
         Event,
         Heal,
-        Upgrade,
-        Flag,
+        Quiz,
         Exit,
-
     }
     public enum EventCategory
     {
