@@ -1,8 +1,8 @@
-using OzGameLab01.Data;
+using OzGameLab01.Combat;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace OzGameLab01.Combat
+namespace OzGameLab01.Data
 {
     /// <summary>
     /// 전투 진입 전에 공유 데이터의 구조를 검증합니다.

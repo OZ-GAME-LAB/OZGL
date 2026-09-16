@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using OzGameLab01.Combat;
 using OzGameLab01.Formation;
 using OzGameLab01.Managers;
 using OzGameLab01.Player;

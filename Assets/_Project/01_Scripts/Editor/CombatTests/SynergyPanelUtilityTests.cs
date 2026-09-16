@@ -3,6 +3,7 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using OzGameLab01.Combat;
+using OzGameLab01.Data;
 
 namespace OzGameLab01.Tests.EditMode
 {

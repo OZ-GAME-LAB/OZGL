@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace OzGameLab01.Combat
+namespace OzGameLab01.Data
 {
     [CreateAssetMenu(fileName = "SynergyDefinition", menuName = "Combat/Synergy Definition")]
     public class SynergyDefinition : ScriptableObject

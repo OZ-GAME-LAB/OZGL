@@ -1,9 +1,8 @@
 using UnityEngine.Serialization;
-using OzGameLab01.Data;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace OzGameLab01.Combat
+namespace OzGameLab01.Data
 {
     /// <summary>
     /// 적 유닛 id별 스탯을 담은 공유 데이터입니다. UnitRosterData와 같은 방식(SO 기반, id 매칭)으로

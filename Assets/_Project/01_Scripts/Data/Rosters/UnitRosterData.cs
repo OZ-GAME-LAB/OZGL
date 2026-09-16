@@ -1,9 +1,8 @@
 using UnityEngine.Serialization;
-using OzGameLab01.Data;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace OzGameLab01.Combat
+namespace OzGameLab01.Data
 {
     /// <summary>
     /// 유닛·스킬·시너지를 한 곳에 모아 전투 씬/로스터 준비 화면/인벤토리(획득·보상·세이브)에
