@@ -42,6 +42,11 @@ namespace OzGameLab01.Board.Models
             return BoardPathfinder.FindPath(CurrentNode, target, RemainingDiceValue);
         }
 
+        public IReadOnlyList<MapNode> GetReachableNodes()
+        {
+            return IsMoving ? Array.Empty<MapNode>() : BoardPathfinder.GetReachableNodes(CurrentNode, RemainingDiceValue);
+        }
+
         public bool TryBeginMovement(MapNode target, out IReadOnlyList<MapNode> path)
         {
             path = null;

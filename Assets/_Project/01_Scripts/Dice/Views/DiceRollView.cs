@@ -1,4 +1,3 @@
-using DG.Tweening;
 using System;
 using System.Collections;
 using TMPro;
@@ -10,14 +9,6 @@ namespace OzGameLab01.UI
     [DisallowMultipleComponent]
     public sealed class DiceRollView : MonoBehaviour
     {
-        private enum ViewState
-        {
-            Hidden,
-            Showing,
-            Visible,
-            Hiding
-        }
-
         [Header("References")]
         [SerializeField] private Button rollButton;
         [SerializeField] private TMP_Text rollText;
@@ -26,25 +17,19 @@ namespace OzGameLab01.UI
         [SerializeField] private Transform diceTransform;
         [SerializeField] private Camera diceCamera;
 
-        [Header("View Animation")]
-        [SerializeField] private CanvasGroup viewCanvasGroup;
-        [SerializeField] private RectTransform contentRoot;
-
-        [SerializeField, Min(0f)] private float showDuration = 0.3f;
-        [SerializeField, Min(0f)] private float hideDuration = 0.2f;
-        [SerializeField] private float slideOffsetY = 30f;
-
         [Header("Roll Animation")]
-        [SerializeField, Min(2f)] private float rollDuration = 3f;
-        [SerializeField] private Vector2Int rollRevolutionRange = new(6, 9);
+        [Tooltip("감속을 포함한 전체 연출 시간입니다. 최소 2초입니다.")]
+        [SerializeField, Min(2f)]
+        private float rollDuration = 3f;
+
+        [Tooltip("랜덤 회전 횟수의 최솟값과 최댓값")]
+        [SerializeField]
+        private Vector2Int rollRevolutionRange = new (6, 9);
 
         private Coroutine rollRoutine;
         private Action<int> completionCallback;
         private bool requestedInteractable = true;
         private bool interactableInitialized;
-        private Sequence viewSequence;
-        private Vector2 contentShownPosition;
-        private bool viewInitialized;
 
         #region Properties
 
@@ -70,8 +55,6 @@ namespace OzGameLab01.UI
             }
         }
 
-        private ViewState viewState = ViewState.Hidden;
-
         #endregion
 
         #region Events
@@ -85,13 +68,11 @@ namespace OzGameLab01.UI
         private void Awake()
         {
             InitializeInteractable();
-            InitializeViewAnimation();
         }
 
         private void OnEnable()
         {
             InitializeInteractable();
-            InitializeViewAnimation();
 
             if (rollButton != null)
                 rollButton.onClick.AddListener(HandleRollClick);
@@ -99,14 +80,11 @@ namespace OzGameLab01.UI
             if (diceCamera != null)
                 diceCamera.enabled = true;
 
-            PlayShowAnimation();
+            RefreshButton();
         }
 
         private void OnDisable()
         {
-            KillViewTween();
-            viewState = ViewState.Hidden;
-
             if (rollButton != null)
                 rollButton.onClick.RemoveListener(HandleRollClick);
 
@@ -114,16 +92,6 @@ namespace OzGameLab01.UI
 
             if (diceCamera != null)
                 diceCamera.enabled = false;
-
-            if (viewCanvasGroup != null)
-            {
-                viewCanvasGroup.alpha = 0f;
-                viewCanvasGroup.interactable = false;
-                viewCanvasGroup.blocksRaycasts = false;
-            }
-
-            if (contentRoot != null)
-                contentRoot.anchoredPosition = contentShownPosition;
         }
 
         #endregion
@@ -132,27 +100,12 @@ namespace OzGameLab01.UI
 
         public void Show()
         {
-            if (viewState != ViewState.Hidden)
-                return;
-
-            if (!gameObject.activeSelf)
-            {
-                gameObject.SetActive(true);
-                return;
-            }
-
-            if (isActiveAndEnabled)
-                PlayShowAnimation();
+            gameObject.SetActive(true);
         }
 
         public void Hide()
         {
-            if (!isActiveAndEnabled || viewState == ViewState.Hidden || viewState == ViewState.Hiding)
-            {
-                return;
-            }
-
-            PlayHideAnimation();
+            gameObject.SetActive(false);
         }
 
         public void SetLabel(string value)
@@ -250,7 +203,7 @@ namespace OzGameLab01.UI
             Quaternion startRotation = diceTransform.rotation;
             Quaternion targetRotation = GetResultRotation(result);
 
-            Vector3 localAxis = new Vector3(UnityEngine.Random.Range(0.6f, 1f), UnityEngine.Random.Range(0.6f, 1f) * (UnityEngine.Random.value < 0.5f ? -1f : 1f), UnityEngine.Random.Range(-0.4f, 0.4f)).normalized;
+            Vector3 localAxis = new Vector3(UnityEngine.Random.Range(0.6f, 1f),UnityEngine.Random.Range(0.6f, 1f) * (UnityEngine.Random.value < 0.5f ? -1f : 1f), UnityEngine.Random.Range(-0.4f, 0.4f)).normalized;
             Vector3 worldAxis = diceCamera.transform.TransformDirection(localAxis).normalized;
 
             float direction = UnityEngine.Random.value < 0.5f ? -1f : 1f;
@@ -271,8 +224,8 @@ namespace OzGameLab01.UI
                 float spinProgress = EvaluateSpinProgress(t);
                 float alignmentProgress = t * t * (3f - 2f * t);
 
-                Quaternion alignedRotation = Quaternion.Slerp(startRotation, targetRotation, alignmentProgress);
-                Quaternion spinRotation = Quaternion.AngleAxis(totalAngle * spinProgress, worldAxis);
+                Quaternion alignedRotation = Quaternion.Slerp(startRotation,targetRotation, alignmentProgress);
+                Quaternion spinRotation = Quaternion.AngleAxis( totalAngle * spinProgress, worldAxis);
 
                 diceTransform.rotation = spinRotation * alignedRotation;
 
@@ -315,7 +268,8 @@ namespace OzGameLab01.UI
                 float u4 = u3 * u;
 
                 // 1 - SmoothStep(u)의 적분
-                float decelerationDistance = u - u3 + 0.5f * u4;
+                float decelerationDistance =
+                    u - u3 + 0.5f * u4;
 
                 traveled = fastEnd + (1f - fastEnd) * decelerationDistance;
             }
@@ -362,7 +316,7 @@ namespace OzGameLab01.UI
             }
 
             Quaternion localFaceRotation = Quaternion.LookRotation(faceNormal, faceUp);
-            Quaternion cameraFacingRotation = Quaternion.LookRotation(-diceCamera.transform.forward, diceCamera.transform.up);
+            Quaternion cameraFacingRotation = Quaternion.LookRotation( -diceCamera.transform.forward, diceCamera.transform.up);
             return cameraFacingRotation * Quaternion.Inverse(localFaceRotation);
         }
 
@@ -413,7 +367,7 @@ namespace OzGameLab01.UI
         {
             if (rollButton != null)
             {
-                rollButton.interactable = requestedInteractable && !IsRolling && viewState == ViewState.Visible;
+                rollButton.interactable = requestedInteractable && !IsRolling;
             }
         }
 
@@ -452,163 +406,5 @@ namespace OzGameLab01.UI
 #endif
 
         #endregion
-
-        #region View Animation
-
-        private void InitializeViewAnimation()
-        {
-            if (viewInitialized)
-                return;
-
-            if (contentRoot != null)
-                contentShownPosition = contentRoot.anchoredPosition;
-
-            viewInitialized = true;
-        }
-
-        private void PlayShowAnimation()
-        {
-            InitializeViewAnimation();
-            KillViewTween();
-
-            viewState = ViewState.Showing;
-
-            if (viewCanvasGroup != null)
-            {
-                viewCanvasGroup.alpha = 0f;
-                viewCanvasGroup.interactable = false;
-
-                viewCanvasGroup.blocksRaycasts = true;
-            }
-
-            if (contentRoot != null)
-            {
-                contentRoot.anchoredPosition = contentShownPosition + Vector2.down * slideOffsetY;
-            }
-
-            RefreshButton();
-
-            if (showDuration <= 0f || (viewCanvasGroup == null && contentRoot == null))
-            {
-                CompleteShow();
-                return;
-            }
-
-            viewSequence = DOTween.Sequence();
-            viewSequence.SetUpdate(true);
-
-            if (viewCanvasGroup != null)
-            {
-                viewSequence.Insert(0f,viewCanvasGroup.DOFade(1f, showDuration).SetEase(Ease.OutCubic));
-            }
-
-            if (contentRoot != null)
-            {
-                viewSequence.Insert(0f,contentRoot.DOAnchorPos(contentShownPosition, showDuration).SetEase(Ease.OutCubic));
-            }
-
-            viewSequence.OnComplete(CompleteShow);
-        }
-
-        private void CompleteShow()
-        {
-            viewSequence = null;
-            viewState = ViewState.Visible;
-
-            if (viewCanvasGroup != null)
-            {
-                viewCanvasGroup.alpha = 1f;
-                viewCanvasGroup.interactable = true;
-                viewCanvasGroup.blocksRaycasts = true;
-            }
-
-            if (contentRoot != null)
-                contentRoot.anchoredPosition = contentShownPosition;
-
-            RefreshButton();
-        }
-
-        private void PlayHideAnimation()
-        {
-            KillViewTween();
-
-            viewState = ViewState.Hiding;
-
-            if (viewCanvasGroup != null)
-                viewCanvasGroup.interactable = false;
-
-            RefreshButton();
-
-            if (hideDuration <= 0f ||
-                (viewCanvasGroup == null && contentRoot == null))
-            {
-                CompleteHide();
-                return;
-            }
-
-            viewSequence = DOTween.Sequence();
-            viewSequence.SetUpdate(true);
-
-            if (viewCanvasGroup != null)
-            {
-                viewSequence.Insert(0f,viewCanvasGroup.DOFade(0f, hideDuration).SetEase(Ease.InCubic));
-            }
-
-            if (contentRoot != null)
-            {
-                Vector2 hiddenPosition = contentShownPosition + Vector2.down * slideOffsetY;
-                viewSequence.Insert(0f,contentRoot.DOAnchorPos(hiddenPosition, hideDuration).SetEase(Ease.InCubic));
-            }
-
-            viewSequence.OnComplete(CompleteHide);
-        }
-
-        private void CompleteHide()
-        {
-            viewSequence = null;
-            gameObject.SetActive(false);
-        }
-
-        private void KillViewTween()
-        {
-            if (viewSequence == null)
-                return;
-
-            viewSequence.Kill(false);
-            viewSequence = null;
-        }
-
-        #endregion
-
-        [ContextMenu("Test/Show Roll View")]
-        private void TestShowRollView()
-        {
-            if (!Application.isPlaying)
-            {
-                Debug.LogWarning("[RollView] Play 모드에서 테스트하세요.", this);
-                return;
-            }
-
-            Show();
-        }
-
-        [ContextMenu("Test/Hide Roll View")]
-        private void TestHideRollView()
-        {
-            if (!Application.isPlaying)
-            {
-                Debug.LogWarning("[RollView] Play 모드에서 테스트하세요.", this);
-                return;
-            }
-
-            if (IsRolling)
-            {
-                Debug.LogWarning(
-                    "[RollView] 주사위 회전이 끝난 뒤 테스트하세요.", this);
-                return;
-            }
-
-            Hide();
-        }
     }
 }

@@ -12,7 +12,7 @@ namespace OzGameLab01.UI
     public sealed class UnitDetailView : MonoBehaviour
     {
         [Header("Stats")]
-        [SerializeField] private BattleInfoStatItemView[] statItems;
+        [SerializeField] private CombatInfoStatItemView[] statItems;
         [SerializeField] private ScrollRect statsScrollRect;
 
         [Header("Selected Unit")]
@@ -206,7 +206,7 @@ namespace OzGameLab01.UI
             if (statItems == null)
                 return;
 
-            foreach (BattleInfoStatItemView item in statItems)
+            foreach (CombatInfoStatItemView item in statItems)
             {
                 if (item != null)
                     item.Clear();
