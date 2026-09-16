@@ -67,7 +67,7 @@ MonoBehaviour:
   unitNameText: {fileID: 971759666939082663}
   skillIconImage: {fileID: 8294929866547868839}
   skillContentRoot: {fileID: 9123195281154920867}
-  statusEffectContentRoot: {fileID: 0}
+  statusEffectContentRoot: {fileID: 838379012583278128}
   gravePortraitObject: {fileID: 5326503181377543696}
 --- !u!1 &2551863551673511581
 GameObject:

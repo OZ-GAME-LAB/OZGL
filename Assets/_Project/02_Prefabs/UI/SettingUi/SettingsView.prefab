@@ -500,6 +500,7 @@ GameObject:
   - component: {fileID: 2466192987907237372}
   - component: {fileID: 6395525168854412795}
   - component: {fileID: 9123836231659180124}
+  - component: {fileID: 7013449572572066284}
   m_Layer: 0
   m_Name: Dimmer
   m_TagString: Untagged
@@ -564,6 +565,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &7013449572572066284
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2677470708350934471}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2891661344799780914
 GameObject:
   m_ObjectHideFlags: 0
@@ -792,6 +805,8 @@ GameObject:
   - component: {fileID: 7905384195110530482}
   - component: {fileID: 7593306415409819823}
   - component: {fileID: 9188177240062806724}
+  - component: {fileID: 4885848128271888593}
+  - component: {fileID: 1859779167094735476}
   m_Layer: 0
   m_Name: SettingsView
   m_TagString: Untagged
@@ -837,6 +852,7 @@ MonoBehaviour:
   contentRoot: {fileID: 1768616390544243046}
   returnToMainButton: {fileID: 2084968103602927496}
   backButton: {fileID: 894571225050619796}
+  overlayTransition: {fileID: 1859779167094735476}
   sliderItems:
   - {fileID: 8999904842599746340}
   - {fileID: 5372233274358621918}
@@ -861,6 +877,39 @@ MonoBehaviour:
   bgmVolumeItem: {fileID: 5372233274358621918}
   sfxVolumeItem: {fileID: 6307540065566822712}
   muteAllItem: {fileID: 1783844492778018966}
+--- !u!225 &4885848128271888593
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3656264152356623285}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1859779167094735476
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3656264152356623285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36c13b630094f104d85e92abfdeea6be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.OverlayTransitionView
+  rootGroup: {fileID: 4885848128271888593}
+  dimmerGroup: {fileID: 7013449572572066284}
+  panelGroup: {fileID: 3460589062892236204}
+  panelRoot: {fileID: 4530705961701775905}
+  showDuration: 0.2
+  hideDuration: 0.15
+  slideDistance: 20
+  showEase: 9
+  hideEase: 8
 --- !u!1 &4265522860802834457
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,6 +920,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4530705961701775905}
   - component: {fileID: 7967278313609938538}
+  - component: {fileID: 3460589062892236204}
   m_Layer: 0
   m_Name: SettingsPanel
   m_TagString: Untagged
@@ -909,6 +959,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4265522860802834457}
   m_CullTransparentMesh: 1
+--- !u!225 &3460589062892236204
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4265522860802834457}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4887927530990151916
 GameObject:
   m_ObjectHideFlags: 0
