@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using OzGameLab01.Dice.Contracts;
 using OzGameLab01.Board.Models;
@@ -43,6 +44,7 @@ namespace OzGameLab01.Controllers
         private System.IDisposable _diceSubscription;
         private bool _started;
 
+        public static event Action OnRollViewClosed;
         private void Awake()
         {
             _feedbackView = new BoardFeedbackView(resultText, warningText);
@@ -454,6 +456,7 @@ namespace OzGameLab01.Controllers
         {
             yield return new WaitForSeconds(rollViewCloseDelay);
             if (readySceneView != null) readySceneView.HideRollView();
+            OnRollViewClosed?.Invoke();
         }
     }
 }
