@@ -1,29 +1,51 @@
-using System;
-using System.Collections.Generic;
 using OzGameLab01.Combat;
-using OzGameLab01.Data;
-using UnityEngine;
+using OzGameLab01.Effects.Models;
+using OzGameLab01.Interfaces;
 
 namespace OzGameLab01.Managers
 {
     /// <summary>
-    /// 플레이어가 현재 보유한 유닛 패시브와 유물 효과를 한 곳에 모아
-    /// 트리거별로 인덱싱하고, 상시 스탯 효과를 미리 계산해 캐싱합니다.
-    ///
-    /// 이 클래스는 정적 Content(UnitData/RelicData)을 수정하지 않습니다.
-    /// 효과가 추가·제거될 때만 RefreshFromPlayerState()를 호출해 캐시를 재구성합니다.
-    /// 실제 전투 유닛의 초 단위 디버프(UnitStatusEffects)는 별도 시스템으로 유지합니다.
+    /// 플레이어가 현재 보유한 유닛 패시브와 유물 효과를 한 곳에 모아 트리거별로
+    /// 인덱싱하고 상시 스탯 효과를 캐싱하는 EffectsFacade를 노출하는, 게임 부팅 후
+    /// 계속 살아있는 매니저입니다. 실제 캐시 재구성/조회 로직은 EffectsFacade가
+    /// 전담합니다. 슬롯 타입 정의(EffectSource 등, 외부에서 여전히 많이 참조함)만
+    /// 컴파일타임 편의를 위해 이 클래스에 유지합니다.
     /// </summary>
-    public sealed class RuntimeEffectManager : Singleton<RuntimeEffectManager>, OzGameLab01.Effects.Contracts.IEffectsNotificationSource
+    public sealed class RuntimeEffectManager : Singleton<RuntimeEffectManager>, IGameManager
     {
-        private void OnDestroy() => _notifications.ClearSubscribers();
+        public EffectsFacade Facade { get; private set; }
+        public bool IsInitialized => Facade != null;
 
-        private readonly OzGameLab01.Effects.Controllers.EffectsNotificationPublisher _notifications = new OzGameLab01.Effects.Controllers.EffectsNotificationPublisher();
-        public event System.Action<OzGameLab01.Effects.Models.EffectsNotification> Notification
+        protected override void Awake()
         {
-            add => _notifications.Notification += value;
-            remove => _notifications.Notification -= value;
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            base.Awake();
+            // 씬 직접 실행 호환. 부팅 경로에서도 Initialize는 중복 호출에 안전하다.
+            Initialize();
         }
+
+        public void Initialize()
+        {
+            if (IsInitialized) return;
+            try
+            {
+                Facade = new EffectsFacade();
+                SystemBus.Register(Facade);
+            }
+            catch { Shutdown(); throw; }
+        }
+
+        public void Shutdown()
+        {
+            if (Facade != null)
+            {
+                SystemBus.Unregister(Facade);
+                Facade.ClearSubscriptions();
+            }
+            Facade = null;
+        }
+
+        private void OnDestroy() => Shutdown();
 
         public enum EffectSourceKind
         {
@@ -67,87 +89,6 @@ namespace OzGameLab01.Managers
             public float Apply(float baseValue)
             {
                 return (baseValue + Additive) * Multiplicative;
-            }
-        }
-
-        private readonly OzGameLab01.Effects.Models.RuntimeEffectCache<EffectSource> _cache =
-            new OzGameLab01.Effects.Models.RuntimeEffectCache<EffectSource>(source => source.Definition, source => (int)source.Kind, source => source.SourceId, source => source.DeclarationIndex);
-
-        public bool IsCacheReady => _cache.IsCacheReady;
-        public int CachedEffectCount => _cache.CachedEffectCount;
-        public IReadOnlyList<EffectSource> AllEffects => _cache.AllEffects;
-        public IReadOnlyList<EffectSource> OrderedEffects => _cache.OrderedEffects;
-        /// <summary>
-        /// PlayerInventoryManager와 RelicManager의 현재 상태를 읽어 효과 캐시를 재생성합니다.
-        /// 보유 목록이 변경되는 획득·복원·초기화 시점에만 호출합니다.
-        /// </summary>
-        public void RefreshFromPlayerState()
-        {
-            List<EffectSource> sources = new List<EffectSource>();
-
-            PlayerInventoryManager inventory = FindAnyObjectByType<PlayerInventoryManager>();
-            if (inventory != null)
-            {
-                foreach (UnitData unit in inventory.Facade.OwnedUnits)
-                {
-                    AddSourceEffects(sources,
-                        EffectSourceKind.UnitPassive,
-                        unit != null ? unit.id : 0,
-                        unit != null ? unit.passiveEffects : null);
-                }
-            }
-
-            RelicManager relicManager = FindAnyObjectByType<RelicManager>();
-            if (relicManager != null)
-            {
-                foreach (RelicRuntimeInstance relic in relicManager.OwnedRelics)
-                {
-                    if (relic?.Data == null)
-                    {
-                        continue;
-                    }
-
-                    AddSourceEffects(sources,
-                        EffectSourceKind.Relic,
-                        relic.Data.id,
-                        relic.Data.effects);
-                }
-            }
-
-            _cache.Rebuild(sources);
-            _notifications.Publish(OzGameLab01.Effects.Models.EffectsNotificationKind.CacheRebuilt, 0, CachedEffectCount);
-        }
-
-        /// <summary>
-        /// 특정 트리거에 연결된 효과만 반환합니다. 반환 리스트는 내부 캐시이므로 수정하지 않습니다.
-        /// </summary>
-        public IReadOnlyList<EffectSource> GetEffects(TriggerType trigger)
-        {
-            return _cache.GetEffects(trigger);
-        }
-
-        public bool TryGetAlwaysStatModifier(EffectStatType statType, EffectTarget target, out StatModifierCache modifier)
-        {
-            bool found = _cache.TryGetAlwaysStatModifier(statType, target, out var cached);
-            modifier = new StatModifierCache(cached.Additive, cached.Multiplicative, cached.SourceCount);
-            return found;
-        }
-        private static void AddSourceEffects(
-            List<EffectSource> sources,
-            EffectSourceKind sourceKind,
-            int sourceId,
-            IReadOnlyList<EffectInstance> definitions)
-        {
-            if (definitions == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < definitions.Count; i++)
-            {
-                EffectInstance definition = definitions[i];
-                EffectSource source = new EffectSource(sourceKind, sourceId, definition, i);
-                sources.Add(source);
             }
         }
 

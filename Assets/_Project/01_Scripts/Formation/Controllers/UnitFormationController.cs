@@ -294,9 +294,10 @@ namespace OzGameLab01.Controllers
         {
             testUnitDataList.Clear();
             // [수정됨] 이제 씬 전환 시에도 파괴되지 않는 전역 인벤토리에서 유닛 목록을 가져옵니다!
-            if (Managers.PlayerInventoryManager.Instance != null)
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            if (playerFacade != null)
             {
-                foreach (UnitData source in Managers.PlayerInventoryManager.Instance.Facade.OwnedUnits)
+                foreach (UnitData source in playerFacade.OwnedUnits)
                 {
                     if (source == null)
                     {

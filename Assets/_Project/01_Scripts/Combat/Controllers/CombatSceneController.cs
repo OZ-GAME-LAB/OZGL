@@ -183,7 +183,14 @@ namespace OzGameLab01.Controllers
             ResetTimeScale();
 
             // [수정] 런타임 상태와 저장 파일의 Continue 데이터를 함께 초기화 (BoardRunData.Clear()를 포함)
-            SaveFacade saveFacade = SaveManager.Instance.Facade;
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                Debug.LogError("[CombatSceneController] SaveFacade를 찾을 수 없어 런 데이터를 정리할 수 없습니다.", this);
+                _isReturningToTitle = false;
+                return;
+            }
+
             saveFacade.ClearCurrentRun();
             bool saved = await saveFacade.SaveAsync();
             if (!saved)
