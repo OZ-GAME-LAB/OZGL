@@ -13,6 +13,31 @@ namespace OzGameLab01.Board.Models
             return type == NodeType.Tree || type == NodeType.Rock || type == NodeType.WaterPuddle || type == NodeType.WaterStart || type == NodeType.WaterBody || type == NodeType.WaterEnd;
         }
 
+        /// <summary>이동 가능한 목적지만 반환합니다. 시작 노드와 장애물은 제외합니다.</summary>
+        public static IReadOnlyList<MapNode> GetReachableNodes(MapNode start, int maxDistance)
+        {
+            var result = new List<MapNode>();
+            if (start == null || maxDistance <= 0) return result.AsReadOnly();
+
+            var queue = new Queue<MapNode>();
+            var distances = new Dictionary<MapNode, int> { [start] = 0 };
+            queue.Enqueue(start);
+            while (queue.Count > 0)
+            {
+                MapNode current = queue.Dequeue();
+                int nextDistance = distances[current] + 1;
+                if (nextDistance > maxDistance) continue;
+                foreach (MapNode next in current.ConnectedNodes)
+                {
+                    if (next == null || IsObstacle(next.Type) || distances.ContainsKey(next)) continue;
+                    distances.Add(next, nextDistance);
+                    result.Add(next);
+                    queue.Enqueue(next);
+                }
+            }
+            return result.AsReadOnly();
+        }
+
         public static List<MapNode> FindPath(MapNode start, MapNode target, int maxDistance)
         {
             if (start == null || target == null || start == target || maxDistance <= 0 || IsObstacle(target.Type))
