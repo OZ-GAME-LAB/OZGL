@@ -82,7 +82,7 @@ namespace OzGameLab01.Controllers
             IReadOnlyList<PlayerSlotItemView> slotViews = mainView.PlayerSlotViews;
 
             IReadOnlyList<UnitFormationCombatLink.TransferredUnit>
-                transferredUnits = UnitFormationCombatLink.BattleUnits;
+                transferredUnits = UnitFormationCombatLink.BattleUnitList;
 
             int slotCount = Mathf.Min(BattleSlotCount, slotViews.Count);
 
@@ -146,7 +146,7 @@ namespace OzGameLab01.Controllers
         private void CreateSupportCards(CombatUnitInfoView unitInfoView)
         {
             IReadOnlyList<UnitFormationCombatLink.TransferredUnit>
-                supportUnits = UnitFormationCombatLink.SupportUnits;
+                supportUnits = UnitFormationCombatLink.SupportUnitList;
 
             for (int slotIndex = 0; slotIndex < SupportSlotCount; slotIndex++)
             {
@@ -170,7 +170,7 @@ namespace OzGameLab01.Controllers
         private void CreateBattleCards(CombatUnitInfoView unitInfoView)
         {
             IReadOnlyList<UnitFormationCombatLink.TransferredUnit>
-                battleUnits = UnitFormationCombatLink.BattleUnits;
+                battleUnits = UnitFormationCombatLink.BattleUnitList;
 
             int createdBattleCardCount = 0;
 

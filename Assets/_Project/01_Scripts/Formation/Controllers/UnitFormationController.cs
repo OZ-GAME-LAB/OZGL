@@ -24,9 +24,9 @@ namespace OzGameLab01.Controllers
             public Sprite icon;
         }
 
-        private const int BattleSlotCount = 9;
-        private const int MaxBattleUnitCount = 4;
-        private const int SupportSlotCount = 2;
+        private const int BATTLE_SLOT_COUNT = 9;
+        private const int MAX_BATTLE_UNIT_COUNT = 4;
+        private const int SUPPORT_SLOT_COUNT = 2;
 
         private static readonly Vector2 UnitListItemSize = new Vector2(80f, 80f);
 
@@ -75,13 +75,13 @@ namespace OzGameLab01.Controllers
         private readonly FormationSlotState slotState = new FormationSlotState();
         private readonly Dictionary<UnitItemView, int> unitHandleByItem = new Dictionary<UnitItemView, int>();
 
-        private readonly UnitData[] battleUnitData = new UnitData[BattleSlotCount];
+        private readonly UnitData[] battleUnitData = new UnitData[BATTLE_SLOT_COUNT];
 
-        private readonly UnitItemView[] battleUnitItems = new UnitItemView[BattleSlotCount];
+        private readonly UnitItemView[] battleUnitItems = new UnitItemView[BATTLE_SLOT_COUNT];
 
-        private readonly UnitData[] supportUnitData = new UnitData[SupportSlotCount];
+        private readonly UnitData[] supportUnitData = new UnitData[SUPPORT_SLOT_COUNT];
 
-        private readonly UnitItemView[] supportUnitItems = new UnitItemView[SupportSlotCount];
+        private readonly UnitItemView[] supportUnitItems = new UnitItemView[SUPPORT_SLOT_COUNT];
 
         private UnitItemView draggingUnitItem;
         private Transform dragOriginParent;
@@ -448,14 +448,14 @@ namespace OzGameLab01.Controllers
 
             bool restoredAnyUnit = false;
             IReadOnlyList<UnitFormationCombatLink.TransferredUnit> savedBattleUnits =
-                UnitFormationCombatLink.BattleUnits;
+                UnitFormationCombatLink.BattleUnitList;
 
-            for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
+            for (int slotIndex = 0; slotIndex < BATTLE_SLOT_COUNT; slotIndex++)
             {
                 // UnitData savedData = savedBattleUnits[slotIndex]?.Data;
                 // 저장된 슬롯 ID를 우선 사용하고 구버전 전달 데이터는 폴백으로 유지 
-                int savedUnitId = UnitFormationCombatLink.HasSavedFormation
-                    ? UnitFormationCombatLink.SavedBattleUnitIds[slotIndex]
+                int savedUnitId = UnitFormationCombatLink.Has_Saved_Formation
+                    ? UnitFormationCombatLink.SavedBattleUnitIdList[slotIndex]
                     : savedBattleUnits[slotIndex]?.Data?.id ?? -1;
                 UnitData savedData = savedBattleUnits[slotIndex]?.Data;
                 if (savedData == null && SceneTransitioner.AllyFormationData != null &&
@@ -475,13 +475,13 @@ namespace OzGameLab01.Controllers
             }
 
             IReadOnlyList<UnitFormationCombatLink.TransferredUnit> savedSupportUnits =
-                UnitFormationCombatLink.SupportUnits;
+                UnitFormationCombatLink.SupportUnitList;
 
-            for (int slotIndex = 0; slotIndex < SupportSlotCount; slotIndex++)
+            for (int slotIndex = 0; slotIndex < SUPPORT_SLOT_COUNT; slotIndex++)
             {
                 UnitData savedData = savedSupportUnits[slotIndex]?.Data;
-                int savedUnitId = UnitFormationCombatLink.HasSavedFormation
-                    ? UnitFormationCombatLink.SavedSupportUnitIds[slotIndex]
+                int savedUnitId = UnitFormationCombatLink.Has_Saved_Formation
+                    ? UnitFormationCombatLink.SavedSupportUnitIdList[slotIndex]
                     : savedData?.id ?? -1;
                 UnitItemView unitItem = savedUnitId >= 0
                     ? FindUnplacedUnitItemById(savedUnitId)
@@ -1038,9 +1038,9 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            unitView.SetUnitCount(slotState.BattleUnitCount, MaxBattleUnitCount);
+            unitView.SetUnitCount(slotState.BattleUnitCount, MAX_BATTLE_UNIT_COUNT);
 
-            unitView.SetSupportUnitCount(slotState.SupportUnitCount, SupportSlotCount);
+            unitView.SetSupportUnitCount(slotState.SupportUnitCount, SUPPORT_SLOT_COUNT);
 
             // 우클릭 배치 변경 후 현재 호버 데이터 갱신
             RefreshHoveredDetail();
@@ -1167,12 +1167,12 @@ namespace OzGameLab01.Controllers
 
         private bool IsValidBattleSlot(int slotIndex)
         {
-            return slotIndex >= 0 && slotIndex < BattleSlotCount;
+            return slotIndex >= 0 && slotIndex < BATTLE_SLOT_COUNT;
         }
 
         private bool IsValidSupportSlot(int slotIndex)
         {
-            return slotIndex >= 0 && slotIndex < SupportSlotCount;
+            return slotIndex >= 0 && slotIndex < SUPPORT_SLOT_COUNT;
         }
 
         /// <summary>

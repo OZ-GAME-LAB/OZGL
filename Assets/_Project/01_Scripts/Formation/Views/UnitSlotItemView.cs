@@ -23,8 +23,8 @@ namespace OzGameLab01.UI
         [SerializeField] private int slotIndex;
         [SerializeField] private UnitSlotType slotType;
 
-        private bool isOccupied;
-        private bool isInteractable = true;
+        private bool _isOccupied;
+        private bool _isInteractable = true;
 
         #region Properties
 
@@ -38,11 +38,11 @@ namespace OzGameLab01.UI
         public bool IsBattleSlot => slotType == UnitSlotType.Battle;
         public bool IsSupportSlot => slotType == UnitSlotType.Support;
 
-        public bool IsOccupied => isOccupied;
+        public bool IsOccupied => _isOccupied;
 
         public bool IsInteractable
         {
-            get => isInteractable;
+            get => _isInteractable;
             set => SetInteractable(value);
         }
 
@@ -118,12 +118,12 @@ namespace OzGameLab01.UI
 
         public void SetOccupied(bool value)
         {
-            isOccupied = value;
+            _isOccupied = value;
         }
 
         public void SetInteractable(bool value)
         {
-            isInteractable = value;
+            _isInteractable = value;
 
             if (slotIcon != null)
                 slotIcon.raycastTarget = value;
@@ -161,33 +161,43 @@ namespace OzGameLab01.UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (!isActiveAndEnabled || !isInteractable)
+
+            if (!isActiveAndEnabled || !_isInteractable)
+            {
                 return;
+            }   
 
             Clicked?.Invoke(this, eventData);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!isActiveAndEnabled || !isInteractable)
-                return;
 
+            if (!isActiveAndEnabled || !_isInteractable)
+               {    
+                return;
+               }
+               
             PointerEntered?.Invoke(this, eventData);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (!isActiveAndEnabled || !isInteractable)
-                return;
 
+            if (!isActiveAndEnabled || !_isInteractable)
+               { 
+                return;
+               }
             PointerExited?.Invoke(this, eventData);
         }
 
         public void OnDrop(PointerEventData eventData)
         {
-            if (!isActiveAndEnabled || !isInteractable)
-                return;
 
+            if (!isActiveAndEnabled || !_isInteractable)
+               {
+                return;
+               }
             Dropped?.Invoke(this, eventData);
         }
 

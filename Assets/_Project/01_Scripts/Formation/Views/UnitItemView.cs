@@ -19,27 +19,31 @@ namespace OzGameLab01.UI
         [Header("Drag Settings")]
         [SerializeField] private float draggingAlpha = 0.65f;
 
-        [Header("Press Feedback")]
+        refactor/formation_system
+        private bool _isInteractable = true;
+        private bool _isSelected;
+        private bool _isDragging;
+
+ [Header("Press Feedback")]
         [SerializeField, Min(1f)] private float pressedScale = 1.08f;
         [SerializeField, Min(0f)] private float pressDuration = 0.08f;
         [SerializeField, Min(0f)] private float releaseDuration = 0.12f;
-
         [Header("Placement Feedback")]
         [SerializeField, Min(1f)] private float placementScale = 1.08f;
         [SerializeField, Min(0f)] private float placementGrowDuration = 0.08f;
         [SerializeField, Min(0f)] private float placementReturnDuration = 0.14f;
         [SerializeField] private Ease placementGrowEase = Ease.OutCubic;
         [SerializeField] private Ease placementReturnEase = Ease.OutSine;
-
         private Tween scaleTween;
         private Vector3 baseScale;
         private bool isPressed;
         private int pressedPointerId;
         private PointerEventData.InputButton pressedButton;
-
-        private bool isInteractable = true;
-        private bool isSelected;
-        private bool isDragging;
+       
+        private bool _isInteractable = true;
+        private bool _isSelected;
+        private bool _isDragging;
+        refactor/architecture_refactor
 
         #region Properties
 
@@ -50,17 +54,17 @@ namespace OzGameLab01.UI
 
         public bool IsInteractable
         {
-            get => isInteractable;
+            get => _isInteractable;
             set => SetInteractable(value);
         }
 
         public bool IsSelected
         {
-            get => isSelected;
+            get => _isSelected;
             set => SetSelected(value);
         }
 
-        public bool IsDragging => isDragging;
+        public bool IsDragging => _isDragging;
 
         public event Action<UnitItemView, PointerEventData> Clicked; //유닛 아이템 클릭 이벤트
         public event Action<UnitItemView, PointerEventData> PointerEntered; //유닛 아이템 포인터 진입 이벤트
@@ -163,34 +167,38 @@ namespace OzGameLab01.UI
 
         public void SetSelected(bool value)
         {
-            isSelected = value;
+            _isSelected = value;
 
             RefreshHighlight();
         }
 
         public void SetInteractable(bool value)
         {
-            isInteractable = value;
+
+            _isInteractable = value;
             if (!value)
                 ResetPressFeedback();
 
             if (canvasGroup != null)
             {
                 canvasGroup.interactable = value;
-                canvasGroup.blocksRaycasts = value && !isDragging;
+                canvasGroup.blocksRaycasts = value && !_isDragging;
             }
         }
 
         public void SetDragging(bool value)
         {
-            isDragging = value;
+
+            _isDragging = value;
+
             if (value)
                 ResetPressFeedback();
+
 
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = value ? draggingAlpha : 1f;
-                canvasGroup.blocksRaycasts = isInteractable && !value;
+                canvasGroup.blocksRaycasts = _isInteractable && !value;
             }
         }
 
@@ -201,7 +209,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -231,7 +239,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -241,10 +249,12 @@ namespace OzGameLab01.UI
 
         public void OnPointerExit(PointerEventData eventData)
         {
+
             if (isPressed && eventData.pointerId == pressedPointerId)
                 ReleasePress();
 
-            if (!isInteractable)
+            if (!_isInteractable)
+
             {
                 return;
             }
@@ -254,7 +264,7 @@ namespace OzGameLab01.UI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -265,7 +275,7 @@ namespace OzGameLab01.UI
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -275,7 +285,7 @@ namespace OzGameLab01.UI
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            if (!isDragging)
+            if (!_isDragging)
             {
                 return;
             }

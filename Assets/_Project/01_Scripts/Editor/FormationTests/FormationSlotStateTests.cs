@@ -20,14 +20,14 @@ namespace OzGameLab01.Tests.EditMode
         public void PlaceInEmptyBattleSlot_RejectsBeyondMaxCount()
         {
             var state = new FormationSlotState();
-            for (int i = 0; i < FormationSlotState.MaxBattleUnitCount; i++)
+            for (int i = 0; i < FormationSlotState.MAX_BATTLE_UNIT_COUNT; i++)
             {
                 Assert.That(state.TryDrop(FormationSlotKind.Battle, handle: i, targetIndex: i).Success, Is.True);
             }
 
-            var overflow = state.TryDrop(FormationSlotKind.Battle, handle: 99, targetIndex: FormationSlotState.MaxBattleUnitCount);
+            var overflow = state.TryDrop(FormationSlotKind.Battle, handle: 99, targetIndex: FormationSlotState.MAX_BATTLE_UNIT_COUNT);
             Assert.That(overflow.Outcome, Is.EqualTo(FormationDropOutcome.Rejected));
-            Assert.That(state.BattleUnitCount, Is.EqualTo(FormationSlotState.MaxBattleUnitCount));
+            Assert.That(state.BattleUnitCount, Is.EqualTo(FormationSlotState.MAX_BATTLE_UNIT_COUNT));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace OzGameLab01.Tests.EditMode
 
             var result = state.TryDrop(FormationSlotKind.Support, 3, 0);
             Assert.That(result.Outcome, Is.EqualTo(FormationDropOutcome.Replaced));
-            Assert.That(state.SupportUnitCount, Is.EqualTo(FormationSlotState.SupportSlotCount));
+            Assert.That(state.SupportUnitCount, Is.EqualTo(FormationSlotState.SUPPORT_SLOT_COUNT));
         }
 
         [Test]
@@ -144,7 +144,7 @@ namespace OzGameLab01.Tests.EditMode
         public void TryPlaceFirstEmptyBattle_RejectsWhenFull()
         {
             var state = new FormationSlotState();
-            for (int i = 0; i < FormationSlotState.MaxBattleUnitCount; i++)
+            for (int i = 0; i < FormationSlotState.MAX_BATTLE_UNIT_COUNT; i++)
             {
                 state.TryDrop(FormationSlotKind.Battle, i, i);
             }
@@ -159,7 +159,7 @@ namespace OzGameLab01.Tests.EditMode
         {
             var state = new FormationSlotState();
             Assert.That(state.TryDrop(FormationSlotKind.Battle, 1, -1).Success, Is.False);
-            Assert.That(state.TryDrop(FormationSlotKind.Battle, 1, FormationSlotState.BattleSlotCount).Success, Is.False);
+            Assert.That(state.TryDrop(FormationSlotKind.Battle, 1, FormationSlotState.BATTLE_SLOT_COUNT).Success, Is.False);
         }
     }
 }
