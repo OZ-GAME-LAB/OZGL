@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace OzGameLab01.Combat
+namespace OzGameLab01.Rewards
 {
     public enum BattleRewardKind
     {

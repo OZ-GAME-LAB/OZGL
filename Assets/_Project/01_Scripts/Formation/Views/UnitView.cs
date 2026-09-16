@@ -24,6 +24,7 @@ namespace OzGameLab01.UI
 
         [Header("Unit Detail")]
         [SerializeField] private UnitDetailView unitDetailView;
+        [SerializeField] private OverlayTransitionView overlayTransition;
 
         private readonly List<UnitItemView> unitItems = new List<UnitItemView>();
         private readonly List<UnitSlotItemView> slotItems = new List<UnitSlotItemView>();
@@ -101,11 +102,38 @@ namespace OzGameLab01.UI
 
         public void Show()
         {
+            if (overlayTransition != null)
+            {
+                overlayTransition.Show();
+                return;
+            }
+
             gameObject.SetActive(true);
         }
 
         public void Hide()
         {
+            HideUnitDetail();
+
+            if (overlayTransition != null)
+            {
+                overlayTransition.Hide();
+                return;
+            }
+
+            gameObject.SetActive(false);
+        }
+
+        public void HideImmediate()
+        {
+            HideUnitDetail();
+
+            if (overlayTransition != null)
+            {
+                overlayTransition.HideImmediate();
+                return;
+            }
+
             gameObject.SetActive(false);
         }
 

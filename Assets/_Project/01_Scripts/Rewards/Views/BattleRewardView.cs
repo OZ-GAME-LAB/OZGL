@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using OzGameLab01.Combat;
 using OzGameLab01.Data;
+using OzGameLab01.Rewards;
 
 namespace OzGameLab01.UI.Battle
 {

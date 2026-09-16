@@ -29,8 +29,7 @@ namespace OzGameLab01.UI.Common
         private Button button;
         private bool hasFeedback;
 
-        private bool CanInteract => isActiveAndEnabled && button != null
-            && button.IsActive() && button.IsInteractable() && visualRoot != null;
+        private bool CanInteract => isActiveAndEnabled && button != null && button.IsActive() && button.IsInteractable() && visualRoot != null;
 
         private void Awake()
         {
@@ -43,7 +42,6 @@ namespace OzGameLab01.UI.Common
 
         private void Update()
         {
-            // 호버 중 Button 또는 상위 CanvasGroup이 입력을 막는 경우도 복원합니다.
             if (hasFeedback && !CanInteract)
                 ResetFeedback();
         }

@@ -2576,27 +2576,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1581548804}
-  - component: {fileID: 1581548802}
   - component: {fileID: 1581548805}
   m_Layer: 0
-  m_Name: MapManager
+  m_Name: Map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1581548802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1581548801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94c0591de7d8fa94cb06b5d081b05f36, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.MapManager
 --- !u!4 &1581548804
 Transform:
   m_ObjectHideFlags: 0

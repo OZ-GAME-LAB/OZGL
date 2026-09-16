@@ -241,11 +241,6 @@ namespace OzGameLab01.Map
 
             Debug.Log($"[MapGenerator3] 대륙 맵 생성 완료 | Seed: {BoardRunData.MapSeed} | 최종 노드 수: {_allNodes.Count}");
 
-            if (OzGameLab01.Map.MapManager.Instance != null)
-            {
-                OzGameLab01.Map.MapManager.Instance.InitializeMapData(_nodeDict);
-            }
-
             if (OzGameLab01.Controllers.BoardPlayerController.Instance == null) return;
 
             Vector2Int targetPosition = BoardRunData.HasPlayerPosition ? BoardRunData.PlayerPosition : Vector2Int.zero;

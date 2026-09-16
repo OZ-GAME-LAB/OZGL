@@ -87,7 +87,7 @@ namespace OzGameLab01.Managers
         }
 
         /// <summary>
-        /// Dice/Combat/Event/Player/Save는 IGameManager를 구현하지만 씬 직접 실행
+        /// Dice/Combat/Event/Player/RuntimeEffect/Relic/Save는 IGameManager를 구현하지만 씬 직접 실행
         /// 호환을 위해 각자 Awake에서 스스로 Initialize합니다. 아무도 먼저 .Instance를
         /// 건드리지 않으면 부팅 경로에서 아예 생성되지 않아 SystemBus.Get&lt;T&gt;()가
         /// 항상 null을 반환하므로, 여기서 생성을 강제하고 ManagerInitializationController의
@@ -100,6 +100,8 @@ namespace OzGameLab01.Managers
             _managerComponents.Add(OzGameLab01.Combat.CombatManager.Instance);
             _managerComponents.Add(EventManager.Instance);
             _managerComponents.Add(PlayerInventoryManager.Instance);
+            _managerComponents.Add(RuntimeEffectManager.Instance);
+            _managerComponents.Add(RelicManager.Instance);
             _managerComponents.Add(SaveManager.Instance);
         }
 

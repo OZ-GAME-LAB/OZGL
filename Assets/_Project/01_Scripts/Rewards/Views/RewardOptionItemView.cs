@@ -2,7 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using OzGameLab01.Combat;
+using OzGameLab01.Rewards;
 
 namespace OzGameLab01.UI.Battle
 {
