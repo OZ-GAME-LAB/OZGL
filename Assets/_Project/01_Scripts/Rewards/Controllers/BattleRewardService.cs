@@ -4,6 +4,7 @@ using UnityEngine;
 using OzGameLab01.Combat;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Player;
+using OzGameLab01.Rewards;
 
 namespace OzGameLab01.Managers
 {

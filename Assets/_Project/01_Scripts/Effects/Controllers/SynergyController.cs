@@ -1,10 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.UI;
+using OzGameLab01.Combat;
 using OzGameLab01.Data;
+using OzGameLab01.Effects.Models;
 using OzGameLab01.Managers;
 
-namespace OzGameLab01.Combat
+namespace OzGameLab01.Controllers
 {
     /// <summary>
     /// CombatManager에서 분리된 시너지 집계/발동/표시 책임을 담당합니다.
