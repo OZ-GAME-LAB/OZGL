@@ -1,7 +1,8 @@
 using OzGameLab01.Managers;
+using OzGameLab01.UI.Title;
 using UnityEngine;
 
-namespace OzGameLab01.UI.Title
+namespace OzGameLab01.Controllers
 {
     /// <summary>
     /// 타이틀 설정창의 오디오 옵션과 전역 SoundManager를 연결합니다.

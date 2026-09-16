@@ -89,7 +89,7 @@ namespace OzGameLab01.UI
             if (placementFeedback == null)
                 return;
 
-            if (!isActiveAndEnabled || !isInteractable)
+            if (!isActiveAndEnabled || !_isInteractable)
             {
                 placementFeedback.Clear(immediate: true);
                 return;

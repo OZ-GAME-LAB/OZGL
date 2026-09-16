@@ -1,9 +1,8 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using OzGameLab01.Controllers;
 
-namespace OzGameLab01.Managers
+namespace OzGameLab01.Controllers
 {
     public class PauseController : MonoBehaviour
     {

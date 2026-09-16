@@ -19,31 +19,27 @@ namespace OzGameLab01.UI
         [Header("Drag Settings")]
         [SerializeField] private float draggingAlpha = 0.65f;
 
-        refactor/formation_system
-        private bool _isInteractable = true;
-        private bool _isSelected;
-        private bool _isDragging;
-
- [Header("Press Feedback")]
+        [Header("Press Feedback")]
         [SerializeField, Min(1f)] private float pressedScale = 1.08f;
         [SerializeField, Min(0f)] private float pressDuration = 0.08f;
         [SerializeField, Min(0f)] private float releaseDuration = 0.12f;
+
         [Header("Placement Feedback")]
         [SerializeField, Min(1f)] private float placementScale = 1.08f;
         [SerializeField, Min(0f)] private float placementGrowDuration = 0.08f;
         [SerializeField, Min(0f)] private float placementReturnDuration = 0.14f;
         [SerializeField] private Ease placementGrowEase = Ease.OutCubic;
         [SerializeField] private Ease placementReturnEase = Ease.OutSine;
+
         private Tween scaleTween;
         private Vector3 baseScale;
         private bool isPressed;
         private int pressedPointerId;
         private PointerEventData.InputButton pressedButton;
-       
+
         private bool _isInteractable = true;
         private bool _isSelected;
         private bool _isDragging;
-        refactor/architecture_refactor
 
         #region Properties
 
@@ -219,7 +215,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (!isActiveAndEnabled || !isInteractable || isDragging || isPressed || (eventData.button != PointerEventData.InputButton.Left && eventData.button != PointerEventData.InputButton.Right))
+            if (!isActiveAndEnabled || !_isInteractable || _isDragging || isPressed || (eventData.button != PointerEventData.InputButton.Left && eventData.button != PointerEventData.InputButton.Right))
                 return;
 
             isPressed = true;
@@ -300,7 +296,7 @@ namespace OzGameLab01.UI
         /// </summary>
         public void PlayPlacementFeedback()
         {
-            if (!isActiveAndEnabled || visualRoot == null || isDragging)
+            if (!isActiveAndEnabled || visualRoot == null || _isDragging)
                 return;
 
             ResetPressFeedback();
@@ -357,7 +353,7 @@ namespace OzGameLab01.UI
         private void RefreshHighlight()
         {
             if (selectionFrame != null)
-                selectionFrame.gameObject.SetActive(isSelected || isPressed);
+                selectionFrame.gameObject.SetActive(_isSelected || isPressed);
         }
 
         private void ReleasePress()

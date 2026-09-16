@@ -5,9 +5,11 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 
+namespace OzGameLab01.Editor
+{
 /*
- * [개발의 편의성 툴 - 강제 부팅 매니저] 
- * 역할: 어떤 씬에서 작업 중이든, 플레이 버튼을 누르면 무조건 00_Boot 씬 부터 시작하게 만들어 줍니다. 
+ * [개발의 편의성 툴 - 강제 부팅 매니저]
+ * 역할: 어떤 씬에서 작업 중이든, 플레이 버튼을 누르면 무조건 00_Boot 씬 부터 시작하게 만들어 줍니다.
  * 주의 : 이 스크립트는 꼬옥 01_Scripts -> Editor 이라는 폴더 안에 있어야 한다.
  */
 public class BootSceneLauncher : EditorWindow
@@ -197,5 +199,6 @@ public class BootSceneLauncher : EditorWindow
         Rect rect = EditorGUILayout.GetControlRect(false, 1f);
         EditorGUI.DrawRect(rect, new Color(0.5f, 0.5f, 0.5f, 1f));
     }
+}
 }
 #endif

@@ -1,6 +1,7 @@
 using UnityEngine;
 using OzGameLab01.Board.Models;
 using OzGameLab01.Board.Controllers;
+using OzGameLab01.Save;
 namespace OzGameLab01.Data
 {
     // 기존 외부 API와 보드 상태 및 저장 변환의 연결

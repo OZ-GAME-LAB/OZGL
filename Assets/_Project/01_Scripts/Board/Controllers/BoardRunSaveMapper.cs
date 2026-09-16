@@ -1,5 +1,6 @@
 using OzGameLab01.Board.Models;
 using OzGameLab01.Data;
+using OzGameLab01.Save;
 namespace OzGameLab01.Board.Controllers
 {
     // 기존 저장 형식과 보드 스냅샷 사이의 변환

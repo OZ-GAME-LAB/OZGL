@@ -1,7 +1,8 @@
 using OzGameLab01.Managers;
+using OzGameLab01.UI.Settings;
 using UnityEngine;
 
-namespace OzGameLab01.UI.Settings
+namespace OzGameLab01.Controllers
 {
     /// <summary>
     /// 기존 SettingsView의 오디오 항목과 전역 SoundManager를 연결합니다.

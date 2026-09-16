@@ -20,13 +20,13 @@ namespace OzGameLab01.Managers
         [SerializeField] private List<MonoBehaviour> _managerComponents = new();
         private static GameBootstrapper _instance;
         private bool _isRootObjectValid;
-        private OzGameLab01.GameFlow.Controllers.ManagerInitializationController _initialization;
+        private OzGameLab01.Controllers.ManagerInitializationController _initialization;
         public bool IsInitializationComplete => _initialization != null && _initialization.IsInitializationComplete;
 
         private void InitializeManagers()
         {
             if (IsInitializationComplete) return;
-            _initialization = new OzGameLab01.GameFlow.Controllers.ManagerInitializationController(_managerComponents, this);
+            _initialization = new OzGameLab01.Controllers.ManagerInitializationController(_managerComponents, this);
             _initialization.Initialize();
             _notifications.Publish(IsInitializationComplete
                 ? OzGameLab01.GameFlow.Models.GameFlowNotificationKind.ManagersReady

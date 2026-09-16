@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Interfaces;
-namespace OzGameLab01.GameFlow.Controllers
+namespace OzGameLab01.Controllers
 {
     /// <summary>등록 매니저 사전 검증·순차 초기화·역순 종료</summary>
     public sealed class ManagerInitializationController
