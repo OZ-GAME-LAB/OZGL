@@ -3,7 +3,7 @@ using UnityEngine;
 namespace OzGameLab01.UI.Battle
 {
     [DisallowMultipleComponent]
-    public sealed class BattleMapView : MonoBehaviour
+    public sealed class CombatMapView : MonoBehaviour
     {
         [Header("World Spawn Points — 편성 인덱스 0~8 순서")]
         [SerializeField] private Transform[] allySpawnPoints = new Transform[9];

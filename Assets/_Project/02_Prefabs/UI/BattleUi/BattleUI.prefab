@@ -3035,9 +3035,9 @@ MonoBehaviour:
   speedButton: {fileID: 5221937209432176607}
   settingsButton: {fileID: 5067345228079979287}
   speedText: {fileID: 0}
-  speedIconImage: {fileID: 0}
-  normalSpeedSprite: {fileID: 0}
-  fastSpeedSprite: {fileID: 0}
+  speedIconImage: {fileID: 4363642517421208263}
+  normalSpeedSprite: {fileID: 21300000, guid: d22e67cfbcc76bd4ea4761a3aab7577f, type: 3}
+  fastSpeedSprite: {fileID: 21300000, guid: 6577a07d1a397904bb62fb0c1ea97297, type: 3}
 --- !u!1 &5752592252968257264
 GameObject:
   m_ObjectHideFlags: 0

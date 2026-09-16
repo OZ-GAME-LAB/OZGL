@@ -1069,7 +1069,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb31f64ec4eaa8742a17cfe8f4000c24, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonScaleFeedback
-  visualRoot: {fileID: 0}
+  visualRoot: {fileID: 6387033243529581743}
   normalScale: 1
   hoverScale: 1.03
   pressedScale: 0.97
@@ -1086,8 +1086,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60181ef861b53614aac5787098c2c3e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Common.UIButtonTextFeedback
-  button: {fileID: 0}
-  label: {fileID: 0}
+  button: {fileID: 8812217543947853087}
+  label: {fileID: 4546090650826087526}
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 1, g: 0, b: 0, a: 1}
   fadeDuration: 0.15

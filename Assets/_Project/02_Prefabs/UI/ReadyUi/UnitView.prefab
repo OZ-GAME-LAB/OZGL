@@ -1358,7 +1358,7 @@ MonoBehaviour:
   unitCountText: {fileID: 393224512695057408}
   supportUnitCountText: {fileID: 8140237820957332880}
   unitDetailView: {fileID: 2098034430865899325}
-  overlayTransition: {fileID: 0}
+  overlayTransition: {fileID: 8701672801141565147}
 --- !u!114 &3482646927137003859
 MonoBehaviour:
   m_ObjectHideFlags: 0

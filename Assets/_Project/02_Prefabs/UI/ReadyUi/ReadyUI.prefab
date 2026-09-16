@@ -1520,8 +1520,8 @@ MonoBehaviour:
   artifactContentRoot: {fileID: 8042894826872735884}
   endTurnButton: {fileID: 8871133864713245243}
   clockHand: {fileID: 2403850054304082041}
-  currentTurnNumber: {fileID: 0}
-  bossRemainingTurnNumber: {fileID: 0}
+  currentTurnNumber: {fileID: 1056984478245568997}
+  bossRemainingTurnNumber: {fileID: 6099951470368262190}
   endTurnFeedback: {fileID: 9127936862525401812}
 --- !u!1 &1983934655103169259
 GameObject:
