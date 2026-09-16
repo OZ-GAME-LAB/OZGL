@@ -15,6 +15,7 @@ namespace OzGameLab01.UI
     public sealed class UnitSlotItemView : MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler,IDropHandler
     {
         [Header("References")]
+        [SerializeField] private PlacementSlotFeedbackView placementFeedback;
         [SerializeField] private RectTransform rectTransform;
         [SerializeField] private Image slotIcon;
 
@@ -27,9 +28,8 @@ namespace OzGameLab01.UI
 
         #region Properties
 
-        // public RectTransform RectTransform => rectTransform;
-        // [수정] 일부 Slot_00 프리팹 인스턴스에 직렬화 참조가 없어도 자신의 RectTransform을 반환
         public RectTransform RectTransform => rectTransform != null ? rectTransform : transform as RectTransform;
+
         public Image SlotIcon => slotIcon;
 
         public int SlotIndex => slotIndex;
@@ -53,7 +53,58 @@ namespace OzGameLab01.UI
 
         #endregion
 
-        #region API
+        #region Lifecycle
+
+        private void Awake()
+        {
+            ResolveReferences();
+        }
+
+        private void OnDisable()
+        {
+            ClearPlacementFeedback(immediate: true);
+        }
+
+        #endregion
+
+        #region Initialization
+
+        private void ResolveReferences()
+        {
+            if (rectTransform == null)
+                rectTransform = transform as RectTransform;
+
+            if (placementFeedback == null)
+                placementFeedback = GetComponent<PlacementSlotFeedbackView>();
+        }
+
+        #endregion
+
+        #region Public API
+
+        public void SetPlacementFeedback(PlacementFeedbackState state,bool immediate = false)
+        {
+            ResolveReferences();
+
+            if (placementFeedback == null)
+                return;
+
+            if (!isActiveAndEnabled || !isInteractable)
+            {
+                placementFeedback.Clear(immediate: true);
+                return;
+            }
+
+            placementFeedback.SetState(state, immediate);
+        }
+
+        public void ClearPlacementFeedback(bool immediate = false)
+        {
+            ResolveReferences();
+
+            if (placementFeedback != null)
+                placementFeedback.Clear(immediate);
+        }
 
         public void SetSlotIndex(int value)
         {
@@ -75,33 +126,28 @@ namespace OzGameLab01.UI
             isInteractable = value;
 
             if (slotIcon != null)
-            {
                 slotIcon.raycastTarget = value;
-            }
+
+            if (!value)
+                ClearPlacementFeedback(immediate: true);
         }
 
         public void SetIcon(Sprite sprite)
         {
             if (slotIcon != null)
-            {
                 slotIcon.sprite = sprite;
-            }
         }
 
         public void SetIconVisible(bool visible)
         {
             if (slotIcon != null)
-            {
                 slotIcon.enabled = visible;
-            }
         }
 
         public void SetIconColor(Color color)
         {
             if (slotIcon != null)
-            {
                 slotIcon.color = color;
-            }
         }
 
         public void SetVisible(bool visible)
@@ -109,46 +155,94 @@ namespace OzGameLab01.UI
             gameObject.SetActive(visible);
         }
 
+        #endregion
+
+        #region Pointer Events
+
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (!isInteractable)
-            {
+            if (!isActiveAndEnabled || !isInteractable)
                 return;
-            }
 
             Clicked?.Invoke(this, eventData);
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!isInteractable)
-            {
+            if (!isActiveAndEnabled || !isInteractable)
                 return;
-            }
 
             PointerEntered?.Invoke(this, eventData);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (!isInteractable)
-            {
+            if (!isActiveAndEnabled || !isInteractable)
                 return;
-            }
 
             PointerExited?.Invoke(this, eventData);
         }
 
         public void OnDrop(PointerEventData eventData)
         {
-            if (!isInteractable)
-            {
+            if (!isActiveAndEnabled || !isInteractable)
                 return;
-            }
 
             Dropped?.Invoke(this, eventData);
         }
 
         #endregion
+
+#if UNITY_EDITOR
+        #region Editor Validation
+
+        private void OnValidate()
+        {
+            ResolveReferences();
+            slotIndex = Mathf.Max(0, slotIndex);
+        }
+
+        #endregion
+
+        #region Inspector Test
+
+        [ContextMenu("Test/Placement/Show Valid")]
+        private void TestShowValid()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            SetPlacementFeedback(PlacementFeedbackState.Valid);
+        }
+
+        [ContextMenu("Test/Placement/Show Invalid")]
+        private void TestShowInvalid()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            SetPlacementFeedback(PlacementFeedbackState.Invalid);
+        }
+
+        [ContextMenu("Test/Placement/Clear")]
+        private void TestClear()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            ClearPlacementFeedback();
+        }
+
+        [ContextMenu("Test/Placement/Clear Immediately")]
+        private void TestClearImmediately()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            ClearPlacementFeedback(immediate: true);
+        }
+
+        #endregion
+#endif
     }
 }

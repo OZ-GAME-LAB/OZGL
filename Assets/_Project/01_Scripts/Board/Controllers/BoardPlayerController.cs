@@ -24,6 +24,9 @@ namespace OzGameLab01.Controllers
         // 기존 Inspector 직렬화 필드 호환용 표시 값
         [SerializeField] private int _currentDiceValue = 0;
         [SerializeField] private ActionPowerHUDView _actionPowerHud;
+        public static event Action OnPlayerStartedMoving;
+        public static event Action OnPlayerFinishedMoving;
+
         [Header("Movement Settings")]
         [SerializeField] private float _moveSpeed = 5f;
         [SerializeField] private float _shakeIntensity = 0.3f;
@@ -49,6 +52,7 @@ namespace OzGameLab01.Controllers
         }
 
         public bool IsMoving => Model.IsMoving || _isFeedbackPlaying;
+        public MapNode CurrentNode => Model.CurrentNode;
         public int CurrentDiceValue
         {
             get => Model.RemainingDiceValue;
@@ -145,6 +149,7 @@ namespace OzGameLab01.Controllers
             {
                 _hoveredTile?.ResetHighlight();
                 _hoveredTile = null;
+                OnPlayerStartedMoving?.Invoke();
                 StartCoroutine(MoveAlongPathRoutine(path));
             }
             else
@@ -175,6 +180,7 @@ namespace OzGameLab01.Controllers
             finally
             {
                 Model.CancelMovement();
+                OnPlayerFinishedMoving?.Invoke();
             }
             if (completed)
             {

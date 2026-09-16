@@ -1,3 +1,4 @@
+using OzGameLab01.UI.Common;
 using System;
 using TMPro;
 using UnityEngine;
@@ -64,6 +65,11 @@ namespace OzGameLab01.UI.Title
         [SerializeField] private GameObject _videoContent; //영상 설정 관련 UI 영역
         [UnityEngine.Serialization.FormerlySerializedAs("audioContent")]
         [SerializeField] private GameObject _audioContent; //오디오 설정 관련 UI 영역
+
+        [Header("Category Feedback")]
+        [SerializeField] private UITabButtonFeedback gameButtonFeedback;
+        [SerializeField] private UITabButtonFeedback videoButtonFeedback;
+        [SerializeField] private UITabButtonFeedback audioButtonFeedback;
 
         [Header("Game")]
         [UnityEngine.Serialization.FormerlySerializedAs("languageDropdown")]
@@ -263,7 +269,7 @@ namespace OzGameLab01.UI.Title
         {
             gameObject.SetActive(false);
         }
-        
+
         /// <summary>
         /// 지정된 설정 탭만 활성화 됨
         /// 이때 notify가 트루면 TabSelected 이벤트가 발생함
@@ -277,6 +283,18 @@ namespace OzGameLab01.UI.Title
             _gameContent.SetActive(tab == SettingsTab.Game);
             _videoContent.SetActive(tab == SettingsTab.Video);
             _audioContent.SetActive(tab == SettingsTab.Audio);
+
+            // 처음 열 때는 즉시 반영하고, 클릭 전환에는 애니메이션 적용.
+            bool immediate = !notify;
+
+            gameButtonFeedback?.SetSelected(
+                tab == SettingsTab.Game, immediate);
+
+            videoButtonFeedback?.SetSelected(
+                tab == SettingsTab.Video, immediate);
+
+            audioButtonFeedback?.SetSelected(
+                tab == SettingsTab.Audio, immediate);
 
             if (notify)
                 TabSelected?.Invoke(tab);
