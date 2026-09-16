@@ -10,20 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdaac6197b15a3841aa800100e7065d8, type: 3}
-  m_Name: ChoiceEventSO_Test3
+  m_Name: ChoiceEventSO_Amend200
   m_EditorClassIdentifier: Assembly-CSharp::ChoiceEventSO
-  id: 3
-  eventTitle: blitz!
-  eventDialog: You found a suspicious shadow.
+  id: 200
+  eventTitle: "\uC720\uBB3C \uBCF4\uC0C1"
+  eventDialog: "\uBCF4\uC0C1\uC744 \uC120\uD0DD\uD558\uC138\uC694."
   eventCategory: 1
+  choiceCategory: 0
   choices:
   - choiceIndex: 0
-    choiceSprite: {fileID: 21300000, guid: cd596215f3eddaa488d1b5a59bbb1c75, type: 3}
-    choiceDialog: get close
-    choiceCategory: 3
-    resultTargetID: 31
+    choiceSprite: {fileID: 0}
+    choiceDialog: 
+    choiceCategory: 0
+    resultTargetID: 0
   - choiceIndex: 1
     choiceSprite: {fileID: 0}
-    choiceDialog: ignore
-    choiceCategory: 7
-    resultTargetID: -1
+    choiceDialog: 
+    choiceCategory: 0
+    resultTargetID: 1
+  - choiceIndex: 2
+    choiceSprite: {fileID: 0}
+    choiceDialog: 
+    choiceCategory: 0
+    resultTargetID: 2

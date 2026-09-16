@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdaac6197b15a3841aa800100e7065d8, type: 3}
+  m_Name: ChoiceEventSO_Heal300
+  m_EditorClassIdentifier: Assembly-CSharp::ChoiceEventSO
+  id: 300
+  eventTitle: "\uD68C\uBCF5"
+  eventDialog: "\uCCB4\uB825\uC774 \uD68C\uBCF5\uB41C\uB2E4."
+  eventCategory: 1
+  choiceCategory: 0
+  choices:
+  - choiceIndex: 0
+    choiceSprite: {fileID: 0}
+    choiceDialog: "\uD655\uC778."
+    choiceCategory: 4
+    resultTargetID: '-'

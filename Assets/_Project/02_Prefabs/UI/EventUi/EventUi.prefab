@@ -416,8 +416,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: EVENT
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1217,8 +1217,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Choose the item you want.
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1426,11 +1426,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.ChoiceEventManager
   choiceArea: {fileID: 7407865000633747387}
   eventUIView: {fileID: 2599459832272954032}
-  eventPool:
-  - {fileID: 11400000, guid: 7e92f108f9ef49d4d97893c2de6215d5, type: 2}
-  - {fileID: 11400000, guid: ab50b9a0a17a11f4482e3cdddf2f8cf3, type: 2}
-  - {fileID: 11400000, guid: c02bd15c9bda0634c877000015df1104, type: 2}
-  - {fileID: 11400000, guid: bed29eeefeb159c4abce8f13921304df, type: 2}
+  eventDB: {fileID: 11400000, guid: 588a0982a2813044aa2c71dbb1952ee3, type: 2}
 --- !u!114 &8077309810475195865
 MonoBehaviour:
   m_ObjectHideFlags: 0

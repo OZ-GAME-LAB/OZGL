@@ -10,15 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdaac6197b15a3841aa800100e7065d8, type: 3}
-  m_Name: ChoiceEventSO_Test3-1
+  m_Name: ChoiceEventSO_Action100
   m_EditorClassIdentifier: Assembly-CSharp::ChoiceEventSO
-  id: 31
-  eventTitle: blitz!
-  eventDialog: you base on the attack.
-  eventCategory: 0
+  id: 100
+  eventTitle: "\uACB0\uACFC"
+  eventDialog: "\uC544\uBB34\uC77C\uB3C4 \uC5C6\uC5C8\uB2E4."
+  eventCategory: 1
+  choiceCategory: 6
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 0}
-    choiceDialog: ready!
-    choiceCategory: 2
-    resultTargetID: 0
+    choiceDialog: "\uD655\uC778."
+    choiceCategory: 6
+    resultTargetID: '-'

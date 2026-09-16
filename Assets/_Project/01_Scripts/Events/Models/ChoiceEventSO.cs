@@ -6,11 +6,11 @@ using OzGameLab01.UI;
 [CreateAssetMenu(fileName = "ChoiceEventSO_", menuName = "OzGameLab01/Data/ChoiceEvent")]
 public class ChoiceEventSO : ScriptableObject
 {
-    public int id;
+    public string id;
     public string eventTitle;
     public string eventDialog;
     public EventCategory eventCategory;
-
+    public EventChoiceCategory choiceCategory;
     public List<EventChoice> choices;
     //public List<EventChoiceDisplayData> choices_;
 }
@@ -34,6 +34,13 @@ public class EventChoice
     public Sprite ChoiceSprite => choiceSprite;
     public EventChoiceCategory ChoiceCategory => choiceCategory;
     public string ResultTargetID => resultTargetID;
+
+    public void SetEventChoice(string dialog, string targetID, Sprite sprite =null)
+    {
+        choiceDialog = dialog;
+        choiceSprite = sprite;
+        resultTargetID = targetID;
+    }
 }
 //전체 이벤트 리스트를 관리할 용도
 public class ChoiceEventList : IDataList<ChoiceEventSO>
@@ -49,10 +56,8 @@ public enum EventChoiceCategory
     Battle,
     Event,
     Heal,
-    Upgrade,
-    Flag,
+    Quiz,
     Exit,
-
 }
 public enum EventCategory
 {
