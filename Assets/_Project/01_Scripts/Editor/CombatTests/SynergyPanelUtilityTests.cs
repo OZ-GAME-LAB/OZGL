@@ -2,7 +2,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
-using OzGameLab01.Combat;
+using OzGameLab01.Data;
+using OzGameLab01.Effects.Models;
 
 namespace OzGameLab01.Tests.EditMode
 {

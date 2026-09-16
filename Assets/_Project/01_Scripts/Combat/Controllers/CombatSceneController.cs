@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
+using OzGameLab01.Save;
 
 namespace OzGameLab01.Controllers
 {
@@ -80,7 +81,7 @@ namespace OzGameLab01.Controllers
             bool allyAlive = false;
             bool enemyAlive = false;
 
-            foreach (Unit unit in BattleUnitRegistry.Units)
+            foreach (Unit unit in CombatUnitRegistry.Units)
             {
                 if (unit == null || unit.IsDead)
                 {
@@ -152,12 +153,9 @@ namespace OzGameLab01.Controllers
             transitioner.LoadBoardScene();
         }
 
-        // <summary>
-        // 보스전 승리 후 현재 게임 진행을 종료하고 타이틀 씬으로 이동합니다.
-        // </summary>
-        //public void ReturnToTitle()
         /// <summary>
-        /// [수정] 종료된 런의 Continue 데이터를 제거한 뒤 타이틀로 이동
+        /// 보스전 승리 후 현재 게임 진행을 종료하고, 종료된 런의 Continue 데이터를
+        /// 제거한 뒤 타이틀 씬으로 이동합니다.
         /// </summary>
         public async void ReturnToTitle()
         {
@@ -185,9 +183,16 @@ namespace OzGameLab01.Controllers
             ResetTimeScale();
 
             // [수정] 런타임 상태와 저장 파일의 Continue 데이터를 함께 초기화 (BoardRunData.Clear()를 포함)
-            SaveManager saveManager = SaveManager.Instance;
-            saveManager.ClearCurrentRun();
-            bool saved = await saveManager.SaveAsync();
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                Debug.LogError("[CombatSceneController] SaveFacade를 찾을 수 없어 런 데이터를 정리할 수 없습니다.", this);
+                _isReturningToTitle = false;
+                return;
+            }
+
+            saveFacade.ClearCurrentRun();
+            bool saved = await saveFacade.SaveAsync();
             if (!saved)
             {
                 Debug.LogError("[CombatSceneController] 종료된 런 데이터 정리에 실패했습니다.", this);

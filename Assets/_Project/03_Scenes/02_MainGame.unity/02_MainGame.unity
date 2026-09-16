@@ -1829,17 +1829,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIVisibilityToggle
   targetUIToHide: {fileID: 627079715}
---- !u!114 &756050375 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 7155524704347658056, guid: 9a5983a58812cc84b8db0a2f40d212a1, type: 3}
-  m_PrefabInstance: {fileID: 815757259}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 756050371}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5410d7e5c9be9d54e8365da781278024, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.ChoiceEventManager
 --- !u!1 &777001032
 GameObject:
   m_ObjectHideFlags: 0
@@ -2123,6 +2112,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 756050374}
   m_SourcePrefab: {fileID: 100100000, guid: 9a5983a58812cc84b8db0a2f40d212a1, type: 3}
+--- !u!114 &815757260 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6509127625923498183, guid: 9a5983a58812cc84b8db0a2f40d212a1, type: 3}
+  m_PrefabInstance: {fileID: 815757259}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 756050371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f3a98d86677e08e4dac18cc95b9b1531, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Events.EventSession
 --- !u!1 &865562946
 GameObject:
   m_ObjectHideFlags: 0
@@ -2551,7 +2551,7 @@ MonoBehaviour:
   _nightEventPopup: {fileID: 0}
   _timeStatusHud: {fileID: 0}
   _unitFormationController: {fileID: 0}
-  _eventUIPanel: {fileID: 756050375}
+  _eventUIPanel: {fileID: 815757260}
 --- !u!4 &1575848855
 Transform:
   m_ObjectHideFlags: 0
@@ -2576,28 +2576,14 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1581548804}
-  - component: {fileID: 1581548802}
   - component: {fileID: 1581548805}
-  - component: {fileID: 1581548806}
   m_Layer: 0
-  m_Name: MapManager
+  m_Name: Map
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1581548802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1581548801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 94c0591de7d8fa94cb06b5d081b05f36, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.MapManager
 --- !u!4 &1581548804
 Transform:
   m_ObjectHideFlags: 0
@@ -2638,20 +2624,6 @@ MonoBehaviour:
   sideAlternationWeight: 2
   maximumDetourRatio: 1.6
   highlightHeight: 2
---- !u!114 &1581548806
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1581548801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfd2cfbf38c27204f84bad1423f9fd40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::BoardMoveRangeManager
-  stencilWriterMaterial: {fileID: 2100000, guid: bc2abfc037776564f86a564fbe485c66, type: 2}
-  stencilReaderMaterial: {fileID: 2100000, guid: 204e01c2cf50095429f1d0a555eb214b, type: 2}
 --- !u!1 &1605771948
 GameObject:
   m_ObjectHideFlags: 0
@@ -3024,7 +2996,7 @@ MonoBehaviour:
   totalNodeCount: 950
   maxRadius: 400
   tileSpacing: 2.03
-  tileScaleMultiplier: 2
+  tileScaleMultiplier: 1
   animationDuration: 3
   noiseScale: 0.1
   edgeFalloffStrength: 0.8

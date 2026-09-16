@@ -1,4 +1,5 @@
 using OzGameLab01.Managers;
+using OzGameLab01.Save;
 using OzGameLab01.UI.Title;
 using UnityEngine;
 
@@ -18,6 +19,8 @@ namespace OzGameLab01.Controllers
         [SerializeField] private TitleUIView _titleView;
         // [추가] 비동기 New Game 저장 중 중복 요청 방지
         private bool _isStartingGame;
+        private TitleUIView _subscribedTitle;
+        private int _requestVersion;
 
         #region Unity Lifecycle
 
@@ -33,29 +36,33 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            _subscribedTitle = _titleView;
             // 타이틀 UI 요청 이벤트 구독
-            _titleView.StartRequested += HandleStartRequested;
+            _subscribedTitle.StartRequested += HandleStartRequested;
             // [추가] Continue 버튼 요청을 저장 데이터 복원 흐름에 연결
-            _titleView.ContinueRequested += HandleContinueRequested;
-            _titleView.ExitConfirmed += HandleExitConfirmed;
+            _subscribedTitle.ContinueRequested += HandleContinueRequested;
+            _subscribedTitle.ExitConfirmed += HandleExitConfirmed;
 
             // [추가] 유효한 런 저장 파일이 있을 때만 Continue 버튼 활성화
-            _titleView.SetContinueInteractable(SaveManager.Instance.HasContinueData);
+            SaveFacade continueCheckFacade = SystemBus.Get<SaveFacade>();
+            _titleView.SetContinueInteractable(continueCheckFacade != null && continueCheckFacade.HasContinueData);
         }
 
         private void OnDisable()
         {
+            _requestVersion++;
             // TitleUIView가 없으면 해제 작업 생략
-            if (_titleView == null)
+            if (_subscribedTitle == null)
             {
                 return;
             }
 
             // 타이틀 UI 요청 이벤트 구독 해제
-            _titleView.StartRequested -= HandleStartRequested;
+            _subscribedTitle.StartRequested -= HandleStartRequested;
             // [추가] Continue 요청 이벤트 구독 해제
-            _titleView.ContinueRequested -= HandleContinueRequested;
-            _titleView.ExitConfirmed -= HandleExitConfirmed;
+            _subscribedTitle.ContinueRequested -= HandleContinueRequested;
+            _subscribedTitle.ExitConfirmed -= HandleExitConfirmed;
+            _subscribedTitle = null;
         }
 
         #endregion
@@ -63,7 +70,6 @@ namespace OzGameLab01.Controllers
         #region Event Handlers
 
         // 게임 시작 요청을 받아 보드 씬으로 이동합니다.
-        //private void HandleStartRequested()
         /// <summary>
         /// [수정] New Game 초기화와 저장이 끝난 뒤 메인보드로 이동
         /// </summary>
@@ -83,22 +89,31 @@ namespace OzGameLab01.Controllers
             // [추가] New Game 초기화와 저장이 끝날 때까지 중복 입력 방지
             _isStartingGame = true;
 
-            Debug.Log(
-                "[TitleSceneController] 게임 시작 요청 | 보드 씬 이동",
-                this);
-
-            //transitioner.LoadBoardScene();
-            // [수정] 이전 런을 초기화하고 새 Map Seed와 빈 편성을 저장한 뒤 이동
-            SaveManager saveManager = SaveManager.Instance;
-            saveManager.BeginNewRun();
-            bool saved = await saveManager.SaveAsync();
-            if (!saved)
+            int version = _requestVersion;
+            try
             {
-                Debug.LogError("[TitleSceneController] New Game 초기 상태 저장에 실패했습니다.", this);
-            }
+                Debug.Log(
+                    "[TitleSceneController] 게임 시작 요청 | 보드 씬 이동",
+                    this);
+                // [수정] 이전 런을 초기화하고 새 Map Seed와 빈 편성을 저장한 뒤 이동
+                SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+                if (saveFacade == null)
+                {
+                    Debug.LogError("[TitleSceneController] SaveFacade를 찾을 수 없어 게임을 시작할 수 없습니다.", this);
+                    return;
+                }
+                saveFacade.BeginNewRun();
+                bool saved = await saveFacade.SaveAsync();
+                if (this == null || !isActiveAndEnabled || version != _requestVersion) return;
+                if (!saved)
+                {
+                    Debug.LogError("[TitleSceneController] New Game 초기 상태 저장에 실패했습니다.", this);
+                }
 
-            transitioner.LoadBoardScene();
-            _isStartingGame = false;
+                transitioner.LoadBoardScene();
+            }
+            catch (System.Exception exception) { Debug.LogException(exception); }
+            finally { _isStartingGame = false; }
         }
 
         /// <summary>
@@ -118,8 +133,15 @@ namespace OzGameLab01.Controllers
 
             _isStartingGame = true;
 
-            SaveManager saveManager = SaveManager.Instance;
-            if (!saveManager.RestoreCurrentRun())
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                Debug.LogError("[TitleSceneController] SaveFacade를 찾을 수 없어 Continue를 진행할 수 없습니다.", this);
+                _isStartingGame = false;
+                return;
+            }
+
+            if (!saveFacade.RestoreCurrentRun())
             {
                 Debug.LogWarning("[TitleSceneController] 복원 가능한 Continue 데이터가 없습니다.", this);
                 _titleView.SetContinueInteractable(false);

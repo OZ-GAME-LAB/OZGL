@@ -1,54 +1,55 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using OzGameLab01.Controllers;
 
-namespace OzGameLab01.Managers
+namespace OzGameLab01.Controllers
 {
     public class PauseController : MonoBehaviour
     {
-        [SerializeField] private Button pauseButton;
-        [SerializeField] private TextMeshProUGUI pauseButtonLabel;
-        [SerializeField] private CombatSceneController combatSceneController;
+        [UnityEngine.Serialization.FormerlySerializedAs("pauseButton")]
+        [SerializeField] private Button _pauseButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("pauseButtonLabel")]
+        [SerializeField] private TextMeshProUGUI _pauseButtonLabel;
+        [UnityEngine.Serialization.FormerlySerializedAs("combatSceneController")]
+        [SerializeField] private CombatSceneController _combatSceneController;
 
         private bool _isPaused;
+        private OzGameLab01.GameFlow.Views.PauseButtonView _view;
 
         private void Awake()
         {
-            if (combatSceneController == null)
+            _view = new OzGameLab01.GameFlow.Views.PauseButtonView(_pauseButtonLabel);
+            if (_combatSceneController == null)
             {
-                combatSceneController = FindFirstObjectByType<CombatSceneController>(FindObjectsInactive.Include);
+                _combatSceneController = FindFirstObjectByType<CombatSceneController>(FindObjectsInactive.Include);
             }
 
-            if (pauseButton != null)
+            if (_pauseButton != null)
             {
-                pauseButton.onClick.AddListener(OnPauseClicked);
+                _pauseButton.onClick.AddListener(OnPauseClicked);
             }
         }
 
         private void OnPauseClicked()
         {
             _isPaused = !_isPaused;
-            if (combatSceneController != null)
+            if (_combatSceneController != null)
             {
-                combatSceneController.SetPaused(_isPaused);
+                _combatSceneController.SetPaused(_isPaused);
             }
             else
             {
                 Debug.LogError("[PauseController] CombatSceneController가 연결되지 않아 일시정지를 적용할 수 없습니다.", this);
             }
 
-            if (pauseButtonLabel != null)
-            {
-                pauseButtonLabel.text = _isPaused ? "Continue" : "Paused";
-            }
+            _view.Render(_isPaused);
         }
 
         private void OnDestroy()
         {
-            if (pauseButton != null)
+            if (_pauseButton != null)
             {
-                pauseButton.onClick.RemoveListener(OnPauseClicked);
+                _pauseButton.onClick.RemoveListener(OnPauseClicked);
             }
         }
     }

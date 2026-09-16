@@ -11,16 +11,19 @@ namespace OzGameLab01.Controllers
     /// </summary>
     public sealed class ReadyUIController : MonoBehaviour
     {
-        [SerializeField] private ReadySceneView readySceneView;
+        [UnityEngine.Serialization.FormerlySerializedAs("readySceneView")]
+        [SerializeField] private ReadySceneView _readySceneView;
+        private ReadyMainView _subscribedMain;
+        private UnitView _subscribedUnit;
 
         private void Awake()
         {
-            if (readySceneView == null)
+            if (_readySceneView == null)
             {
-                readySceneView = GetComponent<ReadySceneView>();
+                _readySceneView = GetComponent<ReadySceneView>();
             }
 
-            if (readySceneView == null)
+            if (_readySceneView == null)
             {
                 Debug.LogError("[ReadyUIController] ReadySceneView가 연결되지 않았습니다.", this);
             }
@@ -28,38 +31,37 @@ namespace OzGameLab01.Controllers
 
         private void OnEnable()
         {
-            if (readySceneView == null)
+            if (_readySceneView == null)
             {
                 return;
             }
 
-            if (readySceneView.MainView != null)
+            _subscribedMain = _readySceneView.MainView;
+            _subscribedUnit = _readySceneView.UnitView;
+            if (_subscribedMain != null)
             {
-                readySceneView.MainView.UnitClicked += HandleUnitButtonClicked;
+                _subscribedMain.UnitClicked += HandleUnitButtonClicked;
             }
 
-            if (readySceneView.UnitView != null)
+            if (_subscribedUnit != null)
             {
-                readySceneView.UnitView.CloseClicked += HandleUnitViewClosed;
+                _subscribedUnit.CloseClicked += HandleUnitViewClosed;
             }
         }
 
         private void OnDisable()
         {
-            if (readySceneView == null)
+            if (_subscribedMain != null)
             {
-                return;
+                _subscribedMain.UnitClicked -= HandleUnitButtonClicked;
             }
 
-            if (readySceneView.MainView != null)
+            if (_subscribedUnit != null)
             {
-                readySceneView.MainView.UnitClicked -= HandleUnitButtonClicked;
+                _subscribedUnit.CloseClicked -= HandleUnitViewClosed;
             }
-
-            if (readySceneView.UnitView != null)
-            {
-                readySceneView.UnitView.CloseClicked -= HandleUnitViewClosed;
-            }
+            _subscribedMain = null;
+            _subscribedUnit = null;
         }
 
         /// <summary>
@@ -67,8 +69,8 @@ namespace OzGameLab01.Controllers
         /// </summary>
         private void HandleUnitButtonClicked(ReadyMainView view)
         {
-            readySceneView.HideMainView();
-            readySceneView.ShowUnitView();
+            _readySceneView.HideMainView();
+            _readySceneView.ShowUnitView();
         }
 
         /// <summary>
@@ -76,8 +78,8 @@ namespace OzGameLab01.Controllers
         /// </summary>
         private void HandleUnitViewClosed(UnitView view)
         {
-            readySceneView.HideUnitView();
-            readySceneView.ShowMainView();
+            _readySceneView.HideUnitView();
+            _readySceneView.ShowMainView();
         }
     }
 }

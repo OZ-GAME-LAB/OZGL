@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using NUnit.Framework;
-using OzGameLab01.Combat;
 using OzGameLab01.Data;
 
 namespace OzGameLab01.Tests.EditMode

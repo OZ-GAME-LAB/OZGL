@@ -11,35 +11,45 @@ namespace OzGameLab01.UI
     public sealed class ReadyMainView : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private Button unitButton;
-        [SerializeField] private Button settingsButton;
-        [SerializeField] private Button locateButton;
-        [SerializeField] private Transform synergyContentRoot;
-        [SerializeField] private Transform artifactContentRoot;
+        [UnityEngine.Serialization.FormerlySerializedAs("unitButton")]
+        [SerializeField] private Button _unitButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("settingsButton")]
+        [SerializeField] private Button _settingsButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("locateButton")]
+        [SerializeField] private Button _locateButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("synergyContentRoot")]
+        [SerializeField] private Transform _synergyContentRoot;
+        [UnityEngine.Serialization.FormerlySerializedAs("artifactContentRoot")]
+        [SerializeField] private Transform _artifactContentRoot;
 
-        [SerializeField] private Button endTurnButton;
-        [SerializeField] private RectTransform clockHand;
-        [SerializeField] private RollingNumberView currentTurnNumber;
-        [SerializeField] private RollingNumberView bossRemainingTurnNumber;
+        [UnityEngine.Serialization.FormerlySerializedAs("endTurnButton")]
+        [SerializeField] private Button _endTurnButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("clockHand")]
+        [SerializeField] private RectTransform _clockHand;
+        [UnityEngine.Serialization.FormerlySerializedAs("currentTurnNumber")]
+        [SerializeField] private RollingNumberView _currentTurnNumber;
+        [UnityEngine.Serialization.FormerlySerializedAs("bossRemainingTurnNumber")]
+        [SerializeField] private RollingNumberView _bossRemainingTurnNumber;
 
-        [SerializeField] private EndTurnButtonFeedbackView endTurnFeedback;
+        [UnityEngine.Serialization.FormerlySerializedAs("endTurnFeedback")]
+        [SerializeField] private EndTurnButtonFeedbackView _endTurnFeedback;
 
-        private readonly List<SynergyItemView> synergyItems = new List<SynergyItemView>();
-        private readonly List<ArtifactInfoItemView> artifactItems = new List<ArtifactInfoItemView>();
+        private readonly List<SynergyItemView> _synergyItems = new List<SynergyItemView>();
+        private readonly List<ArtifactInfoItemView> _artifactItems = new List<ArtifactInfoItemView>();
 
-        private bool isListening;
+        private bool _isListening;
 
         #region Properties
 
-        public Button UnitButton => unitButton;
-        public Button SettingsButton => settingsButton;
-        public Button LocateButton => locateButton;
+        public Button UnitButton => _unitButton;
+        public Button SettingsButton => _settingsButton;
+        public Button LocateButton => _locateButton;
 
-        public Transform SynergyContentRoot => synergyContentRoot;
-        public Transform ArtifactContentRoot => artifactContentRoot;
+        public Transform SynergyContentRoot => _synergyContentRoot;
+        public Transform ArtifactContentRoot => _artifactContentRoot;
 
-        public IReadOnlyList<SynergyItemView> SynergyItems => synergyItems;
-        public IReadOnlyList<ArtifactInfoItemView> ArtifactItems => artifactItems;
+        public IReadOnlyList<SynergyItemView> SynergyItems => _synergyItems;
+        public IReadOnlyList<ArtifactInfoItemView> ArtifactItems => _artifactItems;
 
         public bool IsVisible => gameObject.activeSelf;
 
@@ -68,7 +78,7 @@ namespace OzGameLab01.UI
 
         private void OnEnable()
         {
-            isListening = true;
+            _isListening = true;
 
             SubscribeButtons();
             SubscribeItems();
@@ -79,7 +89,7 @@ namespace OzGameLab01.UI
             UnsubscribeButtons();
             UnsubscribeItems();
 
-            isListening = false;
+            _isListening = false;
         }
 
         #endregion
@@ -98,35 +108,36 @@ namespace OzGameLab01.UI
 
         public void SetUnitButtonInteractable(bool value)
         {
-            if (unitButton != null)
+            if (_unitButton != null)
             {
-                unitButton.interactable = value;
+                _unitButton.interactable = value;
             }
         }
 
         public void SetSettingsButtonInteractable(bool value)
         {
-            if (settingsButton != null)
+            if (_settingsButton != null)
             {
-                settingsButton.interactable = value;
+                _settingsButton.interactable = value;
             }
         }
 
         public void RefreshSynergyItems()
         {
-            if (isListening)
+            if (_isListening)
             {
                 UnsubscribeSynergyItems();
             }
 
-            synergyItems.Clear();
+            _synergyItems.Clear();
 
-            if (synergyContentRoot != null)
+            if (_synergyContentRoot != null)
             {
-                synergyItems.AddRange(synergyContentRoot.GetComponentsInChildren<SynergyItemView>(true));
+                _synergyItems.AddRange(
+                    _synergyContentRoot.GetComponentsInChildren<SynergyItemView>(true));
             }
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeSynergyItems();
             }
@@ -134,19 +145,20 @@ namespace OzGameLab01.UI
 
         public void RefreshArtifactItems()
         {
-            if (isListening)
+            if (_isListening)
             {
                 UnsubscribeArtifactItems();
             }
 
-            artifactItems.Clear();
+            _artifactItems.Clear();
 
-            if (artifactContentRoot != null)
+            if (_artifactContentRoot != null)
             {
-                artifactItems.AddRange(artifactContentRoot.GetComponentsInChildren<ArtifactInfoItemView>(true));
+                _artifactItems.AddRange(
+                    _artifactContentRoot.GetComponentsInChildren<ArtifactInfoItemView>(true));
             }
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeArtifactItems();
             }
@@ -160,14 +172,14 @@ namespace OzGameLab01.UI
 
         public void RegisterSynergyItem(SynergyItemView item)
         {
-            if (item == null || synergyItems.Contains(item))
+            if (item == null || _synergyItems.Contains(item))
             {
                 return;
             }
 
-            synergyItems.Add(item);
+            _synergyItems.Add(item);
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeSynergyItem(item);
             }
@@ -175,7 +187,7 @@ namespace OzGameLab01.UI
 
         public void UnregisterSynergyItem(SynergyItemView item)
         {
-            if (item == null || !synergyItems.Remove(item))
+            if (item == null || !_synergyItems.Remove(item))
             {
                 return;
             }
@@ -185,14 +197,14 @@ namespace OzGameLab01.UI
 
         public void RegisterArtifactItem(ArtifactInfoItemView item)
         {
-            if (item == null || artifactItems.Contains(item))
+            if (item == null || _artifactItems.Contains(item))
             {
                 return;
             }
 
-            artifactItems.Add(item);
+            _artifactItems.Add(item);
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeArtifactItem(item);
             }
@@ -200,7 +212,7 @@ namespace OzGameLab01.UI
 
         public void UnregisterArtifactItem(ArtifactInfoItemView item)
         {
-            if (item == null || !artifactItems.Remove(item))
+            if (item == null || !_artifactItems.Remove(item))
             {
                 return;
             }
@@ -210,9 +222,9 @@ namespace OzGameLab01.UI
 
         public void SetEndTurnInteractable(bool value)
         {
-            if (endTurnButton != null)
+            if (_endTurnButton != null)
             {
-                endTurnButton.interactable = value;
+                _endTurnButton.interactable = value;
             }
         }
 
@@ -224,30 +236,30 @@ namespace OzGameLab01.UI
         /// <param name="immediate">애니메이션 없이 즉시 반영할지 여부</param>
         public void SetEndTurnAttention(bool active, bool immediate = false)
         {
-            endTurnFeedback?.SetAttention(active, immediate);
+            _endTurnFeedback?.SetAttention(active, immediate);
         }
 
         public void SetCurrentTurn(int turn)
         {
-            if (currentTurnNumber != null)
+            if (_currentTurnNumber != null)
             {
-                currentTurnNumber.SetValue(turn);
+                _currentTurnNumber.SetValue(turn);
             }
         }
 
         public void SetBossRemainingTurn(int remainingTurns)
         {
-            if (bossRemainingTurnNumber != null)
+            if (_bossRemainingTurnNumber != null)
             {
-                bossRemainingTurnNumber.SetValue(remainingTurns);
+                _bossRemainingTurnNumber.SetValue(remainingTurns);
             }
         }
 
         public void SetClockHandAngle(float angle)
         {
-            if (clockHand != null)
+            if (_clockHand != null)
             {
-                clockHand.localEulerAngles = new Vector3(0f, 0f, angle);
+                _clockHand.localEulerAngles = new Vector3(0f, 0f, angle);
             }
         }
 
@@ -257,47 +269,47 @@ namespace OzGameLab01.UI
 
         private void SubscribeButtons()
         {
-            if (unitButton != null)
+            if (_unitButton != null)
             {
-                unitButton.onClick.AddListener(HandleUnitClick);
+                _unitButton.onClick.AddListener(HandleUnitClick);
             }
 
-            if (settingsButton != null)
+            if (_settingsButton != null)
             {
-                settingsButton.onClick.AddListener(HandleSettingsClick);
+                _settingsButton.onClick.AddListener(HandleSettingsClick);
             }
 
-            if (locateButton != null)
+            if (_locateButton != null)
             {
-                locateButton.onClick.AddListener(HandleLocateClick);
+                _locateButton.onClick.AddListener(HandleLocateClick);
             }
 
-            if (endTurnButton != null)
+            if (_endTurnButton != null)
             {
-                endTurnButton.onClick.AddListener(HandleEndTurnClick);
+                _endTurnButton.onClick.AddListener(HandleEndTurnClick);
             }
         }
 
         private void UnsubscribeButtons()
         {
-            if (unitButton != null)
+            if (_unitButton != null)
             {
-                unitButton.onClick.RemoveListener(HandleUnitClick);
+                _unitButton.onClick.RemoveListener(HandleUnitClick);
             }
 
-            if (settingsButton != null)
+            if (_settingsButton != null)
             {
-                settingsButton.onClick.RemoveListener(HandleSettingsClick);
+                _settingsButton.onClick.RemoveListener(HandleSettingsClick);
             }
 
-            if (locateButton != null)
+            if (_locateButton != null)
             {
-                locateButton.onClick.RemoveListener(HandleLocateClick);
+                _locateButton.onClick.RemoveListener(HandleLocateClick);
             }
 
-            if (endTurnButton != null)
+            if (_endTurnButton != null)
             {
-                endTurnButton.onClick.RemoveListener(HandleEndTurnClick);
+                _endTurnButton.onClick.RemoveListener(HandleEndTurnClick);
             }
         }
 
@@ -315,7 +327,7 @@ namespace OzGameLab01.UI
 
         private void SubscribeSynergyItems()
         {
-            foreach (SynergyItemView item in synergyItems)
+            foreach (SynergyItemView item in _synergyItems)
             {
                 SubscribeSynergyItem(item);
             }
@@ -323,7 +335,7 @@ namespace OzGameLab01.UI
 
         private void UnsubscribeSynergyItems()
         {
-            foreach (SynergyItemView item in synergyItems)
+            foreach (SynergyItemView item in _synergyItems)
             {
                 UnsubscribeSynergyItem(item);
             }
@@ -331,7 +343,7 @@ namespace OzGameLab01.UI
 
         private void SubscribeArtifactItems()
         {
-            foreach (ArtifactInfoItemView item in artifactItems)
+            foreach (ArtifactInfoItemView item in _artifactItems)
             {
                 SubscribeArtifactItem(item);
             }
@@ -339,7 +351,7 @@ namespace OzGameLab01.UI
 
         private void UnsubscribeArtifactItems()
         {
-            foreach (ArtifactInfoItemView item in artifactItems)
+            foreach (ArtifactInfoItemView item in _artifactItems)
             {
                 UnsubscribeArtifactItem(item);
             }

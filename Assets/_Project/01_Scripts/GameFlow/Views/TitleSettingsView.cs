@@ -43,19 +43,28 @@ namespace OzGameLab01.UI.Title
         }
 
         [Header("Base")]
-        [SerializeField] private Image dimmer; //팝업시 배경을 어둡게 처리하는 영역
-        [SerializeField] private Image panel; //버튼을 담는 팝업 패널
-        [SerializeField] private Button backButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("dimmer")]
+        [SerializeField] private Image _dimmer; //팝업시 배경을 어둡게 처리하는 영역
+        [UnityEngine.Serialization.FormerlySerializedAs("panel")]
+        [SerializeField] private Image _panel; //버튼을 담는 팝업 패널
+        [UnityEngine.Serialization.FormerlySerializedAs("backButton")]
+        [SerializeField] private Button _backButton;
 
         [Header("Category Buttons")]
-        [SerializeField] private Button gameButton;
-        [SerializeField] private Button videoButton;
-        [SerializeField] private Button audioButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("gameButton")]
+        [SerializeField] private Button _gameButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("videoButton")]
+        [SerializeField] private Button _videoButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("audioButton")]
+        [SerializeField] private Button _audioButton;
 
         [Header("Category Content")]
-        [SerializeField] private GameObject gameContent; //게임 설정 관련 UI 영역
-        [SerializeField] private GameObject videoContent; //영상 설정 관련 UI 영역
-        [SerializeField] private GameObject audioContent; //오디오 설정 관련 UI 영역
+        [UnityEngine.Serialization.FormerlySerializedAs("gameContent")]
+        [SerializeField] private GameObject _gameContent; //게임 설정 관련 UI 영역
+        [UnityEngine.Serialization.FormerlySerializedAs("videoContent")]
+        [SerializeField] private GameObject _videoContent; //영상 설정 관련 UI 영역
+        [UnityEngine.Serialization.FormerlySerializedAs("audioContent")]
+        [SerializeField] private GameObject _audioContent; //오디오 설정 관련 UI 영역
 
         [Header("Category Feedback")]
         [SerializeField] private UITabButtonFeedback gameButtonFeedback;
@@ -63,23 +72,36 @@ namespace OzGameLab01.UI.Title
         [SerializeField] private UITabButtonFeedback audioButtonFeedback;
 
         [Header("Game")]
-        [SerializeField] private DropdownRefs languageDropdown;
-        [SerializeField] private ToggleRefs simplifyEffectsToggle;
-        [SerializeField] private ToggleRefs synergySummaryToggle;
+        [UnityEngine.Serialization.FormerlySerializedAs("languageDropdown")]
+        [SerializeField] private DropdownRefs _languageDropdown;
+        [UnityEngine.Serialization.FormerlySerializedAs("simplifyEffectsToggle")]
+        [SerializeField] private ToggleRefs _simplifyEffectsToggle;
+        [UnityEngine.Serialization.FormerlySerializedAs("synergySummaryToggle")]
+        [SerializeField] private ToggleRefs _synergySummaryToggle;
 
-        [SerializeField] private Button replayTutorialButton;
-        [SerializeField] private Button replayCutsceneButton;
-        [SerializeField] private Button resetGameDataButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("replayTutorialButton")]
+
+        [SerializeField] private Button _replayTutorialButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("replayCutsceneButton")]
+        [SerializeField] private Button _replayCutsceneButton;
+        [UnityEngine.Serialization.FormerlySerializedAs("resetGameDataButton")]
+        [SerializeField] private Button _resetGameDataButton;
 
         [Header("Video")]
-        [SerializeField] private DropdownRefs resolutionDropdown;
-        [SerializeField] private DropdownRefs screenModeDropdown;
+        [UnityEngine.Serialization.FormerlySerializedAs("resolutionDropdown")]
+        [SerializeField] private DropdownRefs _resolutionDropdown;
+        [UnityEngine.Serialization.FormerlySerializedAs("screenModeDropdown")]
+        [SerializeField] private DropdownRefs _screenModeDropdown;
 
         [Header("Audio")]
-        [SerializeField] private SliderRefs masterSlider;
-        [SerializeField] private SliderRefs bgmSlider;
-        [SerializeField] private SliderRefs sfxSlider;
-        [SerializeField] private ToggleRefs muteAllToggle;
+        [UnityEngine.Serialization.FormerlySerializedAs("masterSlider")]
+        [SerializeField] private SliderRefs _masterSlider;
+        [UnityEngine.Serialization.FormerlySerializedAs("bgmSlider")]
+        [SerializeField] private SliderRefs _bgmSlider;
+        [UnityEngine.Serialization.FormerlySerializedAs("sfxSlider")]
+        [SerializeField] private SliderRefs _sfxSlider;
+        [UnityEngine.Serialization.FormerlySerializedAs("muteAllToggle")]
+        [SerializeField] private ToggleRefs _muteAllToggle;
 
         #region Properties
         
@@ -100,56 +122,56 @@ namespace OzGameLab01.UI.Title
         /// </summary>
         public int LanguageIndex
         {
-            get => languageDropdown.dropdown.value;
-            set => SetDropdownValue(languageDropdown.dropdown, value); //외부 값 반영 시 이벤트를 다시 발생시키지 않음
+            get => _languageDropdown.dropdown.value;
+            set => SetDropdownValue(_languageDropdown.dropdown, value); //외부 값 반영 시 이벤트를 다시 발생시키지 않음
         }
 
         public int ResolutionIndex
         {
-            get => resolutionDropdown.dropdown.value;
-            set => SetDropdownValue(resolutionDropdown.dropdown, value);
+            get => _resolutionDropdown.dropdown.value;
+            set => SetDropdownValue(_resolutionDropdown.dropdown, value);
         }
 
         public int ScreenModeIndex
         {
-            get => screenModeDropdown.dropdown.value;
-            set => SetDropdownValue(screenModeDropdown.dropdown, value);
+            get => _screenModeDropdown.dropdown.value;
+            set => SetDropdownValue(_screenModeDropdown.dropdown, value);
         }
 
         public float MasterVolume
         {
-            get => masterSlider.slider.value;
-            set => SetSliderValue(masterSlider, value);
+            get => _masterSlider.slider.value;
+            set => SetSliderValue(_masterSlider, value);
         }
 
         public float BgmVolume
         {
-            get => bgmSlider.slider.value;
-            set => SetSliderValue(bgmSlider, value);
+            get => _bgmSlider.slider.value;
+            set => SetSliderValue(_bgmSlider, value);
         }
 
         public float SfxVolume
         {
-            get => sfxSlider.slider.value;
-            set => SetSliderValue(sfxSlider, value);
+            get => _sfxSlider.slider.value;
+            set => SetSliderValue(_sfxSlider, value);
         }
 
         public bool IsMuted
         {
-            get => muteAllToggle.toggle.isOn;
-            set => muteAllToggle.toggle.SetIsOnWithoutNotify(value);
+            get => _muteAllToggle.toggle.isOn;
+            set => _muteAllToggle.toggle.SetIsOnWithoutNotify(value);
         }
 
         public bool IsEffectsSimplified
         {
-            get => simplifyEffectsToggle.toggle.isOn;
-            set => simplifyEffectsToggle.toggle.SetIsOnWithoutNotify(value);
+            get => _simplifyEffectsToggle.toggle.isOn;
+            set => _simplifyEffectsToggle.toggle.SetIsOnWithoutNotify(value);
         }
 
         public bool IsSynergySummaryEnabled
         {
-            get => synergySummaryToggle.toggle.isOn;
-            set => synergySummaryToggle.toggle.SetIsOnWithoutNotify(value);
+            get => _synergySummaryToggle.toggle.isOn;
+            set => _synergySummaryToggle.toggle.SetIsOnWithoutNotify(value);
         }
 
         #endregion
@@ -181,52 +203,52 @@ namespace OzGameLab01.UI.Title
 
         private void Awake()
         {
-            gameButton.onClick.AddListener(OnGameTabClicked);
-            videoButton.onClick.AddListener(OnVideoTabClicked);
-            audioButton.onClick.AddListener(OnAudioTabClicked);
-            backButton.onClick.AddListener(OnBackClicked);
+            _gameButton.onClick.AddListener(OnGameTabClicked);
+            _videoButton.onClick.AddListener(OnVideoTabClicked);
+            _audioButton.onClick.AddListener(OnAudioTabClicked);
+            _backButton.onClick.AddListener(OnBackClicked);
 
-            languageDropdown.dropdown.onValueChanged.AddListener(OnLanguageChanged);
-            resolutionDropdown.dropdown.onValueChanged.AddListener(OnResolutionChanged);
-            screenModeDropdown.dropdown.onValueChanged.AddListener(OnScreenModeChanged);
+            _languageDropdown.dropdown.onValueChanged.AddListener(OnLanguageChanged);
+            _resolutionDropdown.dropdown.onValueChanged.AddListener(OnResolutionChanged);
+            _screenModeDropdown.dropdown.onValueChanged.AddListener(OnScreenModeChanged);
 
-            masterSlider.slider.onValueChanged.AddListener(OnMasterVolumeChanged);
-            bgmSlider.slider.onValueChanged.AddListener(OnBgmVolumeChanged);
-            sfxSlider.slider.onValueChanged.AddListener(OnSfxVolumeChanged);
+            _masterSlider.slider.onValueChanged.AddListener(OnMasterVolumeChanged);
+            _bgmSlider.slider.onValueChanged.AddListener(OnBgmVolumeChanged);
+            _sfxSlider.slider.onValueChanged.AddListener(OnSfxVolumeChanged);
 
-            muteAllToggle.toggle.onValueChanged.AddListener(OnMuteAllChanged);
-            simplifyEffectsToggle.toggle.onValueChanged.AddListener(OnEffectsSimplifiedChanged);
-            synergySummaryToggle.toggle.onValueChanged.AddListener(OnSynergySummaryChanged);
+            _muteAllToggle.toggle.onValueChanged.AddListener(OnMuteAllChanged);
+            _simplifyEffectsToggle.toggle.onValueChanged.AddListener(OnEffectsSimplifiedChanged);
+            _synergySummaryToggle.toggle.onValueChanged.AddListener(OnSynergySummaryChanged);
 
-            replayTutorialButton.onClick.AddListener(OnReplayTutorialClicked);
-            replayCutsceneButton.onClick.AddListener(OnReplayCutsceneClicked);
-            resetGameDataButton.onClick.AddListener(OnResetGameDataClicked);
+            _replayTutorialButton.onClick.AddListener(OnReplayTutorialClicked);
+            _replayCutsceneButton.onClick.AddListener(OnReplayCutsceneClicked);
+            _resetGameDataButton.onClick.AddListener(OnResetGameDataClicked);
 
             SelectTab(CurrentTab, false);
         }
 
         private void OnDestroy()
         {
-            gameButton.onClick.RemoveListener(OnGameTabClicked);
-            videoButton.onClick.RemoveListener(OnVideoTabClicked);
-            audioButton.onClick.RemoveListener(OnAudioTabClicked);
-            backButton.onClick.RemoveListener(OnBackClicked);
+            _gameButton.onClick.RemoveListener(OnGameTabClicked);
+            _videoButton.onClick.RemoveListener(OnVideoTabClicked);
+            _audioButton.onClick.RemoveListener(OnAudioTabClicked);
+            _backButton.onClick.RemoveListener(OnBackClicked);
 
-            languageDropdown.dropdown.onValueChanged.RemoveListener(OnLanguageChanged);
-            resolutionDropdown.dropdown.onValueChanged.RemoveListener(OnResolutionChanged);
-            screenModeDropdown.dropdown.onValueChanged.RemoveListener(OnScreenModeChanged);
+            _languageDropdown.dropdown.onValueChanged.RemoveListener(OnLanguageChanged);
+            _resolutionDropdown.dropdown.onValueChanged.RemoveListener(OnResolutionChanged);
+            _screenModeDropdown.dropdown.onValueChanged.RemoveListener(OnScreenModeChanged);
 
-            masterSlider.slider.onValueChanged.RemoveListener(OnMasterVolumeChanged);
-            bgmSlider.slider.onValueChanged.RemoveListener(OnBgmVolumeChanged);
-            sfxSlider.slider.onValueChanged.RemoveListener(OnSfxVolumeChanged);
+            _masterSlider.slider.onValueChanged.RemoveListener(OnMasterVolumeChanged);
+            _bgmSlider.slider.onValueChanged.RemoveListener(OnBgmVolumeChanged);
+            _sfxSlider.slider.onValueChanged.RemoveListener(OnSfxVolumeChanged);
 
-            muteAllToggle.toggle.onValueChanged.RemoveListener(OnMuteAllChanged);
-            simplifyEffectsToggle.toggle.onValueChanged.RemoveListener(OnEffectsSimplifiedChanged);
-            synergySummaryToggle.toggle.onValueChanged.RemoveListener(OnSynergySummaryChanged);
+            _muteAllToggle.toggle.onValueChanged.RemoveListener(OnMuteAllChanged);
+            _simplifyEffectsToggle.toggle.onValueChanged.RemoveListener(OnEffectsSimplifiedChanged);
+            _synergySummaryToggle.toggle.onValueChanged.RemoveListener(OnSynergySummaryChanged);
 
-            replayTutorialButton.onClick.RemoveListener(OnReplayTutorialClicked);
-            replayCutsceneButton.onClick.RemoveListener(OnReplayCutsceneClicked);
-            resetGameDataButton.onClick.RemoveListener(OnResetGameDataClicked);
+            _replayTutorialButton.onClick.RemoveListener(OnReplayTutorialClicked);
+            _replayCutsceneButton.onClick.RemoveListener(OnReplayCutsceneClicked);
+            _resetGameDataButton.onClick.RemoveListener(OnResetGameDataClicked);
         }
 
         #endregion
@@ -258,9 +280,9 @@ namespace OzGameLab01.UI.Title
         {
             CurrentTab = tab;
 
-            gameContent.SetActive(tab == SettingsTab.Game);
-            videoContent.SetActive(tab == SettingsTab.Video);
-            audioContent.SetActive(tab == SettingsTab.Audio);
+            _gameContent.SetActive(tab == SettingsTab.Game);
+            _videoContent.SetActive(tab == SettingsTab.Video);
+            _audioContent.SetActive(tab == SettingsTab.Audio);
 
             // 처음 열 때는 즉시 반영하고, 클릭 전환에는 애니메이션 적용.
             bool immediate = !notify;

@@ -5185,8 +5185,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e85c10f7987b05c49851c06364cf466b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.RollView
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.DiceRollView
   rollButton: {fileID: 1844662139696154064}
   rollText: {fileID: 5658739934591723356}
   diceTransform: {fileID: 1027680339690459130}

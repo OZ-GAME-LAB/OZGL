@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using OzGameLab01.Events;
 
 namespace OzGameLab01.UI
 {
@@ -31,17 +32,6 @@ namespace OzGameLab01.UI
             SetInteractionEnabled(true);
         }
 
-        public void Show()
-        {
-            gameObject.SetActive(true);
-            ResetView();
-        }
-
-        public void Hide()
-        {
-            gameObject.SetActive(false);
-        }
-
         public void SetTitle(string title)
         {
             eventTitleText.text = title ?? string.Empty;
@@ -52,21 +42,6 @@ namespace OzGameLab01.UI
             eventDescriptionText.text = description ?? string.Empty;
         }
 
-        //public void ShowChoices(IReadOnlyList<EventChoiceDisplayData> choices, Action<string> onChoiceSelected)
-        //{
-        //    ClearChoices();
-        //    HideAction();
-
-        //    choiceRoot.gameObject.SetActive(true);
-
-        //    foreach (EventChoiceDisplayData choiceData in choices)
-        //    {
-        //        EventChoiceButtonView choiceButton = Instantiate(choiceButtonPrefab, choiceRoot);
-
-        //        choiceButton.Bind(choiceData, onChoiceSelected);
-        //        _choiceButtons.Add(choiceButton);
-        //    }
-        //}
         public void ShowChoices(List<EventChoice> choices, Action<int> onChoiceSelected)
         {
             ClearChoices();
@@ -130,17 +105,6 @@ namespace OzGameLab01.UI
         {
             eventViewCanvasGroup.interactable = isEnabled;
             eventViewCanvasGroup.blocksRaycasts = isEnabled;
-        }
-
-        public void ResetView()
-        {
-            SetTitle(string.Empty);
-            SetDescription(string.Empty);
-
-            ClearChoices();
-            HideAction();
-
-            SetInteractionEnabled(true);
         }
 
         private void ClearAction()

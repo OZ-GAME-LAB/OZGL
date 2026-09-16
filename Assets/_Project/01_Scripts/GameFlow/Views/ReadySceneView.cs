@@ -7,23 +7,30 @@ namespace OzGameLab01.UI
     public sealed class ReadySceneView : MonoBehaviour
     {
         [Header("Views")]
-        [SerializeField] private ReadyMainView mainView;
-        [SerializeField] private RollView rollView;
-        [SerializeField] private UnitView unitView;
-        [SerializeField] private TooltipView tooltipView;
-        [SerializeField] private ReadySettingsView settingsView;
-        [SerializeField] private ConfirmPopupView confirmPopupView;
-        [SerializeField] private FeedbackView feedbackView;
+        [UnityEngine.Serialization.FormerlySerializedAs("mainView")]
+        [SerializeField] private ReadyMainView _mainView;
+        [UnityEngine.Serialization.FormerlySerializedAs("rollView")]
+        [SerializeField] private DiceRollView _rollView;
+        [UnityEngine.Serialization.FormerlySerializedAs("unitView")]
+        [SerializeField] private UnitView _unitView;
+        [UnityEngine.Serialization.FormerlySerializedAs("tooltipView")]
+        [SerializeField] private TooltipView _tooltipView;
+        [UnityEngine.Serialization.FormerlySerializedAs("settingsView")]
+        [SerializeField] private ReadySettingsView _settingsView;
+        [UnityEngine.Serialization.FormerlySerializedAs("confirmPopupView")]
+        [SerializeField] private ConfirmPopupView _confirmPopupView;
+        [UnityEngine.Serialization.FormerlySerializedAs("feedbackView")]
+        [SerializeField] private FeedbackView _feedbackView;
 
         #region Properties
 
-        public ReadyMainView MainView => mainView;
-        public RollView RollView => rollView;
-        public UnitView UnitView => unitView;
-        public TooltipView TooltipView => tooltipView;
-        public ReadySettingsView SettingsView => settingsView;
-        public ConfirmPopupView ConfirmPopupView => confirmPopupView;
-        public FeedbackView FeedbackView => feedbackView;
+        public ReadyMainView MainView => _mainView;
+        public DiceRollView RollView => _rollView;
+        public UnitView UnitView => _unitView;
+        public TooltipView TooltipView => _tooltipView;
+        public ReadySettingsView SettingsView => _settingsView;
+        public ConfirmPopupView ConfirmPopupView => _confirmPopupView;
+        public FeedbackView FeedbackView => _feedbackView;
 
         #endregion
 
@@ -31,105 +38,105 @@ namespace OzGameLab01.UI
 
         public void ShowMainView()
         {
-            if (mainView != null)
+            if (_mainView != null)
             {
-                mainView.Show();
+                _mainView.Show();
             }
         }
 
         public void HideMainView()
         {
-            if (mainView != null)
+            if (_mainView != null)
             {
-                mainView.Hide();
+                _mainView.Hide();
             }
         }
 
         public void ShowRollView()
         {
-            if (rollView != null)
+            if (_rollView != null)
             {
-                rollView.Show();
+                _rollView.Show();
             }
         }
 
         public void HideRollView()
         {
-            if (rollView != null)
+            if (_rollView != null)
             {
-                rollView.Hide();
+                _rollView.Hide();
             }
         }
 
         public void ShowUnitView()
         {
-            if (unitView != null)
+            if (_unitView != null)
             {
-                unitView.Show();
+                _unitView.Show();
             }
         }
 
         public void HideUnitView()
         {
-            if (unitView != null)
+            if (_unitView != null)
             {
-                unitView.Hide();
+                _unitView.Hide();
             }
         }
 
         public void ShowSettingsView()
         {
-            if (settingsView != null)
+            if (_settingsView != null)
             {
-                settingsView.Show();
+                _settingsView.Show();
             }
         }
 
         public void HideSettingsView()
         {
-            if (settingsView != null)
+            if (_settingsView != null)
             {
-                settingsView.Hide();
+                _settingsView.Hide();
             }
         }
 
         public void ShowConfirmPopup()
         {
-            if (confirmPopupView != null)
+            if (_confirmPopupView != null)
             {
-                confirmPopupView.Show();
+                _confirmPopupView.Show();
             }
         }
 
         public void HideConfirmPopup()
         {
-            if (confirmPopupView != null)
+            if (_confirmPopupView != null)
             {
-                confirmPopupView.Hide();
+                _confirmPopupView.Hide();
             }
         }
 
         public void ShowFeedbackView(string message)
         {
-            if (feedbackView != null)
+            if (_feedbackView != null)
             {
-                feedbackView.Show(message);
+                _feedbackView.Show(message);
             }
         }
 
         public void HideFeedbackView()
         {
-            if (feedbackView != null)
+            if (_feedbackView != null)
             {
-                feedbackView.Hide();
+                _feedbackView.Hide();
             }
         }
 
         public void HideTooltip()
         {
-            if (tooltipView != null)
+            if (_tooltipView != null)
             {
-                tooltipView.Hide();
+                _tooltipView.Hide();
             }
         }
 

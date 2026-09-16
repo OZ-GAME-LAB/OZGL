@@ -2,6 +2,7 @@ using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using OzGameLab01.Events;
 
 namespace OzGameLab01.UI
 {

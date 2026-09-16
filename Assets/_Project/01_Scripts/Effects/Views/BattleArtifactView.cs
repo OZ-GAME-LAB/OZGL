@@ -7,11 +7,12 @@ namespace OzGameLab01.UI.Battle
     public sealed class BattleArtifactView : MonoBehaviour
     {
         [Header("References")]
-        [SerializeField] private Transform artifactContentRoot;
+        [UnityEngine.Serialization.FormerlySerializedAs("artifactContentRoot")]
+        [SerializeField] private Transform _artifactContentRoot;
 
         #region Properties
 
-        public Transform ArtifactContentRoot => artifactContentRoot;
+        public Transform ArtifactContentRoot => _artifactContentRoot;
 
         public bool IsVisible => gameObject.activeSelf;
 
@@ -31,7 +32,7 @@ namespace OzGameLab01.UI.Battle
 
         public void RefreshLayout()
         {
-            if (artifactContentRoot is RectTransform rectTransform)
+            if (_artifactContentRoot is RectTransform rectTransform)
             {
                 LayoutRebuilder.ForceRebuildLayoutImmediate(rectTransform);
             }

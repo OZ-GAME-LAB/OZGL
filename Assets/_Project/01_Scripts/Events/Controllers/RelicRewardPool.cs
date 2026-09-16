@@ -1,6 +1,7 @@
-using UnityEngine;
-
-public class RelicRewardPool
+namespace OzGameLab01.Events
 {
-    
+    public class RelicRewardPool
+    {
+
+    }
 }

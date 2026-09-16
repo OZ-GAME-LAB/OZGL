@@ -1288,7 +1288,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Battle.BattleUnitInfoView
   unitInfoContentRoot: {fileID: 8711425423316072163}
   battleUnitInfoItemPrefab: {fileID: 6004885915682931070, guid: aef26421f83901e479a77fe16e3dfd47, type: 3}
-  supportUnitInfoItemPrefab: {fileID: 1451988757562393273, guid: b183986bca472064886479864b3ce392, type: 3}
+  supportUnitInfoItemPrefab: {fileID: 437004799907473453, guid: b183986bca472064886479864b3ce392, type: 3}
 --- !u!1 &2625122105154023749
 GameObject:
   m_ObjectHideFlags: 0
@@ -2282,7 +2282,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ea1ed1dd70db224ba252723743cc462, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Battle.BattleArtifactView
-  artifactContentRoot: {fileID: 5321490768855395514}
+  _artifactContentRoot: {fileID: 5321490768855395514}
 --- !u!1 &4409588423976596721
 GameObject:
   m_ObjectHideFlags: 0
@@ -3160,8 +3160,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ENEMY NAME
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
-  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3712,7 +3712,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 053a35f13bb8c8443accc0fcc5881f80, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Battle.BattleSynergyView
-  synergyContentRoot: {fileID: 2877259615996179313}
+  _synergyContentRoot: {fileID: 2877259615996179313}
 --- !u!1 &7541728872220826445
 GameObject:
   m_ObjectHideFlags: 0
@@ -5761,11 +5761,11 @@ PrefabInstance:
     - target: {fileID: 4533727670162294075, guid: 1afcc0edd655c3649b0bdaf8e0672cd6, type: 3}
       propertyPath: m_fontAsset
       value: 
-      objectReference: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     - target: {fileID: 4533727670162294075, guid: 1afcc0edd655c3649b0bdaf8e0672cd6, type: 3}
       propertyPath: m_sharedMaterial
       value: 
-      objectReference: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7117,6 +7117,14 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7265596491789513995, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
+      propertyPath: m_fontAsset
+      value: 
+      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+    - target: {fileID: 7265596491789513995, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
+      propertyPath: m_sharedMaterial
+      value: 
+      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

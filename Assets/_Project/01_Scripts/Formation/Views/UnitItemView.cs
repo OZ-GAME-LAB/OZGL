@@ -37,9 +37,9 @@ namespace OzGameLab01.UI
         private int pressedPointerId;
         private PointerEventData.InputButton pressedButton;
 
-        private bool isInteractable = true;
-        private bool isSelected;
-        private bool isDragging;
+        private bool _isInteractable = true;
+        private bool _isSelected;
+        private bool _isDragging;
 
         #region Properties
 
@@ -50,17 +50,17 @@ namespace OzGameLab01.UI
 
         public bool IsInteractable
         {
-            get => isInteractable;
+            get => _isInteractable;
             set => SetInteractable(value);
         }
 
         public bool IsSelected
         {
-            get => isSelected;
+            get => _isSelected;
             set => SetSelected(value);
         }
 
-        public bool IsDragging => isDragging;
+        public bool IsDragging => _isDragging;
 
         public event Action<UnitItemView, PointerEventData> Clicked; //유닛 아이템 클릭 이벤트
         public event Action<UnitItemView, PointerEventData> PointerEntered; //유닛 아이템 포인터 진입 이벤트
@@ -163,34 +163,38 @@ namespace OzGameLab01.UI
 
         public void SetSelected(bool value)
         {
-            isSelected = value;
+            _isSelected = value;
 
             RefreshHighlight();
         }
 
         public void SetInteractable(bool value)
         {
-            isInteractable = value;
+
+            _isInteractable = value;
             if (!value)
                 ResetPressFeedback();
 
             if (canvasGroup != null)
             {
                 canvasGroup.interactable = value;
-                canvasGroup.blocksRaycasts = value && !isDragging;
+                canvasGroup.blocksRaycasts = value && !_isDragging;
             }
         }
 
         public void SetDragging(bool value)
         {
-            isDragging = value;
+
+            _isDragging = value;
+
             if (value)
                 ResetPressFeedback();
+
 
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = value ? draggingAlpha : 1f;
-                canvasGroup.blocksRaycasts = isInteractable && !value;
+                canvasGroup.blocksRaycasts = _isInteractable && !value;
             }
         }
 
@@ -201,7 +205,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -211,7 +215,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            if (!isActiveAndEnabled || !isInteractable || isDragging || isPressed || (eventData.button != PointerEventData.InputButton.Left && eventData.button != PointerEventData.InputButton.Right))
+            if (!isActiveAndEnabled || !_isInteractable || _isDragging || isPressed || (eventData.button != PointerEventData.InputButton.Left && eventData.button != PointerEventData.InputButton.Right))
                 return;
 
             isPressed = true;
@@ -231,7 +235,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -241,10 +245,12 @@ namespace OzGameLab01.UI
 
         public void OnPointerExit(PointerEventData eventData)
         {
+
             if (isPressed && eventData.pointerId == pressedPointerId)
                 ReleasePress();
 
-            if (!isInteractable)
+            if (!_isInteractable)
+
             {
                 return;
             }
@@ -254,7 +260,7 @@ namespace OzGameLab01.UI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -265,7 +271,7 @@ namespace OzGameLab01.UI
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -275,7 +281,7 @@ namespace OzGameLab01.UI
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            if (!isDragging)
+            if (!_isDragging)
             {
                 return;
             }
@@ -290,7 +296,7 @@ namespace OzGameLab01.UI
         /// </summary>
         public void PlayPlacementFeedback()
         {
-            if (!isActiveAndEnabled || visualRoot == null || isDragging)
+            if (!isActiveAndEnabled || visualRoot == null || _isDragging)
                 return;
 
             ResetPressFeedback();
@@ -347,7 +353,7 @@ namespace OzGameLab01.UI
         private void RefreshHighlight()
         {
             if (selectionFrame != null)
-                selectionFrame.gameObject.SetActive(isSelected || isPressed);
+                selectionFrame.gameObject.SetActive(_isSelected || isPressed);
         }
 
         private void ReleasePress()
