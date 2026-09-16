@@ -150,7 +150,7 @@ namespace OzGameLab01.Controllers
                 TMP_Text buttonText = view.SpeedButton.GetComponentInChildren<TMP_Text>();
                 if (buttonText != null)
                 {
-                    buttonText.text = _isFastForward ? "x2" : "x1";
+                    buttonText.text = _isFastForward ? "2" : "1";
                 }
             }
         }
