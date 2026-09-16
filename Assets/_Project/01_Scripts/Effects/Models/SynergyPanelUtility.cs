@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using OzGameLab01.Data;
 
-namespace OzGameLab01.Combat
+namespace OzGameLab01.Effects.Models
 {
     /// <summary>
     /// 시너지 트레이트 집계와 표시용 정렬/필터링을 담당하는 공용 로직입니다.

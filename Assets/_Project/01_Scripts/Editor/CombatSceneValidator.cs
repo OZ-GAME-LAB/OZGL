@@ -7,6 +7,7 @@ using UnityEngine.SceneManagement;
 using OzGameLab01.Combat;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
+using OzGameLab01.Rewards;
 using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Editor

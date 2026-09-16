@@ -1,4 +1,4 @@
-using OzGameLab01.Combat;
+using OzGameLab01.Rewards;
 using System.Collections.Generic;
 using UnityEngine;
 
