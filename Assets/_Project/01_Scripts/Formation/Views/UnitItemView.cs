@@ -17,9 +17,9 @@ namespace OzGameLab01.UI
         [Header("Drag Settings")]
         [SerializeField] private float draggingAlpha = 0.65f;
 
-        private bool isInteractable = true;
-        private bool isSelected;
-        private bool isDragging;
+        private bool _isInteractable = true;
+        private bool _isSelected;
+        private bool _isDragging;
 
         #region Properties
 
@@ -30,17 +30,17 @@ namespace OzGameLab01.UI
 
         public bool IsInteractable
         {
-            get => isInteractable;
+            get => _isInteractable;
             set => SetInteractable(value);
         }
 
         public bool IsSelected
         {
-            get => isSelected;
+            get => _isSelected;
             set => SetSelected(value);
         }
 
-        public bool IsDragging => isDragging;
+        public bool IsDragging => _isDragging;
 
         public event Action<UnitItemView, PointerEventData> Clicked; //유닛 아이템 클릭 이벤트
         public event Action<UnitItemView, PointerEventData> PointerEntered; //유닛 아이템 포인터 진입 이벤트
@@ -108,7 +108,7 @@ namespace OzGameLab01.UI
 
         public void SetSelected(bool value)
         {
-            isSelected = value;
+            _isSelected = value;
 
             if (selectionFrame != null)
             {
@@ -118,23 +118,23 @@ namespace OzGameLab01.UI
 
         public void SetInteractable(bool value)
         {
-            isInteractable = value;
+            _isInteractable = value;
 
             if (canvasGroup != null)
             {
                 canvasGroup.interactable = value;
-                canvasGroup.blocksRaycasts = value && !isDragging;
+                canvasGroup.blocksRaycasts = value && !_isDragging;
             }
         }
 
         public void SetDragging(bool value)
         {
-            isDragging = value;
+            _isDragging = value;
 
             if (canvasGroup != null)
             {
                 canvasGroup.alpha = value ? draggingAlpha : 1f;
-                canvasGroup.blocksRaycasts = isInteractable && !value;
+                canvasGroup.blocksRaycasts = _isInteractable && !value;
             }
         }
 
@@ -145,7 +145,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -155,7 +155,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -165,7 +165,7 @@ namespace OzGameLab01.UI
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -175,7 +175,7 @@ namespace OzGameLab01.UI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -186,7 +186,7 @@ namespace OzGameLab01.UI
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (!isInteractable)
+            if (!_isInteractable)
             {
                 return;
             }
@@ -196,7 +196,7 @@ namespace OzGameLab01.UI
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            if (!isDragging)
+            if (!_isDragging)
             {
                 return;
             }

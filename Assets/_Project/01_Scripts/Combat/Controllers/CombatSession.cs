@@ -127,7 +127,7 @@ namespace OzGameLab01.Combat
             _synergyController.BuildUnitTraitLookup(_state.UnitDataById);
 
             _state.SpawnedFormation = _allySpawner.SpawnAllies(
-                _state.SlotUnits, SceneTransitioner.AllyFormationData, UnitFormationCombatLink.BattleUnits);
+                _state.SlotUnits, SceneTransitioner.AllyFormationData, UnitFormationCombatLink.BattleUnitList);
 
             _synergyController.ApplySynergies(_state.SpawnedFormation, _state.SlotUnits);
             _synergyController.PopulateSynergyPanel();

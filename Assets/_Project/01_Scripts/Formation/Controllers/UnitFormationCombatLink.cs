@@ -30,27 +30,27 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private const int BattleSlotCount = 9;
+        private const int BATTLE_SLOT_COUNT = 9;
 
-        private const int SupportSlotCount = 2;
+        private const int SUPPORT_SLOT_COUNT = 2;
 
-        private static readonly TransferredUnit[] battleUnits = new TransferredUnit[BattleSlotCount];
+        private static readonly TransferredUnit[] BattleUnits = new TransferredUnit[BATTLE_SLOT_COUNT];
 
-        private static readonly TransferredUnit[] supportUnits = new TransferredUnit[SupportSlotCount];
-        private static readonly int[] savedBattleUnitIds = new int[BattleSlotCount];
-        private static readonly int[] savedSupportUnitIds = new int[SupportSlotCount];
-        private static bool hasSavedFormation;
+        private static readonly TransferredUnit[] SupportUnits = new TransferredUnit[SUPPORT_SLOT_COUNT];
+        private static readonly int[] SavedBattleUnitIds = new int[BATTLE_SLOT_COUNT];
+        private static readonly int[] SavedSupportUnitIds = new int[SUPPORT_SLOT_COUNT];
+        private static bool HasSavedFormation;
 
         [Header("유닛 배치")]
         [SerializeField]
         [Tooltip("유닛 배치 정보를 관리하는 컨트롤러")]
         private UnitFormationController formationController;
 
-        public static IReadOnlyList<TransferredUnit> BattleUnits => battleUnits;
-        public static IReadOnlyList<TransferredUnit> SupportUnits => supportUnits;
-        public static IReadOnlyList<int> SavedBattleUnitIds => savedBattleUnitIds;
-        public static IReadOnlyList<int> SavedSupportUnitIds => savedSupportUnitIds;
-        public static bool HasSavedFormation => hasSavedFormation;
+        public static IReadOnlyList<TransferredUnit> BattleUnitList => BattleUnits;
+        public static IReadOnlyList<TransferredUnit> SupportUnitList => SupportUnits;
+        public static IReadOnlyList<int> SavedBattleUnitIdList => SavedBattleUnitIds;
+        public static IReadOnlyList<int> SavedSupportUnitIdList => SavedSupportUnitIds;
+        public static bool Has_Saved_Formation => HasSavedFormation;
 
         /// <summary>
         /// 저장된 전투 슬롯에 유닛이 한 명 이상 있는지 반환합니다.
@@ -59,14 +59,14 @@ namespace OzGameLab01.Controllers
         {
             get
             {
-                if (!hasSavedFormation)
+                if (!HasSavedFormation)
                 {
                     return false;
                 }
 
-                for (int slotIndex = 0; slotIndex < savedBattleUnitIds.Length; slotIndex++)
+                for (int slotIndex = 0; slotIndex < SavedBattleUnitIds.Length; slotIndex++)
                 {
-                    if (savedBattleUnitIds[slotIndex] >= 0)
+                    if (SavedBattleUnitIds[slotIndex] >= 0)
                     {
                         return true;
                     }
@@ -109,22 +109,22 @@ namespace OzGameLab01.Controllers
         {
             ClearTransferredUnits();
 
-            for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
+            for (int slotIndex = 0; slotIndex < BATTLE_SLOT_COUNT; slotIndex++)
             {
                 UnitData unitData = formationController.GetBattleUnitData(slotIndex);
 
                 UnitItemView unitItem = formationController.GetBattleUnitItem(slotIndex);
 
-                battleUnits[slotIndex] = CreateTransferredUnit(unitData, unitItem);
+                BattleUnits[slotIndex] = CreateTransferredUnit(unitData, unitItem);
             }
 
-            for (int slotIndex = 0; slotIndex < SupportSlotCount; slotIndex++)
+            for (int slotIndex = 0; slotIndex < SUPPORT_SLOT_COUNT; slotIndex++)
             {
                 UnitData unitData = formationController.GetSupportUnitData(slotIndex);
 
                 UnitItemView unitItem = formationController.GetSupportUnitItem(slotIndex);
 
-                supportUnits[slotIndex] = CreateTransferredUnit(unitData, unitItem);
+                SupportUnits[slotIndex] = CreateTransferredUnit(unitData, unitItem);
             }
         }
 
@@ -157,11 +157,11 @@ namespace OzGameLab01.Controllers
         /// </summary>
         private UnitData[] CreateCombatFormation()
         {
-            UnitData[] combatFormation = new UnitData[BattleSlotCount];
+            UnitData[] combatFormation = new UnitData[BATTLE_SLOT_COUNT];
 
-            for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
+            for (int slotIndex = 0; slotIndex < BATTLE_SLOT_COUNT; slotIndex++)
             {
-                TransferredUnit transferredUnit = battleUnits[slotIndex];
+                TransferredUnit transferredUnit = BattleUnits[slotIndex];
 
                 combatFormation[slotIndex] = transferredUnit?.Data;
             }
@@ -174,17 +174,17 @@ namespace OzGameLab01.Controllers
         /// </summary>
         private void SaveFormationIds()
         {
-            for (int slotIndex = 0; slotIndex < BattleSlotCount; slotIndex++)
+            for (int slotIndex = 0; slotIndex < BATTLE_SLOT_COUNT; slotIndex++)
             {
-                savedBattleUnitIds[slotIndex] = battleUnits[slotIndex]?.Data?.id ?? -1;
+                SavedBattleUnitIds[slotIndex] = BattleUnits[slotIndex]?.Data?.id ?? -1;
             }
 
-            for (int slotIndex = 0; slotIndex < SupportSlotCount; slotIndex++)
+            for (int slotIndex = 0; slotIndex < SUPPORT_SLOT_COUNT; slotIndex++)
             {
-                savedSupportUnitIds[slotIndex] = supportUnits[slotIndex]?.Data?.id ?? -1;
+                SavedSupportUnitIds[slotIndex] = SupportUnits[slotIndex]?.Data?.id ?? -1;
             }
 
-            hasSavedFormation = true;
+            HasSavedFormation = true;
         }
 
         /// <summary>
@@ -201,14 +201,14 @@ namespace OzGameLab01.Controllers
             saveData.battleFormationUnitIds.Clear();
             saveData.supportFormationUnitIds.Clear();
 
-            for (int slotIndex = 0; slotIndex < savedBattleUnitIds.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < SavedBattleUnitIds.Length; slotIndex++)
             {
-                saveData.battleFormationUnitIds.Add(savedBattleUnitIds[slotIndex]);
+                saveData.battleFormationUnitIds.Add(SavedBattleUnitIds[slotIndex]);
             }
 
-            for (int slotIndex = 0; slotIndex < savedSupportUnitIds.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < SavedSupportUnitIds.Length; slotIndex++)
             {
-                saveData.supportFormationUnitIds.Add(savedSupportUnitIds[slotIndex]);
+                saveData.supportFormationUnitIds.Add(SavedSupportUnitIds[slotIndex]);
             }
         }
 
@@ -224,21 +224,21 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            for (int slotIndex = 0; slotIndex < savedBattleUnitIds.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < SavedBattleUnitIds.Length; slotIndex++)
             {
-                savedBattleUnitIds[slotIndex] = GetSavedUnitId(
+                SavedBattleUnitIds[slotIndex] = GetSavedUnitId(
                     saveData.battleFormationUnitIds,
                     slotIndex);
             }
 
-            for (int slotIndex = 0; slotIndex < savedSupportUnitIds.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < SavedSupportUnitIds.Length; slotIndex++)
             {
-                savedSupportUnitIds[slotIndex] = GetSavedUnitId(
+                SavedSupportUnitIds[slotIndex] = GetSavedUnitId(
                     saveData.supportFormationUnitIds,
                     slotIndex);
             }
 
-            hasSavedFormation = true;
+            HasSavedFormation = true;
         }
 
         /// <summary>
@@ -249,17 +249,17 @@ namespace OzGameLab01.Controllers
             ClearTransferredUnits();
             SceneTransitioner.AllyFormationData = null;
 
-            for (int slotIndex = 0; slotIndex < savedBattleUnitIds.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < SavedBattleUnitIds.Length; slotIndex++)
             {
-                savedBattleUnitIds[slotIndex] = -1;
+                SavedBattleUnitIds[slotIndex] = -1;
             }
 
-            for (int slotIndex = 0; slotIndex < savedSupportUnitIds.Length; slotIndex++)
+            for (int slotIndex = 0; slotIndex < SavedSupportUnitIds.Length; slotIndex++)
             {
-                savedSupportUnitIds[slotIndex] = -1;
+                SavedSupportUnitIds[slotIndex] = -1;
             }
 
-            hasSavedFormation = false;
+            HasSavedFormation = false;
         }
 
         /// <summary>
@@ -274,9 +274,9 @@ namespace OzGameLab01.Controllers
 
         private static void ClearTransferredUnits()
         {
-            Array.Clear(battleUnits, 0, battleUnits.Length);
+            Array.Clear(BattleUnits, 0, BattleUnits.Length);
 
-            Array.Clear(supportUnits, 0, supportUnits.Length);
+            Array.Clear(SupportUnits, 0, SupportUnits.Length);
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -285,17 +285,17 @@ namespace OzGameLab01.Controllers
             ClearTransferredUnits();
             SceneTransitioner.AllyFormationData = null;
             // 새 플레이 세션에는 이전 실행의 편성 ID를 남기지 않습니다.
-            for (int index = 0; index < savedBattleUnitIds.Length; index++)
+            for (int index = 0; index < SavedBattleUnitIds.Length; index++)
             {
-                savedBattleUnitIds[index] = -1;
+                SavedBattleUnitIds[index] = -1;
             }
 
-            for (int index = 0; index < savedSupportUnitIds.Length; index++)
+            for (int index = 0; index < SavedSupportUnitIds.Length; index++)
             {
-                savedSupportUnitIds[index] = -1;
+                SavedSupportUnitIds[index] = -1;
             }
 
-            hasSavedFormation = false;
+            HasSavedFormation = false;
         }
     }
 }

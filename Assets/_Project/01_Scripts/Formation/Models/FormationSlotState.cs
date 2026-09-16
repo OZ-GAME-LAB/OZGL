@@ -45,18 +45,18 @@ namespace OzGameLab01.Formation
     /// </summary>
     public sealed class FormationSlotState
     {
-        public const int BattleSlotCount = 9;
-        public const int MaxBattleUnitCount = 4;
-        public const int SupportSlotCount = 2;
+        public const int BATTLE_SLOT_COUNT = 9;
+        public const int MAX_BATTLE_UNIT_COUNT = 4;
+        public const int SUPPORT_SLOT_COUNT = 2;
 
-        private readonly int?[] _battleSlots = new int?[BattleSlotCount];
-        private readonly int?[] _supportSlots = new int?[SupportSlotCount];
+        private readonly int?[] _battleSlots = new int?[BATTLE_SLOT_COUNT];
+        private readonly int?[] _supportSlots = new int?[SUPPORT_SLOT_COUNT];
 
         public int BattleUnitCount { get; private set; }
         public int SupportUnitCount { get; private set; }
 
-        public static bool IsValidBattleSlot(int index) => index >= 0 && index < BattleSlotCount;
-        public static bool IsValidSupportSlot(int index) => index >= 0 && index < SupportSlotCount;
+        public static bool IsValidBattleSlot(int index) => index >= 0 && index < BATTLE_SLOT_COUNT;
+        public static bool IsValidSupportSlot(int index) => index >= 0 && index < SUPPORT_SLOT_COUNT;
 
         public int? BattleAt(int index) => IsValidBattleSlot(index) ? _battleSlots[index] : null;
         public int? SupportAt(int index) => IsValidSupportSlot(index) ? _supportSlots[index] : null;
@@ -110,7 +110,7 @@ namespace OzGameLab01.Formation
             if (sourceIndex < 0 && targetHandle == null)
             {
                 int count = kind == FormationSlotKind.Battle ? BattleUnitCount : SupportUnitCount;
-                int max = kind == FormationSlotKind.Battle ? MaxBattleUnitCount : SupportSlotCount;
+                int max = kind == FormationSlotKind.Battle ? MAX_BATTLE_UNIT_COUNT : SUPPORT_SLOT_COUNT;
                 if (count >= max)
                 {
                     return FormationDropResult.Rejected();
@@ -145,7 +145,7 @@ namespace OzGameLab01.Formation
         /// </summary>
         public bool TryPlaceFirstEmptyBattle(int handle, out int placedIndex)
         {
-            if (BattleUnitCount >= MaxBattleUnitCount)
+            if (BattleUnitCount >= MAX_BATTLE_UNIT_COUNT)
             {
                 placedIndex = -1;
                 return false;

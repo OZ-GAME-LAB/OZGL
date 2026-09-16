@@ -29,7 +29,7 @@ namespace OzGameLab01.UI
         private readonly List<UnitSlotItemView> slotItems = new List<UnitSlotItemView>();
         private readonly List<SynergyItemView> synergyItems = new List<SynergyItemView>();
 
-        private bool isListening;
+        private bool _isListening;
 
         #region Properties
 
@@ -79,7 +79,7 @@ namespace OzGameLab01.UI
         {
             // 화면 재진입 시 이전 유닛 팝업 숨김 처리
             HideUnitDetail();
-            isListening = true;
+            _isListening = true;
 
             SubscribeCloseButton();
             SubscribeItems();
@@ -92,7 +92,7 @@ namespace OzGameLab01.UI
             UnsubscribeCloseButton();
             UnsubscribeItems();
 
-            isListening = false;
+            _isListening = false;
         }
 
         #endregion
@@ -112,7 +112,7 @@ namespace OzGameLab01.UI
         // 새 Unit_Item을 UnitContentRoot에 추가한 후 호출합니다.
         public void RefreshUnitItems()
         {
-            if (isListening)
+            if (_isListening)
             {
                 UnsubscribeUnitItems();
             }
@@ -125,7 +125,7 @@ namespace OzGameLab01.UI
                     unitContentRoot.GetComponentsInChildren<UnitItemView>(true));
             }
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeUnitItems();
             }
@@ -134,7 +134,7 @@ namespace OzGameLab01.UI
         // 슬롯 구조를 수정했을 때 호출합니다.
         public void RefreshSlotItems()
         {
-            if (isListening)
+            if (_isListening)
             {
                 UnsubscribeSlotItems();
             }
@@ -147,7 +147,7 @@ namespace OzGameLab01.UI
                     slotContentRoot.GetComponentsInChildren<UnitSlotItemView>(true));
             }
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeSlotItems();
             }
@@ -170,7 +170,7 @@ namespace OzGameLab01.UI
 
             unitItems.Add(item);
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeUnitItem(item);
             }
@@ -195,7 +195,7 @@ namespace OzGameLab01.UI
 
             slotItems.Add(item);
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeSlotItem(item);
             }
@@ -289,7 +289,7 @@ namespace OzGameLab01.UI
 
         public void RefreshSynergyItems()
         {
-            if (isListening)
+            if (_isListening)
             {
                 UnsubscribeSynergyItems();
             }
@@ -302,7 +302,7 @@ namespace OzGameLab01.UI
                     synergyContentRoot.GetComponentsInChildren<SynergyItemView>(true));
             }
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeSynergyItems();
             }
@@ -317,7 +317,7 @@ namespace OzGameLab01.UI
 
             synergyItems.Add(item);
 
-            if (isListening)
+            if (_isListening)
             {
                 SubscribeSynergyItem(item);
             }
