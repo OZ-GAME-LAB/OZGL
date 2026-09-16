@@ -43,7 +43,7 @@ namespace OzGameLab01.Controllers
         // [추가] 저장 대기 중 중복 타이틀 이동 요청 방지
         private bool _isReturningToTitle;
         private MapNode _pendingEventNode;
-        private OzGameLab01.Events.EventFacade _subscribedEvent;
+        private IDisposable _eventCompletionSubscription;
         private BoardSceneFeedbackView _feedback;
         public event Action<BoardNotification> Notification;
 
@@ -226,10 +226,10 @@ namespace OzGameLab01.Controllers
                 // 진행 중 이벤트의 중복 시작 방지
                 if (_pendingEventNode != null) { return; }
                 _pendingEventNode = eventNode;
-                _subscribedEvent = eventFacade;
-                _subscribedEvent.EventCompleted += HandleEventCompleted;
+                _eventCompletionSubscription = SystemBus.Messages.Subscribe<OzGameLab01.Events.Contracts.EventChoiceCompleted>(
+                    _ => HandleEventCompleted());
 
-                if (_subscribedEvent.OpenRandomEvent())
+                if (eventFacade.OpenRandomEvent())
                 {
                     return;
                 }
@@ -249,12 +249,8 @@ namespace OzGameLab01.Controllers
 
         private void UnsubscribeEventCompletion()
         {
-            if (_subscribedEvent != null)
-            {
-                _subscribedEvent.EventCompleted -= HandleEventCompleted;
-                _subscribedEvent = null;
-            }
-
+            _eventCompletionSubscription?.Dispose();
+            _eventCompletionSubscription = null;
             _pendingEventNode = null;
         }
 

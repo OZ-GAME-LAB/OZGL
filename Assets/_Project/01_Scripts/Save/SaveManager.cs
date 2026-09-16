@@ -1,3 +1,4 @@
+using OzGameLab01.Interfaces;
 using OzGameLab01.Save;
 
 /// <summary>
@@ -6,29 +7,38 @@ using OzGameLab01.Save;
 /// 이 클래스는 애플리케이션 일시정지/종료 시점의 자동 저장(Unity 라이프사이클 콜백은
 /// MonoBehaviour에서만 받을 수 있음)과 부팅 시 로드만 담당합니다.
 /// </summary>
-public class SaveManager : Singleton<SaveManager>
+public class SaveManager : Singleton<SaveManager>, IGameManager
 {
-    private SaveFacade _facade;
-    public SaveFacade Facade => _facade ??= CreateFacade();
-
-    private SaveFacade CreateFacade()
-    {
-        SaveFacade facade = new SaveFacade();
-        SystemBus.Register(facade);
-        return facade;
-    }
+    public SaveFacade Facade { get; private set; }
+    public bool IsInitialized => Facade != null;
 
     protected override void Awake()
     {
         if (Instance != this) { Destroy(gameObject); return; }
         base.Awake();
-        Facade.Load();
+        // 씬 직접 실행 호환. 부팅 경로에서도 Initialize는 중복 호출에 안전하다.
+        Initialize();
     }
 
-    private void OnDestroy()
+    public void Initialize()
     {
-        if (_facade != null) SystemBus.Unregister(_facade);
+        if (IsInitialized) return;
+        try
+        {
+            Facade = new SaveFacade();
+            SystemBus.Register(Facade);
+            Facade.Load();
+        }
+        catch { Shutdown(); throw; }
     }
+
+    public void Shutdown()
+    {
+        if (Facade != null) SystemBus.Unregister(Facade);
+        Facade = null;
+    }
+
+    private void OnDestroy() => Shutdown();
 
     // 게임 일시중지 시 저장
     private async void OnApplicationPause(bool pauseStatus)

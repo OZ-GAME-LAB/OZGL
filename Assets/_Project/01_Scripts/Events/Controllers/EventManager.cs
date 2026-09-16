@@ -1,4 +1,5 @@
 using OzGameLab01.Events;
+using OzGameLab01.Interfaces;
 
 namespace OzGameLab01.Managers
 {
@@ -8,21 +9,36 @@ namespace OzGameLab01.Managers
     /// 따로 들고 있고, 이 클래스는 항상 존재하는 <see cref="EventFacade"/>를 노출하는
     /// 것 외의 일을 하지 않습니다.
     /// </summary>
-    public class EventManager : Singleton<EventManager>
+    public class EventManager : Singleton<EventManager>, IGameManager
     {
-        private EventFacade _facade;
-        public EventFacade Facade => _facade ??= CreateFacade();
+        public EventFacade Facade { get; private set; }
+        public bool IsInitialized => Facade != null;
 
-        private EventFacade CreateFacade()
+        protected override void Awake()
         {
-            EventFacade facade = new EventFacade();
-            SystemBus.Register(facade);
-            return facade;
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            base.Awake();
+            // 씬 직접 실행 호환. 부팅 경로에서도 Initialize는 중복 호출에 안전하다.
+            Initialize();
         }
 
-        private void OnDestroy()
+        public void Initialize()
         {
-            if (_facade != null) SystemBus.Unregister(_facade);
+            if (IsInitialized) return;
+            try
+            {
+                Facade = new EventFacade();
+                SystemBus.Register(Facade);
+            }
+            catch { Shutdown(); throw; }
         }
+
+        public void Shutdown()
+        {
+            if (Facade != null) SystemBus.Unregister(Facade);
+            Facade = null;
+        }
+
+        private void OnDestroy() => Shutdown();
     }
 }

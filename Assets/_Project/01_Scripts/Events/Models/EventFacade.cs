@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
+using OzGameLab01.Events.Contracts;
 
 namespace OzGameLab01.Events
 {
@@ -11,17 +11,13 @@ namespace OzGameLab01.Events
     /// 필요할 때마다 EventSession을 찾아 사용합니다(EventSession의 GameObject가
     /// 비활성 상태로 시작해도 Awake 시점에 의존하지 않도록). 유효성 검사와 선택지
     /// 상태(EventState) 조율만 담당하고, 실제 표시는 EventSession.ShowEvent/CloseEvent에
-    /// 위임합니다 — Facade는 View 타입을 직접 참조하지 않습니다.
+    /// 위임합니다 — Facade는 View 타입을 직접 참조하지 않습니다. 완료 알림은 전역
+    /// 버스로 EventChoiceCompleted를 발행합니다.
     /// </summary>
     public class EventFacade
     {
         private readonly EventState _state = new EventState();
         private EventSession _session;
-
-        /// <summary>
-        /// 선택지 효과가 정상 처리되어 이벤트 UI가 닫힐 때 발생합니다.
-        /// </summary>
-        public event Action EventCompleted;
 
         private EventSession GetSession()
         {
@@ -104,7 +100,7 @@ namespace OzGameLab01.Events
             _state.ExecuteChoice(selected);
 
             CloseCanvas();
-            EventCompleted?.Invoke();
+            SystemBus.Messages.Publish(new EventChoiceCompleted());
         }
 
         private void CloseCanvas()

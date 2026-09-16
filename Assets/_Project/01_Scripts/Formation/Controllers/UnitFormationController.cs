@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using OzGameLab01.Combat;
 using OzGameLab01.Formation;
 using OzGameLab01.Managers;
 using OzGameLab01.Player;
+using OzGameLab01.Player.Contracts;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
 using UnityEngine;
@@ -88,6 +90,7 @@ namespace OzGameLab01.Controllers
         private bool dragDropHandled;
 
         private UnitFormationCombatLink formationCombatLink;
+        private IDisposable _playerUnitAddedSubscription;
 
         private Dictionary<int, List<SynergyDefinition>> unitTraitsById;
 
@@ -223,10 +226,8 @@ namespace OzGameLab01.Controllers
             RestorePersistedFormation();
             UpdateUnitCount();
 
-            if (Managers.PlayerInventoryManager.Instance != null)
-            {
-                Managers.PlayerInventoryManager.Instance.Facade.OnUnitAdded += AddNewUnitItem;
-            }
+            _playerUnitAddedSubscription = SystemBus.Messages.Subscribe<PlayerUnitAdded>(
+                message => AddNewUnitItem(message.Unit));
         }
 
         private void OnDisable()
@@ -239,10 +240,8 @@ namespace OzGameLab01.Controllers
 
         private void OnDestroy()
         {
-            if (Managers.PlayerInventoryManager.Instance != null)
-            {
-                Managers.PlayerInventoryManager.Instance.Facade.OnUnitAdded -= AddNewUnitItem;
-            }
+            _playerUnitAddedSubscription?.Dispose();
+            _playerUnitAddedSubscription = null;
         }
 
         /// <summary>

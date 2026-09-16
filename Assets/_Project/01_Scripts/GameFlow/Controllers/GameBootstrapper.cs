@@ -79,7 +79,7 @@ namespace OzGameLab01.Managers
                 return;
             }
 
-            EnsureSystemBusReady();
+            RegisterSystemBusManagers();
 
             // 모든 Awake() 콜백 완료 후 매니저 초기화 시작
             InitializeManagers();
@@ -87,18 +87,20 @@ namespace OzGameLab01.Managers
         }
 
         /// <summary>
-        /// SystemBus에 등록되는 매니저(Dice/Combat/Event/Player/Save)는 각자
-        /// 최초 .Instance 접근 시점에 스스로 등록되므로, 아무도 먼저 건드리지 않으면
-        /// 계속 미등록 상태로 남아 SystemBus.Get&lt;T&gt;()가 항상 null을 반환합니다.
-        /// 부팅 시 한 번씩 직접 접근해 전부 미리 등록해 둡니다.
+        /// Dice/Combat/Event/Player/Save는 IGameManager를 구현하지만 씬 직접 실행
+        /// 호환을 위해 각자 Awake에서 스스로 Initialize합니다. 아무도 먼저 .Instance를
+        /// 건드리지 않으면 부팅 경로에서 아예 생성되지 않아 SystemBus.Get&lt;T&gt;()가
+        /// 항상 null을 반환하므로, 여기서 생성을 강제하고 ManagerInitializationController의
+        /// 등록 목록에도 추가해 준비 상태를 다른 매니저와 동일하게 추적합니다(이미
+        /// 초기화되어 있으므로 실제 재초기화는 일어나지 않습니다).
         /// </summary>
-        private void EnsureSystemBusReady()
+        private void RegisterSystemBusManagers()
         {
-            _ = DiceManager.Instance.Facade;
-            _ = OzGameLab01.Combat.CombatManager.Instance.Facade;
-            _ = EventManager.Instance.Facade;
-            _ = PlayerInventoryManager.Instance.Facade;
-            _ = SaveManager.Instance.Facade;
+            _managerComponents.Add(DiceManager.Instance);
+            _managerComponents.Add(OzGameLab01.Combat.CombatManager.Instance);
+            _managerComponents.Add(EventManager.Instance);
+            _managerComponents.Add(PlayerInventoryManager.Instance);
+            _managerComponents.Add(SaveManager.Instance);
         }
 
         /// <summary>

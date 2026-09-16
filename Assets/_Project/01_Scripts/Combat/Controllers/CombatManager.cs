@@ -1,3 +1,5 @@
+using OzGameLab01.Interfaces;
+
 namespace OzGameLab01.Combat
 {
     /// <summary>
@@ -6,7 +8,7 @@ namespace OzGameLab01.Combat
     /// 들고 있고, 이 클래스는 항상 존재하는 <see cref="CombatFacade"/>를 노출하는 것과
     /// 슬롯 좌표계 타입 정의(외부에서 여전히 많이 참조함) 외에는 아무 일도 하지 않습니다.
     /// </summary>
-    public class CombatManager : Singleton<CombatManager>
+    public class CombatManager : Singleton<CombatManager>, IGameManager
     {
         public enum SlotRow { Front, Mid, Back }
 
@@ -21,19 +23,34 @@ namespace OzGameLab01.Combat
             public override int GetHashCode() => (column, row).GetHashCode();
         }
 
-        private CombatFacade _facade;
-        public CombatFacade Facade => _facade ??= CreateFacade();
+        public CombatFacade Facade { get; private set; }
+        public bool IsInitialized => Facade != null;
 
-        private CombatFacade CreateFacade()
+        protected override void Awake()
         {
-            CombatFacade facade = new CombatFacade();
-            SystemBus.Register(facade);
-            return facade;
+            if (Instance != null && Instance != this) { Destroy(gameObject); return; }
+            base.Awake();
+            // 씬 직접 실행 호환. 부팅 경로에서도 Initialize는 중복 호출에 안전하다.
+            Initialize();
         }
 
-        private void OnDestroy()
+        public void Initialize()
         {
-            if (_facade != null) SystemBus.Unregister(_facade);
+            if (IsInitialized) return;
+            try
+            {
+                Facade = new CombatFacade();
+                SystemBus.Register(Facade);
+            }
+            catch { Shutdown(); throw; }
         }
+
+        public void Shutdown()
+        {
+            if (Facade != null) SystemBus.Unregister(Facade);
+            Facade = null;
+        }
+
+        private void OnDestroy() => Shutdown();
     }
 }

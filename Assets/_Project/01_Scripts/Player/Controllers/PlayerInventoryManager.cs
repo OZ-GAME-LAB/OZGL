@@ -1,3 +1,4 @@
+using OzGameLab01.Interfaces;
 using OzGameLab01.Player;
 
 namespace OzGameLab01.Managers
@@ -8,29 +9,38 @@ namespace OzGameLab01.Managers
     /// 외부 호출은 <see cref="PlayerFacade"/>가, 실제 상태는 <see cref="PlayerState"/>가
     /// 각각 전담합니다.
     /// </summary>
-    public class PlayerInventoryManager : Singleton<PlayerInventoryManager>
+    public class PlayerInventoryManager : Singleton<PlayerInventoryManager>, IGameManager
     {
-        private PlayerFacade _facade;
-        public PlayerFacade Facade => _facade ??= CreateFacade();
-
-        private PlayerFacade CreateFacade()
-        {
-            PlayerFacade facade = new PlayerFacade();
-            SystemBus.Register(facade);
-            return facade;
-        }
+        public PlayerFacade Facade { get; private set; }
+        public bool IsInitialized => Facade != null;
 
         protected override void Awake()
         {
             if (Instance != this) { Destroy(gameObject); return; }
             base.Awake();
-            // [추가] Continue에서 보류된 인벤토리를 로스터 참조가 준비된 시점에 복원
-            SaveManager.Instance.Facade.RestorePendingInventory(Facade);
+            // 씬 직접 실행 호환. 부팅 경로에서도 Initialize는 중복 호출에 안전하다.
+            Initialize();
         }
 
-        private void OnDestroy()
+        public void Initialize()
         {
-            if (_facade != null) SystemBus.Unregister(_facade);
+            if (IsInitialized) return;
+            try
+            {
+                Facade = new PlayerFacade();
+                SystemBus.Register(Facade);
+                // [추가] Continue에서 보류된 인벤토리를 로스터 참조가 준비된 시점에 복원
+                SaveManager.Instance.Facade.RestorePendingInventory(Facade);
+            }
+            catch { Shutdown(); throw; }
         }
+
+        public void Shutdown()
+        {
+            if (Facade != null) SystemBus.Unregister(Facade);
+            Facade = null;
+        }
+
+        private void OnDestroy() => Shutdown();
     }
 }

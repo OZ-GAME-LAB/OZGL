@@ -1,16 +1,17 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
+using OzGameLab01.Player.Contracts;
 
 namespace OzGameLab01.Player
 {
     /// <summary>
     /// Player 시스템 외부(SaveManager/BattleRewardService/UnitFormationController 등)가
     /// 호출하는 유일한 진입점입니다. 실제 상태는 <see cref="PlayerState"/>가 들고 있고,
-    /// 이 클래스는 조회/명령을 위임만 합니다.
+    /// 이 클래스는 조회/명령을 위임만 합니다. 유닛 추가는 전역 버스로 PlayerUnitAdded를
+    /// 발행해 알립니다 — 다른 시스템은 이 Facade를 직접 참조하지 않고 구독만 하면 됩니다.
     /// </summary>
     public class PlayerFacade
     {
@@ -21,8 +22,6 @@ namespace OzGameLab01.Player
         /// </summary>
         public IReadOnlyList<UnitData> OwnedUnits => _state.OwnedUnits;
 
-        public event Action<UnitData> OnUnitAdded;
-
         /// <summary>
         /// 새 유닛을 인벤토리에 추가합니다. (나중에 맵 타일 이벤트에서 호출할 함수)
         /// </summary>
@@ -31,7 +30,7 @@ namespace OzGameLab01.Player
             if (unit == null) return;
 
             _state.AddUnit(unit);
-            OnUnitAdded?.Invoke(unit);
+            SystemBus.Messages.Publish(new PlayerUnitAdded(unit));
             RuntimeEffectManager.Instance?.RefreshFromPlayerState();
             Debug.Log($"[PlayerFacade] 유닛 획득 성공! : {unit.name} (현재 총 {_state.OwnedUnits.Count}명 보유 중)");
         }
