@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
+using OzGameLab01.Effects.Models;
 using OzGameLab01.Managers;
 using OzGameLab01.Player.Contracts;
 
@@ -31,7 +32,7 @@ namespace OzGameLab01.Player
 
             _state.AddUnit(unit);
             SystemBus.Messages.Publish(new PlayerUnitAdded(unit));
-            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
+            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState();
             Debug.Log($"[PlayerFacade] 유닛 획득 성공! : {unit.name} (현재 총 {_state.OwnedUnits.Count}명 보유 중)");
         }
 
@@ -41,7 +42,7 @@ namespace OzGameLab01.Player
         public void ClearInventory()
         {
             _state.Clear();
-            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
+            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState();
             Debug.Log("[PlayerFacade] 인벤토리가 초기화되었습니다.");
         }
 
@@ -54,7 +55,7 @@ namespace OzGameLab01.Player
 
             if (savedUnits == null || savedUnits.Count == 0)
             {
-                RuntimeEffectManager.Instance?.RefreshFromPlayerState();
+                SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState();
                 return;
             }
 
@@ -79,7 +80,7 @@ namespace OzGameLab01.Player
             }
 
             Debug.Log($"[PlayerFacade] 저장된 인벤토리를 복원했습니다. 총 {_state.OwnedUnits.Count}명");
-            RuntimeEffectManager.Instance?.RefreshFromPlayerState();
+            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState();
         }
 
         /// <summary>

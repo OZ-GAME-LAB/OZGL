@@ -2,6 +2,7 @@ using OzGameLab01.Data;
 using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Combat;
+using OzGameLab01.Effects.Models;
 using OzGameLab01.Player;
 
 namespace OzGameLab01.Managers
@@ -37,13 +38,14 @@ namespace OzGameLab01.Managers
 
         private static bool ApplyRelic(int relicId, Object context)
         {
-            if (RelicManager.Instance == null || relicId < 0)
+            RelicFacade relicFacade = SystemBus.Get<RelicFacade>();
+            if (relicFacade == null || relicId < 0)
             {
                 Debug.LogError($"[BattleRewardService] 유물 보상을 적용할 수 없습니다: {relicId}", context);
                 return false;
             }
 
-            RelicManager.Instance.AcquireRelic(relicId);
+            relicFacade.AcquireRelic(relicId);
             return true;
         }
 

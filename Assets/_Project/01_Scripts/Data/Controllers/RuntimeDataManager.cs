@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Data;
 using OzGameLab01.Combat;
+using OzGameLab01.Effects.Models;
 
 namespace OzGameLab01.Managers
 {
@@ -135,7 +136,7 @@ namespace OzGameLab01.Managers
         /// </summary>
         public IReadOnlyList<RuntimeEffectManager.EffectSource> GetEffects(TriggerType trigger)
         {
-            return RuntimeEffectManager.Instance.GetEffects(trigger);
+            return SystemBus.Get<EffectsFacade>()?.GetEffects(trigger) ?? Array.Empty<RuntimeEffectManager.EffectSource>();
         }
     }
 }

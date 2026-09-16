@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Collections.Generic;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
+using OzGameLab01.Effects.Models;
 using OzGameLab01.Managers;
 using OzGameLab01.Player;
 
@@ -105,8 +106,7 @@ namespace OzGameLab01.Save
             }
 
             // [추가] 유닛 인벤토리와 마찬가지로 보유 유물도 Continue 시 복원합니다.
-            // RelicManager는 Singleton이라 씬에 없어도 Instance 접근 시 자동 생성됩니다.
-            RelicManager.Instance.RestoreFromSave(_state.CurrentData.relicSaveEntries);
+            SystemBus.Get<RelicFacade>()?.RestoreFromSave(_state.CurrentData.relicSaveEntries);
 
             return true;
         }
@@ -248,15 +248,20 @@ namespace OzGameLab01.Save
         }
 
         /// <summary>
-        /// 현재 보유 유물을 저장합니다. RelicManager는 Singleton이라 씬에 없어도
-        /// Instance 접근 시 자동 생성되므로(보유 유물 0개) null 체크가 필요 없습니다.
+        /// 현재 보유 유물을 저장합니다.
         /// </summary>
         private void CaptureRelics()
         {
             _state.CurrentData.relicSaveEntries.Clear();
 
+            RelicFacade relicFacade = SystemBus.Get<RelicFacade>();
+            if (relicFacade == null)
+            {
+                return;
+            }
+
             int index = 0;
-            foreach (RelicRuntimeInstance relic in RelicManager.Instance.OwnedRelics)
+            foreach (RelicRuntimeInstance relic in relicFacade.OwnedRelics)
             {
                 if (relic?.Data == null)
                 {
@@ -288,11 +293,7 @@ namespace OzGameLab01.Save
 
             SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
 
-            RelicManager relicManager = UnityEngine.Object.FindFirstObjectByType<RelicManager>(FindObjectsInactive.Include);
-            if (relicManager != null)
-            {
-                relicManager.ClearRunState();
-            }
+            SystemBus.Get<RelicFacade>()?.ClearRunState();
         }
     }
 }

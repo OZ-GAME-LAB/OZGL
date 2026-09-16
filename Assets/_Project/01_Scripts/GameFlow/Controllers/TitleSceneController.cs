@@ -44,7 +44,8 @@ namespace OzGameLab01.Controllers
             _subscribedTitle.ExitConfirmed += HandleExitConfirmed;
 
             // [추가] 유효한 런 저장 파일이 있을 때만 Continue 버튼 활성화
-            _titleView.SetContinueInteractable(SaveManager.Instance.Facade.HasContinueData);
+            SaveFacade continueCheckFacade = SystemBus.Get<SaveFacade>();
+            _titleView.SetContinueInteractable(continueCheckFacade != null && continueCheckFacade.HasContinueData);
         }
 
         private void OnDisable()
@@ -95,7 +96,12 @@ namespace OzGameLab01.Controllers
                     "[TitleSceneController] 게임 시작 요청 | 보드 씬 이동",
                     this);
                 // [수정] 이전 런을 초기화하고 새 Map Seed와 빈 편성을 저장한 뒤 이동
-                SaveFacade saveFacade = SaveManager.Instance.Facade;
+                SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+                if (saveFacade == null)
+                {
+                    Debug.LogError("[TitleSceneController] SaveFacade를 찾을 수 없어 게임을 시작할 수 없습니다.", this);
+                    return;
+                }
                 saveFacade.BeginNewRun();
                 bool saved = await saveFacade.SaveAsync();
                 if (this == null || !isActiveAndEnabled || version != _requestVersion) return;
@@ -127,7 +133,14 @@ namespace OzGameLab01.Controllers
 
             _isStartingGame = true;
 
-            SaveFacade saveFacade = SaveManager.Instance.Facade;
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                Debug.LogError("[TitleSceneController] SaveFacade를 찾을 수 없어 Continue를 진행할 수 없습니다.", this);
+                _isStartingGame = false;
+                return;
+            }
+
             if (!saveFacade.RestoreCurrentRun())
             {
                 Debug.LogWarning("[TitleSceneController] 복원 가능한 Continue 데이터가 없습니다.", this);

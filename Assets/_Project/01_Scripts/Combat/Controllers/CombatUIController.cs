@@ -6,6 +6,7 @@ using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
 using OzGameLab01.UI.Settings;
 using OzGameLab01.Combat;
+using OzGameLab01.Effects.Models;
 using OzGameLab01.Managers;
 
 namespace OzGameLab01.Controllers
@@ -243,8 +244,8 @@ namespace OzGameLab01.Controllers
                     if (battleUIView.ResultView != null)
                     {
                         // 보상 화면이 구성되지 않은 일반 전투는 승리 시 무작위 유물 1개를
-                        // 자동으로 지급합니다(dropWeight 가중치, RelicManager.AcquireRandomRelic).
-                        var grantedRelic = RelicManager.Instance.AcquireRandomRelic();
+                        // 자동으로 지급합니다(dropWeight 가중치, RelicFacade.AcquireRandomRelic).
+                        var grantedRelic = SystemBus.Get<RelicFacade>()?.AcquireRandomRelic();
 
                         battleUIView.ResultView.SetResultText("Victory!");
                         battleUIView.ResultView.SetOptionalMessage(
