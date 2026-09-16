@@ -10,20 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fdaac6197b15a3841aa800100e7065d8, type: 3}
-  m_Name: ChoiceEventSO_Test0
+  m_Name: ChoiceEventSO_Choice001
   m_EditorClassIdentifier: Assembly-CSharp::ChoiceEventSO
-  id: 0
-  eventTitle: Choice Event_0
-  eventDialog: Choice Relic Or Unit
+  id: 001
+  eventTitle: "\uC2B5\uACA9!?"
+  eventDialog: "\uBBF8\uC9C0\uC758 \uADF8\uB9BC\uC790\uAC00 \uB2E4\uAC00\uC628\uB2E4."
   eventCategory: 0
+  choiceCategory: 3
   choices:
   - choiceIndex: 0
-    choiceSprite: {fileID: 21300000, guid: cd596215f3eddaa488d1b5a59bbb1c75, type: 3}
-    choiceDialog: 'relic [0]'
-    choiceCategory: 0
-    resultTargetID: 0
-  - choiceIndex: 1
     choiceSprite: {fileID: 21300000, guid: a6ccb27892511d1428d5268b00737843, type: 3}
-    choiceDialog: 'unit [0]'
-    choiceCategory: 1
-    resultTargetID: 0
+    choiceDialog: "\uB2E4\uAC00\uAC04\uB2E4."
+    choiceCategory: 3
+    resultTargetID: 400
+  - choiceIndex: 1
+    choiceSprite: {fileID: 21300000, guid: cd596215f3eddaa488d1b5a59bbb1c75, type: 3}
+    choiceDialog: "\uC9C0\uB098\uCE5C\uB2E4."
+    choiceCategory: 3
+    resultTargetID: 101
