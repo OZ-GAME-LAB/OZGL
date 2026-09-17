@@ -22,6 +22,12 @@ namespace OzGameLab01.Controllers
         [Header("시간 시스템")]
         [SerializeField] private int _nightInterval = 3;
 
+        [Header("시간대 명암")]
+        [SerializeField] private Material _timeOfDayOverlayMaterial;
+        [SerializeField] private BoardTimeOfDayPalette _timeOfDayPalette;
+        [SerializeField, Min(0f)] private float _timeOfDayOverlayPadding = 0.5f;
+        [SerializeField] private float _timeOfDayOverlayHeight = 0.02f;
+
         // 버튼 입력의 BoardUIController 전담
 
         [SerializeField] private NightEventPopupView _nightEventPopup;
@@ -40,11 +46,15 @@ namespace OzGameLab01.Controllers
         public event Action<int> NightReached;
         public event Action<int> DayReached;
         public event Action PlayerTurnReady;
+        public event Action<BoardTimeOfDay> TimeOfDayChanged;
+        public BoardTimeOfDay CurrentTimeOfDay =>
+            BoardTurnRules.GetTimeOfDay(BoardRunData.TurnCount, _nightInterval);
         // [추가] 저장 대기 중 중복 타이틀 이동 요청 방지
         private bool _isReturningToTitle;
         private MapNode _pendingEventNode;
         private IDisposable _eventCompletionSubscription;
         private BoardSceneFeedbackView _feedback;
+        private BoardTimeOfDayOverlayView _timeOfDayOverlay;
         public event Action<BoardNotification> Notification;
 
         // 상태 확정 후 값 스냅샷 발행
@@ -56,6 +66,7 @@ namespace OzGameLab01.Controllers
         private void Awake()
         {
             _feedback = new BoardSceneFeedbackView(_nightEventPopup, _timeStatusHud);
+            _timeOfDayOverlay = new BoardTimeOfDayOverlayView(_timeOfDayOverlayMaterial);
             if (_boardPlayerController == null)
             {
                 _boardPlayerController = BoardPlayerController.Instance;
@@ -89,12 +100,23 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void Start() { UpdateTimeStatusHud(); }
+        private void Start()
+        {
+            UpdateTimeStatusHud();
+
+            if (_mapGenerator != null && _mapGenerator.IsPresentationComplete)
+            {
+                RefreshTimeOfDayOverlay();
+            }
+        }
 
         private void OnEnable()
         {
             if (_boardPlayerController != null)
                 _boardPlayerController.PlayerArrived += HandlePlayerArrived;
+
+            if (_mapGenerator != null)
+                _mapGenerator.PresentationCompleted += HandleMapPresentationCompleted;
         }
 
         private void OnDisable()
@@ -102,7 +124,16 @@ namespace OzGameLab01.Controllers
             if (_boardPlayerController != null)
                 _boardPlayerController.PlayerArrived -= HandlePlayerArrived;
 
+            if (_mapGenerator != null)
+                _mapGenerator.PresentationCompleted -= HandleMapPresentationCompleted;
+
             UnsubscribeEventCompletion();
+        }
+
+        private void OnDestroy()
+        {
+            _timeOfDayOverlay?.Dispose();
+            _timeOfDayOverlay = null;
         }
 
         public void EndTurn()
@@ -112,6 +143,7 @@ namespace OzGameLab01.Controllers
             SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
             TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
             BoardRunData.AdvanceTurn();
+            RefreshTimeOfDayOverlay();
             Publish(BoardNotificationKind.TurnAdvanced);
 
             bool hasTimeOfDayChanged = false;
@@ -143,6 +175,27 @@ namespace OzGameLab01.Controllers
         {
             if (_nightInterval <= 0) { return; }
             _feedback.ShowTurns(BoardTurnRules.TurnsUntilPhase(BoardRunData.TurnCount, _nightInterval));
+        }
+
+        private void HandleMapPresentationCompleted()
+        {
+            RefreshTimeOfDayOverlay();
+        }
+
+        private void RefreshTimeOfDayOverlay()
+        {
+            BoardTimeOfDay timeOfDay = CurrentTimeOfDay;
+
+            if (_mapGenerator != null && _timeOfDayOverlay != null && _timeOfDayPalette != null)
+            {
+                _timeOfDayOverlay.Show(
+                    _mapGenerator.GeneratedWorldBounds,
+                    _timeOfDayOverlayHeight,
+                    _timeOfDayOverlayPadding,
+                    _timeOfDayPalette.GetTint(timeOfDay));
+            }
+
+            TimeOfDayChanged?.Invoke(timeOfDay);
         }
 
         private bool EnsureCanStartBattle()
