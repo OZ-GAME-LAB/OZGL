@@ -16,8 +16,21 @@ namespace OzGameLab01.Board.Models
         /// <summary>이동 가능한 목적지만 반환합니다. 시작 노드와 장애물은 제외합니다.</summary>
         public static IReadOnlyList<MapNode> GetReachableNodes(MapNode start, int maxDistance)
         {
-            var result = new List<MapNode>();
-            if (start == null || maxDistance <= 0) return result.AsReadOnly();
+            IReadOnlyDictionary<MapNode, int> distances =
+                GetReachableNodeDistances(start, maxDistance);
+            return new List<MapNode>(distances.Keys).AsReadOnly();
+        }
+
+        /// <summary>
+        /// 이동 가능한 목적지와 시작점에서부터의 최단 이동 칸 수를 반환합니다.
+        /// 시작 노드와 장애물은 결과에서 제외합니다.
+        /// </summary>
+        public static IReadOnlyDictionary<MapNode, int> GetReachableNodeDistances(
+            MapNode start,
+            int maxDistance)
+        {
+            var result = new Dictionary<MapNode, int>();
+            if (start == null || maxDistance <= 0) return result;
 
             var queue = new Queue<MapNode>();
             var distances = new Dictionary<MapNode, int> { [start] = 0 };
@@ -31,11 +44,11 @@ namespace OzGameLab01.Board.Models
                 {
                     if (next == null || IsObstacle(next.Type) || distances.ContainsKey(next)) continue;
                     distances.Add(next, nextDistance);
-                    result.Add(next);
+                    result.Add(next, nextDistance);
                     queue.Enqueue(next);
                 }
             }
-            return result.AsReadOnly();
+            return result;
         }
 
         public static List<MapNode> FindPath(MapNode start, MapNode target, int maxDistance)

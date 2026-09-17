@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using OzGameLab01.Controllers;
 using OzGameLab01.Map;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace OzGameLab01.Managers
 {
@@ -17,8 +18,17 @@ namespace OzGameLab01.Managers
         [SerializeField, Min(0.001f)] private float surfaceOffset = 0.01f;
         [SerializeField, Min(0f)] private float overlayPadding = 0.5f;
 
+        [Header("Reachable Distance Gradient")]
+        [Tooltip("플레이어와 가장 가까운 이동 가능 타일에 추가로 적용할 암전 강도입니다.")]
+        [SerializeField, Range(0f, 1f)] private float nearestReachableDimAlpha = 0f;
+        [Tooltip("가장 먼 이동 가능 타일에 추가로 적용할 암전 강도입니다.")]
+        [SerializeField, Range(0f, 1f)] private float farthestReachableDimAlpha = 0.55f;
+        [Tooltip("가장 먼 이동 가능 타일과 이동 불가능 영역 사이에 보장할 최소 밝기 차이입니다.")]
+        [SerializeField, Range(0f, 1f)] private float minimumUnavailableAlphaGap = 0.05f;
+
         private GameObject _globalDimOverlay;
         private readonly List<GameObject> _activeTileMasks = new List<GameObject>();
+        private Material _reachableDimMaterial;
 
         private MapGenerator _mapGenerator;
 
@@ -26,7 +36,9 @@ namespace OzGameLab01.Managers
         {
             if (Instance != null && Instance != this)
             {
-                Destroy(gameObject);
+                // 중복 컴포넌트 때문에 Map처럼 다른 책임을 가진 오브젝트 전체가
+                // 삭제되지 않도록 이 컴포넌트만 제거합니다.
+                Destroy(this);
                 return;
             }
 
@@ -64,7 +76,7 @@ namespace OzGameLab01.Managers
 
             Destroy(_globalDimOverlay.GetComponent<Collider>());
 
-            _globalDimOverlay.GetComponent<MeshRenderer>().material = stencilReaderMaterial;
+            _globalDimOverlay.GetComponent<MeshRenderer>().sharedMaterial = stencilReaderMaterial;
             _globalDimOverlay.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             _globalDimOverlay.transform.localScale = Vector3.one;
 
@@ -92,57 +104,162 @@ namespace OzGameLab01.Managers
             // MapManager를 사용하지 않고
             // BoardPlayerController -> BoardMovementModel -> BoardPathfinder를 통해
             // 이동 가능한 노드를 가져옵니다.
-            IReadOnlyList<MapNode> reachableNodes =
-                player.GetReachableNodes();
+            IReadOnlyDictionary<MapNode, int> reachableNodes =
+                player.GetReachableNodeDistances();
 
-            if (reachableNodes == null || reachableNodes.Count == 0)
+            if (reachableNodes == null)
             {
                 ClearMoveRange();
                 return;
             }
 
-            DrawMoveRange(reachableNodes);
+            DrawMoveRange(reachableNodes, player.CurrentNode);
         }
 
         /// <summary>
-        /// 이동 가능한 노드 위치에 마스크를 생성합니다.
+        /// 현재 위치와 이동 가능한 노드에는 스텐실 마스크를 만들고,
+        /// 이동 거리에 따라 단계적으로 암전 강도를 높입니다.
         /// </summary>
-        private void DrawMoveRange(IReadOnlyList<MapNode> reachableNodes)
+        private void DrawMoveRange(
+            IReadOnlyDictionary<MapNode, int> reachableNodes,
+            MapNode currentNode)
         {
             ClearMoveRange();
 
-            if (reachableNodes == null || reachableNodes.Count == 0 ||
+            if (reachableNodes == null || currentNode == null ||
                 stencilWriterMaterial == null || stencilReaderMaterial == null)
             {
                 return;
             }
 
             ResolveMapGenerator();
-            CalculateBoardLayout(reachableNodes, out Bounds boardBounds, out float drawingPlaneY);
-
-            foreach (MapNode node in reachableNodes)
+            List<MapNode> visibleNodes = new List<MapNode>(reachableNodes.Count + 1)
             {
-                if (node == null)
+                currentNode
+            };
+
+            int maximumReachableDistance = 0;
+            foreach (KeyValuePair<MapNode, int> pair in reachableNodes)
+            {
+                if (pair.Key == null || pair.Key == currentNode)
                 {
                     continue;
                 }
 
-                ResolveTileFootprint(node, out Vector3 tileCenter, out Vector2 tileSize, out _);
-
-                GameObject mask = GameObject.CreatePrimitive(PrimitiveType.Quad);
-                mask.name = $"TileMask_{node.Position.x}_{node.Position.y}";
-
-                Destroy(mask.GetComponent<Collider>());
-                mask.GetComponent<MeshRenderer>().material = stencilWriterMaterial;
-
-                mask.transform.position = new Vector3(tileCenter.x, drawingPlaneY, tileCenter.z);
-                mask.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-                mask.transform.localScale = new Vector3(tileSize.x, tileSize.y, 1f);
-
-                _activeTileMasks.Add(mask);
+                visibleNodes.Add(pair.Key);
+                maximumReachableDistance = Mathf.Max(maximumReachableDistance, pair.Value);
             }
 
-            ConfigureGlobalOverlay(boardBounds, drawingPlaneY + surfaceOffset);
+            CalculateBoardLayout(visibleNodes, out Bounds boardBounds, out float drawingPlaneY);
+
+            foreach (MapNode node in visibleNodes)
+            {
+                CreateTileOverlay(node, drawingPlaneY, stencilWriterMaterial, 0f, "TileMask");
+            }
+
+            if (maximumReachableDistance > 0)
+            {
+                Material reachableMaterial = GetReachableDimMaterial();
+                foreach (KeyValuePair<MapNode, int> pair in reachableNodes)
+                {
+                    if (pair.Key == null || pair.Key == currentNode || pair.Value <= 0)
+                    {
+                        continue;
+                    }
+
+                    float dimAlpha = CalculateReachableDimAlpha(
+                        pair.Value,
+                        maximumReachableDistance);
+                    if (dimAlpha > 0.001f)
+                    {
+                        CreateTileOverlay(
+                            pair.Key,
+                            drawingPlaneY,
+                            reachableMaterial,
+                            dimAlpha,
+                            "ReachableGradient");
+                    }
+                }
+            }
+
+            // 마스크와 오버레이를 같은 평면에 두어 기울어진 카메라에서도
+            // 스텐실 구멍과 실제 타일 위치가 어긋나지 않게 합니다.
+            ConfigureGlobalOverlay(boardBounds, drawingPlaneY);
+        }
+
+        private void CreateTileOverlay(
+            MapNode node,
+            float drawingPlaneY,
+            Material material,
+            float colorAlpha,
+            string objectName)
+        {
+            ResolveTileFootprint(node, out Vector3 tileCenter, out Vector2 tileSize, out _);
+
+            GameObject overlay = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            overlay.name = $"{objectName}_{node.Position.x}_{node.Position.y}";
+            Destroy(overlay.GetComponent<Collider>());
+
+            MeshRenderer renderer = overlay.GetComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            if (colorAlpha > 0f)
+            {
+                Color color = stencilReaderMaterial.HasProperty("_Color")
+                    ? stencilReaderMaterial.GetColor("_Color")
+                    : Color.black;
+                color.a = colorAlpha;
+                MaterialPropertyBlock properties = new MaterialPropertyBlock();
+                properties.SetColor("_Color", color);
+                renderer.SetPropertyBlock(properties);
+            }
+
+            overlay.transform.position = new Vector3(tileCenter.x, drawingPlaneY, tileCenter.z);
+            overlay.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
+            overlay.transform.localScale = new Vector3(tileSize.x, tileSize.y, 1f);
+            _activeTileMasks.Add(overlay);
+        }
+
+        private Material GetReachableDimMaterial()
+        {
+            if (_reachableDimMaterial != null)
+            {
+                return _reachableDimMaterial;
+            }
+
+            int baseRenderQueue = stencilReaderMaterial.renderQueue;
+            if (baseRenderQueue < 0 && stencilReaderMaterial.shader != null)
+            {
+                baseRenderQueue = stencilReaderMaterial.shader.renderQueue;
+            }
+
+            _reachableDimMaterial = new Material(stencilReaderMaterial)
+            {
+                name = "MoveRangeReachableGradient",
+                renderQueue = Mathf.Max(0, baseRenderQueue) + 1
+            };
+            _reachableDimMaterial.SetFloat("_StencilComp", (float)CompareFunction.Always);
+            return _reachableDimMaterial;
+        }
+
+        private float CalculateReachableDimAlpha(int distance, int maximumDistance)
+        {
+            float unavailableAlpha = stencilReaderMaterial.HasProperty("_Color")
+                ? stencilReaderMaterial.GetColor("_Color").a
+                : 0.7f;
+            float maximumReachableAlpha = Mathf.Min(
+                farthestReachableDimAlpha,
+                Mathf.Max(0f, unavailableAlpha - minimumUnavailableAlphaGap));
+            float minimumReachableAlpha = Mathf.Min(
+                nearestReachableDimAlpha,
+                maximumReachableAlpha);
+
+            if (maximumDistance <= 1)
+            {
+                return minimumReachableAlpha;
+            }
+
+            float gradient = Mathf.InverseLerp(1f, maximumDistance, distance);
+            return Mathf.Lerp(minimumReachableAlpha, maximumReachableAlpha, gradient);
         }
 
         private void ResolveMapGenerator()
@@ -203,7 +320,7 @@ namespace OzGameLab01.Managers
         {
             float spacing = _mapGenerator != null
                 ? Mathf.Max(0.01f, Mathf.Abs(_mapGenerator.tileSpacing))
-                : 1f;
+                : 2f;
 
             center = new Vector3(node.Position.x * spacing, 0f, node.Position.y * spacing);
             size = new Vector2(spacing, spacing);
@@ -312,6 +429,12 @@ namespace OzGameLab01.Managers
 
         private void OnDestroy()
         {
+            if (_reachableDimMaterial != null)
+            {
+                Destroy(_reachableDimMaterial);
+                _reachableDimMaterial = null;
+            }
+
             if (Instance == this)
             {
                 Instance = null;
