@@ -19,7 +19,7 @@ namespace OzGameLab01.Combat
     {
         [SerializeField] private Transform unitsRoot;
         [SerializeField] private Vector3 enemyPosition = new Vector3(4.5f, 0f, 0f);
-        [SerializeField] private string enemyPrefabResourceName = "Characters/Enemy_Melee";
+        [SerializeField] private string enemyPrefabResourceName = "Characters/EnemyTemplate";
         [SerializeField] private float enemyScale = 3f;
 
         [Tooltip("모든 아군이 공유하는 프리팹입니다. Instantiate 후 UnitData로 Configure()하여 실제 유닛으로 만듭니다. 프리팹 루트는 비활성 상태여야 합니다(Configure가 Awake보다 먼저 실행되어야 하므로).")]
