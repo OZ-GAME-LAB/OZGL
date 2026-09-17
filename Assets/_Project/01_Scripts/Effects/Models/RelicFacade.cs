@@ -23,10 +23,9 @@ namespace OzGameLab01.Effects.Models
             remove => _notifications.Notification -= value;
         }
 
-        private readonly RelicCollectionModel<RelicRuntimeInstance> _relics = new RelicCollectionModel<RelicRuntimeInstance>();
-        private readonly EffectListenerRegistry _listeners = new EffectListenerRegistry();
+        private readonly RelicCollectionModel<RelicData> _relics = new RelicCollectionModel<RelicData>();
 
-        public IReadOnlyList<RelicRuntimeInstance> OwnedRelics => _relics.Items;
+        public IReadOnlyList<RelicData> OwnedRelics => _relics.Items;
 
         /// <summary>
         /// GameDB의 ID 기반 유물 획득
@@ -42,11 +41,8 @@ namespace OzGameLab01.Effects.Models
                 return;
             }
 
-            // 2. 런타임 인스턴스 생성, 장착
-            var newInstance = new RelicRuntimeInstance(relicData);
-            _relics.Add(newInstance);
-
-            newInstance.OnEquip();
+            // 2. 보유 목록에 추가하고 효과 캐시를 갱신
+            _relics.Add(relicData);
             RuntimeEffectManager.Instance.Facade.RefreshFromPlayerState();
 
             SystemBus.Get<SaveFacade>()?.MarkAsDirty();
@@ -61,9 +57,9 @@ namespace OzGameLab01.Effects.Models
         public RelicData AcquireRandomRelic()
         {
             List<int> ownedIds = new List<int>();
-            foreach (RelicRuntimeInstance owned in OwnedRelics)
+            foreach (RelicData owned in OwnedRelics)
             {
-                if (owned?.Data != null) ownedIds.Add(owned.Data.id);
+                if (owned != null) ownedIds.Add(owned.id);
             }
             RelicData picked = RelicSelectionModel.Select(RuntimeDataManager.Instance.Relics,
                 ownedIds, count => UnityEngine.Random.Range(0, count), () => UnityEngine.Random.value);
@@ -86,9 +82,7 @@ namespace OzGameLab01.Effects.Models
                 RelicData data = RuntimeDataManager.Instance.GetRelic(entry.relicId);
                 if (data == null) continue;
 
-                var runtime = new RelicRuntimeInstance(data);
-                _relics.Add(runtime);
-                runtime.OnEquip();
+                _relics.Add(data);
             }
 
             RuntimeEffectManager.Instance.Facade.RefreshFromPlayerState();
@@ -107,34 +101,13 @@ namespace OzGameLab01.Effects.Models
         private void ClearRunStateCore()
         {
             _relics.Clear();
-            _listeners.ClearAllListeners();
             RuntimeEffectManager.Instance.Facade.RefreshFromPlayerState();
-        }
-
-        /// <summary>
-        /// 유물 분류 메서드
-        /// </summary>
-        /// <param name="instance"></param>
-        public void RegisterRuntimeRelic(RelicRuntimeInstance instance)
-        {
-            _listeners.RegisterListener(instance?.Logic);
-        }
-
-        public void DispatchAttack()
-        {
-            _listeners.DispatchAttack();
-        }
-
-        public void DispatchDiceRoll()
-        {
-            _listeners.DispatchDiceRoll();
         }
 
         /// <summary>매니저 종료 시 대기 중인 알림과 리스너를 정리합니다.</summary>
         public void ClearSubscriptions()
         {
             _notifications.ClearSubscribers();
-            _listeners.ClearAllListeners();
         }
     }
 }

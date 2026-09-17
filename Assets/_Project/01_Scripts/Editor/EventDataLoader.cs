@@ -14,6 +14,13 @@ namespace OzGameLab01.Editor
             string dbPath = "Assets/_Project/05_Data/ChoiceEvent/EventDB.asset";
 
             EventDB eventDB = AssetDatabase.LoadAssetAtPath<EventDB>(dbPath);
+            if (eventDB == null)
+            {
+                Debug.LogError($"[EventDataLoader] EventDB를 찾을 수 없습니다: {dbPath}");
+                return;
+            }
+
+            eventDB.DeleteDB();
 
             string[] guids = AssetDatabase.FindAssets("t:EventSO", new[] { "Assets/_Project/05_Data/ChoiceEvent" });
 
@@ -24,11 +31,12 @@ namespace OzGameLab01.Editor
                 string assetPath = AssetDatabase.GUIDToAssetPath(guids[i]);
 
                 EventSO tempSO = AssetDatabase.LoadAssetAtPath<EventSO>(assetPath);
-
-                if (tempSO != null && !eventList.ContainsKey(tempSO.id))
+                if (tempSO == null || string.IsNullOrWhiteSpace(tempSO.id) || eventList.ContainsKey(tempSO.id))
                 {
-                    eventList.Add(tempSO.id, tempSO);
+                    continue;
                 }
+
+                eventList.Add(tempSO.id, tempSO);
 
                 if (tempSO.eventCategory == EventCategory.Choice)
                 {
@@ -53,12 +61,13 @@ namespace OzGameLab01.Editor
                         break;
                 }
 
-                if (eventDB.SetEvent(eventList))
-                {
-                    Debug.Log("[EventDataLoader] 이벤트 DB 삽입");
-                }
+            }
+
+            if (eventDB.SetEvent(eventList))
+            {
                 EditorUtility.SetDirty(eventDB);
                 AssetDatabase.SaveAssets();
+                Debug.Log($"[EventDataLoader] 이벤트 DB 삽입 완료: {eventList.Count}개");
             }
         }
 
@@ -68,9 +77,16 @@ namespace OzGameLab01.Editor
             string dbPath = "Assets/_Project/05_Data/ChoiceEvent/EventDB.asset";
 
             EventDB eventDB = AssetDatabase.LoadAssetAtPath<EventDB>(dbPath);
+            if (eventDB == null)
+            {
+                Debug.LogError($"[EventDataLoader] EventDB를 찾을 수 없습니다: {dbPath}");
+                return;
+            }
 
             if (eventDB.DeleteDB())
             {
+                EditorUtility.SetDirty(eventDB);
+                AssetDatabase.SaveAssets();
                 Debug.Log("[EventDataLoader] 이벤트 DB 삭제");
             }
         }

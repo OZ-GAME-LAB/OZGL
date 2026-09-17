@@ -57,17 +57,17 @@ namespace OzGameLab01.Effects.Models
             }
 
             RelicFacade relicFacade = RelicManager.Instance.Facade;
-            foreach (RelicRuntimeInstance relic in relicFacade.OwnedRelics)
+            foreach (RelicData relic in relicFacade.OwnedRelics)
             {
-                if (relic?.Data == null)
+                if (relic == null)
                 {
                     continue;
                 }
 
                 AddSourceEffects(sources,
                     RuntimeEffectManager.EffectSourceKind.Relic,
-                    relic.Data.id,
-                    relic.Data.effects);
+                    relic.id,
+                    relic.effects);
             }
 
             _cache.Rebuild(sources);
