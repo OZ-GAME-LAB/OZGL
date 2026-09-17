@@ -26,7 +26,7 @@ namespace OzGameLab01.Board.Views
             _settledPosition = position;
             if (tokenPrefab != null && _token == null)
             {
-                _token = Object.Instantiate(
+                _token = UnityEngine.Object.Instantiate(
                     tokenPrefab,
                     position,
                     tokenPrefab.transform.rotation,
