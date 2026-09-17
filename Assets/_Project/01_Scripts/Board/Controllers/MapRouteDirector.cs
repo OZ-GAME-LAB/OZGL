@@ -145,7 +145,33 @@ namespace OzGameLab01.Map
             if (BoardRunData.IsBossDefeated)
             {
                 ClearHighlight();
+                BoardRunData.ClearObjective();
                 return;
+            }
+
+            NodeType targetType = BoardRunData.DefeatedElitesCount >= eliteCount
+                ? NodeType.Boss
+                : NodeType.Elite;
+
+            // Continue 저장과는 분리된 실행 세션 상태입니다. 일반 전투에서 돌아왔다면
+            // 아직 소비되지 않은 기존 목표를 같은 좌표에 먼저 복원합니다.
+            if (BoardRunData.HasObjective)
+            {
+                if (mapGenerator.NodeDict.TryGetValue(
+                        BoardRunData.ObjectivePosition,
+                        out MapNode savedNode) &&
+                    !BoardRunData.IsSpecialTileConsumed(savedNode.Position) &&
+                    (savedNode.Type == NodeType.Normal || savedNode.Type == targetType))
+                {
+                    if (currentObjective != savedNode || savedNode.Type != targetType)
+                    {
+                        SetObjective(savedNode, targetType);
+                    }
+
+                    return;
+                }
+
+                BoardRunData.ClearObjective();
             }
 
             List<Vector2Int> consumed = new List<Vector2Int>();
@@ -186,6 +212,7 @@ namespace OzGameLab01.Map
             targetNode.Type = targetType;
             mapGenerator.ReplaceTileVisual(targetNode);
             currentObjective = targetNode;
+            BoardRunData.SaveObjectivePosition(targetNode.Position);
 
             GameObject targetView = mapGenerator.GetNodeView(targetNode);
             if (highlightPrefab != null && targetView != null)

@@ -24,6 +24,8 @@ namespace OzGameLab01.Board.Models
         }
         public int TurnCount { get; private set; }
         public int DefeatedElitesCount { get; private set; }
+        public bool HasObjective { get; private set; }
+        public Vector2Int ObjectivePosition { get; private set; }
         public bool IsEliteBattle { get; private set; }
         public event System.Action OnBattleCompleted; // 전투 종료 알림 이벤트
         public void BeginNewRun(int seed)
@@ -138,6 +140,16 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = Mathf.Max(0, actionPoints);
         }
+        public void SaveObjectivePosition(Vector2Int position)
+        {
+            HasObjective = true;
+            ObjectivePosition = position;
+        }
+        public void ClearObjective()
+        {
+            HasObjective = false;
+            ObjectivePosition = Vector2Int.zero;
+        }
         public void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false)
         {
             CurrentBattlePosition = battlePosition;
@@ -162,6 +174,13 @@ namespace OzGameLab01.Board.Models
             }
 
             if (IsEliteBattle) DefeatedElitesCount++; // 엘리트전 카운트 증가!
+
+            // 일반 전투에서는 목표를 유지하고, 목표 전투가 끝났을 때만 해제합니다.
+            if (IsEliteBattle || IsBossBattle ||
+                (HasObjective && ObjectivePosition == CurrentBattlePosition))
+            {
+                ClearObjective();
+            }
             
             HasCurrentBattle = false;
             IsBossBattle = false;
@@ -211,6 +230,7 @@ namespace OzGameLab01.Board.Models
             _consumedSpecialTilePositions.Clear();
 
             DefeatedElitesCount = 0;
+            ClearObjective();
 
             // [추가] 이전 런의 씬 객체가 남긴 전투 완료 구독 정보 초기화
             OnBattleCompleted = null;
