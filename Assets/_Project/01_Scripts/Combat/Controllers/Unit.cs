@@ -6,6 +6,11 @@ using OzGameLab01.Managers;
 using OzGameLab01.Data;
 using OzGameLab01.UI.Battle;
 
+/// <summary>
+/// [Skill 데이터 모델 변형]
+/// - 414번 코드 주석 처리 
+/// </summary>
+
 namespace OzGameLab01.Combat
 {
     public class Unit : MonoBehaviour
@@ -406,7 +411,7 @@ namespace OzGameLab01.Combat
 
             if (target != null && !target.IsDead)
             {
-                FireProjectile(target, skill.data.damage * skill.damageMultiplier);
+                //FireProjectile(target, skill.data.damage * skill.damageMultiplier);
                 target._status.Apply(skill.data.debuff);
 
                 // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).

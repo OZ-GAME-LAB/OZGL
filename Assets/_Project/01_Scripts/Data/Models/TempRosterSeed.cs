@@ -1,6 +1,10 @@
 using System.Collections.Generic;
 using OzGameLab01.Combat;
 
+/// <summary>
+/// Skill 데이터 모델 수정에 의한 주석 처리
+/// </summary>
+
 namespace OzGameLab01.Data
 {
     /// <summary>
@@ -37,64 +41,64 @@ namespace OzGameLab01.Data
         [System.Obsolete("SILENCE_SKILL_ID 사용")]
         public const int SilenceSkillId = SILENCE_SKILL_ID;
 
-        public static SkillData CreateUnitBasicAttackSkill()
-        {
-            return new SkillData
-            {
-                id = UNIT_BASIC_ATTACK_SKILL_ID,
-                name = "Temp_Basic",
-                damage = 10f,
-                cooldown = 1f,
-            };
-        }
+        //public static SkillData CreateUnitBasicAttackSkill()
+        //{
+        //    return new SkillData
+        //    {
+        //        id = UNIT_BASIC_ATTACK_SKILL_ID,
+        //        name = "Temp_Basic",
+        //        damage = 10f,
+        //        cooldown = 1f,
+        //    };
+        //}
 
-        public static SkillData CreateDotSkill()
-        {
-            return new SkillData
-            {
-                id = DOT_SKILL_ID,
-                name = "Temp_DoT",
-                damage = 8f,
-                cooldown = 4f,
-                debuff = new DebuffProfile { type = DebuffType.DamageOverTime, duration = 4f, magnitude = 5f, tickInterval = 1f },
-            };
-        }
+        //public static SkillData CreateDotSkill()
+        //{
+        //    return new SkillData
+        //    {
+        //        id = DOT_SKILL_ID,
+        //        name = "Temp_DoT",
+        //        damage = 8f,
+        //        cooldown = 4f,
+        //        debuff = new DebuffProfile { type = DebuffType.DamageOverTime, duration = 4f, magnitude = 5f, tickInterval = 1f },
+        //    };
+        //}
 
-        public static SkillData CreateStunSkill()
-        {
-            return new SkillData
-            {
-                id = STUN_SKILL_ID,
-                name = "Temp_Stun",
-                damage = 6f,
-                cooldown = 5f,
-                debuff = new DebuffProfile { type = DebuffType.Stun, duration = 1.5f },
-            };
-        }
+        //public static SkillData CreateStunSkill()
+        //{
+        //    return new SkillData
+        //    {
+        //        id = STUN_SKILL_ID,
+        //        name = "Temp_Stun",
+        //        damage = 6f,
+        //        cooldown = 5f,
+        //        debuff = new DebuffProfile { type = DebuffType.Stun, duration = 1.5f },
+        //    };
+        //}
 
-        public static SkillData CreateAttackDownSkill()
-        {
-            return new SkillData
-            {
-                id = ATTACK_DOWN_SKILL_ID,
-                name = "Temp_AttackDown",
-                damage = 8f,
-                cooldown = 5f,
-                debuff = new DebuffProfile { type = DebuffType.AttackDown, duration = 4f, magnitude = 0.3f },
-            };
-        }
+        //public static SkillData CreateAttackDownSkill()
+        //{
+        //    return new SkillData
+        //    {
+        //        id = ATTACK_DOWN_SKILL_ID,
+        //        name = "Temp_AttackDown",
+        //        damage = 8f,
+        //        cooldown = 5f,
+        //        debuff = new DebuffProfile { type = DebuffType.AttackDown, duration = 4f, magnitude = 0.3f },
+        //    };
+        //}
 
-        public static SkillData CreateSilenceSkill()
-        {
-            return new SkillData
-            {
-                id = SILENCE_SKILL_ID,
-                name = "Temp_Silence",
-                damage = 6f,
-                cooldown = 6f,
-                debuff = new DebuffProfile { type = DebuffType.Silence, duration = 3f },
-            };
-        }
+        //public static SkillData CreateSilenceSkill()
+        //{
+        //    return new SkillData
+        //    {
+        //        id = SILENCE_SKILL_ID,
+        //        name = "Temp_Silence",
+        //        damage = 6f,
+        //        cooldown = 6f,
+        //        debuff = new DebuffProfile { type = DebuffType.Silence, duration = 3f },
+        //    };
+        //}
 
         /// <summary>
         /// UnitRosterData.OnEnable()이 skillDefinitions에 주입하는 전체 임시 스킬 목록입니다.
@@ -103,11 +107,11 @@ namespace OzGameLab01.Data
         {
             return new List<SkillData>
             {
-                CreateUnitBasicAttackSkill(),
-                CreateDotSkill(),
-                CreateStunSkill(),
-                CreateAttackDownSkill(),
-                CreateSilenceSkill(),
+                //CreateUnitBasicAttackSkill(),
+                //CreateDotSkill(),
+                //CreateStunSkill(),
+                //CreateAttackDownSkill(),
+                //CreateSilenceSkill(),
             };
         }
     }
