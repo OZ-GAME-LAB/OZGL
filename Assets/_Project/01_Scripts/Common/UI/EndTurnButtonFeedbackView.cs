@@ -1,4 +1,5 @@
-using DG.Tweening;
+﻿using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -7,11 +8,25 @@ namespace OzGameLab01.UI
     [DisallowMultipleComponent]
     public sealed class EndTurnButtonFeedbackView : MonoBehaviour
     {
+        public enum TurnActionPointState
+        {
+            Waiting,       // Before rolling: show the icon without a highlight.
+            Unused,
+            PartiallyUsed,
+            Depleted
+        }
+
         [Header("References")]
         [SerializeField] private Transform attentionVisual;
         [SerializeField] private Graphic attentionGraphic;
         [SerializeField] private CanvasGroup highlight;
         [SerializeField] private Image iconImage;
+
+        [SerializeField] private TMP_Text actionPointText;
+
+        [SerializeField] private Color unusedColor = new Color(0.65f, 1f, 0.25f, 1f);
+        [SerializeField] private Color partiallyUsedColor = new Color(1f, 0.65f, 0.2f, 1f);
+        [SerializeField] private Color depletedColor = new Color(1f, 0.2f, 0.2f, 1f);
 
         [Header("Attention")]
         [SerializeField, Min(1f)] private float attentionScale = 1.08f;
@@ -22,16 +37,15 @@ namespace OzGameLab01.UI
         [SerializeField, Min(0f)] private float transitionDuration = 0.25f;
         [SerializeField] private Ease transitionEase = Ease.OutCubic;
 
-        [Header("Icon Rotation")]
-        [SerializeField, Min(0.1f)] private float iconRotationDuration = 8f;
-
         private Vector3 normalScale;
         private Color normalColor;
-        private Quaternion normalIconRotation;
 
         private Sequence transitionSequence;
-        private Tween iconRotationTween;
         private bool initialized;
+        private bool hasActionPointState;
+
+        public TurnActionPointState ActionPointState { get; private set; } = TurnActionPointState.Waiting;
+        public int RemainingPoints { get; private set; }
 
         #region Properties
 
@@ -55,19 +69,16 @@ namespace OzGameLab01.UI
         private void OnDisable()
         {
             StopTransition();
-            StopIconRotation();
 
             if (initialized)
             {
                 ApplyVisuals(normalScale, normalColor, 0f);
-                ResetIconRotation();
             }
         }
 
         private void OnDestroy()
         {
             StopTransition();
-            StopIconRotation();
         }
 
         #endregion
@@ -81,7 +92,6 @@ namespace OzGameLab01.UI
 
             normalScale = attentionVisual != null ? attentionVisual.localScale : Vector3.one;
             normalColor = attentionGraphic != null ? attentionGraphic.color : Color.white;
-            normalIconRotation = iconImage != null ? iconImage.rectTransform.localRotation : Quaternion.identity;
 
             if (highlight != null)
             {
@@ -104,10 +114,27 @@ namespace OzGameLab01.UI
         {
             Initialize();
 
+            // Once explicit states are supplied, legacy calls cannot overwrite them.
+            if (hasActionPointState)
+                return;
+
             if (IsAttentionActive == active && !immediate)
                 return;
 
             IsAttentionActive = active;
+            RefreshVisuals(immediate);
+        }
+
+        public void SetActionPointState(TurnActionPointState state, int remainingPoints, bool immediate = false)
+        {
+            Initialize();
+            if ((int)state < (int)TurnActionPointState.Waiting || (int)state > (int)TurnActionPointState.Depleted)
+                state = TurnActionPointState.Waiting;
+
+            hasActionPointState = true;
+            ActionPointState = state;
+            RemainingPoints = Mathf.Max(0, remainingPoints);
+            IsAttentionActive = state != TurnActionPointState.Waiting;
             RefreshVisuals(immediate);
         }
 
@@ -118,7 +145,6 @@ namespace OzGameLab01.UI
         private void RefreshVisuals(bool immediate)
         {
             StopTransition();
-            StopIconRotation();
 
             if (!isActiveAndEnabled)
                 return;
@@ -127,7 +153,27 @@ namespace OzGameLab01.UI
             Color targetColor = IsAttentionActive ? attentionColor : normalColor;
             float targetAlpha = IsAttentionActive ? highlightAlpha : 0f;
 
-            RefreshIconRotation(immediate);
+            if (hasActionPointState)
+            {
+                switch (ActionPointState)
+                {
+                    case TurnActionPointState.Unused: targetColor = unusedColor; break;
+                    case TurnActionPointState.PartiallyUsed: targetColor = partiallyUsedColor; break;
+                    case TurnActionPointState.Depleted: targetColor = depletedColor; break;
+                    default: targetColor = normalColor; break;
+                }
+            }
+
+            bool showNumber = hasActionPointState &&
+                (ActionPointState == TurnActionPointState.Unused ||
+                 ActionPointState == TurnActionPointState.PartiallyUsed);
+            if (actionPointText != null)
+            {
+                actionPointText.text = RemainingPoints.ToString();
+                actionPointText.gameObject.SetActive(showNumber);
+            }
+            if (iconImage != null)
+                iconImage.gameObject.SetActive(!showNumber);
 
             if (immediate || transitionDuration <= 0f)
             {
@@ -182,76 +228,24 @@ namespace OzGameLab01.UI
 
         #endregion
 
-        #region Icon Rotation
-
-        private void RefreshIconRotation(bool immediate)
-        {
-            if (iconImage == null)
-                return;
-
-            RectTransform iconTransform = iconImage.rectTransform;
-
-            if (IsAttentionActive)
-            {
-                iconRotationTween = iconTransform
-                    .DOLocalRotate(
-                        new Vector3(0f, 0f, -360f),
-                        Mathf.Max(0.1f, iconRotationDuration),
-                        RotateMode.LocalAxisAdd)
-                    .SetEase(Ease.Linear)
-                    .SetLoops(-1, LoopType.Restart)
-                    .SetUpdate(true);
-
-                return;
-            }
-
-            if (immediate || transitionDuration <= 0f)
-            {
-                ResetIconRotation();
-                return;
-            }
-
-            iconRotationTween = iconTransform
-                .DOLocalRotateQuaternion(
-                    normalIconRotation,
-                    transitionDuration)
-                .SetEase(transitionEase)
-                .SetUpdate(true);
-        }
-
-        private void ResetIconRotation()
-        {
-            if (iconImage != null)
-                iconImage.rectTransform.localRotation = normalIconRotation;
-        }
-
-        private void StopIconRotation()
-        {
-            if (iconRotationTween == null)
-                return;
-
-            iconRotationTween.Kill(false);
-            iconRotationTween = null;
-        }
-
-        #endregion
-
         #region Inspector Test
 
 #if UNITY_EDITOR
-        [ContextMenu("Preview/Attention On")]
-        private void PreviewAttentionOn()
+        [ContextMenu("Preview/Waiting")]
+        private void PreviewWaiting()
         {
             if (Application.isPlaying)
-                SetAttention(true);
+                SetActionPointState(TurnActionPointState.Waiting, 0);
         }
 
-        [ContextMenu("Preview/Attention Off")]
-        private void PreviewAttentionOff()
-        {
-            if (Application.isPlaying)
-                SetAttention(false);
-        }
+        [ContextMenu("Preview/Unused")]
+        private void PreviewUnused() { if (Application.isPlaying) SetActionPointState(TurnActionPointState.Unused, 6); }
+
+        [ContextMenu("Preview/Partially Used")]
+        private void PreviewPartiallyUsed() { if (Application.isPlaying) SetActionPointState(TurnActionPointState.PartiallyUsed, 3); }
+
+        [ContextMenu("Preview/Depleted")]
+        private void PreviewDepleted() { if (Application.isPlaying) SetActionPointState(TurnActionPointState.Depleted, 0); }
 #endif
 
         #endregion
