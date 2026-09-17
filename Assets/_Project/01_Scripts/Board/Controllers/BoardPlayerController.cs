@@ -60,11 +60,19 @@ namespace OzGameLab01.Controllers
         }
 
         public bool IsMoving => Model.IsMoving || _isFeedbackPlaying;
+        public MapNode CurrentNode => Model.CurrentNode;
 
         /// <summary>범위 표시는 현재 이동 모델의 판정 결과만 사용합니다.</summary>
         public IReadOnlyList<MapNode> GetReachableNodes()
         {
             return IsMoving ? Array.Empty<MapNode>() : Model.GetReachableNodes();
+        }
+
+        public IReadOnlyDictionary<MapNode, int> GetReachableNodeDistances()
+        {
+            return IsMoving
+                ? new Dictionary<MapNode, int>()
+                : Model.GetReachableNodeDistances();
         }
 
         public int CurrentDiceValue
