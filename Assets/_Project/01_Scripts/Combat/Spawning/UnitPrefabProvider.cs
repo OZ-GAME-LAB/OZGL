@@ -20,6 +20,12 @@ namespace OzGameLab01.Combat
 
             if (prefab == null)
             {
+                if (data != null && !string.IsNullOrEmpty(data.spriteAddress))
+                {
+                    Debug.LogWarning($"[UnitPrefabProvider] '{data.spriteAddress}' 캐릭터 프리팹이 " +
+                        $"Resources/Characters에 없어 폴백 프리팹으로 스폰합니다. (유닛 ID: {data.id})");
+                }
+
                 prefab = fallbackTemplate;
             }
 

@@ -61,10 +61,24 @@ namespace OzGameLab01.Combat
         // 도트/기절/그을림/침묵 디버프 상태는 UnitStatusEffects에 위임합니다.
         private UnitStatusEffects _status;
 
+        private void EnsureRuntimeComponents()
+        {
+            if (_presenter == null)
+            {
+                _presenter = new UnitPresenter(
+                    healthBar, spriteRenderer, projectilePrefab,
+                    skillNameLabel, skillNameDisplayDuration, team);
+            }
+
+            if (_status == null)
+            {
+                _status = new UnitStatusEffects();
+            }
+        }
+
         private void Awake()
         {
-            _presenter = new UnitPresenter(healthBar, spriteRenderer, projectilePrefab, skillNameLabel, skillNameDisplayDuration, team);
-            _status = new UnitStatusEffects();
+            EnsureRuntimeComponents();
             InitializeRuntimeState();
             CombatUnitRegistry.Register(this);
             _awakeInitialized = true;
@@ -347,6 +361,9 @@ namespace OzGameLab01.Combat
         /// </summary>
         public void BindCombatUI(RectTransform combatAnchor, Image combatImage, UIProjectilePool projectilePool)
         {
+            // Factory intentionally configures inactive instances before SetActive(true).
+            // Unity may defer Awake for those instances, so prepare the presenter lazily.
+            EnsureRuntimeComponents();
             _presenter.BindCombatUI(combatAnchor, combatImage, projectilePool);
         }
 
