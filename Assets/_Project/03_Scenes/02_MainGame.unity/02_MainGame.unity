@@ -2580,7 +2580,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1581548804}
-  - component: {fileID: 1581548802}
   - component: {fileID: 1581548805}
   m_Layer: 0
   m_Name: Map
@@ -2604,22 +2603,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1581548802
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1581548801}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cfd2cfbf38c27204f84bad1423f9fd40, type: 3}
-  m_Name:
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.BoardMoveRangeManager
-  stencilWriterMaterial: {fileID: 2100000, guid: bc2abfc037776564f86a564fbe485c66, type: 2}
-  stencilReaderMaterial: {fileID: 2100000, guid: 204e01c2cf50095429f1d0a555eb214b, type: 2}
-  surfaceOffset: 0.01
-  overlayPadding: 0.5
 --- !u!114 &1581548805
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2782,6 +2765,57 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1666192460
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1666192462}
+  - component: {fileID: 1666192461}
+  m_Layer: 0
+  m_Name: BoardMoveRangeManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1666192461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1666192460}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfd2cfbf38c27204f84bad1423f9fd40, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.BoardMoveRangeManager
+  stencilWriterMaterial: {fileID: 2100000, guid: bc2abfc037776564f86a564fbe485c66, type: 2}
+  stencilReaderMaterial: {fileID: 2100000, guid: 204e01c2cf50095429f1d0a555eb214b, type: 2}
+  surfaceOffset: 0.01
+  overlayPadding: 0.5
+  nearestReachableDimAlpha: 0
+  farthestReachableDimAlpha: 0.55
+  minimumUnavailableAlphaGap: 0.05
+--- !u!4 &1666192462
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1666192460}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1005.461, y: -0, z: 220.63376}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1701331395
 GameObject:
   m_ObjectHideFlags: 0
@@ -3016,8 +3050,8 @@ MonoBehaviour:
   _currentTheme: {fileID: 11400000, guid: e133a67e099fa81468db8371e2ad60ac, type: 2}
   totalNodeCount: 950
   maxRadius: 400
-  tileSpacing: 2.5
-  tileScaleMultiplier: 1
+  tileSpacing: 3.125
+  tileScaleMultiplier: 1.25
   animationDuration: 3
   noiseScale: 0.1
   edgeFalloffStrength: 0.8
@@ -3168,3 +3202,4 @@ SceneRoots:
   - {fileID: 884197078}
   - {fileID: 535087388}
   - {fileID: 277165896}
+  - {fileID: 1666192462}
