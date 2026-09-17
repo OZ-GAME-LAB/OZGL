@@ -353,6 +353,7 @@ namespace OzGameLab01.Combat
         /// </summary>
         public void SetVisualsVisible(bool visible)
         {
+            EnsureRuntimeComponents();
             _presenter.SetVisualsVisible(visible, gameObject);
         }
 
@@ -372,6 +373,7 @@ namespace OzGameLab01.Combat
         /// </summary>
         public void BindHud(AllyUnitCombatHUDView hud)
         {
+            EnsureRuntimeComponents();
             _presenter.BindHud(hud);
         }
 
