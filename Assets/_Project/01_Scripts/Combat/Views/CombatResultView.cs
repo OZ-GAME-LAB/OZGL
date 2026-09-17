@@ -19,8 +19,10 @@ namespace OzGameLab01.UI.Battle
         [SerializeField] private DpsInfoItemView dpsInfoItemPrefab;
         [SerializeField] private Button endBattleButton;
 
-        private readonly List<DpsInfoItemView> dpsInfoItems =
-            new List<DpsInfoItemView>();
+        [Header("Transition")]
+        [SerializeField] private OverlayTransitionView overlayTransition;
+
+        private readonly List<DpsInfoItemView> dpsInfoItems = new ();
 
         #region Properties
 
@@ -62,11 +64,34 @@ namespace OzGameLab01.UI.Battle
 
         public void Show()
         {
+            if (overlayTransition != null)
+            {
+                overlayTransition.Show();
+                return;
+            }
+
             gameObject.SetActive(true);
         }
 
         public void Hide()
         {
+            if (overlayTransition != null)
+            {
+                overlayTransition.Hide();
+                return;
+            }
+
+            gameObject.SetActive(false);
+        }
+
+        public void HideImmediate()
+        {
+            if (overlayTransition != null)
+            {
+                overlayTransition.HideImmediate();
+                return;
+            }
+
             gameObject.SetActive(false);
         }
 

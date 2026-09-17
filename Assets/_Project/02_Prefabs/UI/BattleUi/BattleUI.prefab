@@ -528,6 +528,7 @@ MonoBehaviour:
   rewardChoicesRoot: {fileID: 5479192780025531351}
   rewardOptionItemPrefab: {fileID: 5049877452618313111, guid: f0fb4f0970c7b5745a803d8cf8ea1ca0, type: 3}
   configuredRewards: []
+  overlayTransition: {fileID: 7204657788198887361}
 --- !u!225 &2000208493061001548
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -1458,6 +1459,7 @@ MonoBehaviour:
   dpsListRoot: {fileID: 3187478342486968321}
   dpsInfoItemPrefab: {fileID: 7217453161081030640, guid: f6b283b124d1f3045bbbf96cca006ab4, type: 3}
   endBattleButton: {fileID: 1656335887042690571}
+  overlayTransition: {fileID: 6443387500856709211}
 --- !u!225 &5853438971669254390
 CanvasGroup:
   m_ObjectHideFlags: 0
@@ -3160,8 +3162,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ENEMY NAME
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7113,18 +7115,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Synergy_Item
       objectReference: {fileID: 0}
-    - target: {fileID: 7003805975077444128, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 7265596491789513995, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
-      propertyPath: m_fontAsset
-      value: 
-      objectReference: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-    - target: {fileID: 7265596491789513995, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
-      propertyPath: m_sharedMaterial
-      value: 
-      objectReference: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
