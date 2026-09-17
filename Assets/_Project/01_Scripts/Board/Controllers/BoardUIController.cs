@@ -92,6 +92,9 @@ namespace OzGameLab01.Controllers
                     int initialTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
                     readySceneView.MainView.SetCurrentTurn(initialTurn);
                     readySceneView.MainView.SetClockHandAngle(BoardTurnRules.ClockAngle(BoardRunData.TurnCount));
+
+                    DiceSnapshot diceSnapshot = SystemBus.Messages.Request<DiceSnapshotRequested, DiceSnapshot>(default);
+                    readySceneView.MainView.SetEndTurnAttention(diceSnapshot.HasRolledThisTurn, true);
                 }
 
                 if (readySceneView.SettingsView != null)
@@ -275,6 +278,8 @@ namespace OzGameLab01.Controllers
             if (readySceneView == null)
                 return;
 
+            readySceneView.MainView?.SetEndTurnAttention(true);
+
             DiceRollView view = readySceneView.RollView;
 
             if (!isActiveAndEnabled || view == null || !view.IsVisible)
@@ -305,6 +310,7 @@ namespace OzGameLab01.Controllers
         // [수정됨] 턴이 종료되면 코루틴을 통해 1프레임 대기 후 UI를 업데이트합니다.
         private void HandleTurnEnded(int unusedActionPoints)
         {
+            readySceneView?.MainView?.SetEndTurnAttention(false);
             StartCoroutine(UpdateTurnUIRoutine());
         }
 

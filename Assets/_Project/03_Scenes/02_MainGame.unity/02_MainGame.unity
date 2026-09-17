@@ -318,7 +318,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 975896444162454282, guid: 63ccccfdeb7128540b23b3971e318873, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6718776190380385102, guid: 63ccccfdeb7128540b23b3971e318873, type: 3}
       propertyPath: m_Pivot.x
@@ -438,7 +438,7 @@ PrefabInstance:
       objectReference: {fileID: 1701331399}
     - target: {fileID: 9122125636353073244, guid: 63ccccfdeb7128540b23b3971e318873, type: 3}
       propertyPath: radiusScale
-      value: 0.76
+      value: 1.8
       objectReference: {fileID: 0}
     - target: {fileID: 9122125636353073244, guid: 63ccccfdeb7128540b23b3971e318873, type: 3}
       propertyPath: worldUnitsPerPresetUnit
@@ -1892,6 +1892,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BoardPlayerController
   _playerTokenPrefab: {fileID: 4785631077047780553, guid: beebf41a585c24d46b0897410005ca63, type: 3}
+  _spawnDropHeight: 8
+  _spawnAnimationDuration: 2
+  _spawnRotationSpeed: 720
+  _spawnRotationAxis: {x: 1, y: 0, z: 0}
   _currentDiceValue: 0
   _actionPowerHud: {fileID: 0}
   _moveSpeed: 5
@@ -2576,6 +2580,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1581548804}
+  - component: {fileID: 1581548802}
   - component: {fileID: 1581548805}
   m_Layer: 0
   m_Name: Map
@@ -2599,6 +2604,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1581548802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1581548801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfd2cfbf38c27204f84bad1423f9fd40, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.BoardMoveRangeManager
+  stencilWriterMaterial: {fileID: 2100000, guid: bc2abfc037776564f86a564fbe485c66, type: 2}
+  stencilReaderMaterial: {fileID: 2100000, guid: 204e01c2cf50095429f1d0a555eb214b, type: 2}
+  surfaceOffset: 0.01
+  overlayPadding: 0.5
 --- !u!114 &1581548805
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2995,7 +3016,7 @@ MonoBehaviour:
   _currentTheme: {fileID: 11400000, guid: e133a67e099fa81468db8371e2ad60ac, type: 2}
   totalNodeCount: 950
   maxRadius: 400
-  tileSpacing: 2.03
+  tileSpacing: 2.5
   tileScaleMultiplier: 1
   animationDuration: 3
   noiseScale: 0.1

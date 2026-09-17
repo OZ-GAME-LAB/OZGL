@@ -19,7 +19,9 @@ namespace OzGameLab01.Map
         }
 
         [SerializeField] private MeshRenderer _renderer;
-        private Color _originalColor;
+        [SerializeField] private SpriteRenderer _spriteRenderer;
+        private Color _originalMeshColor;
+        private Color _originalSpriteColor;
 
         public void Init(MapNode node)
         {
@@ -31,7 +33,17 @@ namespace OzGameLab01.Map
 
             if (_renderer != null)
             {
-                _originalColor = _renderer.material.color;
+                _originalMeshColor = _renderer.material.color;
+            }
+
+            if (_spriteRenderer == null)
+            {
+                _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+            }
+
+            if (_spriteRenderer != null)
+            {
+                _originalSpriteColor = _spriteRenderer.color;
             }
         }
 
@@ -60,22 +72,30 @@ namespace OzGameLab01.Map
 
         public void SetHighlight(bool isReachable)
         {
-            if (_renderer == null)
+            Color highlightColor = isReachable ? Color.cyan : Color.red;
+
+            if (_renderer != null)
             {
-                return;
+                _renderer.material.color = highlightColor;
             }
 
-            // 이동 가능하면 흰색, 불가능하면 붉은색
-            _renderer.material.color = isReachable ? Color.white : Color.red;
+            if (_spriteRenderer != null)
+            {
+                _spriteRenderer.color = highlightColor;
+            }
         }
 
         public void ResetHighlight()
         {
-            if (_renderer == null)
+            if (_renderer != null)
             {
-                return;
+                _renderer.material.color = _originalMeshColor;
             }
-            _renderer.material.color = _originalColor;
+
+            if (_spriteRenderer != null)
+            {
+                _spriteRenderer.color = _originalSpriteColor;
+            }
         }
     }
 }

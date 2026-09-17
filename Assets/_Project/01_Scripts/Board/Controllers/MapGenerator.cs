@@ -243,6 +243,7 @@ namespace OzGameLab01.Map
 
             if (OzGameLab01.Controllers.BoardPlayerController.Instance == null) return;
 
+            bool isInitialPlayerPlacement = !BoardRunData.HasPlayerPosition;
             Vector2Int targetPosition = BoardRunData.HasPlayerPosition ? BoardRunData.PlayerPosition : Vector2Int.zero;
 
             if (!_nodeDict.TryGetValue(targetPosition, out MapNode targetNode))
@@ -256,7 +257,9 @@ namespace OzGameLab01.Map
                 BoardRunData.SavePlayerPosition(targetPosition);
             }
 
-            OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(targetNode);
+            OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(
+                targetNode,
+                isInitialPlayerPlacement);
         }
 
         private Vector2Int GetStartNodePosition()
@@ -352,9 +355,18 @@ namespace OzGameLab01.Map
 
         private void ValidatePrefabs()
         {
-            if (_currentTheme.NormalPrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Normal");
-            if (_currentTheme.BossPrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Boss");
-            if (_currentTheme.BattlePrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Battle");
+            if (!BoardMapView.HasWeightedNormalPrefab(_currentTheme) && _currentTheme.NormalPrefab == null)
+                Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Normal");
+
+            if (_currentTheme.BossBasePrefab == null &&
+                _currentTheme.BossObjectPrefab == null &&
+                _currentTheme.BossPrefab == null)
+                Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Boss");
+
+            if (_currentTheme.BattleBasePrefab == null &&
+                _currentTheme.BattleObjectPrefab == null &&
+                _currentTheme.BattlePrefab == null)
+                Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Battle");
         }
 
         protected static bool IsObstacle(NodeType type)
