@@ -352,9 +352,18 @@ namespace OzGameLab01.Map
 
         private void ValidatePrefabs()
         {
-            if (_currentTheme.NormalPrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Normal");
-            if (_currentTheme.BossPrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Boss");
-            if (_currentTheme.BattlePrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Battle");
+            if (!BoardMapView.HasWeightedNormalPrefab(_currentTheme) && _currentTheme.NormalPrefab == null)
+                Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Normal");
+
+            if (_currentTheme.BossBasePrefab == null &&
+                _currentTheme.BossObjectPrefab == null &&
+                _currentTheme.BossPrefab == null)
+                Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Boss");
+
+            if (_currentTheme.BattleBasePrefab == null &&
+                _currentTheme.BattleObjectPrefab == null &&
+                _currentTheme.BattlePrefab == null)
+                Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Battle");
         }
 
         protected static bool IsObstacle(NodeType type)
