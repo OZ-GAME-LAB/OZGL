@@ -67,6 +67,8 @@ namespace OzGameLab01.Controllers
         }
 
         public event Action<MapNode> PlayerArrived;
+        public static event Action OnPlayerStartedMoving;
+        public static event Action OnPlayerFinishedMoving;
 
         private void Awake()
         {
@@ -152,6 +154,7 @@ namespace OzGameLab01.Controllers
             {
                 _hoveredTile?.ResetHighlight();
                 _hoveredTile = null;
+                OnPlayerStartedMoving?.Invoke();
                 StartCoroutine(MoveAlongPathRoutine(path));
             }
             else
@@ -182,6 +185,7 @@ namespace OzGameLab01.Controllers
             finally
             {
                 Model.CancelMovement();
+                OnPlayerFinishedMoving?.Invoke();
             }
             if (completed)
             {
