@@ -243,6 +243,7 @@ namespace OzGameLab01.Map
 
             if (OzGameLab01.Controllers.BoardPlayerController.Instance == null) return;
 
+            bool isInitialPlayerPlacement = !BoardRunData.HasPlayerPosition;
             Vector2Int targetPosition = BoardRunData.HasPlayerPosition ? BoardRunData.PlayerPosition : Vector2Int.zero;
 
             if (!_nodeDict.TryGetValue(targetPosition, out MapNode targetNode))
@@ -256,7 +257,9 @@ namespace OzGameLab01.Map
                 BoardRunData.SavePlayerPosition(targetPosition);
             }
 
-            OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(targetNode);
+            OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(
+                targetNode,
+                isInitialPlayerPlacement);
         }
 
         private Vector2Int GetStartNodePosition()

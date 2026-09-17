@@ -8,6 +8,7 @@ using OzGameLab01.Data;
 using OzGameLab01.Map;
 using OzGameLab01.UI;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace OzGameLab01.Controllers
 {
@@ -20,6 +21,15 @@ namespace OzGameLab01.Controllers
 
         [Header("Player Visuals")]
         [SerializeField] private GameObject _playerTokenPrefab;
+        [Header("New Game Spawn Presentation")]
+        [Tooltip("새 게임 최초 진입 시 플레이어 토큰이 떨어지기 시작하는 높이입니다.")]
+        [Min(0f)] [SerializeField] private float _spawnDropHeight = 8f;
+        [Tooltip("공중에서 스타트 노드까지 착지하는 데 걸리는 시간입니다.")]
+        [Min(0f)] [SerializeField] private float _spawnAnimationDuration = 2f;
+        [Tooltip("낙하 중 토큰이 초당 회전하는 각도입니다.")]
+        [Min(0f)] [SerializeField] private float _spawnRotationSpeed = 720f;
+        [Tooltip("토큰의 로컬 좌표계를 기준으로 한 회전축입니다.")]
+        [SerializeField] private Vector3 _spawnRotationAxis = Vector3.right;
         [Header("Player State")]
         // 기존 Inspector 직렬화 필드 호환용 표시 값
         [SerializeField] private int _currentDiceValue = 0;
@@ -35,6 +45,7 @@ namespace OzGameLab01.Controllers
         private TileView _hoveredTile;
         private bool _isFeedbackPlaying;
         private BoardDiceRequestAdapter _diceRequests;
+        private Coroutine _spawnAnimationRoutine;
 
         private BoardMovementModel Model
         {
@@ -82,7 +93,7 @@ namespace OzGameLab01.Controllers
             _diceRequests = new BoardDiceRequestAdapter(SystemBus.Messages);
         }
 
-        public void SetupPlayer(MapNode startNode)
+        public void SetupPlayer(MapNode startNode, bool playSpawnAnimation = false)
         {
             if (startNode == null)
             {
@@ -93,6 +104,62 @@ namespace OzGameLab01.Controllers
             _mapGenerator = FindFirstObjectByType<MapGenerator>();
             float spacing = _mapGenerator != null ? _mapGenerator.tileSpacing : 2f;
             _view.Setup(new Vector3(startNode.Position.x * spacing, 0.5f, startNode.Position.y * spacing), _playerTokenPrefab);
+
+            StopSpawnAnimation();
+            if (playSpawnAnimation && _spawnAnimationDuration > 0f && _spawnDropHeight > 0f)
+            {
+                _spawnAnimationRoutine = StartCoroutine(PlaySpawnAnimationRoutine());
+            }
+            else
+            {
+                _view.CompleteSpawnAnimation();
+            }
+        }
+
+        private IEnumerator PlaySpawnAnimationRoutine()
+        {
+            _isFeedbackPlaying = true;
+            bool canSkip = Mouse.current == null || !Mouse.current.leftButton.isPressed;
+
+            bool SkipRequested()
+            {
+                Mouse mouse = Mouse.current;
+                if (!canSkip)
+                {
+                    canSkip = mouse == null || !mouse.leftButton.isPressed;
+                    return false;
+                }
+
+                return mouse != null && mouse.leftButton.wasPressedThisFrame;
+            }
+
+            try
+            {
+                yield return _view.PlaySpawnAnimation(
+                    _spawnDropHeight,
+                    _spawnAnimationDuration,
+                    _spawnRotationSpeed,
+                    _spawnRotationAxis,
+                    SkipRequested);
+            }
+            finally
+            {
+                _view.CompleteSpawnAnimation();
+                _isFeedbackPlaying = false;
+                _spawnAnimationRoutine = null;
+            }
+        }
+
+        private void StopSpawnAnimation()
+        {
+            if (_spawnAnimationRoutine != null)
+            {
+                StopCoroutine(_spawnAnimationRoutine);
+                _spawnAnimationRoutine = null;
+            }
+
+            _view?.CompleteSpawnAnimation();
+            _isFeedbackPlaying = false;
         }
 
         private void RefreshActionPowerHud()
@@ -208,6 +275,7 @@ namespace OzGameLab01.Controllers
 
         private void OnDisable()
         {
+            StopSpawnAnimation();
             StopAllCoroutines();
             _view?.ResetPosition();
             _model?.CancelMovement();
