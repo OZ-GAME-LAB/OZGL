@@ -47,7 +47,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.CombatSession
   unitsRoot: {fileID: 0}
   enemyPosition: {x: 4.5, y: 0, z: 0}
-  enemyPrefabResourceName: Characters/Enemy_Melee
+  enemyPrefabResourceName: Characters/EnemyTemplate
   enemyScale: 3
   allyTemplatePrefab: {fileID: 0}
   allyHudPrefab: {fileID: 0}

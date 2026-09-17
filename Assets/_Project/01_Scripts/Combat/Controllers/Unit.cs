@@ -61,10 +61,24 @@ namespace OzGameLab01.Combat
         // 도트/기절/그을림/침묵 디버프 상태는 UnitStatusEffects에 위임합니다.
         private UnitStatusEffects _status;
 
+        private void EnsureRuntimeComponents()
+        {
+            if (_presenter == null)
+            {
+                _presenter = new UnitPresenter(
+                    healthBar, spriteRenderer, projectilePrefab,
+                    skillNameLabel, skillNameDisplayDuration, team);
+            }
+
+            if (_status == null)
+            {
+                _status = new UnitStatusEffects();
+            }
+        }
+
         private void Awake()
         {
-            _presenter = new UnitPresenter(healthBar, spriteRenderer, projectilePrefab, skillNameLabel, skillNameDisplayDuration, team);
-            _status = new UnitStatusEffects();
+            EnsureRuntimeComponents();
             InitializeRuntimeState();
             CombatUnitRegistry.Register(this);
             _awakeInitialized = true;
@@ -339,6 +353,7 @@ namespace OzGameLab01.Combat
         /// </summary>
         public void SetVisualsVisible(bool visible)
         {
+            EnsureRuntimeComponents();
             _presenter.SetVisualsVisible(visible, gameObject);
         }
 
@@ -347,6 +362,9 @@ namespace OzGameLab01.Combat
         /// </summary>
         public void BindCombatUI(RectTransform combatAnchor, Image combatImage, UIProjectilePool projectilePool)
         {
+            // Factory intentionally configures inactive instances before SetActive(true).
+            // Unity may defer Awake for those instances, so prepare the presenter lazily.
+            EnsureRuntimeComponents();
             _presenter.BindCombatUI(combatAnchor, combatImage, projectilePool);
         }
 
@@ -355,6 +373,7 @@ namespace OzGameLab01.Combat
         /// </summary>
         public void BindHud(AllyUnitCombatHUDView hud)
         {
+            EnsureRuntimeComponents();
             _presenter.BindHud(hud);
         }
 
@@ -365,12 +384,6 @@ namespace OzGameLab01.Combat
 
         private void FireProjectile(Unit target, float damage)
         {
-            // 아군이 공격할 때만 유물의 공격 트리거를 발동시킨다(유물은 플레이어 소유 시스템).
-            if (team == Team.Ally)
-            {
-                BattleEffectCoordinator.Instance?.DispatchAttack();
-            }
-
             // 그을림(공격력 감소) 디버프는 데미지 계산 시점에 반영한다.
             float effectiveDamage = damage * _status.AttackMultiplier;
 

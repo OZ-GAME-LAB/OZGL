@@ -261,16 +261,16 @@ namespace OzGameLab01.Save
             }
 
             int index = 0;
-            foreach (RelicRuntimeInstance relic in relicFacade.OwnedRelics)
+            foreach (RelicData relic in relicFacade.OwnedRelics)
             {
-                if (relic?.Data == null)
+                if (relic == null)
                 {
                     continue;
                 }
 
                 _state.CurrentData.relicSaveEntries.Add(new RelicSaveEntry
                 {
-                    relicId = relic.Data.id,
+                    relicId = relic.id,
                     relicIndex = index
                 });
                 index++;
