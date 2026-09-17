@@ -14,7 +14,10 @@ namespace OzGameLab01.UI.Battle
         [Header("References")]
         [SerializeField] private Transform rewardChoicesRoot;
         [SerializeField] private RewardOptionItemView rewardOptionItemPrefab;
-        [SerializeField] private List<BattleRewardData> configuredRewards = new ();
+        [SerializeField] private List<BattleRewardData> configuredRewards = new();
+
+        [Header("Transition")]
+        [SerializeField] private OverlayTransitionView overlayTransition;
 
         private readonly List<RewardOptionItemView> rewardOptions = new ();
 
@@ -56,11 +59,34 @@ namespace OzGameLab01.UI.Battle
 
         public void Show()
         {
+            if (overlayTransition != null)
+            {
+                overlayTransition.Show();
+                return;
+            }
+
             gameObject.SetActive(true);
         }
 
         public void Hide()
         {
+            if (overlayTransition != null)
+            {
+                overlayTransition.Hide();
+                return;
+            }
+
+            gameObject.SetActive(false);
+        }
+
+        public void HideImmediate()
+        {
+            if (overlayTransition != null)
+            {
+                overlayTransition.HideImmediate();
+                return;
+            }
+
             gameObject.SetActive(false);
         }
 

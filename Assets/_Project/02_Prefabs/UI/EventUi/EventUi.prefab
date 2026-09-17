@@ -978,8 +978,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: YOU CAN RECEIVE DIFFERENT EFFECTS DEPENDING ON THE OPTION YOU SELECT
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
+  m_sharedMaterial: {fileID: 1036409169839895773, guid: 265cd2a35ce9a6646b6aebf4f824f709, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1435,7 +1435,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f3a98d86677e08e4dac18cc95b9b1531, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Events.EventSession
   eventUIView: {fileID: 2599459832272954032}
   eventDB: {fileID: 11400000, guid: 588a0982a2813044aa2c71dbb1952ee3, type: 2}
@@ -1461,7 +1461,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 36c13b630094f104d85e92abfdeea6be, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.OverlayTransitionView
   rootGroup: {fileID: 1286095641504349637}
   dimmerGroup: {fileID: 7385615779326195782}
