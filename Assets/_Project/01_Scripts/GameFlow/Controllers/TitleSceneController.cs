@@ -2,6 +2,7 @@ using OzGameLab01.Managers;
 using OzGameLab01.Save;
 using OzGameLab01.UI.Title;
 using UnityEngine;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {

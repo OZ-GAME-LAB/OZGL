@@ -8,6 +8,7 @@ using OzGameLab01.UI;
 using OzGameLab01.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {

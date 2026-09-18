@@ -3,6 +3,7 @@ using UnityEngine;
 using OzGameLab01.Data;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Events.Contracts;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Events
 {

@@ -7,6 +7,7 @@ using TMPro;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
 using OzGameLab01.Map;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {

@@ -1,14 +1,13 @@
 using System.Collections.Generic;
-using OzGameLab01.Controllers;
 using OzGameLab01.Map;
 using UnityEngine;
 using UnityEngine.Rendering;
 
-namespace OzGameLab01.Managers
+namespace OzGameLab01.Controllers
 {
-    public class BoardMoveRangeManager : MonoBehaviour
+    public class BoardMoveRangeController : MonoBehaviour
     {
-        public static BoardMoveRangeManager Instance { get; private set; }
+        public static BoardMoveRangeController Instance { get; private set; }
 
         [Header("Materials")]
         public Material stencilWriterMaterial;

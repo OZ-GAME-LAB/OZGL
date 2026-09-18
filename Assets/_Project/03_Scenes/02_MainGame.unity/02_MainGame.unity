@@ -285,6 +285,7 @@ MonoBehaviour:
   boardCamera: {fileID: 1701331399}
   boardPlayerController: {fileID: 778086451}
   boardPlane: {fileID: 1930314712}
+  boardSceneController: {fileID: 0}
 --- !u!4 &277165896
 Transform:
   m_ObjectHideFlags: 0
@@ -2800,7 +2801,7 @@ GameObject:
   - component: {fileID: 1666192462}
   - component: {fileID: 1666192461}
   m_Layer: 0
-  m_Name: BoardMoveRangeManager
+  m_Name: BoardMoveRangeController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2816,7 +2817,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: cfd2cfbf38c27204f84bad1423f9fd40, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Managers.BoardMoveRangeManager
   stencilWriterMaterial: {fileID: 2100000, guid: bc2abfc037776564f86a564fbe485c66, type: 2}
   stencilReaderMaterial: {fileID: 2100000, guid: 204e01c2cf50095429f1d0a555eb214b, type: 2}

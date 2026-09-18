@@ -1,5 +1,4 @@
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -73,7 +72,6 @@ namespace OzGameLab01.UI.Battle
         {
             gameObject.SetActive(false);
         }
-              
 
         /// <summary>
         /// 현재 배속에 맞는 아이콘을 표시합니다.

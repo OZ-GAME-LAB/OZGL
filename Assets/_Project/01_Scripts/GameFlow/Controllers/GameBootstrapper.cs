@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using OzGameLab01.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Managers
 {

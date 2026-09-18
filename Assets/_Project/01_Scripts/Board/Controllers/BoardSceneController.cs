@@ -10,6 +10,7 @@ using UnityEngine;
 using OzGameLab01.Board.Models;
 using OzGameLab01.Board.Views;
 using OzGameLab01.Board.Controllers;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {

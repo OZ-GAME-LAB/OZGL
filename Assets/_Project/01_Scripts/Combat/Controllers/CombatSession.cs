@@ -5,6 +5,7 @@ using OzGameLab01.Effects.Models;
 using OzGameLab01.Managers;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Combat
 {

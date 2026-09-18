@@ -1,5 +1,6 @@
 using OzGameLab01.Data;
 using OzGameLab01.Player;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Combat
 {
