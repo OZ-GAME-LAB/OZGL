@@ -3,19 +3,23 @@ Shader "Custom/MoveRange/StencilReader"
     Properties
     {
         _Color ("Overlay Color", Color) = (0, 0, 0, 0.7) // 반투명 검은색
+        [HideInInspector] _StencilComp ("Stencil Comparison", Float) = 6
     }
     SubShader
     {
-        // StencilWriter가 도장을 다 찍은 후(Geometry)에 그려지도록 설정
-        Tags { "Queue"="Geometry" "RenderType"="Transparent" }
+        // 기본 Transparent 큐의 SpriteRenderer보다 나중에 그려야
+        // 타일이 암전 오버레이 위에 다시 그려지지 않습니다.
+        Tags { "Queue"="Transparent+100" "RenderType"="Transparent" }
         
         Blend SrcAlpha OneMinusSrcAlpha // 반투명 블렌딩 허용
         ZWrite Off
+        ZTest Always
+        Cull Off
 
         Stencil
         {
             Ref 1
-            Comp NotEqual // 핵심: 스텐실 버퍼 값이 '1'이 아닌 곳에만 그려라!
+            Comp [_StencilComp]
         }
 
         Pass

@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using TMPro;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
 using OzGameLab01.UI.Settings;
 using OzGameLab01.Combat;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Managers;
+using OzGameLab01.Save;
 
 namespace OzGameLab01.Controllers
 {
@@ -49,6 +49,14 @@ namespace OzGameLab01.Controllers
                 _controlView = battleUIView.GetComponentInChildren<CombatControlView>(true);
                 _timerView = battleUIView.GetComponentInChildren<CombatTimerView>(true);
             }
+        }
+
+        // 전투 진입 시 마지막 저장 배속 및 버튼 표시 복원
+        private void Start()
+        {
+            _isFastForward = SystemBus.Get<SaveFacade>()?.CurrentData?.combatFastForward ?? false;
+            combatSceneController?.SetFastForward(_isFastForward);
+            UpdateSpeedDisplay(_controlView);
         }
 
         private void OnEnable()
@@ -135,7 +143,8 @@ namespace OzGameLab01.Controllers
 
         #region 버튼 클릭 이벤트 처리
 
-        private void HandleSpeedClicked(CombatControlView view)
+        // 배속 변경 즉시 저장을 위한 비동기 처리
+        private async void HandleSpeedClicked(CombatControlView view)
         {
             _isFastForward = !_isFastForward; // 상태 토글 (1배속 <-> 2배속)
 
@@ -145,15 +154,21 @@ namespace OzGameLab01.Controllers
                 combatSceneController.SetFastForward(_isFastForward);
             }
 
-            // 버튼의 텍스트가 있다면 업데이트 해줍니다. (버튼 내부에 TMP_Text가 있다고 가정)
-            if (view != null && view.SpeedButton != null)
+            UpdateSpeedDisplay(view);
+
+            // 씬 전환 및 게임 재실행에 사용할 마지막 전투 배속 저장
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+
+            if (saveFacade != null)
             {
-                TMP_Text buttonText = view.SpeedButton.GetComponentInChildren<TMP_Text>();
-                if (buttonText != null)
-                {
-                    buttonText.text = _isFastForward ? "2" : "1";
-                }
+                await saveFacade.SetCombatFastForwardAsync(_isFastForward);
             }
+        }
+
+        // 전투 진입 및 배속 변경 시 버튼 표시 동기화
+        private void UpdateSpeedDisplay(CombatControlView view)
+        {
+            view?.SetSpeedVisual(_isFastForward);            
         }
 
         private void HandleSettingsClicked(CombatControlView view)

@@ -23,24 +23,70 @@ namespace OzGameLab01.Dice
             _global = global;
             _roll = roll;
             _rollRegistration = local.Handle<DiceRollRequested, DiceRollResult>(HandleRoll);
-            _snapshotRegistration = local.Handle<DiceSnapshotRequested, DiceSnapshot>(_ => new DiceSnapshot(_state.HasRolledThisTurn));
+            _snapshotRegistration =
+                local.Handle<DiceSnapshotRequested, DiceSnapshot>(_ =>
+                {
+                    BoardDiceSnapshot board =
+                        _global.Request<BoardDiceStateRequested, BoardDiceSnapshot>(default);
+                    bool hasRolled = _state.HasRolledThisTurn || board.HasRolledThisTurn;
+                    return new DiceSnapshot(hasRolled);
+                });
             _resetRegistration = local.Handle<DiceResetRequested, bool>(_ => { _state.ResetTurn(); return true; });
         }
 
         private DiceRollResult HandleRoll(DiceRollRequested request)
         {
-            BoardDiceSnapshot board = _global.Request<BoardDiceStateRequested, BoardDiceSnapshot>(new BoardDiceStateRequested());
-            if (!board.Available) return new DiceRollResult(0, DiceRollFailure.BoardUnavailable);
-            if (_state.HasRolledThisTurn) return new DiceRollResult(0, DiceRollFailure.AlreadyRolled);
-            if (board.IsMoving || board.RemainingValue > 0) return new DiceRollResult(0, DiceRollFailure.MovementPending);
+            BoardDiceSnapshot board =
+                _global.Request<BoardDiceStateRequested, BoardDiceSnapshot>(default);
+
+            if (!board.Available)
+            {
+                return new DiceRollResult(
+                    0,
+                    DiceRollFailure.BoardUnavailable);
+            }
+
+            if (_state.HasRolledThisTurn || board.HasRolledThisTurn)
+            {
+                return new DiceRollResult(
+                    0,
+                    DiceRollFailure.AlreadyRolled);
+            }
+
+            if (board.IsMoving || board.RemainingValue > 0)
+            {
+                return new DiceRollResult(
+                    0,
+                    DiceRollFailure.MovementPending);
+            }
+
             int value = _roll();
-            // 보드가 변경 알림을 내보내기 전에 주사위 상태를 확정한다.
+
             _state.MarkRolled();
+
             bool applied;
-            try { applied = _global.Request<BoardDiceValueRequested, bool>(new BoardDiceValueRequested(value)); }
-            catch { _state.ResetTurn(); throw; }
-            if (!applied) { _state.ResetTurn(); return new DiceRollResult(0, DiceRollFailure.MovementPending); }
+            try
+            {
+                applied = _global.Request<BoardDiceValueRequested, bool>(
+                    new BoardDiceValueRequested(value));
+            }
+            catch
+            {
+                _state.ResetTurn();
+                throw;
+            }
+
+            if (!applied)
+            {
+                _state.ResetTurn();
+
+                return new DiceRollResult(
+                    0,
+                    DiceRollFailure.MovementPending);
+            }
+
             _local.Publish(new DiceRolled(value));
+
             return new DiceRollResult(value);
         }
 

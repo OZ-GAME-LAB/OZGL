@@ -95,6 +95,15 @@ namespace OzGameLab01.UI
         /// </summary>
         public void SetAnchor(RectTransform anchor)
         {
+            SetAnchor(anchor,Vector2.zero);
+        }
+
+
+        /// <summary>
+        /// 지정한 RectTransform의 중앙 위치에 추가 오프셋을 적용합니다.
+        /// </summary>
+        public void SetAnchor(RectTransform anchor,Vector2 anchoredOffset)
+        {
             if (anchor == null ||
                 rootRect == null ||
                 rootCanvas == null ||
@@ -117,7 +126,7 @@ namespace OzGameLab01.UI
                 return;
             }
 
-            SetPosition(localPosition);
+            SetPosition(localPosition + anchoredOffset);
         }
 
 

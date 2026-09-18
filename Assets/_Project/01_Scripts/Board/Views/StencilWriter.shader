@@ -2,11 +2,14 @@ Shader "Custom/MoveRange/StencilWriter"
 {
     SubShader
     {
-        // 일반 렌더링(Geometry)보다 아주 살짝 먼저 그려지도록 큐 설정
-        Tags { "Queue"="Geometry-1" "RenderType"="Opaque" }
+        // SpriteRenderer(기본 Transparent 큐)까지 모두 그려진 뒤,
+        // 암전 오버레이 직전에 스텐실 영역을 기록합니다.
+        Tags { "Queue"="Transparent+99" "RenderType"="Opaque" }
         
         ColorMask 0 // 핵심: 화면에 어떠한 픽셀(색상)도 그리지 않음
         ZWrite Off  // 깊이 값도 쓰지 않음
+        ZTest Always
+        Cull Off
 
         Stencil
         {

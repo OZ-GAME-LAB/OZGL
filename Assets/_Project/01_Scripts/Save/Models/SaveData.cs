@@ -14,6 +14,7 @@ namespace OzGameLab01.Save
         public int posX;                                // 포지션 X값
         public int posY;                                // 포지션 Y값
         public long playTime;                           // 플레이타임
+        public bool combatFastForward;                  // 마지막 전투 배속 여부, 새 게임 기본값 1배속
 
         // [추가] New Game과 Continue에서 사용하는 런 전용 저장 데이터
         public BoardRunSaveData boardRun;
@@ -58,6 +59,8 @@ namespace OzGameLab01.Save
         public bool isBossBattle;
         public bool isEliteBattle;
         public bool isBossDefeated;
+        public bool hasRolledThisTurn;
+        public int rolledDiceValue;
         public int remainingDiceValue; // 저장 시점의 이동 가능한 잔여 주사위 눈금
         public int unusedActionPoints; // 턴 종료시 남은 행동력
         public int turnCount;

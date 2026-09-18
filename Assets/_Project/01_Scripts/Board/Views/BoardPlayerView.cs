@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -11,6 +12,7 @@ namespace OzGameLab01.Board.Views
         private readonly Transform _transform;
         private GameObject _token;
         private Vector3 _settledPosition;
+        private Quaternion _tokenLandingLocalRotation;
 
         public BoardPlayerView(Transform playerTransform)
         {
@@ -24,9 +26,78 @@ namespace OzGameLab01.Board.Views
             _settledPosition = position;
             if (tokenPrefab != null && _token == null)
             {
-                _token = Object.Instantiate(tokenPrefab, position, Quaternion.identity, _transform);
+                _token = UnityEngine.Object.Instantiate(
+                    tokenPrefab,
+                    position,
+                    tokenPrefab.transform.rotation,
+                    _transform);
                 _token.transform.localPosition = Vector3.zero;
+                _tokenLandingLocalRotation = _token.transform.localRotation;
             }
+        }
+
+        public IEnumerator PlaySpawnAnimation(
+            float dropHeight,
+            float duration,
+            float rotationSpeed,
+            Vector3 rotationAxis,
+            Func<bool> skipRequested)
+        {
+            if (_token == null)
+            {
+                yield break;
+            }
+
+            Transform tokenTransform = _token.transform;
+            Vector3 startLocalPosition = Vector3.up * Mathf.Max(0f, dropHeight);
+            Vector3 axis = rotationAxis.sqrMagnitude > 0.0001f
+                ? rotationAxis.normalized
+                : Vector3.right;
+
+            tokenTransform.localPosition = startLocalPosition;
+            tokenTransform.localRotation = _tokenLandingLocalRotation;
+
+            float animationDuration = Mathf.Max(0.0001f, duration);
+            float elapsed = 0f;
+            while (elapsed < animationDuration)
+            {
+                if (skipRequested != null && skipRequested())
+                {
+                    yield break;
+                }
+
+                elapsed += Time.unscaledDeltaTime;
+                float progress = Mathf.Clamp01(elapsed / animationDuration);
+                float fallProgress = progress * progress;
+                tokenTransform.localPosition = Vector3.LerpUnclamped(
+                    startLocalPosition,
+                    Vector3.zero,
+                    fallProgress);
+
+                Quaternion spinningRotation = _tokenLandingLocalRotation *
+                                              Quaternion.AngleAxis(rotationSpeed * elapsed, axis);
+                float landingBlend = Mathf.SmoothStep(
+                    0f,
+                    1f,
+                    Mathf.InverseLerp(0.8f, 1f, progress));
+                tokenTransform.localRotation = Quaternion.Slerp(
+                    spinningRotation,
+                    _tokenLandingLocalRotation,
+                    landingBlend);
+
+                yield return null;
+            }
+        }
+
+        public void CompleteSpawnAnimation()
+        {
+            if (_token == null)
+            {
+                return;
+            }
+
+            _token.transform.localPosition = Vector3.zero;
+            _token.transform.localRotation = _tokenLandingLocalRotation;
         }
 
         public IEnumerator MoveTo(Vector3 target, float speed)

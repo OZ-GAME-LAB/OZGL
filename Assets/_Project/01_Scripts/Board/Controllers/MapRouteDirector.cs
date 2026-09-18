@@ -10,49 +10,19 @@ namespace OzGameLab01.Map
     /// <summary>
     /// 절차적으로 생성된 보드 위에 '중간 보스 -> 최종 보스' 진행 경로를 후처리로 배치합니다.
     ///
-    /// 기존 MapGenerator를 수정하지 않고 NodeDict와 ReplaceTileVisual만 사용합니다.
-    /// 보드 목표 선정과 화면 갱신의 단일 진입점
-
+    /// MapGenerator의 정적 타일 생성과 분리해 목표 선정과 화면 갱신만 담당합니다.
+    /// 보드 목표 디렉팅의 단일 진입점입니다.
     /// </summary>
     [DisallowMultipleComponent]
     public sealed class MapRouteDirector : MonoBehaviour
     {
         [Header("References")]
         [SerializeField] private MapGenerator mapGenerator;
+        [SerializeField] private BoardRouteProfile routeProfile;
         [SerializeField] private GameObject highlightPrefab;
-
-        [Header("Progress")]
-        [Tooltip("최종 보스 전에 처치해야 하는 중간 보스 수입니다.")]
-        [Min(0)] [SerializeField] private int eliteCount = 3;
 
         [Tooltip("맵 생성 애니메이션이 끝난 뒤 목표를 배치하기까지의 추가 대기 시간입니다.")]
         [Min(0f)] [SerializeField] private float objectiveSpawnDelay = 0.5f;
-
-        [Header("Leg Distance (tile hops)")]
-        [Tooltip("현재 목표/플레이어 위치에서 다음 중간 보스까지의 최소 그래프 거리입니다.")]
-        [Min(1)] [SerializeField] private int minimumEliteLegDistance = 10;
-
-        [Tooltip("현재 목표/플레이어 위치에서 다음 중간 보스까지의 최대 그래프 거리입니다.")]
-        [Min(1)] [SerializeField] private int maximumEliteLegDistance = 18;
-
-        [Tooltip("최종 보스가 직전 중간 보스에 너무 붙지 않도록 보장하는 최소 거리입니다.")]
-        [Min(1)] [SerializeField] private int minimumBossLegDistance = 10;
-
-        [Tooltip("남은 중간 보스와 최종 보스를 배치할 공간이 부족한 후보를 피하기 위한 여유 거리입니다.")]
-        [Range(0f, 1f)] [SerializeField] private float futureRouteReserveRatio = 0.6f;
-
-        [Header("Route Scoring")]
-        [Tooltip("중간 보스 후보가 최종 보스를 향해 전진할수록 받는 가중치입니다.")]
-        [Min(0f)] [SerializeField] private float forwardProgressWeight = 1.5f;
-
-        [Tooltip("갈림길 및 주변 타일이 있는 후보를 선호하는 가중치입니다.")]
-        [Min(0f)] [SerializeField] private float explorationOpportunityWeight = 1.2f;
-
-        [Tooltip("중간 보스마다 좌/우 방향을 번갈아 선호하는 정도입니다. 강제가 아닌 가산점입니다.")]
-        [Min(0f)] [SerializeField] private float sideAlternationWeight = 2f;
-
-        [Tooltip("최종 보스로 가는 최단 경로에서 과도하게 벗어나는 후보의 감점입니다.")]
-        [Min(1f)] [SerializeField] private float maximumDetourRatio = 1.6f;
 
         [Header("Highlight")]
         [SerializeField] private float highlightHeight = 2f;
@@ -142,10 +112,42 @@ namespace OzGameLab01.Map
                 return;
             }
 
+            if (routeProfile == null)
+            {
+                Debug.LogError("[MapRouteDirector] BoardRouteProfile이 할당되지 않았습니다.", this);
+                return;
+            }
+
             if (BoardRunData.IsBossDefeated)
             {
                 ClearHighlight();
+                BoardRunData.ClearObjective();
                 return;
+            }
+
+            NodeType targetType = BoardRunData.DefeatedElitesCount >= routeProfile.RequiredEliteCount
+                ? NodeType.Boss
+                : NodeType.Elite;
+
+            // Continue 저장과는 분리된 실행 세션 상태입니다. 일반 전투에서 돌아왔다면
+            // 아직 소비되지 않은 기존 목표를 같은 좌표에 먼저 복원합니다.
+            if (BoardRunData.HasObjective)
+            {
+                if (mapGenerator.NodeDict.TryGetValue(
+                        BoardRunData.ObjectivePosition,
+                        out MapNode savedNode) &&
+                    !BoardRunData.IsSpecialTileConsumed(savedNode.Position) &&
+                    (savedNode.Type == NodeType.Normal || savedNode.Type == targetType))
+                {
+                    if (currentObjective != savedNode || savedNode.Type != targetType)
+                    {
+                        SetObjective(savedNode, targetType);
+                    }
+
+                    return;
+                }
+
+                BoardRunData.ClearObjective();
             }
 
             List<Vector2Int> consumed = new List<Vector2Int>();
@@ -156,18 +158,7 @@ namespace OzGameLab01.Map
                     consumed.Add(node.Position);
                 }
             }
-            BoardRouteSettings settings = new BoardRouteSettings
-            {
-                eliteCount = eliteCount,
-                minimumEliteLegDistance = minimumEliteLegDistance,
-                maximumEliteLegDistance = maximumEliteLegDistance,
-                minimumBossLegDistance = minimumBossLegDistance,
-                futureRouteReserveRatio = futureRouteReserveRatio,
-                forwardProgressWeight = forwardProgressWeight,
-                explorationOpportunityWeight = explorationOpportunityWeight,
-                sideAlternationWeight = sideAlternationWeight,
-                maximumDetourRatio = maximumDetourRatio,
-            };
+            BoardRouteSettings settings = routeProfile.CreateSettings();
             BoardRouteModel model = new BoardRouteModel(mapGenerator.NodeDict, consumed, BoardRunData.DefeatedElitesCount, settings);
             BoardRouteDecision decision = model.SelectNext(BoardRunData.HasPlayerPosition, BoardRunData.PlayerPosition);
             if (decision.Status != BoardRouteStatus.MissingStart) { finalBossNode = decision.Boss; }
@@ -186,6 +177,7 @@ namespace OzGameLab01.Map
             targetNode.Type = targetType;
             mapGenerator.ReplaceTileVisual(targetNode);
             currentObjective = targetNode;
+            BoardRunData.SaveObjectivePosition(targetNode.Position);
 
             GameObject targetView = mapGenerator.GetNodeView(targetNode);
             if (highlightPrefab != null && targetView != null)
@@ -196,7 +188,7 @@ namespace OzGameLab01.Map
             Debug.Log(
                 $"[MapRouteDirector] 다음 목표 배치 | Type: {targetType}, " +
                 $"Position: {targetNode.Position}, " +
-                $"Defeated Elites: {BoardRunData.DefeatedElitesCount}/{eliteCount}",
+                $"Defeated Elites: {BoardRunData.DefeatedElitesCount}/{routeProfile.RequiredEliteCount}",
                 this);
         }
 

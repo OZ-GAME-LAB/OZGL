@@ -1,3 +1,4 @@
+using OzGameLab01.Board.Models;
 using OzGameLab01.UI;
 using UnityEngine;
 
@@ -23,9 +24,36 @@ namespace OzGameLab01.Controllers
         [Tooltip("보드 평면의 위치와 방향을 제공할 Transform입니다. MapGenerator 오브젝트를 연결할 수 있습니다.")]
         [SerializeField] private Transform boardPlane;
 
+        [Header("Time Of Day")]
+        [Tooltip("현재 보드 시간대를 제공하는 컨트롤러입니다.")]
+        [SerializeField] private BoardSceneController boardSceneController;
+
+        private void OnEnable()
+        {
+            ResolveBoardSceneController();
+
+            if (boardSceneController != null)
+            {
+                boardSceneController.TimeOfDayChanged += HandleTimeOfDayChanged;
+            }
+        }
+
         private void Start()
         {
             Bind();
+
+            if (boardSceneController != null)
+            {
+                ApplyTimeOfDay(boardSceneController.CurrentTimeOfDay, true);
+            }
+        }
+
+        private void OnDisable()
+        {
+            if (boardSceneController != null)
+            {
+                boardSceneController.TimeOfDayChanged -= HandleTimeOfDayChanged;
+            }
         }
 
         /// <summary>
@@ -42,6 +70,41 @@ namespace OzGameLab01.Controllers
                 boardCamera,
                 boardPlayerController.transform,
                 boardPlane);
+        }
+
+        private void ResolveBoardSceneController()
+        {
+            if (boardSceneController == null)
+            {
+                boardSceneController = FindFirstObjectByType<BoardSceneController>();
+            }
+        }
+
+        private void HandleTimeOfDayChanged(BoardTimeOfDay timeOfDay)
+        {
+            ApplyTimeOfDay(timeOfDay, false);
+        }
+
+        private void ApplyTimeOfDay(BoardTimeOfDay timeOfDay, bool immediate)
+        {
+            if (boardSightEffectView == null)
+            {
+                return;
+            }
+
+            BoardSightState targetState = timeOfDay switch
+            {
+                BoardTimeOfDay.Noon => BoardSightState.State2,
+                BoardTimeOfDay.Night => BoardSightState.State3,
+                _ => BoardSightState.State1
+            };
+
+            if (boardSightEffectView.CurrentState == targetState)
+            {
+                return;
+            }
+
+            boardSightEffectView.SetState(targetState, immediate);
         }
 
         private bool ValidateReferences()

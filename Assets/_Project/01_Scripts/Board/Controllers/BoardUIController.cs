@@ -1,4 +1,5 @@
 using System;
+using DG.Tweening;
 using UnityEngine;
 using OzGameLab01.Dice.Contracts;
 using OzGameLab01.Board.Models;
@@ -7,6 +8,7 @@ using TMPro;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
 using OzGameLab01.Map;
+using OzGameLab01.Board.Contracts;
 
 namespace OzGameLab01.Controllers
 {
@@ -27,11 +29,33 @@ namespace OzGameLab01.Controllers
         public BoardCameraController boardCameraController;
 
         [Header("Turn Sequence")]
-        [SerializeField] private MapGenerator mapGenerator;
-        [Min(0f)] [SerializeField] private float autoRollViewOpenDelay = 0.5f;
-        [Min(0f)] [SerializeField] private float timeOfDayFeedbackDuration = 1.5f;
+        [Tooltip("끄면 턴 시작 시 RollView를 자동으로 열지 않습니다. 튜토리얼 Step 등에서 RequestRollViewOpen을 호출해 열 수 있습니다.")]
+        [SerializeField] private bool automaticRollViewEnabled = true;
+        [Min(0f)][SerializeField] private float autoRollViewOpenDelay = 0.5f;
+        [Min(0f)][SerializeField] private float timeOfDayFeedbackDuration = 1.5f;
         [SerializeField] private string nightMessage = "Night Has Come";
+        [SerializeField] private string noonMessage = "Noon Has Come";
         [SerializeField] private string dayMessage = "Day Has Come";
+
+        [Header("Clock Rotation (Bow String Anim)")]
+        [Tooltip("비워두면 MainView 하위에서 RotatingVisual 오브젝트를 자동으로 찾습니다.")]
+        [SerializeField] private RectTransform clockRotatingVisual;
+        [SerializeField] private float dayClockAngle = 45f;
+        [SerializeField] private float nightClockAngle = 220f;
+        
+        [Header("1. Catch (덜컥)")]
+        [SerializeField] private float catchAngleOffset = 15f;
+        [SerializeField, Min(0f)] private float catchDuration = 0.1f;
+        [SerializeField] private Ease catchEase = Ease.OutQuint;
+
+        [Header("2. Pullback (시위 당김)")]
+        [SerializeField] private float pullbackAngleOffset = -30f;
+        [SerializeField, Min(0f)] private float pullbackDuration = 0.6f;
+        [SerializeField] private Ease pullbackEase = Ease.InOutSine;
+
+        [Header("3. Shoot (발사)")]
+        [SerializeField, Min(0f)] private float shootDuration = 0.4f;
+        [SerializeField] private Ease shootEase = Ease.OutBack;
 
         [Header("Settings")]
         public float rollViewCloseDelay = 1.0f;
@@ -39,10 +63,11 @@ namespace OzGameLab01.Controllers
 
         private Coroutine _automaticRollViewRoutine;
         private Coroutine _timeOfDayFeedbackRoutine;
-        private bool _isMapPresentationReady;
         private BoardFeedbackView _feedbackView;
         private System.IDisposable _diceSubscription;
+        private Sequence _clockRotationSequence;
         private bool _started;
+
 
         public static event Action OnRollViewClosed;
         private void Awake()
@@ -54,27 +79,28 @@ namespace OzGameLab01.Controllers
         {
             _started = true;
             BindEvents();
+            ScheduleAutomaticRollView();
         }
 
         private void OnEnable()
         {
-            if (_started) { BindEvents(); }
+            if (_started)
+            {
+                BindEvents();
+                ScheduleAutomaticRollView();
+            }
         }
 
         private void BindEvents()
         {
             if (mapRouteDirector == null) mapRouteDirector = FindFirstObjectByType<MapRouteDirector>();
             if (boardCameraController == null) boardCameraController = FindFirstObjectByType<BoardCameraController>();
-            if (mapGenerator == null) mapGenerator = FindFirstObjectByType<MapGenerator>();
-
-            if (mapGenerator != null)
-            {
-                mapGenerator.PresentationCompleted += HandleMapPresentationCompleted;
-            }
 
             _ = Managers.DiceManager.Instance.Facade; // 씬 직접 실행 시 시스템 구성
             _diceSubscription?.Dispose();
             _diceSubscription = SystemBus.Messages.Subscribe<DiceRolled>(message => HandleDiceRolled(message.Value));
+            BoardPlayerController.OnPlayerFinishedMoving -= HandlePlayerFinishedMoving;
+            BoardPlayerController.OnPlayerFinishedMoving += HandlePlayerFinishedMoving;
 
             if (readySceneView != null)
             {
@@ -91,7 +117,9 @@ namespace OzGameLab01.Controllers
                     // [수정됨] 시작할 때 "현재 플레이 중인 턴(경과 턴 + 1)"을 표시합니다.
                     int initialTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
                     readySceneView.MainView.SetCurrentTurn(initialTurn);
-                    readySceneView.MainView.SetClockHandAngle(BoardTurnRules.ClockAngle(BoardRunData.TurnCount));
+                    ApplyInitialClockRotation();
+
+                    RefreshEndTurnFeedback(true);
                 }
 
                 if (readySceneView.SettingsView != null)
@@ -110,31 +138,24 @@ namespace OzGameLab01.Controllers
             {
                 boardSceneController.TurnEnded += HandleTurnEnded;
                 boardSceneController.NightReached += HandleNightReached;
+                boardSceneController.NoonReached += HandleNoonReached;
                 boardSceneController.DayReached += HandleDayReached;
                 boardSceneController.PlayerTurnReady += HandlePlayerTurnReady;
             }
 
-            // 즉시 생성 경로는 MapGenerator.Start에서 먼저 완료될 수 있습니다.
-            if (mapGenerator != null && mapGenerator.IsPresentationComplete)
-            {
-                HandleMapPresentationCompleted();
-            }
         }
 
         private void OnDisable()
         {
             StopAllCoroutines();
+            StopClockRotation();
             _automaticRollViewRoutine = null;
             _timeOfDayFeedbackRoutine = null;
-            _isMapPresentationReady = false;
             _feedbackView?.HideWarning();
-            if (mapGenerator != null)
-            {
-                mapGenerator.PresentationCompleted -= HandleMapPresentationCompleted;
-            }
 
             _diceSubscription?.Dispose();
             _diceSubscription = null;
+            BoardPlayerController.OnPlayerFinishedMoving -= HandlePlayerFinishedMoving;
 
             if (readySceneView != null)
             {
@@ -165,6 +186,7 @@ namespace OzGameLab01.Controllers
             {
                 boardSceneController.TurnEnded -= HandleTurnEnded;
                 boardSceneController.NightReached -= HandleNightReached;
+                boardSceneController.NoonReached -= HandleNoonReached;
                 boardSceneController.DayReached -= HandleDayReached;
                 boardSceneController.PlayerTurnReady -= HandlePlayerTurnReady;
             }
@@ -177,7 +199,7 @@ namespace OzGameLab01.Controllers
             bool isActive = !readySceneView.RollView.IsVisible;
             if (isActive)
             {
-                if (!_isMapPresentationReady || _timeOfDayFeedbackRoutine != null)
+                if (_timeOfDayFeedbackRoutine != null)
                 {
                     return;
                 }
@@ -194,6 +216,36 @@ namespace OzGameLab01.Controllers
             {
                 readySceneView.HideRollView();
             }
+        }
+
+        /// <summary>
+        /// 자동 표시 설정과 무관하게 RollView 표시를 요청합니다.
+        /// 플레이어 등장·이동 연출 중이면 입력 가능한 상태가 될 때까지 기다립니다.
+        /// </summary>
+        public void RequestRollViewOpen(Action onOpened = null)
+        {
+            CancelAutomaticRollView();
+
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
+
+            RollViewOpenResult immediateResult = TryOpenRollViewInternal();
+
+            if (immediateResult == RollViewOpenResult.Opened)
+            {
+                onOpened?.Invoke();
+                return;
+            }
+
+            if (immediateResult == RollViewOpenResult.Blocked)
+            {
+                return;
+            }
+
+            _automaticRollViewRoutine =
+                StartCoroutine(OpenRollViewWhenAvailableRoutine(0f, onOpened));
         }
 
         private void HandleUnitButtonClicked(ReadyMainView view)
@@ -271,6 +323,7 @@ namespace OzGameLab01.Controllers
         private void HandleDiceRolled(int diceValue)
         {
             CancelAutomaticRollView();
+            RefreshEndTurnFeedback();
 
             if (readySceneView == null)
                 return;
@@ -305,7 +358,16 @@ namespace OzGameLab01.Controllers
         // [수정됨] 턴이 종료되면 코루틴을 통해 1프레임 대기 후 UI를 업데이트합니다.
         private void HandleTurnEnded(int unusedActionPoints)
         {
+            readySceneView?.MainView?.SetActionPointState(
+                EndTurnButtonFeedbackView.TurnActionPointState.Waiting,
+                0,
+                true);
             StartCoroutine(UpdateTurnUIRoutine());
+        }
+
+        private void HandlePlayerFinishedMoving()
+        {
+            RefreshEndTurnFeedback();
         }
 
         private System.Collections.IEnumerator UpdateTurnUIRoutine()
@@ -319,32 +381,158 @@ namespace OzGameLab01.Controllers
                 int displayTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
 
                 readySceneView.MainView.SetCurrentTurn(displayTurn);
-
-                float angle = BoardTurnRules.ClockAngle(BoardRunData.TurnCount);
-                readySceneView.MainView.SetClockHandAngle(angle);
             }
         }
 
         private void HandleNightReached(int turnCount)
         {
+            PlayClockTransition(nightClockAngle);
             Debug.Log($"[BoardUIController] {turnCount}턴 째 밤이 되었습니다!");
             ShowTimeOfDayFeedback(nightMessage);
         }
 
+        private void HandleNoonReached(int turnCount)
+        {
+            int displayTurn = BoardTurnRules.DisplayTurn(turnCount);
+            Debug.Log($"[BoardUIController] {displayTurn}턴부터 정오입니다.");
+            ShowTimeOfDayFeedback(noonMessage);
+        }
+
         private void HandleDayReached(int turnCount)
         {
+            PlayClockTransition(dayClockAngle);
             Debug.Log($"[BoardUIController] {turnCount}턴 째 낮이 되었습니다!");
             ShowTimeOfDayFeedback(dayMessage);
         }
 
-        private void HandlePlayerTurnReady()
+        private void ApplyInitialClockRotation()
         {
-            ScheduleAutomaticRollView();
+            float angle = boardSceneController != null &&
+                          boardSceneController.CurrentTimeOfDay == BoardTimeOfDay.Night
+                ? nightClockAngle
+                : dayClockAngle;
+
+            SetClockRotationImmediate(angle);
         }
 
-        private void HandleMapPresentationCompleted()
+        private void PlayClockTransition(float finalTargetAngle)
         {
-            _isMapPresentationReady = true;
+            RectTransform rotatingVisual = ResolveClockRotatingVisual();
+            if (rotatingVisual == null)
+            {
+                return;
+            }
+
+            StopClockRotation();
+
+            float currentZ = rotatingVisual.localEulerAngles.z;
+            float targetZ = finalTargetAngle;
+
+            // 항상 양수 방향(반시계)으로 쏘아지도록 목표 각도 보정
+            if (targetZ <= currentZ)
+            {
+                targetZ += 360f;
+            }
+
+            float catchZ = currentZ + catchAngleOffset;
+            float pullbackZ = currentZ + pullbackAngleOffset;
+
+            _clockRotationSequence = DOTween.Sequence()
+                .SetUpdate(true)
+                // 1. 양수 방향으로 약간 덜컥
+                .Append(rotatingVisual.DOLocalRotate(
+                        new Vector3(0f, 0f, catchZ),
+                        catchDuration,
+                        RotateMode.FastBeyond360)
+                    .SetEase(catchEase))
+                // 2. 음수 방향으로 천천히 시위 당기기
+                .Append(rotatingVisual.DOLocalRotate(
+                        new Vector3(0f, 0f, pullbackZ),
+                        pullbackDuration,
+                        RotateMode.FastBeyond360)
+                    .SetEase(pullbackEase))
+                // 3. 목표를 향해 빠른 속도로 발사
+                .Append(rotatingVisual.DOLocalRotate(
+                        new Vector3(0f, 0f, targetZ),
+                        shootDuration,
+                        RotateMode.FastBeyond360)
+                    .SetEase(shootEase))
+                .OnComplete(() => _clockRotationSequence = null);
+        }
+
+        private void SetClockRotationImmediate(float angle)
+        {
+            RectTransform rotatingVisual = ResolveClockRotatingVisual();
+            if (rotatingVisual == null)
+            {
+                return;
+            }
+
+            StopClockRotation();
+            rotatingVisual.localEulerAngles = new Vector3(0f, 0f, angle);
+        }
+
+        private RectTransform ResolveClockRotatingVisual()
+        {
+            if (clockRotatingVisual != null)
+            {
+                return clockRotatingVisual;
+            }
+
+            if (readySceneView?.MainView == null)
+            {
+                return null;
+            }
+
+            RectTransform[] children =
+                readySceneView.MainView.GetComponentsInChildren<RectTransform>(true);
+
+            foreach (RectTransform child in children)
+            {
+                if (child.name == "RotatingVisual")
+                {
+                    clockRotatingVisual = child;
+                    break;
+                }
+            }
+
+            return clockRotatingVisual;
+        }
+
+        private void StopClockRotation()
+        {
+            _clockRotationSequence?.Kill(false);
+            _clockRotationSequence = null;
+        }
+
+#if UNITY_EDITOR
+        [ContextMenu("Clock Animation/Play Day Transition")]
+        private void PreviewDayClockTransition()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.LogWarning("시계 전환 애니메이션은 플레이 모드에서만 재생할 수 있습니다.", this);
+                return;
+            }
+
+            PlayClockTransition(dayClockAngle);
+        }
+
+        [ContextMenu("Clock Animation/Play Night Transition")]
+        private void PreviewNightClockTransition()
+        {
+            if (!Application.isPlaying)
+            {
+                Debug.LogWarning("시계 전환 애니메이션은 플레이 모드에서만 재생할 수 있습니다.", this);
+                return;
+            }
+
+            PlayClockTransition(nightClockAngle);
+        }
+#endif
+
+        private void HandlePlayerTurnReady()
+        {
             ScheduleAutomaticRollView();
         }
 
@@ -381,13 +569,15 @@ namespace OzGameLab01.Controllers
 
         private void ScheduleAutomaticRollView()
         {
-            if (!_isMapPresentationReady)
+            CancelAutomaticRollView();
+
+            if (!automaticRollViewEnabled)
             {
                 return;
             }
 
-            CancelAutomaticRollView();
-            _automaticRollViewRoutine = StartCoroutine(OpenRollViewAfterDelayRoutine());
+            _automaticRollViewRoutine =
+                StartCoroutine(OpenRollViewWhenAvailableRoutine(autoRollViewOpenDelay, null));
         }
 
         private void CancelAutomaticRollView()
@@ -401,38 +591,87 @@ namespace OzGameLab01.Controllers
             _automaticRollViewRoutine = null;
         }
 
-        private System.Collections.IEnumerator OpenRollViewAfterDelayRoutine()
+        private System.Collections.IEnumerator OpenRollViewWhenAvailableRoutine(
+            float delay,
+            Action onOpened)
         {
-            yield return new WaitForSecondsRealtime(autoRollViewOpenDelay);
+            if (delay > 0f)
+            {
+                yield return new WaitForSecondsRealtime(delay);
+            }
+
+            RollViewOpenResult result = RollViewOpenResult.Retry;
+
+            while (isActiveAndEnabled)
+            {
+                result = TryOpenRollViewInternal();
+
+                if (result != RollViewOpenResult.Retry)
+                {
+                    break;
+                }
+
+                yield return null;
+            }
+
             _automaticRollViewRoutine = null;
-            TryOpenRollView();
+
+            if (result == RollViewOpenResult.Opened)
+            {
+                onOpened?.Invoke();
+            }
         }
 
         private bool TryOpenRollView()
         {
-            if (!_isMapPresentationReady || _timeOfDayFeedbackRoutine != null ||
-                readySceneView == null || readySceneView.RollView == null)
+            return TryOpenRollViewInternal() == RollViewOpenResult.Opened;
+        }
+
+        private RollViewOpenResult TryOpenRollViewInternal()
+        {
+            if (_timeOfDayFeedbackRoutine != null)
             {
-                return false;
+                return RollViewOpenResult.Retry;
+            }
+
+            if (readySceneView == null || readySceneView.RollView == null)
+            {
+                return RollViewOpenResult.Blocked;
             }
 
             if (readySceneView.RollView.IsVisible)
             {
-                return true;
+                return RollViewOpenResult.Opened;
             }
 
-            var diceSnapshot = SystemBus.Messages.Request<DiceSnapshotRequested, DiceSnapshot>(default);
-            BoardPlayerController player = BoardPlayerController.Instance;
-            if (!BoardTurnRules.CanOpenRoll(true, diceSnapshot.HasRolledThisTurn, player != null && player.IsMoving, player != null ? player.CurrentDiceValue : 0))
+            DiceSnapshot diceSnapshot =
+                SystemBus.Messages.Request<DiceSnapshotRequested, DiceSnapshot>(default);
+            BoardDiceSnapshot boardSnapshot =
+                SystemBus.Messages.Request<BoardDiceStateRequested, BoardDiceSnapshot>(default);
+
+            if (!boardSnapshot.Available || boardSnapshot.IsMoving)
             {
-                return false;
+                return RollViewOpenResult.Retry;
+            }
+
+            if (diceSnapshot.HasRolledThisTurn ||
+                boardSnapshot.RemainingValue > 0)
+            {
+                return RollViewOpenResult.Blocked;
             }
 
             readySceneView.HideAllOverlayViews();
             _feedbackView.SetDiceResult("?");
             readySceneView.RollView.SetInteractable(true);
             readySceneView.ShowRollView();
-            return true;
+            return RollViewOpenResult.Opened;
+        }
+
+        private enum RollViewOpenResult
+        {
+            Opened,
+            Retry,
+            Blocked
         }
 
         private void ShowWarning(string message)
@@ -444,6 +683,43 @@ namespace OzGameLab01.Controllers
                 StopCoroutine("HideWarningRoutine");
                 StartCoroutine("HideWarningRoutine");
             }
+        }
+
+        private void RefreshEndTurnFeedback(bool immediate = false)
+        {
+            if (readySceneView?.MainView == null)
+            {
+                return;
+            }
+
+            bool hasRolled = BoardRunData.HasRolledThisTurn;
+            int rolledPoints = BoardRunData.RolledDiceValue;
+            int remainingPoints = BoardRunData.RemainingDiceValue;
+
+            EndTurnButtonFeedbackView.TurnActionPointState state;
+
+            if (!hasRolled)
+            {
+                state = EndTurnButtonFeedbackView.TurnActionPointState.Waiting;
+                remainingPoints = 0;
+            }
+            else if (remainingPoints <= 0)
+            {
+                state = EndTurnButtonFeedbackView.TurnActionPointState.Depleted;
+            }
+            else if (remainingPoints == rolledPoints)
+            {
+                state = EndTurnButtonFeedbackView.TurnActionPointState.Unused;
+            }
+            else
+            {
+                state = EndTurnButtonFeedbackView.TurnActionPointState.PartiallyUsed;
+            }
+
+            readySceneView.MainView.SetActionPointState(
+                state,
+                remainingPoints,
+                immediate);
         }
 
         private System.Collections.IEnumerator HideWarningRoutine()

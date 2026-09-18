@@ -17,9 +17,13 @@ namespace OzGameLab01.Data
         public static bool IsBossBattle => _state.IsBossBattle;
         public static bool IsBossDefeated => _state.IsBossDefeated;
         public static int UnusedActionPoints => _state.UnusedActionPoints;
+        public static bool HasRolledThisTurn => _state.HasRolledThisTurn;
+        public static int RolledDiceValue => _state.RolledDiceValue;
         public static int RemainingDiceValue => _state.RemainingDiceValue;
         public static int TurnCount => _state.TurnCount;
         public static int DefeatedElitesCount => _state.DefeatedElitesCount;
+        public static bool HasObjective => _state.HasObjective;
+        public static Vector2Int ObjectivePosition => _state.ObjectivePosition;
         public static bool IsEliteBattle => _state.IsEliteBattle;
         public static event System.Action OnBattleCompleted
         {
@@ -31,6 +35,8 @@ namespace OzGameLab01.Data
         public static void SetRemainingDiceValue(int value) { _state.SetRemainingDiceValue(value); }
         public static void SavePlayerPosition(Vector2Int position) { EnsureActiveRun(); _state.SavePlayerPosition(position); }
         public static void SaveUnusedActionPoints(int actionPoints) { EnsureActiveRun(); _state.SaveUnusedActionPoints(actionPoints); }
+        public static void SaveObjectivePosition(Vector2Int position) { EnsureActiveRun(); _state.SaveObjectivePosition(position); }
+        public static void ClearObjective() { _state.ClearObjective(); }
         public static void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false) { EnsureActiveRun(); _state.BeginBattle(battlePosition, isBossBattle, isEliteBattle); }
         public static void CompleteCurrentBattle() { _state.CompleteCurrentBattle(); }
         public static bool IsBattleCompleted(Vector2Int position) { return _state.IsBattleCompleted(position); }
@@ -42,5 +48,11 @@ namespace OzGameLab01.Data
         public static bool RestoreFromSaveData(BoardRunSaveData saveData) { return _state.Restore(BoardRunSaveMapper.FromSave(saveData)); }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetOnPlayStart() { Clear(); }
+
+        public static void RecordDiceRoll(int value)
+        {
+            EnsureActiveRun();
+            _state.RecordDiceRoll(value);
+        }
     }
 }

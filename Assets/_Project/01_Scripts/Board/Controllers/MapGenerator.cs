@@ -22,6 +22,9 @@ namespace OzGameLab01.Map
         [Tooltip("현재 스테이지에 맞는 테마 데이터(SO)를 연결해주세요.")]
         [SerializeField] private OzGameLab01.Data.MapThemeData _currentTheme;
 
+        [Tooltip("장애물과 상호작용 타일의 생성 규칙을 연결해주세요.")]
+        [SerializeField] private BoardMapGenerationProfile _generationProfile;
+
         [Header("Map Size Settings")]
         [Tooltip("최종적으로 남길 타일(노드)의 목표 개수")]
         public int totalNodeCount = 150;
@@ -44,58 +47,6 @@ namespace OzGameLab01.Map
         [Range(0f, 1.5f)] public float edgeFalloffStrength = 0.8f;
         [Tooltip("맵 중앙이 휑하게 비는 것을 막기 위해 강제로 채워넣을 뼈대(코어) 반경")]
         public float coreRadius = 4f;
-
-        [Header("Tree Settings")]
-        public int treeClusterCount = 2;
-        public int minTreeClusterSize = 1;
-        public int maxTreeClusterSize = 3;
-
-        [Header("Rock Settings")]
-        public int rockClusterCount = 2;
-        public int minRockClusterSize = 1;
-        public int maxRockClusterSize = 4;
-
-        [Header("Water Settings")]
-        public int waterClusterCount = 1;
-        public int minWaterClusterSize = 1;
-        public int maxWaterClusterSize = 5;
-
-        // --- [수정됨] 시작 동선 설계 및 최소/최대 거리 변수 세팅 ---
-        [Header("Start Sequence Settings")]
-        [Tooltip("시작 타일의 3면을 바위로 막고, 1면에 유닛 획득 타일을 확정 배치하여 초반 획득을 강제합니다.")]
-        public bool forceUnitAtStart = true;
-
-        [Header("Tile Counts & Distances")]
-        public int bossCount = 1;
-        public int minBossDistance = 5;
-        public int minBossDistanceFromStart = 4;
-        public int maxBossDistanceFromStart = 999; // 최대 거리 추가됨
-
-        public int shopCount = 3;
-        public int minShopDistance = 3;
-        public int minShopDistFromStart = 0;
-        public int maxShopDistFromStart = 999; // 최대 거리 추가됨
-
-        public int eliteCount = 3;
-        public int minEliteDistance = 3;
-        public int minEliteDistFromStart = 0;
-        public int maxEliteDistFromStart = 999; // 최대 거리 추가됨
-
-        public int eventCount = 8;
-        public int minEventDistance = 2;
-        public int minEventDistFromStart = 0;
-        public int maxEventDistFromStart = 999; // 최대 거리 추가됨
-
-        public int battleCount = 15;
-        public int minBattleDistance = 1;
-        public int minBattleDistFromStart = 0;
-        public int maxBattleDistFromStart = 999; // 최대 거리 추가됨
-
-        public int unitAcquisitionCount = 2;
-        public int minUnitAcquisitionDistance = 4;
-        public int minUnitAcquisitionDistFromStart = 2;
-        public int maxUnitAcquisitionDistFromStart = 999; // 유닛 획득 타일 설정 추가됨
-        // --------------------------------------------------------
 
         private Dictionary<Vector2Int, MapNode> _nodeDict = new Dictionary<Vector2Int, MapNode>();
         private List<MapNode> _allNodes = new List<MapNode>();
@@ -157,6 +108,12 @@ namespace OzGameLab01.Map
                 return;
             }
 
+            if (_generationProfile == null)
+            {
+                Debug.LogError("[MapGenerator3] BoardMapGenerationProfile이 할당되지 않아 맵을 생성할 수 없습니다!", this);
+                return;
+            }
+
             ValidatePrefabs();
             GenerateMapData();
 
@@ -189,44 +146,11 @@ namespace OzGameLab01.Map
                     noiseScale = noiseScale,
                     edgeFalloffStrength = edgeFalloffStrength,
                     coreRadius = coreRadius,
-                    treeClusterCount = treeClusterCount,
-                    minTreeClusterSize = minTreeClusterSize,
-                    maxTreeClusterSize = maxTreeClusterSize,
-                    rockClusterCount = rockClusterCount,
-                    minRockClusterSize = minRockClusterSize,
-                    maxRockClusterSize = maxRockClusterSize,
-                    waterClusterCount = waterClusterCount,
-                    minWaterClusterSize = minWaterClusterSize,
-                    maxWaterClusterSize = maxWaterClusterSize,
-                    forceUnitAtStart = forceUnitAtStart,
-                    bossCount = bossCount,
-                    minBossDistance = minBossDistance,
-                    minBossDistanceFromStart = minBossDistanceFromStart,
-                    maxBossDistanceFromStart = maxBossDistanceFromStart,
-                    shopCount = shopCount,
-                    minShopDistance = minShopDistance,
-                    minShopDistFromStart = minShopDistFromStart,
-                    maxShopDistFromStart = maxShopDistFromStart,
-                    eliteCount = eliteCount,
-                    minEliteDistance = minEliteDistance,
-                    minEliteDistFromStart = minEliteDistFromStart,
-                    maxEliteDistFromStart = maxEliteDistFromStart,
-                    eventCount = eventCount,
-                    minEventDistance = minEventDistance,
-                    minEventDistFromStart = minEventDistFromStart,
-                    maxEventDistFromStart = maxEventDistFromStart,
-                    battleCount = battleCount,
-                    minBattleDistance = minBattleDistance,
-                    minBattleDistFromStart = minBattleDistFromStart,
-                    maxBattleDistFromStart = maxBattleDistFromStart,
-                    unitAcquisitionCount = unitAcquisitionCount,
-                    minUnitAcquisitionDistance = minUnitAcquisitionDistance,
-                    minUnitAcquisitionDistFromStart = minUnitAcquisitionDistFromStart,
-                    maxUnitAcquisitionDistFromStart = maxUnitAcquisitionDistFromStart,
                     hasTreePrefabs = _currentTheme.TreePrefabs != null && _currentTheme.TreePrefabs.Count > 0,
                     hasRockPrefabs = _currentTheme.RockPrefabs != null && _currentTheme.RockPrefabs.Count > 0,
                     hasWaterPrefabs = _currentTheme.WaterPuddlePrefab != null && _currentTheme.WaterStartPrefab != null && _currentTheme.WaterEndPrefab != null && _currentTheme.WaterBodyPrefabs != null && _currentTheme.WaterBodyPrefabs.Count > 0
                 };
+                _generationProfile.ApplyTo(settings);
                 BoardMapModel model = new BoardMapModel(_nodeDict, _allNodes, settings, message => Debug.LogWarning(message, this), message => Debug.LogError(message, this));
                 model.GenerateLogicalShape();
                 model.AssignNodeTypes();
@@ -243,6 +167,7 @@ namespace OzGameLab01.Map
 
             if (OzGameLab01.Controllers.BoardPlayerController.Instance == null) return;
 
+            bool isInitialPlayerPlacement = !BoardRunData.HasPlayerPosition;
             Vector2Int targetPosition = BoardRunData.HasPlayerPosition ? BoardRunData.PlayerPosition : Vector2Int.zero;
 
             if (!_nodeDict.TryGetValue(targetPosition, out MapNode targetNode))
@@ -256,7 +181,9 @@ namespace OzGameLab01.Map
                 BoardRunData.SavePlayerPosition(targetPosition);
             }
 
-            OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(targetNode);
+            OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(
+                targetNode,
+                isInitialPlayerPlacement);
         }
 
         private Vector2Int GetStartNodePosition()
@@ -352,9 +279,18 @@ namespace OzGameLab01.Map
 
         private void ValidatePrefabs()
         {
-            if (_currentTheme.NormalPrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Normal");
-            if (_currentTheme.BossPrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Boss");
-            if (_currentTheme.BattlePrefab == null) Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Battle");
+            if (!BoardMapView.HasWeightedNormalPrefab(_currentTheme) && _currentTheme.NormalPrefab == null)
+                Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Normal");
+
+            if (_currentTheme.BossBasePrefab == null &&
+                _currentTheme.BossObjectPrefab == null &&
+                _currentTheme.BossPrefab == null)
+                Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Boss");
+
+            if (_currentTheme.BattleBasePrefab == null &&
+                _currentTheme.BattleObjectPrefab == null &&
+                _currentTheme.BattlePrefab == null)
+                Debug.LogWarning("[MapGenerator3] 필수 프리팹 누락: Battle");
         }
 
         protected static bool IsObstacle(NodeType type)

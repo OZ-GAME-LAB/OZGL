@@ -1,0 +1,44 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daf81f11f4d88644086a711a9211e715, type: 3}
+  m_Name: TutorialStep_
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.TutorialSequenceStepData
+  stepName: 
+  trigger: 2
+  showDelay: 0
+  ignoreShowDelayTimeScale: 1
+  targetReadyView: 2
+  triggerButtonKey: 
+  manualTriggerKey: 
+  characterSprite: {fileID: 0}
+  characterName: 
+  dialogue: 
+  showCharacter: 0
+  highlightButton: 0
+  highlightButtonKey: 
+  highlightScale: 1.08
+  highlightHalfDuration: 0.3
+  highlightColor: {r: 1, g: 0.8, b: 0.2, a: 1}
+  highlightEase: 4
+  ignoreTimeScale: 1
+  outlineHighlight: 1
+  outlineTargetKey: OwnedUnitPanel
+  outlineColor: {r: 1, g: 0.8, b: 0.2, a: 1}
+  outlineMinDistance: {x: 2, y: 2}
+  outlineMaxDistance: {x: 8, y: 8}
+  outlineMinAlpha: 0.4
+  outlineMaxAlpha: 1
+  outlineHalfDuration: 0.8
+  outlineEase: 4
+  outlineIgnoreTimeScale: 1
+  keepOutlineUntilReadyViewHidden: 1
+  outlineReleaseView: 2
