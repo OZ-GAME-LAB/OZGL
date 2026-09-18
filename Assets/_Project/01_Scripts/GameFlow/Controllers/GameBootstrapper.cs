@@ -97,7 +97,7 @@ namespace OzGameLab01.Managers
         private void RegisterSystemBusManagers()
         {
             _managerComponents.Add(DiceManager.Instance);
-            _managerComponents.Add(OzGameLab01.Combat.CombatManager.Instance);
+            _managerComponents.Add(CombatManager.Instance);
             _managerComponents.Add(EventManager.Instance);
             _managerComponents.Add(PlayerInventoryManager.Instance);
             _managerComponents.Add(RuntimeEffectManager.Instance);

@@ -1,6 +1,7 @@
+using OzGameLab01.Combat;
 using OzGameLab01.Interfaces;
 
-namespace OzGameLab01.Combat
+namespace OzGameLab01.Managers
 {
     /// <summary>
     /// 전투 시스템 전반을 관리하는, 게임 부팅 후 계속 살아있는 매니저입니다.

@@ -1,3 +1,5 @@
+using OzGameLab01.Managers;
+
 namespace OzGameLab01.Combat
 {
     /// <summary>
