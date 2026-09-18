@@ -1,4 +1,5 @@
 using UnityEngine;
+using OzGameLab01.Data;
 
 namespace OzGameLab01.Combat
 {

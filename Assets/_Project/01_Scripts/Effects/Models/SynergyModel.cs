@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using OzGameLab01.Data;
-using OzGameLab01.Combat;
 
 namespace OzGameLab01.Effects.Models
 {

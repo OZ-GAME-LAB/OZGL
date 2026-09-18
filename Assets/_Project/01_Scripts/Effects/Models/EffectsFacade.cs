@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Effects.Contracts;
 using OzGameLab01.Effects.Controllers;

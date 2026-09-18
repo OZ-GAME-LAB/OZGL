@@ -1,4 +1,4 @@
-namespace OzGameLab01.Combat
+namespace OzGameLab01.Data
 {
     /// <summary>
     /// 패시브 스킬/유물 효과의 발동 조건. Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md 참고.
