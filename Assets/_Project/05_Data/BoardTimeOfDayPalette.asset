@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: BoardTimeOfDayPalette
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Board.Views.BoardTimeOfDayPalette
   dayTint: {r: 1, g: 1, b: 1, a: 1}
-  noonTint: {r: 1, g: 0.9, b: 0.72, a: 1}
-  nightTint: {r: 0.42, g: 0.5, b: 0.72, a: 1}
+  noonTint: {r: 1, g: 0.972549, b: 0.9607843, a: 1}
+  nightTint: {r: 0.58431375, g: 0.6392157, b: 0.78039217, a: 1}

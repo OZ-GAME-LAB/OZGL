@@ -1,8 +1,20 @@
+using System;
 using UnityEngine;
 using ReadySettingsView = OzGameLab01.UI.Settings.SettingsView;
 
 namespace OzGameLab01.UI
 {
+    public enum ReadySceneViewType
+    {
+        Main,
+        Roll,
+        Unit,
+        Tooltip,
+        Settings,
+        ConfirmPopup,
+        Feedback
+    }
+
     [DisallowMultipleComponent]
     public sealed class ReadySceneView : MonoBehaviour
     {
@@ -32,6 +44,12 @@ namespace OzGameLab01.UI
         public ConfirmPopupView ConfirmPopupView => _confirmPopupView;
         public FeedbackView FeedbackView => _feedbackView;
 
+        /// <summary>
+        /// ReadySceneView를 통해 UI가 표시되거나 해제됐을 때 호출됩니다.
+        /// bool 값이 true면 표시, false면 해제입니다.
+        /// </summary>
+        public event Action<ReadySceneViewType,bool> ViewVisibilityChanged;
+
         #endregion
 
         #region API
@@ -40,7 +58,9 @@ namespace OzGameLab01.UI
         {
             if (_mainView != null)
             {
+                bool wasVisible = _mainView.gameObject.activeSelf;
                 _mainView.Show();
+                NotifyVisibilityChanged(_mainView,ReadySceneViewType.Main,wasVisible);
             }
         }
 
@@ -48,7 +68,9 @@ namespace OzGameLab01.UI
         {
             if (_mainView != null)
             {
+                bool wasVisible = _mainView.gameObject.activeSelf;
                 _mainView.Hide();
+                NotifyVisibilityChanged(_mainView,ReadySceneViewType.Main,wasVisible);
             }
         }
 
@@ -56,7 +78,9 @@ namespace OzGameLab01.UI
         {
             if (_rollView != null)
             {
+                bool wasVisible = _rollView.gameObject.activeSelf;
                 _rollView.Show();
+                NotifyVisibilityChanged(_rollView,ReadySceneViewType.Roll,wasVisible);
             }
         }
 
@@ -64,7 +88,9 @@ namespace OzGameLab01.UI
         {
             if (_rollView != null)
             {
+                bool wasVisible = _rollView.gameObject.activeSelf;
                 _rollView.Hide();
+                NotifyVisibilityChanged(_rollView,ReadySceneViewType.Roll,wasVisible);
             }
         }
 
@@ -72,7 +98,9 @@ namespace OzGameLab01.UI
         {
             if (_unitView != null)
             {
+                bool wasVisible = _unitView.gameObject.activeSelf;
                 _unitView.Show();
+                NotifyVisibilityChanged(_unitView,ReadySceneViewType.Unit,wasVisible);
             }
         }
 
@@ -80,7 +108,9 @@ namespace OzGameLab01.UI
         {
             if (_unitView != null)
             {
+                bool wasVisible = _unitView.gameObject.activeSelf;
                 _unitView.Hide();
+                NotifyVisibilityChanged(_unitView,ReadySceneViewType.Unit,wasVisible);
             }
         }
 
@@ -88,7 +118,9 @@ namespace OzGameLab01.UI
         {
             if (_settingsView != null)
             {
+                bool wasVisible = _settingsView.gameObject.activeSelf;
                 _settingsView.Show();
+                NotifyVisibilityChanged(_settingsView,ReadySceneViewType.Settings,wasVisible);
             }
         }
 
@@ -96,7 +128,9 @@ namespace OzGameLab01.UI
         {
             if (_settingsView != null)
             {
+                bool wasVisible = _settingsView.gameObject.activeSelf;
                 _settingsView.Hide();
+                NotifyVisibilityChanged(_settingsView,ReadySceneViewType.Settings,wasVisible);
             }
         }
 
@@ -104,7 +138,12 @@ namespace OzGameLab01.UI
         {
             if (_confirmPopupView != null)
             {
+                bool wasVisible = _confirmPopupView.gameObject.activeSelf;
                 _confirmPopupView.Show();
+                NotifyVisibilityChanged(
+                    _confirmPopupView,
+                    ReadySceneViewType.ConfirmPopup,
+                    wasVisible);
             }
         }
 
@@ -112,7 +151,12 @@ namespace OzGameLab01.UI
         {
             if (_confirmPopupView != null)
             {
+                bool wasVisible = _confirmPopupView.gameObject.activeSelf;
                 _confirmPopupView.Hide();
+                NotifyVisibilityChanged(
+                    _confirmPopupView,
+                    ReadySceneViewType.ConfirmPopup,
+                    wasVisible);
             }
         }
 
@@ -120,7 +164,12 @@ namespace OzGameLab01.UI
         {
             if (_feedbackView != null)
             {
+                bool wasVisible = _feedbackView.gameObject.activeSelf;
                 _feedbackView.Show(message);
+                NotifyVisibilityChanged(
+                    _feedbackView,
+                    ReadySceneViewType.Feedback,
+                    wasVisible);
             }
         }
 
@@ -128,7 +177,12 @@ namespace OzGameLab01.UI
         {
             if (_feedbackView != null)
             {
+                bool wasVisible = _feedbackView.gameObject.activeSelf;
                 _feedbackView.Hide();
+                NotifyVisibilityChanged(
+                    _feedbackView,
+                    ReadySceneViewType.Feedback,
+                    wasVisible);
             }
         }
 
@@ -136,7 +190,12 @@ namespace OzGameLab01.UI
         {
             if (_tooltipView != null)
             {
+                bool wasVisible = _tooltipView.gameObject.activeSelf;
                 _tooltipView.Hide();
+                NotifyVisibilityChanged(
+                    _tooltipView,
+                    ReadySceneViewType.Tooltip,
+                    wasVisible);
             }
         }
 
@@ -148,6 +207,19 @@ namespace OzGameLab01.UI
             HideConfirmPopup();
             HideFeedbackView();
             HideTooltip();
+        }
+
+        private void NotifyVisibilityChanged(
+            MonoBehaviour view,
+            ReadySceneViewType viewType,
+            bool wasVisible)
+        {
+            bool isVisible = view.gameObject.activeSelf;
+
+            if (wasVisible == isVisible)
+                return;
+
+            ViewVisibilityChanged?.Invoke(viewType,isVisible);
         }
 
         #endregion

@@ -49,6 +49,8 @@ namespace OzGameLab01.UI
 
         public bool IsVisible => gameObject.activeSelf;
 
+        public event Action<UnitView> Shown;
+        public event Action<UnitView> Hidden;
         public event Action<UnitView> CloseClicked;
 
         public event Action<UnitItemView, PointerEventData> UnitClicked; //유닛 아이템 클릭 이벤트
@@ -84,6 +86,8 @@ namespace OzGameLab01.UI
 
             SubscribeCloseButton();
             SubscribeItems();
+
+            Shown?.Invoke(this);
         }
 
         private void OnDisable()
@@ -94,6 +98,8 @@ namespace OzGameLab01.UI
             UnsubscribeItems();
 
             _isListening = false;
+
+            Hidden?.Invoke(this);
         }
 
         #endregion

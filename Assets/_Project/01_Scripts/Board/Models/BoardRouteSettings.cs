@@ -5,7 +5,7 @@ namespace OzGameLab01.Board.Models
     /// </summary>
     public sealed class BoardRouteSettings
     {
-        public int eliteCount;
+        public int requiredEliteCount;
         public int minimumEliteLegDistance;
         public int maximumEliteLegDistance;
         public int minimumBossLegDistance;
