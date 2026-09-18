@@ -35,6 +35,19 @@ namespace OzGameLab01.Save
             _state.IsDirty = true;
         }
 
+        // 마지막 전투 배속 반영 및 파일 저장
+        public async Task<bool> SetCombatFastForwardAsync(bool enabled)
+        {
+            if (_state.CurrentData == null)
+            {
+                _state.CurrentData = SaveData.CreateDefault();
+            }
+
+            _state.CurrentData.combatFastForward = enabled;
+            MarkAsDirty();
+            return await SaveAsync();
+        }
+
         // 데이터 로드
         public void Load()
         {

@@ -14,7 +14,6 @@ namespace OzGameLab01.UI.Battle
         [Header("References")]
         [SerializeField] private Button speedButton;
         [SerializeField] private Button settingsButton;
-        [SerializeField] private TMP_Text speedText;
 
         [Header("Speed Icons")]
         [SerializeField] private Image speedIconImage;
@@ -74,18 +73,7 @@ namespace OzGameLab01.UI.Battle
         {
             gameObject.SetActive(false);
         }
-
-        /// <summary>
-        /// 배속 버튼에 표시할 문구를 설정합니다.
-        /// 실제 게임 배속은 호출하는 쪽에서 처리합니다.
-        /// </summary>
-        public void SetSpeedText(string value)
-        {
-            if (speedText != null)
-            {
-                speedText.text = value ?? string.Empty;
-            }
-        }
+              
 
         /// <summary>
         /// 현재 배속에 맞는 아이콘을 표시합니다.

@@ -14,6 +14,7 @@ namespace OzGameLab01.Save
         public int posX;                                // 포지션 X값
         public int posY;                                // 포지션 Y값
         public long playTime;                           // 플레이타임
+        public bool combatFastForward;                  // 마지막 전투 배속 여부, 새 게임 기본값 1배속
 
         // [추가] New Game과 Continue에서 사용하는 런 전용 저장 데이터
         public BoardRunSaveData boardRun;
