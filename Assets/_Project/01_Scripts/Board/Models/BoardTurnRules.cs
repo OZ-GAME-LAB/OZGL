@@ -2,44 +2,146 @@ namespace OzGameLab01.Board.Models
 {
     public enum BoardTimeOfDay
     {
-        Day,
-        Noon,
-        Night
+        Day,    // 아침
+        Noon,   // 점심
+        Night   // 저녁
     }
 
-    // 누적 턴 기준 시간 전환 및 표시 값
     public static class BoardTurnRules
     {
-        public static bool ChangesPhase(int turnCount, int interval) { return interval > 0 && turnCount % interval == 0; }
-        public static bool IsNight(int turnCount, int interval) { return interval > 0 && (turnCount / interval) % 2 == 1; }
-        public static BoardTimeOfDay GetTimeOfDay(int turnCount, int interval)
+        public static BoardTimeOfDay GetTimeOfDay(
+            int turnCount,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
         {
-            if (interval <= 0)
+            morningTurns = NormalizeDuration(morningTurns);
+            lunchTurns = NormalizeDuration(lunchTurns);
+            eveningTurns = NormalizeDuration(eveningTurns);
+
+            int cycleLength = morningTurns + lunchTurns + eveningTurns;
+            if (cycleLength <= 0)
             {
                 return BoardTimeOfDay.Day;
             }
 
-            // 기존 낮/밤 게임 규칙은 유지하고, 낮 구간의 후반부를 점심으로 세분화합니다.
-            // 기본 interval 3 기준: 낮 2턴 -> 점심 1턴 -> 밤 3턴.
-            if (IsNight(turnCount, interval))
+            // TurnCount 0이 사용자에게 표시되는 첫 번째 턴입니다.
+            int cycleTurn = turnCount % cycleLength;
+            if (cycleTurn < 0)
             {
-                return BoardTimeOfDay.Night;
+                cycleTurn += cycleLength;
             }
 
-            int phaseTurn = turnCount % interval;
-            if (phaseTurn < 0)
+            if (cycleTurn < morningTurns)
             {
-                phaseTurn += interval;
+                return BoardTimeOfDay.Day;
             }
 
-            int noonStartTurn = (interval + 1) / 2;
-            return phaseTurn >= noonStartTurn
-                ? BoardTimeOfDay.Noon
-                : BoardTimeOfDay.Day;
+            if (cycleTurn < morningTurns + lunchTurns)
+            {
+                return BoardTimeOfDay.Noon;
+            }
+
+            return BoardTimeOfDay.Night;
         }
-        public static int TurnsUntilPhase(int turnCount, int interval) { return interval > 0 ? interval - turnCount % interval : 0; }
-        public static int DisplayTurn(int turnCount) { return turnCount + 1; }
-        public static float ClockAngle(int turnCount) { return DisplayTurn(turnCount) * -30f; }
-        public static bool CanOpenRoll(bool hasDice, bool rolled, bool moving, int remainingDice) { return hasDice && !rolled && !moving && remainingDice <= 0; }
+
+        public static bool ChangesPhase(
+            int turnCount,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            if (turnCount <= 0)
+            {
+                return false;
+            }
+
+            BoardTimeOfDay previous = GetTimeOfDay(
+                turnCount - 1,
+                morningTurns,
+                lunchTurns,
+                eveningTurns);
+
+            BoardTimeOfDay current = GetTimeOfDay(
+                turnCount,
+                morningTurns,
+                lunchTurns,
+                eveningTurns);
+
+            return previous != current;
+        }
+
+        public static bool IsNight(
+            int turnCount,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            return GetTimeOfDay(
+                turnCount,
+                morningTurns,
+                lunchTurns,
+                eveningTurns) == BoardTimeOfDay.Night;
+        }
+
+        public static int TurnsUntilPhase(
+            int turnCount,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            morningTurns = NormalizeDuration(morningTurns);
+            lunchTurns = NormalizeDuration(lunchTurns);
+            eveningTurns = NormalizeDuration(eveningTurns);
+
+            int cycleLength = morningTurns + lunchTurns + eveningTurns;
+            if (cycleLength <= 0)
+            {
+                return 0;
+            }
+
+            int cycleTurn = turnCount % cycleLength;
+            if (cycleTurn < 0)
+            {
+                cycleTurn += cycleLength;
+            }
+
+            if (cycleTurn < morningTurns)
+            {
+                return morningTurns - cycleTurn;
+            }
+
+            int lunchEnd = morningTurns + lunchTurns;
+            if (cycleTurn < lunchEnd)
+            {
+                return lunchEnd - cycleTurn;
+            }
+
+            return cycleLength - cycleTurn;
+        }
+
+        public static int DisplayTurn(int turnCount)
+        {
+            return turnCount + 1;
+        }
+
+        public static float ClockAngle(int turnCount)
+        {
+            return DisplayTurn(turnCount) * -30f;
+        }
+
+        public static bool CanOpenRoll(
+            bool hasDice,
+            bool rolled,
+            bool moving,
+            int remainingDice)
+        {
+            return hasDice && !rolled && !moving && remainingDice <= 0;
+        }
+
+        private static int NormalizeDuration(int duration)
+        {
+            return duration > 0 ? duration : 0;
+        }
     }
 }
