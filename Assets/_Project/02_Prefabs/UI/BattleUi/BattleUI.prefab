@@ -646,6 +646,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8062167754096882678}
+  - component: {fileID: 8800000000000010012}
   m_Layer: 0
   m_Name: ControlArea
   m_TagString: Untagged
@@ -888,6 +889,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7182576594301558327}
+  - component: {fileID: 8800000000000010015}
   m_Layer: 0
   m_Name: EnemySkillArea
   m_TagString: Untagged
@@ -1135,6 +1137,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5599800118638655959}
   - component: {fileID: 6807820556739330719}
+  - component: {fileID: 8800000000000010001}
   m_Layer: 0
   m_Name: BattleMainView
   m_TagString: Untagged
@@ -2237,6 +2240,7 @@ GameObject:
   - component: {fileID: 4340058342572982592}
   - component: {fileID: 1765052857658759851}
   - component: {fileID: 3747564403627473092}
+  - component: {fileID: 8800000000000010013}
   m_Layer: 0
   m_Name: ArtifactArea
   m_TagString: Untagged
@@ -3050,6 +3054,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4730500362475657474}
   - component: {fileID: 3813597275477155525}
+  - component: {fileID: 8800000000000010011}
   m_Layer: 0
   m_Name: EnemyHeaderArea
   m_TagString: Untagged
@@ -3667,6 +3672,7 @@ GameObject:
   - component: {fileID: 481007124235612098}
   - component: {fileID: 9197621318787809163}
   - component: {fileID: 3232342752029083625}
+  - component: {fileID: 8800000000000010014}
   m_Layer: 0
   m_Name: SynergyArea
   m_TagString: Untagged
@@ -7231,3 +7237,194 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 6000477317557430345, guid: f6a0a5dca1e1558459fdc66bd6cfc4b2, type: 3}
   m_PrefabInstance: {fileID: 8608624505439212640}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &8800000000000010001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2214363373049622638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4243260318ed4b208480e68acab5286e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIMotionView
+  elements:
+  - label: EnemyHeaderArea
+    target: {fileID: 4730500362475657474}
+    opacity: {fileID: 8800000000000010011}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: 0, y: 90, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: 90, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0
+    exitDelay: 0
+  - label: ControlArea
+    target: {fileID: 8062167754096882678}
+    opacity: {fileID: 8800000000000010012}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: 0, y: 60, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: 60, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.15
+    exitDelay: 0
+  - label: ArtifactArea
+    target: {fileID: 4340058342572982592}
+    opacity: {fileID: 8800000000000010013}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: 0, y: 20, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: 20, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.25
+    exitDelay: 0
+  - label: SynergyArea
+    target: {fileID: 481007124235612098}
+    opacity: {fileID: 8800000000000010014}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: -70, y: 0, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: -70, y: 0, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.25
+    exitDelay: 0
+  - label: EnemySkillArea
+    target: {fileID: 7182576594301558327}
+    opacity: {fileID: 8800000000000010015}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: 70, y: 0, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 70, y: 0, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 1, y: 1, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.35
+    exitDelay: 0
+  onEnable: 3
+  useUnscaledTime: 1
+  ambientAfterEnter: 0
+  enterDuration: 0.45
+  exitDuration: 0.25
+  enterEase: 9
+  exitEase: 8
+  entered:
+    m_PersistentCalls:
+      m_Calls: []
+  exited:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!225 &8800000000000010011
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5752592252968257264}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!225 &8800000000000010012
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 902392381501612391}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!225 &8800000000000010013
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4406794729242923774}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!225 &8800000000000010014
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7321037990794099864}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!225 &8800000000000010015
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528205062990902933}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
