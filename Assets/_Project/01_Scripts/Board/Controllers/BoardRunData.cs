@@ -17,6 +17,8 @@ namespace OzGameLab01.Data
         public static bool IsBossBattle => _state.IsBossBattle;
         public static bool IsBossDefeated => _state.IsBossDefeated;
         public static int UnusedActionPoints => _state.UnusedActionPoints;
+        public static bool HasRolledThisTurn => _state.HasRolledThisTurn;
+        public static int RolledDiceValue => _state.RolledDiceValue;
         public static int RemainingDiceValue => _state.RemainingDiceValue;
         public static int TurnCount => _state.TurnCount;
         public static int DefeatedElitesCount => _state.DefeatedElitesCount;
@@ -46,5 +48,11 @@ namespace OzGameLab01.Data
         public static bool RestoreFromSaveData(BoardRunSaveData saveData) { return _state.Restore(BoardRunSaveMapper.FromSave(saveData)); }
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void ResetOnPlayStart() { Clear(); }
+
+        public static void RecordDiceRoll(int value)
+        {
+            EnsureActiveRun();
+            _state.RecordDiceRoll(value);
+        }
     }
 }

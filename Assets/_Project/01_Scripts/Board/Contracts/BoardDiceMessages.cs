@@ -8,9 +8,24 @@ namespace OzGameLab01.Board.Contracts
         public bool Available { get; }
         public bool IsMoving { get; }
         public int RemainingValue { get; }
-        public BoardDiceSnapshot(bool available, bool moving, int remaining)
-        { Available = available; IsMoving = moving; RemainingValue = remaining; }
+        public bool HasRolledThisTurn { get; }
+        public int RolledDiceValue { get; }
+
+        public BoardDiceSnapshot(
+            bool available,
+            bool moving,
+            int remaining,
+            bool hasRolledThisTurn = false,
+            int rolledDiceValue = 0)
+        {
+            Available = available;
+            IsMoving = moving;
+            RemainingValue = remaining;
+            HasRolledThisTurn = hasRolledThisTurn;
+            RolledDiceValue = rolledDiceValue;
+        }
     }
+
     public readonly struct BoardDiceValueRequested : IRequest<bool>
     {
         public int Value { get; }

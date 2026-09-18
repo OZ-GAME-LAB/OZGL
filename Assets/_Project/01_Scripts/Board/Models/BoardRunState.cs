@@ -17,17 +17,38 @@ namespace OzGameLab01.Board.Models
         public bool IsBossBattle { get; private set; }
         public bool IsBossDefeated { get; private set; }
         public int UnusedActionPoints { get; private set; }
+        public bool HasRolledThisTurn { get; private set; }
+        public int RolledDiceValue { get; private set; }
         public int RemainingDiceValue { get; private set; }
-        public void SetRemainingDiceValue(int value)
-        {
-            RemainingDiceValue = Mathf.Max(0, value);
-        }
+
         public int TurnCount { get; private set; }
         public int DefeatedElitesCount { get; private set; }
         public bool HasObjective { get; private set; }
         public Vector2Int ObjectivePosition { get; private set; }
         public bool IsEliteBattle { get; private set; }
         public event System.Action OnBattleCompleted; // 전투 종료 알림 이벤트
+
+        public void SetRemainingDiceValue(int value)
+        {
+            RemainingDiceValue = Mathf.Max(0, value);
+        }
+
+        public void RecordDiceRoll(int value)
+        {
+            int normalizedValue = Mathf.Max(0, value);
+
+            HasRolledThisTurn = normalizedValue > 0;
+            RolledDiceValue = normalizedValue;
+            RemainingDiceValue = normalizedValue;
+        }
+
+        private void ResetTurnDiceState()
+        {
+            HasRolledThisTurn = false;
+            RolledDiceValue = 0;
+            RemainingDiceValue = 0;
+        }
+
         public void BeginNewRun(int seed)
         {
             Clear();
@@ -50,7 +71,11 @@ namespace OzGameLab01.Board.Models
                 isBossBattle = IsBossBattle,
                 isEliteBattle = IsEliteBattle,
                 isBossDefeated = IsBossDefeated,
+
+                hasRolledThisTurn = HasRolledThisTurn,
+                rolledDiceValue = RolledDiceValue,
                 remainingDiceValue = RemainingDiceValue,
+
                 unusedActionPoints = UnusedActionPoints,
                 turnCount = TurnCount,
                 defeatedElitesCount = DefeatedElitesCount
@@ -97,7 +122,27 @@ namespace OzGameLab01.Board.Models
             IsEliteBattle = saveData.isEliteBattle;
             IsBossDefeated = saveData.isBossDefeated;
             // 기존 저장 파일의 누락 필드 기본값 0 및 음수 보정
-            SetRemainingDiceValue(saveData.remainingDiceValue);
+            int restoredRemaining = Mathf.Max(0, saveData.remainingDiceValue);
+            int restoredRolledValue = Mathf.Max(0, saveData.rolledDiceValue);
+
+            // 구버전 저장 파일에는 rolledDiceValue가 없으므로,
+            // 잔여 행동력이라도 있으면 최소한 굴린 상태로 복원합니다.
+            if (restoredRolledValue < restoredRemaining)
+            {
+                restoredRolledValue = restoredRemaining;
+            }
+
+            HasRolledThisTurn =
+                saveData.hasRolledThisTurn ||
+                restoredRolledValue > 0 ||
+                restoredRemaining > 0;
+
+            RolledDiceValue = HasRolledThisTurn
+                ? restoredRolledValue
+                : 0;
+
+            SetRemainingDiceValue(restoredRemaining);
+
             UnusedActionPoints = Mathf.Max(0, saveData.unusedActionPoints);
             TurnCount = Mathf.Max(0, saveData.turnCount);
             DefeatedElitesCount = Mathf.Max(0, saveData.defeatedElitesCount);
@@ -164,11 +209,11 @@ namespace OzGameLab01.Board.Models
 
             ConsumeSpecialTile(CurrentBattlePosition);
 
-            if (!IsBossBattle) 
+            if (!IsBossBattle)
             {
                 _completedBattlePositions.Add(CurrentBattlePosition);
             }
-            else 
+            else
             {
                 IsBossDefeated = true; // [추가] 보스 처치 플래그 설정
             }
@@ -181,7 +226,7 @@ namespace OzGameLab01.Board.Models
             {
                 ClearObjective();
             }
-            
+
             HasCurrentBattle = false;
             IsBossBattle = false;
             IsEliteBattle = false;
@@ -206,6 +251,7 @@ namespace OzGameLab01.Board.Models
         {
 
             TurnCount++;
+            ResetTurnDiceState();
         }
         public void Clear()
         {
@@ -222,7 +268,10 @@ namespace OzGameLab01.Board.Models
             // [추가] New Game에서 이전 엘리트 전투 상태가 남지 않도록 초기화
             IsEliteBattle = false;
 
+            HasRolledThisTurn = false;
+            RolledDiceValue = 0;
             RemainingDiceValue = 0;
+
             UnusedActionPoints = 0;
             TurnCount = 0;
 
