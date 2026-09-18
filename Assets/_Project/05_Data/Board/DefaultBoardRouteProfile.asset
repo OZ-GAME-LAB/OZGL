@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 650f9f9145f24705aae8064b661787ba, type: 3}
+  m_Name: DefaultBoardRouteProfile
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Board.Models.BoardRouteProfile
+  requiredEliteCount: 3
+  minimumEliteLegDistance: 7
+  maximumEliteLegDistance: 7
+  minimumBossLegDistance: 10
+  futureRouteReserveRatio: 0.6
+  forwardProgressWeight: 1.5
+  explorationOpportunityWeight: 1.2
+  sideAlternationWeight: 2
+  maximumDetourRatio: 1.6

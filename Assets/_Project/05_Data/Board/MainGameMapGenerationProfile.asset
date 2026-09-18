@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23c0a8a97d87446fbd0ef455cc8aa310, type: 3}
+  m_Name: MainGameMapGenerationProfile
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Board.Models.BoardMapGenerationProfile
+  forceUnitAtStart: 1
+  treeClusterCount: 7
+  minTreeClusterSize: 3
+  maxTreeClusterSize: 6
+  rockClusterCount: 2
+  minRockClusterSize: 1
+  maxRockClusterSize: 4
+  waterClusterCount: 1
+  minWaterClusterSize: 1
+  maxWaterClusterSize: 5
+  shopCount: 0
+  minShopDistance: 3
+  minShopDistanceFromStart: 0
+  maxShopDistanceFromStart: 999
+  eventCount: 15
+  minEventDistance: 2
+  minEventDistanceFromStart: 2
+  maxEventDistanceFromStart: 999
+  battleCount: 50
+  minBattleDistance: 3
+  minBattleDistanceFromStart: 0
+  maxBattleDistanceFromStart: 999
+  unitAcquisitionCount: 20
+  minUnitAcquisitionDistance: 3
+  minUnitAcquisitionDistanceFromStart: 1
+  maxUnitAcquisitionDistanceFromStart: 999

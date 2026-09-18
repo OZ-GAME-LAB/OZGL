@@ -32,7 +32,7 @@ namespace OzGameLab01.Board.Models
             if (boss == null) { return new BoardRouteDecision(BoardRouteStatus.MissingBoss); }
             Vector2Int position = hasPlayerPosition ? playerPosition : start.Position;
             if (!_nodes.TryGetValue(position, out MapNode current) || !IsWalkable(current)) { current = start; }
-            NodeType type = _defeatedCount >= _settings.eliteCount ? NodeType.Boss : NodeType.Elite;
+            NodeType type = _defeatedCount >= _settings.requiredEliteCount ? NodeType.Boss : NodeType.Elite;
             MapNode target = type == NodeType.Boss ? SelectBossForCurrentPosition(current, boss) : SelectEliteNode(current, start, boss, distances);
             return new BoardRouteDecision(target != null ? BoardRouteStatus.Ready : BoardRouteStatus.MissingTarget, boss, target, type);
         }
@@ -152,7 +152,7 @@ namespace OzGameLab01.Board.Models
             }
 
             int defeatedCount = _defeatedCount;
-            int remainingEliteCount = Mathf.Max(0, _settings.eliteCount - defeatedCount - 1);
+            int remainingEliteCount = Mathf.Max(0, _settings.requiredEliteCount - defeatedCount - 1);
             int futureMinimumDistance =
                 remainingEliteCount * _settings.minimumEliteLegDistance + _settings.minimumBossLegDistance;
             int reserveDistance = Mathf.RoundToInt(futureMinimumDistance * _settings.futureRouteReserveRatio);

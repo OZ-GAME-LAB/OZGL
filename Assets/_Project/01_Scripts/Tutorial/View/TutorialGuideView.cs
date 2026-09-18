@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -15,6 +16,8 @@ namespace OzGameLab01.UI
         [SerializeField] private Image characterImage;
         [SerializeField] private TMP_Text characterNameText;
         [SerializeField] private TMP_Text dialogueText;
+        [Tooltip("비워 두면 ContentRoot 아래의 DialoguePanel을 찾아 Button을 자동으로 추가합니다.")]
+        [SerializeField] private Button dialoguePanelButton;
 
         [Header("Show Animation")]
         [SerializeField, Min(0f)] private float showDuration = 0.3f;
@@ -28,19 +31,39 @@ namespace OzGameLab01.UI
         private Vector3 defaultScale;
 
         private Sequence currentSequence;
+        private int originalSiblingIndex = -1;
+        private bool isBroughtToFront;
+
+        public event Action DialoguePanelClicked;
 
 
         #region Unity Lifecycle
 
         private void Awake()
         {
+            ResolveDialoguePanelButton();
             CacheDefaultTransform();
             HideImmediate();
         }
 
+        private void OnEnable()
+        {
+            ResolveDialoguePanelButton();
+
+            if (dialoguePanelButton == null)
+                return;
+
+            dialoguePanelButton.onClick.RemoveListener(HandleDialoguePanelClicked);
+            dialoguePanelButton.onClick.AddListener(HandleDialoguePanelClicked);
+        }
+
         private void OnDisable()
         {
+            if (dialoguePanelButton != null)
+                dialoguePanelButton.onClick.RemoveListener(HandleDialoguePanelClicked);
+
             KillTween();
+            RestoreSiblingOrder();
         }
 
         #endregion
@@ -116,6 +139,7 @@ namespace OzGameLab01.UI
             KillTween();
 
             gameObject.SetActive(true);
+            BringToFront();
 
             PrepareShowState();
 
@@ -149,8 +173,20 @@ namespace OzGameLab01.UI
         /// </summary>
         public void Hide()
         {
+            Hide(null);
+        }
+
+
+        /// <summary>
+        /// Hide 연출이 끝난 뒤 콜백을 실행합니다.
+        /// </summary>
+        public void Hide(Action onComplete)
+        {
             if (!gameObject.activeSelf)
+            {
+                onComplete?.Invoke();
                 return;
+            }
 
             KillTween();
 
@@ -181,7 +217,9 @@ namespace OzGameLab01.UI
                 currentSequence = null;
 
                 ResetContentTransform();
+                RestoreSiblingOrder();
                 gameObject.SetActive(false);
+                onComplete?.Invoke();
             });
         }
 
@@ -194,6 +232,7 @@ namespace OzGameLab01.UI
             KillTween();
 
             gameObject.SetActive(true);
+            BringToFront();
 
             canvasGroup.alpha = 1f;
 
@@ -212,6 +251,7 @@ namespace OzGameLab01.UI
                 canvasGroup.alpha = 0f;
 
             ResetContentTransform();
+            RestoreSiblingOrder();
 
             gameObject.SetActive(false);
         }
@@ -237,6 +277,83 @@ namespace OzGameLab01.UI
 
             defaultPosition = contentRoot.anchoredPosition;
             defaultScale = contentRoot.localScale;
+        }
+
+
+        private void ResolveDialoguePanelButton()
+        {
+            if (dialoguePanelButton != null)
+                return;
+
+            Transform dialoguePanel = FindChildRecursive(
+                contentRoot != null ? contentRoot : transform,
+                "DialoguePanel");
+
+            if (dialoguePanel == null)
+                return;
+
+            dialoguePanelButton = dialoguePanel.GetComponent<Button>();
+
+            if (dialoguePanelButton == null)
+                dialoguePanelButton = dialoguePanel.gameObject.AddComponent<Button>();
+
+            dialoguePanelButton.transition = Selectable.Transition.None;
+
+            if (dialoguePanelButton.targetGraphic == null)
+                dialoguePanelButton.targetGraphic = dialoguePanel.GetComponent<Graphic>();
+        }
+
+
+        private static Transform FindChildRecursive(Transform parent,string childName)
+        {
+            if (parent == null)
+                return null;
+
+            for (int i = 0; i < parent.childCount; i++)
+            {
+                Transform child = parent.GetChild(i);
+
+                if (child.name == childName)
+                    return child;
+
+                Transform result = FindChildRecursive(child, childName);
+
+                if (result != null)
+                    return result;
+            }
+
+            return null;
+        }
+
+
+        private void HandleDialoguePanelClicked()
+        {
+            DialoguePanelClicked?.Invoke();
+        }
+
+
+        private void BringToFront()
+        {
+            if (isBroughtToFront || transform.parent == null)
+                return;
+
+            originalSiblingIndex = transform.GetSiblingIndex();
+            transform.SetAsLastSibling();
+            isBroughtToFront = true;
+        }
+
+
+        private void RestoreSiblingOrder()
+        {
+            if (!isBroughtToFront || transform.parent == null)
+                return;
+
+            int lastIndex = Mathf.Max(0,transform.parent.childCount - 1);
+            transform.SetSiblingIndex(
+                Mathf.Clamp(originalSiblingIndex,0,lastIndex));
+
+            originalSiblingIndex = -1;
+            isBroughtToFront = false;
         }
 
 

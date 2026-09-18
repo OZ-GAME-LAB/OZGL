@@ -29,6 +29,8 @@ namespace OzGameLab01.Controllers
         public BoardCameraController boardCameraController;
 
         [Header("Turn Sequence")]
+        [Tooltip("끄면 턴 시작 시 RollView를 자동으로 열지 않습니다. 튜토리얼 Step 등에서 RequestRollViewOpen을 호출해 열 수 있습니다.")]
+        [SerializeField] private bool automaticRollViewEnabled = true;
         [Min(0f)][SerializeField] private float autoRollViewOpenDelay = 0.5f;
         [Min(0f)][SerializeField] private float timeOfDayFeedbackDuration = 1.5f;
         [SerializeField] private string nightMessage = "Night Has Come";
@@ -214,6 +216,36 @@ namespace OzGameLab01.Controllers
             {
                 readySceneView.HideRollView();
             }
+        }
+
+        /// <summary>
+        /// 자동 표시 설정과 무관하게 RollView 표시를 요청합니다.
+        /// 플레이어 등장·이동 연출 중이면 입력 가능한 상태가 될 때까지 기다립니다.
+        /// </summary>
+        public void RequestRollViewOpen(Action onOpened = null)
+        {
+            CancelAutomaticRollView();
+
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
+
+            RollViewOpenResult immediateResult = TryOpenRollViewInternal();
+
+            if (immediateResult == RollViewOpenResult.Opened)
+            {
+                onOpened?.Invoke();
+                return;
+            }
+
+            if (immediateResult == RollViewOpenResult.Blocked)
+            {
+                return;
+            }
+
+            _automaticRollViewRoutine =
+                StartCoroutine(OpenRollViewWhenAvailableRoutine(0f, onOpened));
         }
 
         private void HandleUnitButtonClicked(ReadyMainView view)
@@ -538,7 +570,14 @@ namespace OzGameLab01.Controllers
         private void ScheduleAutomaticRollView()
         {
             CancelAutomaticRollView();
-            _automaticRollViewRoutine = StartCoroutine(OpenRollViewAfterDelayRoutine());
+
+            if (!automaticRollViewEnabled)
+            {
+                return;
+            }
+
+            _automaticRollViewRoutine =
+                StartCoroutine(OpenRollViewWhenAvailableRoutine(autoRollViewOpenDelay, null));
         }
 
         private void CancelAutomaticRollView()
@@ -552,24 +591,57 @@ namespace OzGameLab01.Controllers
             _automaticRollViewRoutine = null;
         }
 
-        private System.Collections.IEnumerator OpenRollViewAfterDelayRoutine()
+        private System.Collections.IEnumerator OpenRollViewWhenAvailableRoutine(
+            float delay,
+            Action onOpened)
         {
-            yield return new WaitForSecondsRealtime(autoRollViewOpenDelay);
+            if (delay > 0f)
+            {
+                yield return new WaitForSecondsRealtime(delay);
+            }
+
+            RollViewOpenResult result = RollViewOpenResult.Retry;
+
+            while (isActiveAndEnabled)
+            {
+                result = TryOpenRollViewInternal();
+
+                if (result != RollViewOpenResult.Retry)
+                {
+                    break;
+                }
+
+                yield return null;
+            }
+
             _automaticRollViewRoutine = null;
-            TryOpenRollView();
+
+            if (result == RollViewOpenResult.Opened)
+            {
+                onOpened?.Invoke();
+            }
         }
 
         private bool TryOpenRollView()
         {
-            if (_timeOfDayFeedbackRoutine != null ||
-                readySceneView == null || readySceneView.RollView == null)
+            return TryOpenRollViewInternal() == RollViewOpenResult.Opened;
+        }
+
+        private RollViewOpenResult TryOpenRollViewInternal()
+        {
+            if (_timeOfDayFeedbackRoutine != null)
             {
-                return false;
+                return RollViewOpenResult.Retry;
+            }
+
+            if (readySceneView == null || readySceneView.RollView == null)
+            {
+                return RollViewOpenResult.Blocked;
             }
 
             if (readySceneView.RollView.IsVisible)
             {
-                return true;
+                return RollViewOpenResult.Opened;
             }
 
             DiceSnapshot diceSnapshot =
@@ -577,20 +649,29 @@ namespace OzGameLab01.Controllers
             BoardDiceSnapshot boardSnapshot =
                 SystemBus.Messages.Request<BoardDiceStateRequested, BoardDiceSnapshot>(default);
 
-            if (!BoardTurnRules.CanOpenRoll(
-                    boardSnapshot.Available,
-                    diceSnapshot.HasRolledThisTurn,
-                    boardSnapshot.IsMoving,
-                    boardSnapshot.RemainingValue))
+            if (!boardSnapshot.Available || boardSnapshot.IsMoving)
             {
-                return false;
+                return RollViewOpenResult.Retry;
+            }
+
+            if (diceSnapshot.HasRolledThisTurn ||
+                boardSnapshot.RemainingValue > 0)
+            {
+                return RollViewOpenResult.Blocked;
             }
 
             readySceneView.HideAllOverlayViews();
             _feedbackView.SetDiceResult("?");
             readySceneView.RollView.SetInteractable(true);
             readySceneView.ShowRollView();
-            return true;
+            return RollViewOpenResult.Opened;
+        }
+
+        private enum RollViewOpenResult
+        {
+            Opened,
+            Retry,
+            Blocked
         }
 
         private void ShowWarning(string message)
