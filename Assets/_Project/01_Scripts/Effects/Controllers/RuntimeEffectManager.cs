@@ -32,6 +32,7 @@ namespace OzGameLab01.Managers
             {
                 Facade = new EffectsFacade();
                 SystemBus.Register(Facade);
+                SystemBus.Register(Facade.CombatCatalog);
             }
             catch { Shutdown(); throw; }
         }
@@ -41,6 +42,7 @@ namespace OzGameLab01.Managers
             if (Facade != null)
             {
                 SystemBus.Unregister(Facade);
+                SystemBus.Unregister(Facade.CombatCatalog);
                 Facade.ClearSubscriptions();
             }
             Facade = null;

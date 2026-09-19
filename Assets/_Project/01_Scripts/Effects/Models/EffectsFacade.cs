@@ -24,12 +24,8 @@ namespace OzGameLab01.Effects.Models
             remove => _notifications.Notification -= value;
         }
 
-        private readonly RuntimeEffectCache<RuntimeEffectManager.EffectSource> _cache =
-            new RuntimeEffectCache<RuntimeEffectManager.EffectSource>(
-                source => source.Definition,
-                source => (int)source.Kind,
-                source => source.SourceId,
-                source => source.DeclarationIndex);
+        public OzGameLab01.Combat.CombatEffectCatalog CombatCatalog { get; } = new OzGameLab01.Combat.CombatEffectCatalog();
+        private OzGameLab01.Combat.CombatEffectCatalog _cache => CombatCatalog;
 
         public bool IsCacheReady => _cache.IsCacheReady;
         public int CachedEffectCount => _cache.CachedEffectCount;
@@ -42,35 +38,8 @@ namespace OzGameLab01.Effects.Models
         /// </summary>
         public void RefreshFromPlayerState()
         {
-            List<RuntimeEffectManager.EffectSource> sources = new List<RuntimeEffectManager.EffectSource>();
-
-            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
-            if (playerFacade != null)
-            {
-                foreach (UnitData unit in playerFacade.OwnedUnits)
-                {
-                    AddSourceEffects(sources,
-                        RuntimeEffectManager.EffectSourceKind.UnitPassive,
-                        unit != null ? unit.id : 0,
-                        unit != null ? unit.passiveEffects : null);
-                }
-            }
-
-            RelicFacade relicFacade = RelicManager.Instance.Facade;
-            foreach (RelicData relic in relicFacade.OwnedRelics)
-            {
-                if (relic == null)
-                {
-                    continue;
-                }
-
-                AddSourceEffects(sources,
-                    RuntimeEffectManager.EffectSourceKind.Relic,
-                    relic.id,
-                    relic.effects);
-            }
-
-            _cache.Rebuild(sources);
+            _cache.Rebuild(RuntimeContent.Catalog, SystemBus.Get<PlayerFacade>()?.OwnedUnits,
+                RelicManager.Instance.Facade.OwnedRelics);
             _notifications.Publish(EffectsNotificationKind.CacheRebuilt, 0, CachedEffectCount);
         }
 
@@ -92,23 +61,5 @@ namespace OzGameLab01.Effects.Models
         /// <summary>매니저 종료 시 대기 중인 알림과 구독자를 정리합니다.</summary>
         public void ClearSubscriptions() => _notifications.ClearSubscribers();
 
-        private static void AddSourceEffects(
-            List<RuntimeEffectManager.EffectSource> sources,
-            RuntimeEffectManager.EffectSourceKind sourceKind,
-            int sourceId,
-            IReadOnlyList<EffectInstance> definitions)
-        {
-            if (definitions == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < definitions.Count; i++)
-            {
-                EffectInstance definition = definitions[i];
-                RuntimeEffectManager.EffectSource source = new RuntimeEffectManager.EffectSource(sourceKind, sourceId, definition, i);
-                sources.Add(source);
-            }
-        }
     }
 }

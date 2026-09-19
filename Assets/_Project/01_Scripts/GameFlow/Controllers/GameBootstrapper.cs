@@ -19,6 +19,7 @@ namespace OzGameLab01.Managers
 
         [Header("초기화 대상 매니저")]
         [SerializeField] private List<MonoBehaviour> _managerComponents = new();
+        [SerializeField] private OzGameLab01.Events.EventDB _eventContent;
         private static GameBootstrapper _instance;
         private bool _isRootObjectValid;
         private OzGameLab01.Controllers.ManagerInitializationController _initialization;
@@ -64,6 +65,15 @@ namespace OzGameLab01.Managers
 
             // 최초 GameBootstrapper 인스턴스 등록
             _instance = this;
+
+            // Content must be ready before player restore and manager initialization.
+            try { RuntimeContent.BindEvents(_eventContent); _ = RuntimeContent.Service; }
+            catch (System.Exception error)
+            {
+                Debug.LogException(error, this);
+                enabled = false;
+                return;
+            }
 
             // GlobalManagers 루트와 모든 자식 매니저 유지
             DontDestroyOnLoad(gameObject);
@@ -161,6 +171,7 @@ namespace OzGameLab01.Managers
 
             // 이 부트스트래퍼가 직접 초기화한 매니저 정리
             _initialization?.ShutdownManagers();
+            RuntimeContent.Shutdown();
             _notifications.ClearSubscribers();
 
             // 정적 인스턴스 참조 해제

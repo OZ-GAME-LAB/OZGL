@@ -60,7 +60,7 @@ namespace OzGameLab01.Managers
                 return false;
             }
 
-            UnitData unit = RuntimeDataManager.Instance.GetUnit(unitId);
+            UnitData unit = OzGameLab01.Data.RuntimeContent.Catalog.GetUnit(unitId);
             if (unit == null)
             {
                 Debug.LogError($"[BattleRewardService] 유닛 보상 ID를 찾을 수 없습니다: {unitId}", context);

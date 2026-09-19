@@ -5,7 +5,7 @@ using OzGameLab01.Combat;
 
 namespace OzGameLab01.Tests.EditMode
 {
-    public class BattleUnitRegistryTests
+    public class CombatUnitRegistryTests
     {
         private readonly List<GameObject> spawned = new List<GameObject>();
 

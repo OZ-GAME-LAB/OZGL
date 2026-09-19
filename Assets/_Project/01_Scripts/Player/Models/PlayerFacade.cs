@@ -89,7 +89,7 @@ namespace OzGameLab01.Player
         /// </summary>
         private static UnitData FindRosterUnit(int unitId)
         {
-            return RuntimeDataManager.Instance.GetUnit(unitId);
+            return OzGameLab01.Data.RuntimeContent.Catalog.GetUnit(unitId);
         }
 
         /// <summary>

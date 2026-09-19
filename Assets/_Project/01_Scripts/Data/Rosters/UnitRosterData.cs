@@ -53,6 +53,7 @@ namespace OzGameLab01.Data
         [SerializeField] private List<SynergyDefinition> _synergyDefinitions = new List<SynergyDefinition>();
 
         public IReadOnlyList<UnitData> UnitStats => _unitStats;
+        public IReadOnlyList<SkillData> SkillDefinitions => _skillDefinitions;
         public IReadOnlyList<SynergyDefinition> SynergyDefinitions => _synergyDefinitions;
 
         public SynergyDefinition GetJobTrait(UnitTypeJob job)

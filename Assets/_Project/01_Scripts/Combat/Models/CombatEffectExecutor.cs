@@ -7,8 +7,8 @@ namespace OzGameLab01.Combat
 {
     /// <summary>
     /// 유닛 패시브/유물의 EffectInstance를 실제로 실행하는 트리거→타겟→이펙트 실행기입니다.
-    /// 데이터는 RuntimeDataManager.GetEffects(trigger) 하나만 참조하고, 전투 상태(행 배치·
-    /// 생존 여부)는 CombatFacade/BattleUnitRegistry에서 읽습니다 — PlayerInventoryManager나
+    /// 효과 목록은 CombatEffectCatalog에서 참조하고, 전투 상태(행 배치·
+    /// 생존 여부)는 CombatFacade에서 읽습니다 — PlayerInventoryManager나
     /// RelicManager를 직접 참조하지 않습니다(그 둘의 보유 목록 취합은 RuntimeEffectManager가
     /// 이미 담당).
     ///
@@ -73,7 +73,8 @@ namespace OzGameLab01.Combat
         private void Execute(TriggerType trigger, Unit triggeringUnit)
         {
             IReadOnlyList<RuntimeEffectManager.EffectSource> sources =
-                RuntimeDataManager.Instance.GetEffects(trigger);
+                OzGameLab01.Common.SystemBus.Get<CombatEffectCatalog>()?.GetEffects(trigger)
+                ?? System.Array.Empty<RuntimeEffectManager.EffectSource>();
 
             for (int i = 0; i < sources.Count; i++)
             {
@@ -98,8 +99,8 @@ namespace OzGameLab01.Combat
                     {
                         bool relic = source.Kind == RuntimeEffectManager.EffectSourceKind.Relic;
                         string sourceName = relic
-                            ? RuntimeDataManager.Instance.GetRelic(source.SourceId)?.name
-                            : RuntimeDataManager.Instance.GetUnit(source.SourceId)?.name;
+                            ? OzGameLab01.Data.RuntimeContent.Catalog.GetRelic(source.SourceId)?.name
+                            : OzGameLab01.Data.RuntimeContent.Catalog.GetUnit(source.SourceId)?.name;
                         string detail = effect.effect == EffectType.StatModifier
                             ? CombatFeedback.StatText(effect.statType, effect.effectParam)
                             : $"피해 {effect.effectParam:0.##}";

@@ -1,4 +1,4 @@
-namespace OzGameLab01.Data
+namespace OzGameLab01.Combat
 {
     /// <summary>
     /// Docs/Database/EnemyData.xlsx의 "Value" 성장 규칙(턴 진행에 따라 체력/공격력/방어력에

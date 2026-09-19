@@ -164,7 +164,7 @@ namespace OzGameLab01.Combat
                 spriteRenderer.color = data.color;
             }
 
-            ResolveSkills(data.skillIds, RuntimeDataManager.Instance.GetSkill);
+            ResolveSkills(data.skillIds, OzGameLab01.Data.RuntimeContent.Catalog.GetSkill);
             SetBasicAttackCooldown(data.attackSpeed);
 
             if (_awakeInitialized)
@@ -197,8 +197,8 @@ namespace OzGameLab01.Combat
             dodgeRate = data.dodgeRate;
 
             // 원본 몬스터 스킬(201~203)과 EnemyManager가 훔쳐온 유닛 액티브 스킬 모두
-            // RuntimeDataManager.GetSkill()이 두 로스터를 순서대로 조회해 풀어줍니다.
-            ResolveSkills(data.skillIds, RuntimeDataManager.Instance.GetSkill);
+            // ContentCatalog가 적/아군 스킬 정의를 통합 조회합니다.
+            ResolveSkills(data.skillIds, RuntimeContent.Catalog.GetSkill);
             SetBasicAttackCooldown(data.attackSpeed);
 
             if (_awakeInitialized)

@@ -164,12 +164,12 @@ namespace OzGameLab01.Controllers
 
         private static SynergyData FindSynergyData(string displayName)
         {
-            if (RuntimeDataManager.Instance == null)
+            if (OzGameLab01.Data.RuntimeContent.Catalog == null)
             {
                 return null;
             }
 
-            foreach (SynergyData data in RuntimeDataManager.Instance.Synergies.Values)
+            foreach (SynergyData data in OzGameLab01.Data.RuntimeContent.Catalog.Synergies.Values)
             {
                 if (data != null && data.name == displayName)
                 {
