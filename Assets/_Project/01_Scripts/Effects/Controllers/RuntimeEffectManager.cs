@@ -91,7 +91,7 @@ namespace OzGameLab01.Managers
 
             public float Apply(float baseValue)
             {
-                return (baseValue + Additive) * Multiplicative;
+                return baseValue * (1f + Additive / 100f) * (1f + Multiplicative / 100f);
             }
         }
 

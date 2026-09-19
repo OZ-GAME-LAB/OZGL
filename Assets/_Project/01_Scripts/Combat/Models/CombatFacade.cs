@@ -16,6 +16,18 @@ namespace OzGameLab01.Combat
 
         public Unit EnemyUnit => GetSession()?.State.EnemyUnit;
 
+        public bool TryGetBattleOutcome(out bool victory)
+        {
+            victory = false;
+            CombatSession session = GetSession();
+            // A missing enemy is an initialization failure, not a victory.
+            if (session == null || session.State.EnemyUnit == null) return false;
+            if (session.State.EnemyUnit.IsDead) { victory = true; return true; }
+            foreach (Unit ally in session.State.GetParticipatingAllyUnits())
+                if (ally != null && !ally.IsDead) return false;
+            return true;
+        }
+
         private CombatSession GetSession()
         {
             if (_session == null)

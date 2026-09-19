@@ -35,7 +35,7 @@ namespace OzGameLab01.Events
         /// 반환합니다.
         /// </summary>
         public bool ShowEvent(EventSO choiceEvent, Action<int> onChoiceSelected)
-            => ShowEvent(OzGameLab01.Data.EventContent.FromAsset(choiceEvent, choiceEvent.choiceCategory), onChoiceSelected);
+            => choiceEvent != null && ShowEvent(OzGameLab01.Data.EventContent.FromAsset(choiceEvent, choiceEvent.choiceCategory), onChoiceSelected);
 
         public bool ShowEvent(OzGameLab01.Data.EventContent choiceEvent, Action<int> onChoiceSelected)
         {

@@ -12,22 +12,6 @@ namespace OzGameLab01.Combat
     {
         public enum Team { Ally, Enemy }
 
-        /// <summary>
-        /// SkillData(공용 정의) + 이 유닛 인스턴스만의 쿨다운 타이머/레벨 배율을 묶은 런타임 상태.
-        /// SkillData는 로스터에 공유되는 데이터라 직접 변경하지 않고, 배율은 여기 별도로 둡니다.
-        /// </summary>
-        private sealed class RuntimeSkill
-        {
-            public SkillData data;
-            public float timer;
-            public float damageMultiplier = 1f;
-
-            // 기본공격(0번째)은 유닛마다 다른 공격속도를 가지므로, 여러 유닛이 공유하는
-            // SkillData.cooldown 대신 이 값을 우선 사용합니다. 그 외 스킬은 null로 두어
-            // SkillData.cooldown을 그대로 씁니다.
-            public float? cooldownOverride;
-        }
-
         [SerializeField] private Team team;
         [SerializeField] private float maxHP = 100f;
         private float attackPoint;
@@ -43,7 +27,7 @@ namespace OzGameLab01.Combat
         [SerializeField] private TMPro.TextMeshPro skillNameLabel;
         [SerializeField] private float skillNameDisplayDuration = 0.35f;
 
-        private readonly List<RuntimeSkill> _skills = new List<RuntimeSkill>();
+        private readonly List<UnitSkillRuntime> _skills = new List<UnitSkillRuntime>();
 
         public bool IsDead => _isDead;
         public Team TeamValue => team;
@@ -54,6 +38,12 @@ namespace OzGameLab01.Combat
 
         private float _currentHP;
         private bool _isDead;
+        private UnitCombatStats _stats;
+        private readonly UnitShieldPool _shields = new UnitShieldPool();
+        private IRandomProvider _random = new CombatRandom();
+        public float Shield => _shields.Total;
+        public void SetRandomProvider(IRandomProvider random)
+            => _random = random ?? throw new System.ArgumentNullException(nameof(random));
         // 활성 프리팹이 Instantiate될 때 Configure보다 Awake가 먼저 실행된 경우를 구분합니다.
         private bool _awakeInitialized;
         // 체력바/색상 연출/투사체 UI·월드 표시 등 시각 표현은 UnitPresenter에 위임합니다.
@@ -102,6 +92,8 @@ namespace OzGameLab01.Combat
             }
 
             // 도트 데미지는 기절 중에도 계속 진행되어야 하므로 가장 먼저 처리합니다.
+            if (_stats != null && _stats.Tick(Time.deltaTime)) RefreshStats();
+            _shields.Tick(Time.deltaTime);
             _status.Tick(Time.deltaTime, dmg => TakeDamage(dmg));
             _presenter.SetDebuffTint(_status.IndicatorColor);
             bool hasCooldown = TryGetActiveSkillCooldown(out float cdRemaining, out float cdDuration);
@@ -127,7 +119,7 @@ namespace OzGameLab01.Combat
                 // 쿨다운은 침묵 중에도 계속 흐르고, 발동(캐스트)만 막습니다.
                 // 0번째 항목(기본공격)은 예외로 침묵 중에도 발동합니다.
                 bool isBasicAttack = i == 0;
-                RuntimeSkill skill = _skills[i];
+                UnitSkillRuntime skill = _skills[i];
                 skill.timer -= Time.deltaTime;
                 if (skill.timer <= 0f && (isBasicAttack || !_status.IsSilenced))
                 {
@@ -229,18 +221,21 @@ namespace OzGameLab01.Combat
                     continue;
                 }
 
-                _skills.Add(new RuntimeSkill { data = data, timer = data.cooldown, damageMultiplier = 1f });
+                _skills.Add(new UnitSkillRuntime { data = data, timer = data.cooldown, damageMultiplier = 1f });
             }
         }
 
         private void InitializeRuntimeState()
         {
+            CaptureBaseStats();
             _isDead = false;
+            _shields.Clear();
+            _status.Clear();
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
             _presenter.CaptureOriginalColor();
 
-            foreach (RuntimeSkill skill in _skills)
+            foreach (UnitSkillRuntime skill in _skills)
             {
                 skill.timer = GetSkillCooldown(skill);
             }
@@ -249,7 +244,7 @@ namespace OzGameLab01.Combat
         /// <summary>
         /// 0번째 스킬(기본공격)의 쿨다운을 유닛별 공격속도로 덮어씁니다. 기본공격은 여러 유닛이
         /// 같은 SkillData(공용 기본공격 정의)를 공유하므로, 그 데이터 자체를 고치는 대신
-        /// RuntimeSkill.cooldownOverride로 유닛별 값을 별도로 둡니다.
+        /// UnitSkillRuntime.cooldownOverride로 유닛별 값을 별도로 둡니다.
         /// </summary>
         private void SetBasicAttackCooldown(float attackSpeed)
         {
@@ -259,7 +254,7 @@ namespace OzGameLab01.Combat
             }
         }
 
-        private static float GetSkillCooldown(RuntimeSkill skill)
+        private static float GetSkillCooldown(UnitSkillRuntime skill)
         {
             return skill.cooldownOverride ?? skill.data.cooldown;
         }
@@ -272,7 +267,7 @@ namespace OzGameLab01.Combat
         {
             if (_skills.Count > 1)
             {
-                RuntimeSkill skill = _skills[1];
+                UnitSkillRuntime skill = _skills[1];
                 remaining = Mathf.Max(0f, skill.timer);
                 duration = GetSkillCooldown(skill);
                 return true;
@@ -293,58 +288,54 @@ namespace OzGameLab01.Combat
 
         /// <summary>
         /// 시너지 등 퍼센트 기반 스탯 보너스를 적용합니다. value는 "+20"이면 20%를 뜻하며,
-        /// 항상 곱연산(1 + value/100)으로 누적됩니다 — 여러 시너지가 겹치면 중첩 적용됩니다.
-        /// 공격력은 유닛에 별도 공격력 스탯이 없어 스킬 데미지 배율(damageMultiplier)에 적용하고,
+        /// Add/Multiply 그룹의 합계를 원본 스탯에 적용하며 만료 시 원본에서 재계산합니다.
+        /// 공격력 보너스는 기존 스킬 데미지 배율에도 반영하고,
         /// 공격속도/쿨타임 감소는 기본공격 쿨다운에만 적용합니다(스킬별 쿨다운은 아직 배율 개념이 없음).
         /// </summary>
         public bool ApplyStatEffect(EffectStatType statType, float percentValue)
+            => ApplyStatEffect(statType, percentValue, EffectOperation.Add, 0, true);
+
+        public bool ApplyStatEffect(EffectStatType statType, float percentValue, EffectOperation operation,
+            float durationSeconds, bool untilBattleEnd)
         {
-            float multiplier = 1f + percentValue / 100f;
-
-            switch (statType)
+            if (_stats == null) CaptureBaseStats();
+            // Existing basic-attack interval rule is retained pending the cooldown scope decision.
+            if (statType == EffectStatType.AttackInterval)
             {
-                case EffectStatType.MaxHealth:
-                    maxHP *= multiplier;
-                    _currentHP = maxHP;
-                    _presenter.InitHealthBar(maxHP);
-                    break;
-
-                case EffectStatType.Attack:
-                    if (_skills.Count == 0) return false;
-                    foreach (RuntimeSkill skill in _skills)
-                    {
-                        skill.damageMultiplier *= multiplier;
-                    }
-                    break;
-
-                case EffectStatType.Defense:
-                    defensePoint *= multiplier;
-                    break;
-
-                case EffectStatType.CriticalChance:
-                    criticalRate *= multiplier;
-                    break;
-
-                case EffectStatType.CriticalMultiplier:
-                    criticalMult *= multiplier;
-                    break;
-
-                case EffectStatType.DodgeChance:
-                    dodgeRate *= multiplier;
-                    break;
-
-                case EffectStatType.AttackInterval:
-                    if (_skills.Count > 0)
-                    {
-                        float cooldown = GetSkillCooldown(_skills[0]);
-                        _skills[0].cooldownOverride = cooldown * (1f - percentValue / 100f);
-                    }
-                    else return false;
-                    break;
-                default:
-                    return false;
+                if (_skills.Count == 0 || !untilBattleEnd) return false;
+                _skills[0].cooldownOverride = Mathf.Max(0.01f, GetSkillCooldown(_skills[0]) * (1 - percentValue / 100f));
+                return true;
             }
+            if (!_stats.Add(statType, percentValue, operation, durationSeconds, untilBattleEnd)) return false;
+            RefreshStats();
             return true;
+        }
+
+        private void CaptureBaseStats()
+        {
+            _stats = new UnitCombatStats();
+            _stats.SetBase(EffectStatType.MaxHealth, maxHP);
+            _stats.SetBase(EffectStatType.Attack, attackPoint);
+            _stats.SetBase(EffectStatType.Defense, defensePoint);
+            _stats.SetBase(EffectStatType.CriticalChance, criticalRate);
+            _stats.SetBase(EffectStatType.CriticalMultiplier, criticalMult);
+            _stats.SetBase(EffectStatType.DodgeChance, dodgeRate);
+        }
+
+        private void RefreshStats()
+        {
+            float previousMax = maxHP;
+            maxHP = _stats.Get(EffectStatType.MaxHealth);
+            // Gain adds the increase; loss preserves HP subject to the new maximum.
+            _currentHP = Mathf.Min(maxHP, _currentHP + Mathf.Max(0, maxHP - previousMax));
+            attackPoint = _stats.Get(EffectStatType.Attack);
+            defensePoint = _stats.Get(EffectStatType.Defense);
+            criticalRate = _stats.Get(EffectStatType.CriticalChance);
+            criticalMult = _stats.Get(EffectStatType.CriticalMultiplier);
+            dodgeRate = _stats.Get(EffectStatType.DodgeChance);
+            foreach (UnitSkillRuntime skill in _skills) skill.damageMultiplier = _stats.GetMultiplier(EffectStatType.Attack);
+            _presenter.InitHealthBar(maxHP);
+            _presenter.SetHP(_currentHP);
         }
 
         /// <summary>
@@ -391,13 +382,13 @@ namespace OzGameLab01.Combat
             {
                 // 회피율은 최대 60%까지만 적용됨(UnitData.xlsx 규칙).
                 float dodgeChance = Mathf.Min(target.dodgeRate, 60f) / 100f;
-                if (Random.value < dodgeChance)
+                if (_random.NextDouble() < dodgeChance)
                 {
                     effectiveDamage = 0f;
                 }
                 else
                 {
-                    if (Random.value < criticalRate / 100f)
+                    if (_random.NextDouble() < criticalRate / 100f)
                     {
                         effectiveDamage *= criticalMult / 100f;
                     }
@@ -413,7 +404,7 @@ namespace OzGameLab01.Combat
             PassiveEventBus.RaiseAttackLanded(this, target);
         }
 
-        private IEnumerator CastSkill(Unit target, RuntimeSkill skill, bool isBasicAttack)
+        private IEnumerator CastSkill(Unit target, UnitSkillRuntime skill, bool isBasicAttack)
         {
             yield return _presenter.ShowSkillCastText(skill.data.name);
 
@@ -434,6 +425,28 @@ namespace OzGameLab01.Combat
             }
         }
 
+        public bool Heal(float amount)
+        {
+            if (_isDead || amount <= 0 || float.IsNaN(amount) || float.IsInfinity(amount)) return false;
+            float previous = _currentHP;
+            _currentHP = Mathf.Min(maxHP, _currentHP + amount);
+            if (_currentHP <= previous) return false;
+            _presenter.SetHP(_currentHP);
+            PassiveEventBus.RaiseHealed(this);
+            return true;
+        }
+
+        public bool GrantShield(float amount, float durationSeconds, bool untilBattleEnd)
+        {
+            if (_isDead) return false;
+            float previous = _shields.Total;
+            bool acquired = _shields.Add(amount, durationSeconds, untilBattleEnd);
+            if (acquired) PassiveEventBus.RaiseShielded(this);
+            return _shields.Total > previous;
+        }
+
+        public void CleanseDebuffs() => _status.Clear();
+
         public void TakeDamage(float dmg)
         {
             if (_isDead)
@@ -441,7 +454,9 @@ namespace OzGameLab01.Combat
                 return;
             }
 
-            _currentHP -= dmg;
+            dmg = _shields.Absorb(dmg);
+            if (dmg <= 0f) return;
+            _currentHP = Mathf.Max(0f, _currentHP - dmg);
             _presenter.SetHP(_currentHP);
 
             if (_currentHP <= 0f)

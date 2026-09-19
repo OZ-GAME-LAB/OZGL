@@ -92,9 +92,7 @@ namespace OzGameLab01.Combat
 
             // 스폰/시너지 책임은 별도 클래스로 분리되어 있다. Inspector 참조는 CombatSession이
             // 그대로 들고 있고, 생성자로 넘겨주기만 한다(씬/프리팹 재배선 불필요).
-            MonsterData enemyMonsterData = monsterRosterData != null
-                ? monsterRosterData.GetById(enemyMonsterId)
-                : null;
+            MonsterData enemyMonsterData = RuntimeContent.Catalog.GetEnemy(enemyMonsterId);
 
             // 턴/낮밤/중간보스 상태로 스케일링한 체력과 플레이어 보유 유닛에서 훔친 액티브
             // 스킬까지 반영한 전투용 스펙으로 교체합니다. 원본 로스터 캐시는 수정하지 않습니다.
@@ -151,18 +149,19 @@ namespace OzGameLab01.Combat
             _enemyHeaderController?.Refresh(_state.EnemyUnit);
         }
 
+        private void OnDestroy()
+        {
+            _combatEffectExecutor?.Dispose();
+        }
+
         private void BuildUnitStatLookup()
         {
-            if (rosterData == null)
+            if (rosterData != null)
             {
-                return;
+                CombatDataValidator.ValidateRoster(rosterData, this);
+                UnitRosterData.RegisterActive(rosterData, this);
             }
-
-            CombatDataValidator.ValidateRoster(rosterData, this);
-
-            UnitRosterData.RegisterActive(rosterData, this);
-
-            foreach (UnitData data in rosterData.UnitStats)
+            foreach (UnitData data in RuntimeContent.Catalog.Units)
             {
                 _state.UnitDataById[data.id] = data;
             }

@@ -27,14 +27,17 @@ namespace OzGameLab01.Tests.EditMode
             finally { Object.DestroyImmediate(go); }
         }
 
-        [Test]
-        public void UnsupportedEffect_DoesNotReportApplication()
+        [TestCase(EffectType.GrantShield)]
+        [TestCase(EffectType.Heal)]
+        [TestCase(EffectType.DealDamage)]
+        [TestCase(EffectType.StatModifier)]
+        public void MissingTarget_DoesNotReportApplication(EffectType effect)
         {
             var method = typeof(CombatEffectExecutor).GetMethod("ApplyEffect",
                 BindingFlags.Static | BindingFlags.NonPublic);
             Assert.IsFalse((bool)method.Invoke(null, new object[]
             {
-                new EffectInstance { effect = EffectType.GrantShield, effectParam = 10 }, null
+                new EffectInstance { effect = effect, effectParam = 10 }, null
             }));
         }
 

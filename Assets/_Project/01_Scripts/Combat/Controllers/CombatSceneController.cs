@@ -29,6 +29,7 @@ namespace OzGameLab01.Controllers
         private bool _wasBossBattle;
         private bool _victory;
         private bool _fastForward;
+        private bool _outcomeDirty;
         private bool _isReturningToTitle; // [추가] 런 종료 저장 중 중복 타이틀 이동 요청 방지
 
         public BattleState CurrentState { get; private set; } = BattleState.Running;
@@ -72,41 +73,22 @@ namespace OzGameLab01.Controllers
             Time.timeScale = IsPaused || _resolved ? 0f : CurrentTimeScale;
         }
 
-        private void Update()
+        private void Start()
         {
-            if (_resolved)
-            {
-                return;
-            }
+            // CombatSession resets the bus in Awake. Subscribe after all Awake calls.
+            PassiveEventBus.OnSelfDeath += MarkOutcomeDirty;
+            _outcomeDirty = true;
+        }
 
-            bool allyAlive = false;
-            bool enemyAlive = false;
+        private void MarkOutcomeDirty(Unit unit) => _outcomeDirty = true;
 
-            foreach (Unit unit in CombatUnitRegistry.Units)
-            {
-                if (unit == null || unit.IsDead)
-                {
-                    continue;
-                }
-
-                if (unit.TeamValue == Unit.Team.Ally)
-                {
-                    allyAlive = true;
-                }
-                else if (unit.TeamValue == Unit.Team.Enemy)
-                {
-                    enemyAlive = true;
-                }
-            }
-
-            if (!enemyAlive)
-            {
-                ResolveBattle(true);
-            }
-            else if (!allyAlive)
-            {
-                ResolveBattle(false);
-            }
+        private void LateUpdate()
+        {
+            if (_resolved || !_outcomeDirty) return;
+            _outcomeDirty = false;
+            // Evaluate after synchronous death/follow-up effects have finished.
+            if (SystemBus.Get<CombatFacade>() is CombatFacade facade && facade.TryGetBattleOutcome(out bool victory))
+                ResolveBattle(victory);
         }
 
         /// <summary>
@@ -128,6 +110,7 @@ namespace OzGameLab01.Controllers
             }
 
             // UI 컨트롤러에게 결과창을 띄우라고 신호를 보냅니다.
+            PassiveEventBus.RaiseBattleEnd(victory);
             OnBattleResolved?.Invoke(victory);
         }
 
@@ -212,6 +195,7 @@ namespace OzGameLab01.Controllers
 
         private void OnDestroy()
         {
+            PassiveEventBus.OnSelfDeath -= MarkOutcomeDirty;
             // 결과/일시정지 상태에서 에디터가 씬을 닫거나 재시작해도 다음 씬에 정지 상태가 전파되지 않도록 합니다.
             Time.timeScale = 1f;
         }

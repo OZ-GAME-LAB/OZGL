@@ -103,5 +103,10 @@ namespace OzGameLab01.Data
         public float effectParam;
         public float chance;
         public bool once;
+        public float durationSeconds;
+        public bool untilBattleEnd;
+        public float tickInterval;
+        // Zero in legacy serialized structs means the previous default of one target.
+        public int targetCount;
     }
 }

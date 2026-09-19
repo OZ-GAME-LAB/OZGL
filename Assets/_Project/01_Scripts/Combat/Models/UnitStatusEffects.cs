@@ -42,6 +42,7 @@ namespace OzGameLab01.Combat
         }
 
         private readonly List<ActiveDebuff> _active = new List<ActiveDebuff>();
+        public void Clear() => _active.Clear();
 
         public bool IsStunned => HasType(DebuffType.Stun);
         public bool IsSilenced => HasType(DebuffType.Silence);

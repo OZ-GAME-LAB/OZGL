@@ -12,24 +12,37 @@ namespace OzGameLab01.Combat
     /// RelicManager를 직접 참조하지 않습니다(그 둘의 보유 목록 취합은 RuntimeEffectManager가
     /// 이미 담당).
     ///
-    /// 지금 실제로 실행되는 EffectType은 StatModifier(Unit.ApplyStatEffect)와
-    /// DealDamage(Unit.TakeDamage, 고정 데미지)뿐입니다. Heal/GrantShield/Revive/
-    /// CleanseDebuffs/DebuffImmunity/DebuffDurationModifier/CooldownModifier/
+    /// 스탯, 고정 피해, 회복, 보호막, 디버프 해제를 지원합니다. Revive/
+    /// DebuffImmunity/DebuffDurationModifier/CooldownModifier/
     /// NullifyNextSkill/SynergyModifier는 대응하는 메커니즘이 Unit에 아직 없어 조용히
     /// 건너뜁니다 — Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md의 권고(메커니즘이 생길 때 그
     /// 효과의 실행 로직도 같이 만들기)를 따릅니다.
     /// </summary>
-    public sealed class CombatEffectExecutor
+    public sealed class CombatEffectExecutor : System.IDisposable
     {
         private readonly CombatFacade _facade;
+        private readonly IRandomProvider _random;
         private readonly HashSet<(RuntimeEffectManager.EffectSourceKind, int, int)> _firedOnce = new();
         private bool _firstAllyDeathFired;
 
-        public CombatEffectExecutor(CombatFacade facade)
+        public void Dispose()
+        {
+            PassiveEventBus.OnBattleStart -= HandleBattleStart;
+            PassiveEventBus.OnBattleEnd -= HandleBattleEnd;
+            PassiveEventBus.OnSelfDeath -= HandleSelfDeath;
+            PassiveEventBus.OnAllyDeath -= HandleAllyDeath;
+            PassiveEventBus.OnAllySkillUsed -= HandleAllySkillUsed;
+            PassiveEventBus.OnEnemySkillUsed -= HandleEnemySkillUsed;
+            _firedOnce.Clear();
+        }
+
+        public CombatEffectExecutor(CombatFacade facade, IRandomProvider random = null)
         {
             _facade = facade;
+            _random = random ?? new CombatRandom();
 
             PassiveEventBus.OnBattleStart += HandleBattleStart;
+            PassiveEventBus.OnBattleEnd += HandleBattleEnd;
             PassiveEventBus.OnSelfDeath += HandleSelfDeath;
             PassiveEventBus.OnAllyDeath += HandleAllyDeath;
             PassiveEventBus.OnAllySkillUsed += HandleAllySkillUsed;
@@ -43,6 +56,8 @@ namespace OzGameLab01.Combat
             Execute(TriggerType.Always, null);
             Execute(TriggerType.OnBattleStart, null);
         }
+
+        private void HandleBattleEnd(bool victory) => Execute(TriggerType.OnBattleEnd, null);
 
         private void HandleSelfDeath(Unit unit)
         {
@@ -88,7 +103,7 @@ namespace OzGameLab01.Combat
                 }
 
                 // chance는 0~100 퍼센트. 0 이하는 "확률 미지정 = 항상 발동"으로 취급합니다.
-                if (effect.chance > 0f && Random.value * 100f >= effect.chance)
+                if (effect.chance > 0f && _random.NextDouble() * 100f >= effect.chance)
                 {
                     continue;
                 }
@@ -188,7 +203,7 @@ namespace OzGameLab01.Combat
                     List<Unit> alive = GetAliveAllies();
                     if (alive.Count > 0)
                     {
-                        yield return alive[Random.Range(0, alive.Count)];
+                        yield return alive[_random.Next(alive.Count)];
                     }
 
                     break;
@@ -242,16 +257,26 @@ namespace OzGameLab01.Combat
 
         private static bool ApplyEffect(EffectInstance effect, Unit target)
         {
+            if (target == null) return false;
             switch (effect.effect)
             {
                 case EffectType.StatModifier:
-                    return target.ApplyStatEffect(effect.statType, effect.effectParam);
+                    return target.ApplyStatEffect(effect.statType, effect.effectParam, effect.operation,
+                        effect.durationSeconds, effect.untilBattleEnd || effect.durationSeconds <= 0);
 
                 case EffectType.DealDamage:
                     target.TakeDamage(effect.effectParam);
                     return true;
 
-                // Heal/GrantShield/Revive/CleanseDebuffs/DebuffImmunity/DebuffDurationModifier/
+                case EffectType.Heal:
+                    return target.Heal(effect.effectParam);
+                case EffectType.GrantShield:
+                    return target.GrantShield(effect.effectParam, effect.durationSeconds, effect.untilBattleEnd);
+                case EffectType.CleanseDebuffs:
+                    target.CleanseDebuffs();
+                    return true;
+
+                // Revive/DebuffImmunity/DebuffDurationModifier/
                 // CooldownModifier/NullifyNextSkill/SynergyModifier: 대응 메커니즘이 아직 없어
                 // 의도적으로 건너뜁니다(Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md 참고).
             }

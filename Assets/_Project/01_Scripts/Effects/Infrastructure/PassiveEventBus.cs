@@ -13,11 +13,24 @@ namespace OzGameLab01.Combat
     public static class PassiveEventBus
     {
         public static event Action OnBattleStart;
+        public static event Action<bool> OnBattleEnd;
+        public static void RaiseBattleEnd(bool victory) => OnBattleEnd?.Invoke(victory);
         public static event Action<Unit> OnSelfDeath;
         public static event Action<Unit> OnAllyDeath;
         public static event Action<Unit, SkillData> OnAllySkillUsed;
         public static event Action<Unit, SkillData> OnEnemySkillUsed;
         public static event Action<Unit, Unit> OnAttackLanded;
+        public static event Action<Unit> OnAllyHealed;
+        public static event Action<Unit> OnAllyShielded;
+
+        public static void RaiseHealed(Unit unit)
+        {
+            if (unit != null && unit.TeamValue == Unit.Team.Ally) OnAllyHealed?.Invoke(unit);
+        }
+        public static void RaiseShielded(Unit unit)
+        {
+            if (unit != null && unit.TeamValue == Unit.Team.Ally) OnAllyShielded?.Invoke(unit);
+        }
 
         public static void RaiseBattleStart()
         {
@@ -67,11 +80,14 @@ namespace OzGameLab01.Combat
         public static void ResetRunState()
         {
             OnBattleStart = null;
+            OnBattleEnd = null;
             OnSelfDeath = null;
             OnAllyDeath = null;
             OnAllySkillUsed = null;
             OnEnemySkillUsed = null;
             OnAttackLanded = null;
+            OnAllyHealed = null;
+            OnAllyShielded = null;
         }
     }
 }
