@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -133,8 +133,7 @@ namespace OzGameLab01.UI
 
             if (_synergyContentRoot != null)
             {
-                _synergyItems.AddRange(
-                    _synergyContentRoot.GetComponentsInChildren<SynergyItemView>(true));
+                _synergyItems.AddRange(_synergyContentRoot.GetComponentsInChildren<SynergyItemView>(true));
             }
 
             if (_isListening)
@@ -154,8 +153,7 @@ namespace OzGameLab01.UI
 
             if (_artifactContentRoot != null)
             {
-                _artifactItems.AddRange(
-                    _artifactContentRoot.GetComponentsInChildren<ArtifactInfoItemView>(true));
+                _artifactItems.AddRange(_artifactContentRoot.GetComponentsInChildren<ArtifactInfoItemView>(true));
             }
 
             if (_isListening)
@@ -239,14 +237,7 @@ namespace OzGameLab01.UI
             _endTurnFeedback?.SetAttention(active, immediate);
         }
 
-        /// <summary>
-        /// Displays the action point state and remaining count supplied by the caller.
-        /// Does not change turn rules or button interaction.
-        /// </summary>
-        public void SetActionPointState(
-            EndTurnButtonFeedbackView.TurnActionPointState state,
-            int remainingPoints,
-            bool immediate = false)
+        public void SetActionPointState(EndTurnButtonFeedbackView.TurnActionPointState state,int remainingPoints,bool immediate = false)
         {
             _endTurnFeedback?.SetActionPointState(state, remainingPoints, immediate);
         }
