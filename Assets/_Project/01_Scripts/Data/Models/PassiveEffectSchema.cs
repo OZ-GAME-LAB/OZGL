@@ -88,8 +88,7 @@ namespace OzGameLab01.Data
 
     /// <summary>
     /// 트리거 하나 + 효과 하나를 묶은 데이터. 패시브 스킬/유물 모두 이 구조로 표현할 예정입니다.
-    /// 실제 적용 로직(Apply)은 각 EffectType이 필요로 하는 메커니즘(보호막/회복/부활 등)이
-    /// 아직 없어서 이번에는 스키마와 발행 지점만 준비합니다.
+    /// 패시브와 액티브 스킬 effects[]가 공유하며, 실제 실행기는 각 발동 경로가 소유합니다.
     /// </summary>
     [System.Serializable]
     public struct EffectInstance

@@ -180,5 +180,39 @@ namespace OzGameLab01.Tests.EditMode
             Assert.That(second.skillIds, Does.Contain(11));
             Assert.That(cache.Count, Is.EqualTo(2));
         }
+
+        [Test]
+        public void SkillEffectsExecuteInDeclarationOrderAtImpact()
+        {
+            var casterObject = new UnityEngine.GameObject("Skill caster");
+            var targetObject = new UnityEngine.GameObject("Skill target");
+            try
+            {
+                var caster = casterObject.AddComponent<Unit>();
+                var target = targetObject.AddComponent<Unit>();
+                typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(caster, null);
+                typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(target, null);
+                typeof(Unit).GetMethod("InitializeRuntimeState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(caster, null);
+                typeof(Unit).GetMethod("InitializeRuntimeState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(target, null);
+                var effects = new[]
+                {
+                    new EffectInstance { effect = EffectType.GrantShield, target = EffectTarget.Enemy, effectParam = 10, untilBattleEnd = true },
+                    new EffectInstance { effect = EffectType.DealDamage, target = EffectTarget.Enemy, effectParam = 15 }
+                };
+                typeof(Unit).GetMethod("ExecuteSkillEffects", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(caster, new object[] { effects, target, 1f });
+                Assert.That(target.CurrentHp, Is.EqualTo(95).Within(0.001f));
+                Assert.That(target.Shield, Is.EqualTo(0).Within(0.001f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(casterObject);
+                UnityEngine.Object.DestroyImmediate(targetObject);
+            }
+        }
     }
 }

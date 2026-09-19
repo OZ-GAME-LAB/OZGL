@@ -20,5 +20,7 @@ namespace OzGameLab01.Data
         public float cooldown;
 
         public DebuffProfile debuff;
+        // Effects are executed in declaration order when present. Legacy skills use damage/debuff above.
+        public List<EffectInstance> effects = new List<EffectInstance>();
     }
 }

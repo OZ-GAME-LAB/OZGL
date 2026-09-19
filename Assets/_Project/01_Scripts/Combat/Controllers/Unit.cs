@@ -373,12 +373,12 @@ namespace OzGameLab01.Combat
             return team == Team.Ally ? CombatManager.Instance.Facade.EnemyUnit : CombatManager.Instance.Facade.ResolveAllyTarget();
         }
 
-        private void FireProjectile(Unit target, float damage)
+        private void FireProjectile(Unit target, float damage, System.Action onImpact = null, bool applyDamage = true)
         {
             // 그을림(공격력 감소) 디버프는 데미지 계산 시점에 반영한다.
             float effectiveDamage = damage * _status.AttackMultiplier;
 
-            if (target != null)
+            if (target != null && applyDamage)
             {
                 // 회피율은 최대 60%까지만 적용됨(UnitData.xlsx 규칙).
                 float dodgeChance = Mathf.Min(target.dodgeRate, 60f) / 100f;
@@ -399,7 +399,8 @@ namespace OzGameLab01.Combat
                 }
             }
 
-            _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, effectiveDamage);
+            _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, effectiveDamage,
+                applyDamage, onImpact);
 
             PassiveEventBus.RaiseAttackLanded(this, target);
         }
@@ -410,8 +411,16 @@ namespace OzGameLab01.Combat
 
             if (target != null && !target.IsDead)
             {
-                FireProjectile(target, skill.data.damage * skill.damageMultiplier);
-                target._status.Apply(skill.data.debuff);
+                if (skill.data.effects != null && skill.data.effects.Count > 0)
+                {
+                    FireProjectile(target, 0f,
+                        () => ExecuteSkillEffects(skill.data.effects, target, skill.damageMultiplier), false);
+                }
+                else
+                {
+                    FireProjectile(target, skill.data.damage * skill.damageMultiplier);
+                    target._status.Apply(skill.data.debuff);
+                }
 
                 // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
                 if (!isBasicAttack)
@@ -423,6 +432,110 @@ namespace OzGameLab01.Combat
                     PassiveEventBus.RaiseSkillUsed(this, skill.data);
                 }
             }
+        }
+
+        private void ExecuteSkillEffects(IReadOnlyList<EffectInstance> effects, Unit defaultTarget, float multiplier)
+        {
+            for (int i = 0; i < effects.Count; i++)
+            {
+                EffectInstance effect = effects[i];
+                foreach (Unit target in ResolveSkillTargets(effect, defaultTarget))
+                {
+                    if (target == null || target.IsDead) continue;
+                    switch (effect.effect)
+                    {
+                        case EffectType.DealDamage:
+                            ApplySkillDamage(target, effect.effectParam * multiplier);
+                            break;
+                        case EffectType.Heal:
+                            target.Heal(effect.effectParam);
+                            break;
+                        case EffectType.GrantShield:
+                            target.GrantShield(effect.effectParam, effect.durationSeconds, effect.untilBattleEnd);
+                            break;
+                        case EffectType.StatModifier:
+                            target.ApplyStatEffect(effect.statType, effect.effectParam, effect.operation,
+                                effect.durationSeconds, effect.untilBattleEnd || effect.durationSeconds <= 0);
+                            break;
+                        case EffectType.CleanseDebuffs:
+                            target.CleanseDebuffs();
+                            break;
+                    }
+                }
+            }
+        }
+
+        private IEnumerable<Unit> ResolveSkillTargets(EffectInstance effect, Unit defaultTarget)
+        {
+            EffectTarget target = effect.target;
+            switch (target)
+            {
+                case EffectTarget.Self:
+                    yield return this;
+                    yield break;
+                case EffectTarget.AllAllies:
+                    foreach (Unit ally in CombatManager.Instance.Facade.GetParticipatingAllyUnits())
+                        if (ally != null && !ally.IsDead) yield return ally;
+                    yield break;
+                case EffectTarget.FrontRow:
+                case EffectTarget.MidRow:
+                case EffectTarget.BackRow:
+                    CombatManager.SlotRow row = target == EffectTarget.FrontRow
+                        ? CombatManager.SlotRow.Front
+                        : target == EffectTarget.MidRow ? CombatManager.SlotRow.Mid : CombatManager.SlotRow.Back;
+                    foreach (Unit ally in CombatManager.Instance.Facade.GetAliveAlliesInRow(row))
+                        if (ally != null && !ally.IsDead) yield return ally;
+                    yield break;
+                case EffectTarget.RandomAlly:
+                    List<Unit> allies = GetAliveAlliesForSkill();
+                    int randomCount = effect.targetCount > 0 ? effect.targetCount : 1;
+                    for (int i = 0; i < randomCount && allies.Count > 0; i++)
+                    {
+                        int selected = _random.Next(allies.Count);
+                        yield return allies[selected];
+                        allies.RemoveAt(selected);
+                    }
+                    yield break;
+                case EffectTarget.WorstHpAlly:
+                    List<Unit> worstCandidates = GetAliveAlliesForSkill();
+                    int worstCount = effect.targetCount > 0 ? effect.targetCount : 1;
+                    for (int i = 0; i < worstCount && worstCandidates.Count > 0; i++)
+                    {
+                        int selected = 0;
+                        float selectedRatio = float.MaxValue;
+                        for (int j = 0; j < worstCandidates.Count; j++)
+                        {
+                            Unit ally = worstCandidates[j];
+                            float ratio = ally.MaxHp > 0f ? ally.CurrentHp / ally.MaxHp : 0f;
+                            if (ratio < selectedRatio) { selectedRatio = ratio; selected = j; }
+                        }
+                        yield return worstCandidates[selected];
+                        worstCandidates.RemoveAt(selected);
+                    }
+                    yield break;
+                default:
+                    if (defaultTarget != null && !defaultTarget.IsDead) yield return defaultTarget;
+                    yield break;
+            }
+        }
+
+        private List<Unit> GetAliveAlliesForSkill()
+        {
+            var result = new List<Unit>();
+            foreach (Unit ally in CombatManager.Instance.Facade.GetParticipatingAllyUnits())
+                if (ally != null && !ally.IsDead) result.Add(ally);
+            return result;
+        }
+
+        private void ApplySkillDamage(Unit target, float damage)
+        {
+            if (target == null || target.IsDead) return;
+            float effectiveDamage = damage * _status.AttackMultiplier;
+            if (_random.NextDouble() < Mathf.Min(target.dodgeRate, 60f) / 100f) return;
+            if (_random.NextDouble() < criticalRate / 100f) effectiveDamage *= criticalMult / 100f;
+            effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
+            target.TakeDamage(Mathf.Round(effectiveDamage * 100f) / 100f);
+            PassiveEventBus.RaiseAttackLanded(this, target);
         }
 
         public bool Heal(float amount)

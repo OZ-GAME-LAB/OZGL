@@ -1,4 +1,5 @@
 using UnityEngine;
+using System;
 
 namespace OzGameLab01.Combat
 {
@@ -7,11 +8,15 @@ namespace OzGameLab01.Combat
         private Unit _target;
         private float _damage;
         private float _speed;
+        private bool _applyDamage;
+        private Action _onImpact;
 
-        public void Init(Unit target, float damage, float speed = 8f)
+        public void Init(Unit target, float damage, bool applyDamage = true, Action onImpact = null, float speed = 8f)
         {
             _target = target;
             _damage = damage;
+            _applyDamage = applyDamage;
+            _onImpact = onImpact;
             _speed = speed;
         }
 
@@ -29,7 +34,10 @@ namespace OzGameLab01.Combat
             float distance = Vector3.Distance(transform.position, _target.transform.position);
             if (distance <= 0.1f)
             {
-                _target.TakeDamage(_damage);
+                if (_applyDamage) _target.TakeDamage(_damage);
+                Action onImpact = _onImpact;
+                _onImpact = null;
+                onImpact?.Invoke();
                 Destroy(gameObject);
             }
         }

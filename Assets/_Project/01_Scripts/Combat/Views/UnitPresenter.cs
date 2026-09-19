@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System;
 using UnityEngine.UI;
 using OzGameLab01.UI.Battle;
 
@@ -140,12 +141,13 @@ namespace OzGameLab01.Combat
             }
         }
 
-        public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, float damage)
+        public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, float damage,
+            bool applyDamage = true, Action onImpact = null)
         {
             // UI에 배치된 유닛은 자신의 UnitAnchor에서 대상 UnitAnchor로 풀링 투사체를 발사합니다.
             if (_uiProjectilePool != null && _combatAnchor != null && targetPresenter != null && targetPresenter._combatAnchor != null)
             {
-                _uiProjectilePool.Fire(_combatAnchor, targetPresenter._combatAnchor, target, damage, _projectileSprite, _projectileColor);
+                _uiProjectilePool.Fire(_combatAnchor, targetPresenter._combatAnchor, target, damage, _projectileSprite, _projectileColor, applyDamage, onImpact);
                 return;
             }
 
@@ -154,11 +156,11 @@ namespace OzGameLab01.Combat
                 return;
             }
 
-            GameObject projectileObj = Object.Instantiate(projectilePrefab, worldPosition, Quaternion.identity);
+            GameObject projectileObj = UnityEngine.Object.Instantiate(projectilePrefab, worldPosition, Quaternion.identity);
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
-                projectile.Init(target, damage);
+                projectile.Init(target, damage, applyDamage, onImpact);
             }
         }
 

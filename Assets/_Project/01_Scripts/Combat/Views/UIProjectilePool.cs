@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 namespace OzGameLab01.Combat
 {
@@ -11,7 +12,8 @@ namespace OzGameLab01.Combat
     {
         private readonly Queue<UIProjectile> _available = new Queue<UIProjectile>();
 
-        public void Fire(RectTransform origin, RectTransform target, Unit targetUnit, float damage, Sprite sprite, Color color)
+        public void Fire(RectTransform origin, RectTransform target, Unit targetUnit, float damage, Sprite sprite, Color color,
+            bool applyDamage = true, Action onImpact = null)
         {
             if (origin == null || target == null || targetUnit == null)
             {
@@ -19,7 +21,7 @@ namespace OzGameLab01.Combat
             }
 
             UIProjectile projectile = _available.Count > 0 ? _available.Dequeue() : CreateProjectile();
-            projectile.Launch(this, origin, target, targetUnit, damage, sprite, color);
+            projectile.Launch(this, origin, target, targetUnit, damage, sprite, color, applyDamage, onImpact);
         }
 
         internal void Release(UIProjectile projectile)
@@ -53,14 +55,19 @@ namespace OzGameLab01.Combat
         private RectTransform _targetAnchor;
         private Unit _targetUnit;
         private float _damage;
+        private bool _applyDamage;
+        private Action _onImpact;
         private RectTransform _rectTransform;
 
-        public void Launch(UIProjectilePool pool, RectTransform origin, RectTransform target, Unit targetUnit, float damage, Sprite sprite, Color color)
+        public void Launch(UIProjectilePool pool, RectTransform origin, RectTransform target, Unit targetUnit, float damage, Sprite sprite, Color color,
+            bool applyDamage, Action onImpact)
         {
             _pool = pool;
             _targetAnchor = target;
             _targetUnit = targetUnit;
             _damage = damage;
+            _applyDamage = applyDamage;
+            _onImpact = onImpact;
             _rectTransform = (RectTransform)transform;
 
             transform.SetParent(pool.transform, false);
@@ -80,6 +87,7 @@ namespace OzGameLab01.Combat
         {
             if (_targetAnchor == null || _targetUnit == null || _targetUnit.IsDead)
             {
+                _onImpact = null;
                 _pool.Release(this);
                 return;
             }
@@ -92,7 +100,10 @@ namespace OzGameLab01.Combat
 
             if (Vector3.Distance(_rectTransform.position, targetPosition) <= 8f)
             {
-                _targetUnit.TakeDamage(_damage);
+                if (_applyDamage) _targetUnit.TakeDamage(_damage);
+                Action onImpact = _onImpact;
+                _onImpact = null;
+                onImpact?.Invoke();
                 _pool.Release(this);
             }
         }
