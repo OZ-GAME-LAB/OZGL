@@ -141,5 +141,44 @@ namespace OzGameLab01.Tests.EditMode
             IRandomProvider first = new CombatRandom(7), second = new CombatRandom(7);
             for (int i = 0; i < 20; i++) Assert.That(first.Next(10), Is.EqualTo(second.Next(10)));
         }
+
+        [Test]
+        public void EnemyPreparationUsesGrowthRowAndReturnsDetachedCachedSpecs()
+        {
+            var catalog = new ContentCatalog(
+                new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } } },
+                new[] { new MonsterData { id = 1, type = MonsterType.normal, healthPoint = 999, skillIds = new List<int> { 1 } } },
+                new[] { new SkillData { id = 1 }, new SkillData { id = 10 } },
+                Array.Empty<SynergyData>(), Array.Empty<RelicData>(),
+                new[] { new EnemyGrowthRow { id = 1, type = MonsterType.normal, step = 1, health = 70, attack = 3.5f, defense = 1.4f, attackInterval = 1, criticalMultiplier = 150, criticalChance = 10, dodgeChance = 10 } });
+            var cache = new EnemyPreparationCache();
+            var owned = new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } } };
+            var first = cache.Prepare(catalog, 1, catalog.GetEnemy(1), 0, 0, 42, owned);
+            first.healthPoint = 1;
+            var second = cache.Prepare(catalog, 1, catalog.GetEnemy(1), 0, 0, 42, owned);
+            Assert.That(second.healthPoint, Is.EqualTo(70));
+            Assert.That(second.attackPoint, Is.EqualTo(4));
+            Assert.That(second.skillIds, Does.Contain(10));
+            Assert.That(cache.Count, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void EnemyPreparationCacheInvalidatesWhenOwnershipChanges()
+        {
+            var catalog = new ContentCatalog(
+                new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } }, new UnitData { id = 2, skillIds = new List<int> { 1, 11 } } },
+                new[] { new MonsterData { id = 1, type = MonsterType.normal, skillIds = new List<int> { 1 } } },
+                new[] { new SkillData { id = 1 }, new SkillData { id = 10 }, new SkillData { id = 11 } },
+                Array.Empty<SynergyData>(), Array.Empty<RelicData>(),
+                new[] { new EnemyGrowthRow { id = 1, type = MonsterType.normal, step = 1, health = 70 } });
+            var cache = new EnemyPreparationCache();
+            var first = cache.Prepare(catalog, 1, catalog.GetEnemy(1), 0, 0, 42,
+                new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } } });
+            var second = cache.Prepare(catalog, 1, catalog.GetEnemy(1), 0, 0, 42,
+                new[] { new UnitData { id = 2, skillIds = new List<int> { 1, 11 } } });
+            Assert.That(first.skillIds, Does.Contain(10));
+            Assert.That(second.skillIds, Does.Contain(11));
+            Assert.That(cache.Count, Is.EqualTo(2));
+        }
     }
 }

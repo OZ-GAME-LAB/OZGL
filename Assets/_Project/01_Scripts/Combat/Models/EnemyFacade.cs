@@ -11,10 +11,19 @@ namespace OzGameLab01.Combat
     /// </summary>
     public sealed class EnemyFacade
     {
+        private readonly EnemyPreparationCache _cache = new EnemyPreparationCache();
+
+        public int PreparedCacheCount => _cache.Count;
+
         public MonsterData BuildCombatSpec(MonsterData baseData)
         {
             var ownedUnits = SystemBus.Get<PlayerFacade>()?.OwnedUnits;
-            return EnemyCombatSpecModel.Build(baseData, ownedUnits);
+            RuntimeContentService content = RuntimeContent.Service;
+            return _cache.Prepare(content.Catalog, content.Revision, baseData,
+                BoardRunData.TurnCount, BoardRunData.DefeatedElitesCount,
+                BoardRunData.MapSeed, ownedUnits);
         }
+
+        public void ClearPreparedCache() => _cache.Clear();
     }
 }

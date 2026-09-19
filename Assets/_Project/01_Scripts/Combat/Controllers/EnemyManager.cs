@@ -14,5 +14,7 @@ namespace OzGameLab01.Managers
     {
         private EnemyFacade _facade;
         public EnemyFacade Facade => _facade ??= new EnemyFacade();
+
+        public void ClearPreparedCache() => Facade.ClearPreparedCache();
     }
 }
