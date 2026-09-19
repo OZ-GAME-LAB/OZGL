@@ -53,7 +53,8 @@ namespace OzGameLab01.Managers
         public enum EffectSourceKind
         {
             UnitPassive,
-            Relic
+            Relic,
+            Synergy
         }
 
         public readonly struct EffectSource

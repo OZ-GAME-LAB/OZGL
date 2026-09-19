@@ -21,7 +21,9 @@ namespace OzGameLab01.Combat
         public static event Action<Unit, SkillData> OnEnemySkillUsed;
         public static event Action<Unit, Unit> OnAttackLanded;
         public static event Action<Unit> OnAllyHealed;
+        public static event Action<Unit> OnAllyBuffed;
         public static event Action<Unit> OnAllyShielded;
+        public static event Action<Unit, float> OnAllyHpChanged;
 
         public static void RaiseHealed(Unit unit)
         {
@@ -30,6 +32,14 @@ namespace OzGameLab01.Combat
         public static void RaiseShielded(Unit unit)
         {
             if (unit != null && unit.TeamValue == Unit.Team.Ally) OnAllyShielded?.Invoke(unit);
+        }
+        public static void RaiseBuffed(Unit unit)
+        {
+            if (unit != null && unit.TeamValue == Unit.Team.Ally) OnAllyBuffed?.Invoke(unit);
+        }
+        public static void RaiseHpChanged(Unit unit, float previousRatio)
+        {
+            if (unit != null && unit.TeamValue == Unit.Team.Ally) OnAllyHpChanged?.Invoke(unit, previousRatio);
         }
 
         public static void RaiseBattleStart()
@@ -87,7 +97,9 @@ namespace OzGameLab01.Combat
             OnEnemySkillUsed = null;
             OnAttackLanded = null;
             OnAllyHealed = null;
+            OnAllyBuffed = null;
             OnAllyShielded = null;
+            OnAllyHpChanged = null;
         }
     }
 }

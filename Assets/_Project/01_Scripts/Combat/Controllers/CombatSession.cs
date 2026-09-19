@@ -136,7 +136,7 @@ namespace OzGameLab01.Combat
             _enemyHeaderController?.SetEnemyName(_state.EnemyUnit != null ? _state.EnemyUnit.DisplayName : string.Empty);
 
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
-            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState();
+            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState(_synergyController.ActiveSharedEffects);
 
             // PassiveEventBus 구독은 RaiseBattleStart보다 먼저 끝나 있어야 Always/OnBattleStart
             // 효과를 놓치지 않는다.

@@ -36,10 +36,10 @@ namespace OzGameLab01.Effects.Models
         /// PlayerFacade와 RelicManager의 현재 상태를 읽어 효과 캐시를 재생성합니다.
         /// 보유 목록이 변경되는 획득·복원·초기화 시점에만 호출합니다.
         /// </summary>
-        public void RefreshFromPlayerState()
+        public void RefreshFromPlayerState(IEnumerable<RuntimeEffectManager.EffectSource> extraSources = null)
         {
             _cache.Rebuild(RuntimeContent.Catalog, SystemBus.Get<PlayerFacade>()?.OwnedUnits,
-                RelicManager.Instance.Facade.OwnedRelics);
+                RelicManager.Instance.Facade.OwnedRelics, extraSources);
             _notifications.Publish(EffectsNotificationKind.CacheRebuilt, 0, CachedEffectCount);
         }
 

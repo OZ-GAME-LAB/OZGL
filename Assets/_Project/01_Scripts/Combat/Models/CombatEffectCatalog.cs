@@ -18,7 +18,8 @@ namespace OzGameLab01.Combat
         public IReadOnlyList<RuntimeEffectManager.EffectSource> OrderedEffects => _cache.OrderedEffects;
         public long Revision { get; private set; }
 
-        public void Rebuild(ContentCatalog content, IEnumerable<UnitData> units, IEnumerable<RelicData> relics)
+        public void Rebuild(ContentCatalog content, IEnumerable<UnitData> units, IEnumerable<RelicData> relics,
+            IEnumerable<RuntimeEffectManager.EffectSource> extraSources = null)
         {
             var sources = new List<RuntimeEffectManager.EffectSource>();
             if (units != null)
@@ -35,6 +36,8 @@ namespace OzGameLab01.Combat
                     var definition = content.GetRelic(owned.id);
                     Add(sources, RuntimeEffectManager.EffectSourceKind.Relic, owned.id, definition?.effects);
                 }
+            if (extraSources != null)
+                sources.AddRange(extraSources);
             var next = CreateCache();
             next.Rebuild(sources);
             _cache = next;

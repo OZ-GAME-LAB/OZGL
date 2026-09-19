@@ -304,10 +304,12 @@ namespace OzGameLab01.Combat
             {
                 if (_skills.Count == 0 || !untilBattleEnd) return false;
                 _skills[0].cooldownOverride = Mathf.Max(0.01f, GetSkillCooldown(_skills[0]) * (1 - percentValue / 100f));
+                PassiveEventBus.RaiseBuffed(this);
                 return true;
             }
             if (!_stats.Add(statType, percentValue, operation, durationSeconds, untilBattleEnd)) return false;
             RefreshStats();
+            PassiveEventBus.RaiseBuffed(this);
             return true;
         }
 
@@ -569,8 +571,10 @@ namespace OzGameLab01.Combat
 
             dmg = _shields.Absorb(dmg);
             if (dmg <= 0f) return;
+            float previousRatio = maxHP > 0f ? _currentHP / maxHP : 0f;
             _currentHP = Mathf.Max(0f, _currentHP - dmg);
             _presenter.SetHP(_currentHP);
+            PassiveEventBus.RaiseHpChanged(this, previousRatio);
 
             if (_currentHP <= 0f)
             {

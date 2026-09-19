@@ -136,6 +136,24 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
+        public void EffectCatalogIncludesBattleLocalSynergySources()
+        {
+            var catalog = new ContentCatalog(new[] { new UnitData { id = 1 } },
+                new[] { new MonsterData { id = 1 } }, new[] { new SkillData { id = 1 } },
+                Array.Empty<SynergyData>(), Array.Empty<RelicData>());
+            var synergy = new OzGameLab01.Managers.RuntimeEffectManager.EffectSource(
+                OzGameLab01.Managers.RuntimeEffectManager.EffectSourceKind.Synergy, 7,
+                new EffectInstance { trigger = TriggerType.Always, effect = EffectType.StatModifier,
+                    statType = EffectStatType.Attack, target = EffectTarget.AllAllies }, 0);
+            var effects = new CombatEffectCatalog();
+            effects.Rebuild(catalog, Array.Empty<UnitData>(), Array.Empty<RelicData>(), new[] { synergy });
+
+            Assert.That(effects.GetEffects(TriggerType.Always), Has.Count.EqualTo(1));
+            Assert.That(effects.GetEffects(TriggerType.Always)[0].Kind,
+                Is.EqualTo(OzGameLab01.Managers.RuntimeEffectManager.EffectSourceKind.Synergy));
+        }
+
+        [Test]
         public void InjectedSeedReproducesRandomSequence()
         {
             IRandomProvider first = new CombatRandom(7), second = new CombatRandom(7);

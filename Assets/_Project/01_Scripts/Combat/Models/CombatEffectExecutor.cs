@@ -24,6 +24,10 @@ namespace OzGameLab01.Combat
         private readonly IRandomProvider _random;
         private readonly HashSet<(RuntimeEffectManager.EffectSourceKind, int, int)> _firedOnce = new();
         private bool _firstAllyDeathFired;
+        private int _allyAttackCount;
+        private bool _processingAllyHealed;
+        private bool _processingAllyBuffed;
+        private bool _processingAllyShielded;
 
         public void Dispose()
         {
@@ -33,6 +37,11 @@ namespace OzGameLab01.Combat
             PassiveEventBus.OnAllyDeath -= HandleAllyDeath;
             PassiveEventBus.OnAllySkillUsed -= HandleAllySkillUsed;
             PassiveEventBus.OnEnemySkillUsed -= HandleEnemySkillUsed;
+            PassiveEventBus.OnAttackLanded -= HandleAttackLanded;
+            PassiveEventBus.OnAllyHealed -= HandleAllyHealed;
+            PassiveEventBus.OnAllyBuffed -= HandleAllyBuffed;
+            PassiveEventBus.OnAllyShielded -= HandleAllyShielded;
+            PassiveEventBus.OnAllyHpChanged -= HandleAllyHpChanged;
             _firedOnce.Clear();
         }
 
@@ -47,10 +56,16 @@ namespace OzGameLab01.Combat
             PassiveEventBus.OnAllyDeath += HandleAllyDeath;
             PassiveEventBus.OnAllySkillUsed += HandleAllySkillUsed;
             PassiveEventBus.OnEnemySkillUsed += HandleEnemySkillUsed;
+            PassiveEventBus.OnAttackLanded += HandleAttackLanded;
+            PassiveEventBus.OnAllyHealed += HandleAllyHealed;
+            PassiveEventBus.OnAllyBuffed += HandleAllyBuffed;
+            PassiveEventBus.OnAllyShielded += HandleAllyShielded;
+            PassiveEventBus.OnAllyHpChanged += HandleAllyHpChanged;
         }
 
         private void HandleBattleStart()
         {
+            _allyAttackCount = 0;
             // Always는 별도 이벤트가 아니라 "전투 시작 시 1회 적용 후 유지"로 정의되어 있어
             // OnBattleStart와 같은 시점에 함께 처리합니다.
             Execute(TriggerType.Always, null);
@@ -85,7 +100,62 @@ namespace OzGameLab01.Combat
             Execute(TriggerType.OnEnemySkillUsed, caster);
         }
 
-        private void Execute(TriggerType trigger, Unit triggeringUnit)
+        private void HandleAttackLanded(Unit attacker, Unit target)
+        {
+            if (attacker == null || attacker.TeamValue != Unit.Team.Ally) return;
+            _allyAttackCount++;
+            Execute(TriggerType.OnAttackCount, attacker, _allyAttackCount);
+        }
+
+        private void HandleAllyHealed(Unit unit)
+        {
+            if (_processingAllyHealed) return;
+            _processingAllyHealed = true;
+            try { Execute(TriggerType.OnAllyHealed, unit); }
+            finally { _processingAllyHealed = false; }
+        }
+
+        private void HandleAllyBuffed(Unit unit)
+        {
+            if (_processingAllyBuffed) return;
+            _processingAllyBuffed = true;
+            try { Execute(TriggerType.OnAllyBuffed, unit); }
+            finally { _processingAllyBuffed = false; }
+        }
+
+        private void HandleAllyShielded(Unit unit)
+        {
+            if (_processingAllyShielded) return;
+            _processingAllyShielded = true;
+            try { Execute(TriggerType.OnAllyShielded, unit); }
+            finally { _processingAllyShielded = false; }
+        }
+
+        private void HandleAllyHpChanged(Unit unit, float previousUnitRatio)
+        {
+            float previousAverage = GetAverageHpRatio(previousUnitRatio, unit);
+            float currentAverage = GetAverageHpRatio(-1f, null);
+            if (previousAverage > currentAverage)
+                Execute(TriggerType.OnHpBelowThreshold, unit, -1, currentAverage, previousAverage);
+        }
+
+        private float GetAverageHpRatio(float previousUnitRatio, Unit changedUnit)
+        {
+            float currentHp = 0f;
+            float maxHp = 0f;
+            foreach (Unit unit in _facade.GetParticipatingAllyUnits())
+            {
+                if (unit == null) continue;
+                float hp = unit.CurrentHp;
+                if (unit == changedUnit && previousUnitRatio >= 0f) hp = previousUnitRatio * unit.MaxHp;
+                currentHp += hp;
+                maxHp += unit.MaxHp;
+            }
+            return maxHp > 0f ? currentHp / maxHp : 0f;
+        }
+
+        private void Execute(TriggerType trigger, Unit triggeringUnit, int eventCount = -1,
+            float thresholdRatio = -1f, float previousThresholdRatio = -1f)
         {
             IReadOnlyList<RuntimeEffectManager.EffectSource> sources =
                 OzGameLab01.Common.SystemBus.Get<CombatEffectCatalog>()?.GetEffects(trigger)
@@ -95,6 +165,16 @@ namespace OzGameLab01.Combat
             {
                 RuntimeEffectManager.EffectSource source = sources[i];
                 EffectInstance effect = source.Definition;
+
+                if (trigger == TriggerType.OnAttackCount && effect.triggerParam > 0f &&
+                    eventCount % Mathf.Max(1, Mathf.RoundToInt(effect.triggerParam)) != 0)
+                    continue;
+                if (trigger == TriggerType.OnHpBelowThreshold)
+                {
+                    float threshold = effect.triggerParam > 0f ? effect.triggerParam / 100f : 0.5f;
+                    if (previousThresholdRatio < 0f || previousThresholdRatio < threshold || thresholdRatio >= threshold)
+                        continue;
+                }
 
                 var onceKey = (source.Kind, source.SourceId, source.DeclarationIndex);
                 if (effect.once && _firedOnce.Contains(onceKey))
@@ -112,15 +192,16 @@ namespace OzGameLab01.Combat
                 {
                     if (ApplyEffect(effect, target))
                     {
-                        bool relic = source.Kind == RuntimeEffectManager.EffectSourceKind.Relic;
-                        string sourceName = relic
+                        string sourceName = source.Kind == RuntimeEffectManager.EffectSourceKind.Relic
                             ? OzGameLab01.Data.RuntimeContent.Catalog.GetRelic(source.SourceId)?.name
-                            : OzGameLab01.Data.RuntimeContent.Catalog.GetUnit(source.SourceId)?.name;
+                            : source.Kind == RuntimeEffectManager.EffectSourceKind.Synergy
+                                ? OzGameLab01.Data.RuntimeContent.Catalog.GetSynergy(source.SourceId)?.name
+                                : OzGameLab01.Data.RuntimeContent.Catalog.GetUnit(source.SourceId)?.name;
                         string detail = effect.effect == EffectType.StatModifier
                             ? CombatFeedback.StatText(effect.statType, effect.effectParam)
                             : $"피해 {effect.effectParam:0.##}";
                         _facade.ReportFeedback(new CombatFeedback(
-                            relic ? CombatFeedbackKind.Relic : CombatFeedbackKind.Passive,
+                            source.Kind == RuntimeEffectManager.EffectSourceKind.Relic ? CombatFeedbackKind.Relic : CombatFeedbackKind.Passive,
                             sourceName ?? $"#{source.SourceId}", detail, target));
                     }
                 }

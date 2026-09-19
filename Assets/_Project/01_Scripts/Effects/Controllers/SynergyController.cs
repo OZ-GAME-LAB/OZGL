@@ -29,6 +29,8 @@ namespace OzGameLab01.Controllers
 
         private Dictionary<int, List<SynergyDefinition>> _unitTraitsById;
         private Dictionary<SynergyDefinition, int> _traitCounts;
+        private readonly List<RuntimeEffectManager.EffectSource> _activeSharedEffects = new List<RuntimeEffectManager.EffectSource>();
+        public IReadOnlyList<RuntimeEffectManager.EffectSource> ActiveSharedEffects => _activeSharedEffects;
 
         public SynergyController(
             UnitRosterData rosterData,
@@ -63,6 +65,7 @@ namespace OzGameLab01.Controllers
 
         public void ApplySynergies(Dictionary<CombatManager.SlotKey, int> spawnedFormation, Unit[,] slotUnits)
         {
+            _activeSharedEffects.Clear();
             // 팀 전체에서 각 트레이트를 보유한 유닛 수를 센다 (시너지 발동 여부 판정용).
             // 인스펙터 폴백 편성이 아니라 실제로 스폰된 편성(spawnedFormation)을 기준으로 삼아야
             // 배치 화면에서 넘어온 편성에도 시너지가 정상 반영된다.
@@ -107,10 +110,38 @@ namespace OzGameLab01.Controllers
                     }
 
                     _traitCounts.TryGetValue(definition, out int count);
-                    ApplyTierEffects(definition, count, SynergyTargetType.AllAllies, null, spawnedFormation, slotUnits);
+                    CollectSharedTierEffects(definition, count);
                 }
             }
             _notifications.Publish(OzGameLab01.Effects.Models.EffectsNotificationKind.SynergiesEvaluated, 0, _traitCounts.Count);
+        }
+
+        private void CollectSharedTierEffects(SynergyDefinition definition, int count)
+        {
+            SynergyData richData = FindSynergyData(definition.DisplayName);
+            SynergyTier tier = FindActiveTier(richData, count);
+            if (tier == null || tier.effects == null || richData == null) return;
+
+            int declarationIndex = 0;
+            foreach (SynergyEffectNode node in tier.effects)
+            {
+                if (node.targetType != SynergyTargetType.AllAllies || !TryResolveStatType(node, out EffectStatType statType))
+                    continue;
+                _activeSharedEffects.Add(new RuntimeEffectManager.EffectSource(
+                    RuntimeEffectManager.EffectSourceKind.Synergy,
+                    richData.id,
+                    new EffectInstance
+                    {
+                        trigger = TriggerType.Always,
+                        target = EffectTarget.AllAllies,
+                        effect = EffectType.StatModifier,
+                        statType = statType,
+                        operation = EffectOperation.Add,
+                        effectParam = node.value,
+                        untilBattleEnd = true
+                    },
+                    declarationIndex++));
+            }
         }
 
         /// <summary>
@@ -147,11 +178,8 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                foreach (KeyValuePair<CombatManager.SlotKey, int> kvp in spawnedFormation)
-                {
-                    Unit unit = slotUnits[kvp.Key.column, (int)kvp.Key.row];
-                    ApplyAndReport(unit, richData.name, statType, (float)effect.value);
-                }
+                // Shared synergy effects are collected into CombatEffectCatalog and run by
+                // CombatEffectExecutor at battle start. This prevents a second direct path.
             }
         }
 
