@@ -18,6 +18,7 @@ namespace OzGameLab01.Save
     /// </summary>
     public class SaveFacade
     {
+        private const int StarterUnitId = 100;
         private readonly SaveState _state = new SaveState();
         private readonly SaveFileStore _fileStore = new SaveFileStore(Application.persistentDataPath);
 
@@ -89,11 +90,37 @@ namespace OzGameLab01.Save
             ResetLegacyBoardTransitionState();
             ResetPersistentRunManagers();
 
-            SystemBus.Get<PlayerFacade>()?.ClearInventory();
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            playerFacade?.ClearInventory();
+            GrantStarterUnit(playerFacade);
 
             _state.CurrentData = SaveData.CreateDefault();
             CaptureCurrentRun();
             _state.IsInventoryRestorePending = false;
+        }
+
+        /// <summary>
+        /// Every new run starts with one deterministic unit so the first formation and combat
+        /// path can be exercised without an acquisition event.
+        /// </summary>
+        private static void GrantStarterUnit(PlayerFacade playerFacade)
+        {
+            if (playerFacade == null)
+            {
+                Debug.LogWarning("[SaveFacade] PlayerFacade가 없어 시작 유닛을 지급하지 못했습니다.");
+                return;
+            }
+
+            UnitData source = RuntimeContent.Catalog.GetUnit(StarterUnitId);
+            if (source == null)
+            {
+                Debug.LogError($"[SaveFacade] 시작 유닛 ID {StarterUnitId}를 콘텐츠 카탈로그에서 찾지 못했습니다.");
+                return;
+            }
+
+            UnitData starter = PlayerFacade.CloneUnitData(source);
+            playerFacade.AddUnit(starter);
+            UnitFormationCombatLink.SetStarterFormation(starter);
         }
 
         /// <summary>

@@ -79,6 +79,28 @@ namespace OzGameLab01.Controllers
             }
         }
 
+        /// <summary>
+        /// Creates the deterministic first-run formation used by New Game.
+        /// </summary>
+        public static void SetStarterFormation(UnitData starterUnit)
+        {
+            ClearSavedFormation();
+
+            if (starterUnit == null)
+            {
+                return;
+            }
+
+            UnitData formationUnit = PlayerFacade.CloneUnitData(starterUnit);
+            BattleUnits[0] = new TransferredUnit(formationUnit, null, formationUnit.color);
+            SavedBattleUnitIds[0] = formationUnit.id;
+            HasSavedFormation = true;
+
+            UnitData[] formation = new UnitData[BATTLE_SLOT_COUNT];
+            formation[0] = PlayerFacade.CloneUnitData(formationUnit);
+            SceneTransitioner.AllyFormationData = formation;
+        }
+
         private void Awake()
         {
             if (formationController == null)
