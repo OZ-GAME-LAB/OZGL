@@ -85,6 +85,17 @@ namespace OzGameLab01.Combat
             return units;
         }
 
+        public List<Unit> GetAlliesInRow(CombatManager.SlotRow row)
+        {
+            List<Unit> units = new List<Unit>();
+            for (int column = 0; column < SlotColumns; column++)
+            {
+                Unit unit = SlotUnits[column, (int)row];
+                if (unit != null) units.Add(unit);
+            }
+            return units;
+        }
+
         /// <summary>
         /// 유닛 id(GameDB 기준)로 현재 전투에 스폰된 아군 Unit을 찾습니다. 패시브 효과의
         /// Self 타겟(효과를 보유한 유닛 자신)을 해석할 때 사용합니다 — 소유는 하고 있지만

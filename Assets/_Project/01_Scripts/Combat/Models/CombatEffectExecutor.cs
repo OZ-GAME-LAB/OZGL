@@ -23,6 +23,7 @@ namespace OzGameLab01.Combat
         private readonly CombatFacade _facade;
         private readonly IRandomProvider _random;
         private readonly HashSet<(RuntimeEffectManager.EffectSourceKind, int, int)> _firedOnce = new();
+        private readonly HashSet<(RuntimeEffectManager.EffectSourceKind, int, int)> _firedHpThreshold = new();
         private bool _firstAllyDeathFired;
         private int _allyAttackCount;
         private bool _processingAllyHealed;
@@ -43,6 +44,7 @@ namespace OzGameLab01.Combat
             PassiveEventBus.OnAllyShielded -= HandleAllyShielded;
             PassiveEventBus.OnAllyHpChanged -= HandleAllyHpChanged;
             _firedOnce.Clear();
+            _firedHpThreshold.Clear();
         }
 
         public CombatEffectExecutor(CombatFacade facade, IRandomProvider random = null)
@@ -133,19 +135,19 @@ namespace OzGameLab01.Combat
 
         private void HandleAllyHpChanged(Unit unit, float previousUnitRatio)
         {
-            float previousAverage = GetAverageHpRatio(previousUnitRatio, unit);
-            float currentAverage = GetAverageHpRatio(-1f, null);
-            if (previousAverage > currentAverage)
-                Execute(TriggerType.OnHpBelowThreshold, unit, -1, currentAverage, previousAverage);
+            Execute(TriggerType.OnHpBelowThreshold, unit, -1, -1f, previousUnitRatio);
         }
 
-        private float GetAverageHpRatio(float previousUnitRatio, Unit changedUnit)
+        private float GetHpRatio(EffectTarget target, float previousUnitRatio, Unit changedUnit)
         {
             float currentHp = 0f;
             float maxHp = 0f;
             foreach (Unit unit in _facade.GetParticipatingAllyUnits())
             {
                 if (unit == null) continue;
+                if (target == EffectTarget.FrontRow && !_facade.GetAlliesInRow(CombatManager.SlotRow.Front).Contains(unit)) continue;
+                if (target == EffectTarget.MidRow && !_facade.GetAlliesInRow(CombatManager.SlotRow.Mid).Contains(unit)) continue;
+                if (target == EffectTarget.BackRow && !_facade.GetAlliesInRow(CombatManager.SlotRow.Back).Contains(unit)) continue;
                 float hp = unit.CurrentHp;
                 if (unit == changedUnit && previousUnitRatio >= 0f) hp = previousUnitRatio * unit.MaxHp;
                 currentHp += hp;
@@ -172,8 +174,12 @@ namespace OzGameLab01.Combat
                 if (trigger == TriggerType.OnHpBelowThreshold)
                 {
                     float threshold = effect.triggerParam > 0f ? effect.triggerParam / 100f : 0.5f;
-                    if (previousThresholdRatio < 0f || previousThresholdRatio < threshold || thresholdRatio >= threshold)
+                    float previous = GetHpRatio(effect.target, previousThresholdRatio, triggeringUnit);
+                    float current = GetHpRatio(effect.target, -1f, null);
+                    var thresholdKey = (source.Kind, source.SourceId, source.DeclarationIndex);
+                    if (previousThresholdRatio < 0f || previous < threshold || current >= threshold || _firedHpThreshold.Contains(thresholdKey))
                         continue;
+                    _firedHpThreshold.Add(thresholdKey);
                 }
 
                 var onceKey = (source.Kind, source.SourceId, source.DeclarationIndex);
@@ -223,7 +229,7 @@ namespace OzGameLab01.Combat
                     if (source.Kind == RuntimeEffectManager.EffectSourceKind.UnitPassive)
                     {
                         Unit owner = _facade.GetAllyUnitById(source.SourceId);
-                        if (owner != null && !owner.IsDead)
+                        if (owner != null && (!owner.IsDead || effect.effect == EffectType.Revive))
                         {
                             yield return owner;
                         }
@@ -232,7 +238,7 @@ namespace OzGameLab01.Combat
                     break;
 
                 case EffectTarget.TriggeringUnit:
-                    if (triggeringUnit != null && !triggeringUnit.IsDead)
+                    if (triggeringUnit != null && (!triggeringUnit.IsDead || effect.effect == EffectType.Revive))
                     {
                         yield return triggeringUnit;
                     }
@@ -242,7 +248,7 @@ namespace OzGameLab01.Combat
                 case EffectTarget.AllAllies:
                     foreach (Unit unit in _facade.GetParticipatingAllyUnits())
                     {
-                        if (!unit.IsDead)
+                        if (!unit.IsDead || effect.effect == EffectType.Revive)
                         {
                             yield return unit;
                         }
@@ -251,7 +257,7 @@ namespace OzGameLab01.Combat
                     break;
 
                 case EffectTarget.FrontRow:
-                    foreach (Unit unit in _facade.GetAliveAlliesInRow(CombatManager.SlotRow.Front))
+                    foreach (Unit unit in GetAlliesInRow(CombatManager.SlotRow.Front, effect.effect == EffectType.Revive))
                     {
                         yield return unit;
                     }
@@ -259,7 +265,7 @@ namespace OzGameLab01.Combat
                     break;
 
                 case EffectTarget.MidRow:
-                    foreach (Unit unit in _facade.GetAliveAlliesInRow(CombatManager.SlotRow.Mid))
+                    foreach (Unit unit in GetAlliesInRow(CombatManager.SlotRow.Mid, effect.effect == EffectType.Revive))
                     {
                         yield return unit;
                     }
@@ -267,7 +273,7 @@ namespace OzGameLab01.Combat
                     break;
 
                 case EffectTarget.BackRow:
-                    foreach (Unit unit in _facade.GetAliveAlliesInRow(CombatManager.SlotRow.Back))
+                    foreach (Unit unit in GetAlliesInRow(CombatManager.SlotRow.Back, effect.effect == EffectType.Revive))
                     {
                         yield return unit;
                     }
@@ -281,7 +287,7 @@ namespace OzGameLab01.Combat
 
                 case EffectTarget.RandomAlly:
                 {
-                    List<Unit> alive = GetAliveAllies();
+                    List<Unit> alive = GetAliveAllies(effect.effect == EffectType.Revive);
                     if (alive.Count > 0)
                     {
                         yield return alive[_random.Next(alive.Count)];
@@ -294,7 +300,7 @@ namespace OzGameLab01.Combat
                 {
                     Unit worst = null;
                     float worstRatio = float.MaxValue;
-                    foreach (Unit unit in GetAliveAllies())
+                    foreach (Unit unit in GetAliveAllies(effect.effect == EffectType.Revive))
                     {
                         float ratio = unit.MaxHp > 0f ? unit.CurrentHp / unit.MaxHp : 0f;
                         if (ratio < worstRatio)
@@ -322,12 +328,22 @@ namespace OzGameLab01.Combat
             }
         }
 
-        private List<Unit> GetAliveAllies()
+        private IEnumerable<Unit> GetAlliesInRow(CombatManager.SlotRow row, bool includeDead)
+        {
+            foreach (Unit unit in _facade.GetParticipatingAllyUnits())
+            {
+                if (unit == null) continue;
+                if (!_facade.GetAlliesInRow(row).Contains(unit)) continue;
+                if (includeDead || !unit.IsDead) yield return unit;
+            }
+        }
+
+        private List<Unit> GetAliveAllies(bool includeDead = false)
         {
             List<Unit> alive = new List<Unit>();
             foreach (Unit unit in _facade.GetParticipatingAllyUnits())
             {
-                if (!unit.IsDead)
+                if (includeDead || !unit.IsDead)
                 {
                     alive.Add(unit);
                 }
@@ -356,6 +372,8 @@ namespace OzGameLab01.Combat
                 case EffectType.CleanseDebuffs:
                     target.CleanseDebuffs();
                     return true;
+                case EffectType.Revive:
+                    return target.Revive(effect.effectParam > 0f ? effect.effectParam : 100f);
 
                 // Revive/DebuffImmunity/DebuffDurationModifier/
                 // CooldownModifier/NullifyNextSkill/SynergyModifier: 대응 메커니즘이 아직 없어

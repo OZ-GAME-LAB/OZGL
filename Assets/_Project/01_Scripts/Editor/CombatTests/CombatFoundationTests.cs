@@ -232,5 +232,30 @@ namespace OzGameLab01.Tests.EditMode
                 UnityEngine.Object.DestroyImmediate(targetObject);
             }
         }
+
+        [Test]
+        public void ReviveRestoresDeadUnitAndRegistersItAgain()
+        {
+            var unitObject = new UnityEngine.GameObject("Revive target");
+            try
+            {
+                var unit = unitObject.AddComponent<Unit>();
+                typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(unit, null);
+                typeof(Unit).GetMethod("InitializeRuntimeState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(unit, null);
+
+                unit.TakeDamage(200f);
+                Assert.That(unit.IsDead, Is.True);
+                Assert.That(unit.Revive(30f), Is.True);
+                Assert.That(unit.IsDead, Is.False);
+                Assert.That(unit.CurrentHp, Is.EqualTo(30f).Within(0.001f));
+                Assert.That(CombatUnitRegistry.Units, Does.Contain(unit));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(unitObject);
+            }
+        }
     }
 }

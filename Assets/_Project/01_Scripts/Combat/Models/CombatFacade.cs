@@ -52,6 +52,7 @@ namespace OzGameLab01.Combat
         /// EffectTarget.FrontRow/MidRow/BackRow 해석에 사용합니다.
         /// </summary>
         public List<Unit> GetAliveAlliesInRow(CombatManager.SlotRow row) => GetSession()?.State.GetAliveAlliesInRow(row) ?? new List<Unit>();
+        public List<Unit> GetAlliesInRow(CombatManager.SlotRow row) => GetSession()?.State.GetAlliesInRow(row) ?? new List<Unit>();
 
         /// <summary>
         /// 유닛 id(GameDB 기준)로 현재 전투에 스폰된 아군 Unit을 찾습니다. 패시브 효과의

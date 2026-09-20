@@ -560,6 +560,20 @@ namespace OzGameLab01.Combat
             return _shields.Total > previous;
         }
 
+        public bool Revive(float healthPercent)
+        {
+            if (!_isDead || float.IsNaN(healthPercent) || float.IsInfinity(healthPercent)) return false;
+            _isDead = false;
+            _currentHP = Mathf.Clamp(maxHP * Mathf.Clamp(healthPercent, 0f, 100f) / 100f, 1f, maxHP);
+            _shields.Clear();
+            _status.Clear();
+            gameObject.SetActive(true);
+            CombatUnitRegistry.Register(this);
+            _presenter.SetVisualsVisible(true, gameObject);
+            _presenter.SetHP(_currentHP);
+            return true;
+        }
+
         public void CleanseDebuffs() => _status.Clear();
 
         public void TakeDamage(float dmg)
