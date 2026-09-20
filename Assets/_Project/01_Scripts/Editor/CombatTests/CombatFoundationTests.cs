@@ -161,6 +161,49 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
+        public void TargetSelectorRandomUsesEachTargetAtMostOnceAndSkipsDeadUnits()
+        {
+            var aliveA = CreateUnit("random alive A", 100f);
+            var aliveB = CreateUnit("random alive B", 100f);
+            var dead = CreateUnit("random dead", 100f);
+            dead.TakeDamage(100f);
+            try
+            {
+                var result = CombatTargetSelector.SelectRandom(
+                    new[] { aliveA, dead, aliveB }, 3, new CombatRandom(7));
+                Assert.That(result, Is.EqualTo(new[] { aliveA, aliveB }));
+                Assert.That(new HashSet<Unit>(result).Count, Is.EqualTo(result.Count));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(aliveA.gameObject);
+                UnityEngine.Object.DestroyImmediate(aliveB.gameObject);
+                UnityEngine.Object.DestroyImmediate(dead.gameObject);
+            }
+        }
+
+        [Test]
+        public void TargetSelectorWorstHpUsesCurrentHpRatioAndDeclarationOrderForTies()
+        {
+            var full = CreateUnit("worst full", 100f);
+            var half = CreateUnit("worst half", 100f);
+            var low = CreateUnit("worst low", 200f);
+            half.TakeDamage(50f);
+            low.TakeDamage(150f);
+            try
+            {
+                var result = CombatTargetSelector.SelectWorstHp(new[] { full, half, low }, 2);
+                Assert.That(result, Is.EqualTo(new[] { low, half }));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(full.gameObject);
+                UnityEngine.Object.DestroyImmediate(half.gameObject);
+                UnityEngine.Object.DestroyImmediate(low.gameObject);
+            }
+        }
+
+        [Test]
         public void EnemyPreparationUsesGrowthRowAndReturnsDetachedCachedSpecs()
         {
             var catalog = new ContentCatalog(
@@ -460,6 +503,14 @@ namespace OzGameLab01.Tests.EditMode
                 .Invoke(unit, null);
             typeof(Unit).GetMethod("InitializeRuntimeState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .Invoke(unit, null);
+        }
+
+        private static Unit CreateUnit(string name, float maxHp)
+        {
+            var unit = new UnityEngine.GameObject(name).AddComponent<Unit>();
+            unit.Configure(new UnitData { healthPoint = maxHp });
+            InitializeUnit(unit);
+            return unit;
         }
     }
 }

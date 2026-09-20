@@ -529,31 +529,14 @@ namespace OzGameLab01.Combat
                         if (ally != null && !ally.IsDead) yield return ally;
                     yield break;
                 case EffectTarget.RandomAlly:
-                    List<Unit> allies = GetAliveAlliesForSkill();
-                    int randomCount = effect.targetCount > 0 ? effect.targetCount : 1;
-                    for (int i = 0; i < randomCount && allies.Count > 0; i++)
-                    {
-                        int selected = _random.Next(allies.Count);
-                        yield return allies[selected];
-                        allies.RemoveAt(selected);
-                    }
+                    foreach (Unit ally in CombatTargetSelector.SelectRandom(
+                        GetAliveAlliesForSkill(), effect.targetCount, _random))
+                        yield return ally;
                     yield break;
                 case EffectTarget.WorstHpAlly:
-                    List<Unit> worstCandidates = GetAliveAlliesForSkill();
-                    int worstCount = effect.targetCount > 0 ? effect.targetCount : 1;
-                    for (int i = 0; i < worstCount && worstCandidates.Count > 0; i++)
-                    {
-                        int selected = 0;
-                        float selectedRatio = float.MaxValue;
-                        for (int j = 0; j < worstCandidates.Count; j++)
-                        {
-                            Unit ally = worstCandidates[j];
-                            float ratio = ally.MaxHp > 0f ? ally.CurrentHp / ally.MaxHp : 0f;
-                            if (ratio < selectedRatio) { selectedRatio = ratio; selected = j; }
-                        }
-                        yield return worstCandidates[selected];
-                        worstCandidates.RemoveAt(selected);
-                    }
+                    foreach (Unit ally in CombatTargetSelector.SelectWorstHp(
+                        GetAliveAlliesForSkill(), effect.targetCount))
+                        yield return ally;
                     yield break;
                 default:
                     if (defaultTarget != null && !defaultTarget.IsDead) yield return defaultTarget;
