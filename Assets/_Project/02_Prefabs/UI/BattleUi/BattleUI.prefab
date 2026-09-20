@@ -1189,18 +1189,7 @@ MonoBehaviour:
   unitInfoView: {fileID: 7655263387132080910}
   synergyView: {fileID: 3232342752029083625}
   artifactView: {fileID: 3747564403627473092}
-  allyCombatArea: {fileID: 8994595775202916189}
-  enemyCombatArea: {fileID: 6623132021682597246}
-  playerSlotViews:
-  - {fileID: 4902998752273773844}
-  - {fileID: 5148161055888509404}
-  - {fileID: 6202183213964320486}
-  - {fileID: 4501293485523011414}
-  - {fileID: 2416231564601966710}
-  - {fileID: 3510241274392280464}
-  - {fileID: 1512894026591449123}
-  - {fileID: 1489586629732678749}
-  - {fileID: 3795163788777732550}
+  formationGrid: {fileID: 1077350155517367006}
 --- !u!1 &2472635862962833289
 GameObject:
   m_ObjectHideFlags: 0
@@ -7355,7 +7344,7 @@ MonoBehaviour:
       alphaMultiplier: 0
     enterDelay: 0.35
     exitDelay: 0
-  onEnable: 3
+  onEnable: 2
   useUnscaledTime: 1
   ambientAfterEnter: 0
   enterDuration: 0.45
