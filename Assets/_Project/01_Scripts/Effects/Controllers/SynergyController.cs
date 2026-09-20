@@ -182,6 +182,12 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "StatusEffect")
+                {
+                    selfUnit?.SetStatusEffectChance(effect.value);
+                    continue;
+                }
+
                 if (targetType == SynergyTargetType.HighestHPUnit)
                 {
                     Unit highest = null;
@@ -252,6 +258,19 @@ namespace OzGameLab01.Controllers
                     trigger = TriggerType.Always,
                     target = EffectTarget.AllAllies,
                     effect = EffectType.ExtraDamageOnStatus,
+                    effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "StatusEffect")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.StatusEffect,
                     effectParam = node.value,
                     untilBattleEnd = true
                 };

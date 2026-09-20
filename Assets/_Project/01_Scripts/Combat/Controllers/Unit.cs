@@ -53,6 +53,7 @@ namespace OzGameLab01.Combat
         // -1 means that no fixed-damage synergy is active.
         private float _fixedDamage = -1f;
         private float _extraDamageOnStatusPercent;
+        private float _statusEffectChance;
 
         public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
 
@@ -238,6 +239,7 @@ namespace OzGameLab01.Combat
             _status.Clear();
             _fixedDamage = -1f;
             _extraDamageOnStatusPercent = 0f;
+            _statusEffectChance = 0f;
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
             _presenter.CaptureOriginalColor();
@@ -419,6 +421,7 @@ namespace OzGameLab01.Combat
                 applyDamage, onImpact);
 
             PassiveEventBus.RaiseAttackLanded(this, target);
+            if (applyDamage) TryApplyRandomStatusEffect(target);
         }
 
         private IEnumerator CastSkill(Unit target, UnitSkillRuntime skill, bool isBasicAttack)
@@ -557,6 +560,7 @@ namespace OzGameLab01.Combat
             effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
             target.TakeDamage(Mathf.Round(effectiveDamage * 100f) / 100f);
             PassiveEventBus.RaiseAttackLanded(this, target);
+            TryApplyRandomStatusEffect(target);
         }
 
         public bool Heal(float amount)
@@ -593,6 +597,42 @@ namespace OzGameLab01.Combat
             if (float.IsNaN(percent) || float.IsInfinity(percent) || percent < 0f) return false;
             _extraDamageOnStatusPercent = percent;
             return true;
+        }
+
+        public bool SetStatusEffectChance(float percent)
+        {
+            if (float.IsNaN(percent) || float.IsInfinity(percent) || percent < 0f) return false;
+            _statusEffectChance = Mathf.Clamp(percent, 0f, 100f);
+            return true;
+        }
+
+        private void TryApplyRandomStatusEffect(Unit target)
+        {
+            if (target == null || target.IsDead || _statusEffectChance <= 0f ||
+                _random.NextDouble() * 100f >= _statusEffectChance)
+            {
+                return;
+            }
+
+            DebuffType type = (DebuffType)(_random.Next(4) + 1);
+            DebuffProfile profile;
+            switch (type)
+            {
+                case DebuffType.DamageOverTime:
+                    profile = new DebuffProfile { type = type, duration = 4f, magnitude = 5f, tickInterval = 1f };
+                    break;
+                case DebuffType.Stun:
+                    profile = new DebuffProfile { type = type, duration = 2f };
+                    break;
+                case DebuffType.AttackDown:
+                    profile = new DebuffProfile { type = type, duration = 4f, magnitude = 0.3f };
+                    break;
+                default:
+                    profile = new DebuffProfile { type = DebuffType.Silence, duration = 3f };
+                    break;
+            }
+
+            target.ApplyDebuff(profile);
         }
 
         public void ApplyDebuff(DebuffProfile profile) => _status.Apply(profile);

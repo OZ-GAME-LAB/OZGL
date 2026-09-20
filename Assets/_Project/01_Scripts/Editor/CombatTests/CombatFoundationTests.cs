@@ -328,6 +328,29 @@ namespace OzGameLab01.Tests.EditMode
             }
         }
 
+        [Test]
+        public void StatusEffectSynergyAppliesRandomDebuffAfterAttack()
+        {
+            var casterObject = new UnityEngine.GameObject("Status effect caster");
+            var targetObject = new UnityEngine.GameObject("Status effect target");
+            try
+            {
+                var caster = casterObject.AddComponent<Unit>();
+                var target = targetObject.AddComponent<Unit>();
+                InitializeUnit(caster);
+                InitializeUnit(target);
+                caster.SetStatusEffectChance(100f);
+                typeof(Unit).GetMethod("ApplySkillDamage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(caster, new object[] { target, 1f });
+                Assert.That(target.HasAnyDebuff, Is.True);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(casterObject);
+                UnityEngine.Object.DestroyImmediate(targetObject);
+            }
+        }
+
         private static void InitializeUnit(Unit unit)
         {
             typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)

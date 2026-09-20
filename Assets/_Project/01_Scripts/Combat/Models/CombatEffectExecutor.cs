@@ -376,6 +376,8 @@ namespace OzGameLab01.Combat
                     return target.SetFixedDamage(effect.effectParam);
                 case EffectType.ExtraDamageOnStatus:
                     return target.SetExtraDamageOnStatus(effect.effectParam);
+                case EffectType.StatusEffect:
+                    return target.SetStatusEffectChance(effect.effectParam);
                 case EffectType.CleanseDebuffs:
                     target.CleanseDebuffs();
                     return true;
