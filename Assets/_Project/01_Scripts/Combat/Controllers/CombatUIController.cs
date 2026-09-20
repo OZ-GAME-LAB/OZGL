@@ -5,7 +5,7 @@ using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
 using OzGameLab01.UI.Settings;
 using OzGameLab01.Combat;
-using OzGameLab01.Effects.Models;
+using OzGameLab01.Data;
 using OzGameLab01.Managers;
 using OzGameLab01.Save;
 using OzGameLab01.Common;
@@ -55,6 +55,7 @@ namespace OzGameLab01.Controllers
         // 전투 진입 시 마지막 저장 배속 및 버튼 표시 복원
         private void Start()
         {
+            _rewardApplied = false;
             _isFastForward = SystemBus.Get<SaveFacade>()?.CurrentData?.combatFastForward ?? false;
             combatSceneController?.SetFastForward(_isFastForward);
             UpdateSpeedDisplay(_controlView);
@@ -261,7 +262,12 @@ namespace OzGameLab01.Controllers
                     {
                         // 보상 화면이 구성되지 않은 일반 전투는 승리 시 무작위 유물 1개를
                         // 자동으로 지급합니다(dropWeight 가중치, RelicFacade.AcquireRandomRelic).
-                        var grantedRelic = SystemBus.Get<RelicFacade>()?.AcquireRandomRelic();
+                        RelicData grantedRelic = BattleRewardService.ApplyAutomaticVictoryReward(this);
+
+                        if (grantedRelic != null)
+                        {
+                            _rewardApplied = true;
+                        }
 
                         battleUIView.ResultView.SetResultText("Victory!");
                         battleUIView.ResultView.SetOptionalMessage(
