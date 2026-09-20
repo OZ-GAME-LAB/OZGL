@@ -94,7 +94,7 @@ namespace OzGameLab01.UI.Battle
 
             if (rewardView != null)
             {
-                rewardView.ShowConfiguredRewards();
+                rewardView.Show();
             }
         }
 

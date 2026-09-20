@@ -775,22 +775,6 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3701334436659265835, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
-      propertyPath: configuredRewards.Array.size
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3701334436659265835, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
-      propertyPath: configuredRewards.Array.data[0].kind
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 3701334436659265835, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
-      propertyPath: configuredRewards.Array.data[0].targetId
-      value: 101
-      objectReference: {fileID: 0}
-    - target: {fileID: 3701334436659265835, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
-      propertyPath: configuredRewards.Array.data[0].description
-      value: Recruit a new unit
-      objectReference: {fileID: 0}
     - target: {fileID: 4094504921572254566, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
