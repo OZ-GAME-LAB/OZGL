@@ -368,7 +368,10 @@ namespace OzGameLab01.Combat
                 case EffectType.Heal:
                     return target.Heal(effect.effectParam);
                 case EffectType.GrantShield:
-                    return target.GrantShield(effect.effectParam, effect.durationSeconds, effect.untilBattleEnd);
+                    float shieldAmount = effect.effectParamIsPercent
+                        ? target.MaxHp * effect.effectParam / 100f
+                        : effect.effectParam;
+                    return target.GrantShield(shieldAmount, effect.durationSeconds, effect.untilBattleEnd);
                 case EffectType.CleanseDebuffs:
                     target.CleanseDebuffs();
                     return true;

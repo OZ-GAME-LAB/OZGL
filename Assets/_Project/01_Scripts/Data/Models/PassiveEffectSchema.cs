@@ -100,6 +100,7 @@ namespace OzGameLab01.Data
         public EffectStatType statType;
         public EffectOperation operation;
         public float effectParam;
+        public bool effectParamIsPercent;
         public float chance;
         public bool once;
         public float durationSeconds;

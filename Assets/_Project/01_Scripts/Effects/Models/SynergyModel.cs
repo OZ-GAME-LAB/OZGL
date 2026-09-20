@@ -84,6 +84,12 @@ namespace OzGameLab01.Effects.Models
                 return true;
             }
 
+            if (effect.effectType == "RecoveryIncrease")
+            {
+                statType = EffectStatType.RecoveryAmount;
+                return true;
+            }
+
             if (effect.effectType != "StatBuff" && effect.effectType != "IncreaseDamage")
             {
                 return false;

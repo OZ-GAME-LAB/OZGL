@@ -322,6 +322,8 @@ namespace OzGameLab01.Combat
             _stats.SetBase(EffectStatType.CriticalChance, criticalRate);
             _stats.SetBase(EffectStatType.CriticalMultiplier, criticalMult);
             _stats.SetBase(EffectStatType.DodgeChance, dodgeRate);
+            // RecoveryAmount is a percentage scale: base 100 means normal healing.
+            _stats.SetBase(EffectStatType.RecoveryAmount, 100f);
         }
 
         private void RefreshStats()
@@ -543,8 +545,10 @@ namespace OzGameLab01.Combat
         public bool Heal(float amount)
         {
             if (_isDead || amount <= 0 || float.IsNaN(amount) || float.IsInfinity(amount)) return false;
+            if (_stats == null) CaptureBaseStats();
             float previous = _currentHP;
-            _currentHP = Mathf.Min(maxHP, _currentHP + amount);
+            float recoveryMultiplier = _stats.Get(EffectStatType.RecoveryAmount) / 100f;
+            _currentHP = Mathf.Min(maxHP, _currentHP + amount * Mathf.Max(0f, recoveryMultiplier));
             if (_currentHP <= previous) return false;
             _presenter.SetHP(_currentHP);
             PassiveEventBus.RaiseHealed(this);

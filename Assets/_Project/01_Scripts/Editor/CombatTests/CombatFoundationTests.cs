@@ -257,5 +257,28 @@ namespace OzGameLab01.Tests.EditMode
                 UnityEngine.Object.DestroyImmediate(unitObject);
             }
         }
+
+        [Test]
+        public void RecoveryAmountModifierAmplifiesHealWithoutChangingMaxHp()
+        {
+            var unitObject = new UnityEngine.GameObject("Recovery target");
+            try
+            {
+                var unit = unitObject.AddComponent<Unit>();
+                typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(unit, null);
+                typeof(Unit).GetMethod("InitializeRuntimeState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(unit, null);
+                unit.TakeDamage(50f);
+                Assert.That(unit.ApplyStatEffect(EffectStatType.RecoveryAmount, 20f), Is.True);
+                Assert.That(unit.Heal(10f), Is.True);
+                Assert.That(unit.CurrentHp, Is.EqualTo(62f).Within(0.001f));
+                Assert.That(unit.MaxHp, Is.EqualTo(100f).Within(0.001f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(unitObject);
+            }
+        }
     }
 }

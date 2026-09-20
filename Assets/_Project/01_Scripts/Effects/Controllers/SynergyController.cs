@@ -111,6 +111,7 @@ namespace OzGameLab01.Controllers
 
                     _traitCounts.TryGetValue(definition, out int count);
                     CollectSharedTierEffects(definition, count);
+                    ApplyTierEffects(definition, count, SynergyTargetType.HighestHPUnit, null, spawnedFormation, slotUnits);
                 }
             }
             _notifications.Publish(OzGameLab01.Effects.Models.EffectsNotificationKind.SynergiesEvaluated, 0, _traitCounts.Count);
@@ -125,21 +126,12 @@ namespace OzGameLab01.Controllers
             int declarationIndex = 0;
             foreach (SynergyEffectNode node in tier.effects)
             {
-                if (node.targetType != SynergyTargetType.AllAllies || !TryResolveStatType(node, out EffectStatType statType))
+                if (node.targetType != SynergyTargetType.AllAllies || !TryResolveSynergyEffect(node, out EffectInstance effect))
                     continue;
                 _activeSharedEffects.Add(new RuntimeEffectManager.EffectSource(
                     RuntimeEffectManager.EffectSourceKind.Synergy,
                     richData.id,
-                    new EffectInstance
-                    {
-                        trigger = TriggerType.Always,
-                        target = EffectTarget.AllAllies,
-                        effect = EffectType.StatModifier,
-                        statType = statType,
-                        operation = EffectOperation.Add,
-                        effectParam = node.value,
-                        untilBattleEnd = true
-                    },
+                    effect,
                     declarationIndex++));
             }
         }
@@ -167,10 +159,38 @@ namespace OzGameLab01.Controllers
 
             foreach (SynergyEffectNode effect in tier.effects)
             {
-                if (effect.targetType != targetType || !TryResolveStatType(effect, out EffectStatType statType))
+                if (effect.targetType != targetType)
                 {
                     continue;
                 }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "ShieldOnStart")
+                {
+                    selfUnit?.GrantShield(selfUnit.MaxHp * effect.value, 0f, true);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.HighestHPUnit)
+                {
+                    Unit highest = null;
+                    foreach (KeyValuePair<CombatManager.SlotKey, int> kvp in spawnedFormation)
+                    {
+                        Unit candidate = slotUnits[kvp.Key.column, (int)kvp.Key.row];
+                        if (candidate != null && (highest == null || candidate.CurrentHp > highest.CurrentHp)) highest = candidate;
+                    }
+                    if (highest == null) continue;
+                    if (effect.effectType == "ShieldOnStart")
+                    {
+                        highest.GrantShield(highest.MaxHp * effect.value, 0f, true);
+                    }
+                    else if (TryResolveStatType(effect, out EffectStatType highestStat))
+                    {
+                        ApplyAndReport(highest, richData.name, highestStat, effect.value);
+                    }
+                    continue;
+                }
+
+                if (!TryResolveStatType(effect, out EffectStatType statType)) continue;
 
                 if (targetType == SynergyTargetType.SelfSynergy)
                 {
@@ -181,6 +201,37 @@ namespace OzGameLab01.Controllers
                 // Shared synergy effects are collected into CombatEffectCatalog and run by
                 // CombatEffectExecutor at battle start. This prevents a second direct path.
             }
+        }
+
+        private static bool TryResolveSynergyEffect(SynergyEffectNode node, out EffectInstance effect)
+        {
+            effect = default;
+            if (node.effectType == "ShieldOnStart")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.GrantShield,
+                    effectParam = node.value * 100f,
+                    effectParamIsPercent = true,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (!TryResolveStatType(node, out EffectStatType statType)) return false;
+            effect = new EffectInstance
+            {
+                trigger = TriggerType.Always,
+                target = EffectTarget.AllAllies,
+                effect = EffectType.StatModifier,
+                statType = statType,
+                operation = EffectOperation.Add,
+                effectParam = node.value,
+                untilBattleEnd = true
+            };
+            return true;
         }
 
         private void ApplyAndReport(Unit unit, string source, EffectStatType stat, float value)
