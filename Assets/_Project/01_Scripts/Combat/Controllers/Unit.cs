@@ -50,6 +50,11 @@ namespace OzGameLab01.Combat
         private UnitPresenter _presenter;
         // 도트/기절/그을림/침묵 디버프 상태는 UnitStatusEffects에 위임합니다.
         private UnitStatusEffects _status;
+        // -1 means that no fixed-damage synergy is active.
+        private float _fixedDamage = -1f;
+        private float _extraDamageOnStatusPercent;
+
+        public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
 
         private void EnsureRuntimeComponents()
         {
@@ -231,6 +236,8 @@ namespace OzGameLab01.Combat
             _isDead = false;
             _shields.Clear();
             _status.Clear();
+            _fixedDamage = -1f;
+            _extraDamageOnStatusPercent = 0f;
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
             _presenter.CaptureOriginalColor();
@@ -380,7 +387,12 @@ namespace OzGameLab01.Combat
         private void FireProjectile(Unit target, float damage, System.Action onImpact = null, bool applyDamage = true)
         {
             // 그을림(공격력 감소) 디버프는 데미지 계산 시점에 반영한다.
-            float effectiveDamage = damage * _status.AttackMultiplier;
+            float baseDamage = _fixedDamage >= 0f ? _fixedDamage : damage;
+            if (target != null && target.HasAnyDebuff)
+            {
+                baseDamage *= 1f + _extraDamageOnStatusPercent / 100f;
+            }
+            float effectiveDamage = baseDamage * _status.AttackMultiplier;
 
             if (target != null && applyDamage)
             {
@@ -534,7 +546,12 @@ namespace OzGameLab01.Combat
         private void ApplySkillDamage(Unit target, float damage)
         {
             if (target == null || target.IsDead) return;
-            float effectiveDamage = damage * _status.AttackMultiplier;
+            float baseDamage = _fixedDamage >= 0f ? _fixedDamage : damage;
+            if (target.HasAnyDebuff)
+            {
+                baseDamage *= 1f + _extraDamageOnStatusPercent / 100f;
+            }
+            float effectiveDamage = baseDamage * _status.AttackMultiplier;
             if (_random.NextDouble() < Mathf.Min(target.dodgeRate, 60f) / 100f) return;
             if (_random.NextDouble() < criticalRate / 100f) effectiveDamage *= criticalMult / 100f;
             effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
@@ -563,6 +580,22 @@ namespace OzGameLab01.Combat
             if (acquired) PassiveEventBus.RaiseShielded(this);
             return _shields.Total > previous;
         }
+
+        public bool SetFixedDamage(float amount)
+        {
+            if (float.IsNaN(amount) || float.IsInfinity(amount) || amount < 0f) return false;
+            _fixedDamage = amount;
+            return true;
+        }
+
+        public bool SetExtraDamageOnStatus(float percent)
+        {
+            if (float.IsNaN(percent) || float.IsInfinity(percent) || percent < 0f) return false;
+            _extraDamageOnStatusPercent = percent;
+            return true;
+        }
+
+        public void ApplyDebuff(DebuffProfile profile) => _status.Apply(profile);
 
         public bool Revive(float healthPercent)
         {

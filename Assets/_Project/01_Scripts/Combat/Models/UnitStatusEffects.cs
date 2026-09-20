@@ -46,6 +46,9 @@ namespace OzGameLab01.Combat
 
         public bool IsStunned => HasType(DebuffType.Stun);
         public bool IsSilenced => HasType(DebuffType.Silence);
+        public bool HasAnyDebuff => _active.Count > 0;
+
+        public bool HasDebuff(DebuffType type) => HasType(type);
 
         public float AttackMultiplier
         {

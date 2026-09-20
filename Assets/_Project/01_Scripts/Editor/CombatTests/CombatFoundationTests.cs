@@ -280,5 +280,60 @@ namespace OzGameLab01.Tests.EditMode
                 UnityEngine.Object.DestroyImmediate(unitObject);
             }
         }
+
+        [Test]
+        public void FixedDamageOverridesRequestedAttackDamage()
+        {
+            var casterObject = new UnityEngine.GameObject("Fixed damage caster");
+            var targetObject = new UnityEngine.GameObject("Fixed damage target");
+            try
+            {
+                var caster = casterObject.AddComponent<Unit>();
+                var target = targetObject.AddComponent<Unit>();
+                InitializeUnit(caster);
+                InitializeUnit(target);
+                caster.SetFixedDamage(30f);
+                typeof(Unit).GetMethod("ApplySkillDamage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(caster, new object[] { target, 999f });
+                Assert.That(target.CurrentHp, Is.EqualTo(70f).Within(0.001f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(casterObject);
+                UnityEngine.Object.DestroyImmediate(targetObject);
+            }
+        }
+
+        [Test]
+        public void ExtraDamageOnStatusAmplifiesDamageAgainstDebuffedTarget()
+        {
+            var casterObject = new UnityEngine.GameObject("Status damage caster");
+            var targetObject = new UnityEngine.GameObject("Status damage target");
+            try
+            {
+                var caster = casterObject.AddComponent<Unit>();
+                var target = targetObject.AddComponent<Unit>();
+                InitializeUnit(caster);
+                InitializeUnit(target);
+                caster.SetExtraDamageOnStatus(20f);
+                target.ApplyDebuff(new DebuffProfile { type = DebuffType.Stun, duration = 5f });
+                typeof(Unit).GetMethod("ApplySkillDamage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(caster, new object[] { target, 10f });
+                Assert.That(target.CurrentHp, Is.EqualTo(88f).Within(0.001f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(casterObject);
+                UnityEngine.Object.DestroyImmediate(targetObject);
+            }
+        }
+
+        private static void InitializeUnit(Unit unit)
+        {
+            typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .Invoke(unit, null);
+            typeof(Unit).GetMethod("InitializeRuntimeState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                .Invoke(unit, null);
+        }
     }
 }

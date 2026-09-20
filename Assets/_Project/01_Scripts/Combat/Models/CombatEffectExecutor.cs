@@ -372,6 +372,10 @@ namespace OzGameLab01.Combat
                         ? target.MaxHp * effect.effectParam / 100f
                         : effect.effectParam;
                     return target.GrantShield(shieldAmount, effect.durationSeconds, effect.untilBattleEnd);
+                case EffectType.FixedDamage:
+                    return target.SetFixedDamage(effect.effectParam);
+                case EffectType.ExtraDamageOnStatus:
+                    return target.SetExtraDamageOnStatus(effect.effectParam);
                 case EffectType.CleanseDebuffs:
                     target.CleanseDebuffs();
                     return true;

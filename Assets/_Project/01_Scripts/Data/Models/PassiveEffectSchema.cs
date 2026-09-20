@@ -47,6 +47,8 @@ namespace OzGameLab01.Data
         DealDamage,
         Heal,
         GrantShield,
+        FixedDamage,
+        ExtraDamageOnStatus,
         Revive,
         CleanseDebuffs,
         DebuffImmunity,

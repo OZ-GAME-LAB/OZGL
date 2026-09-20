@@ -170,6 +170,18 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "FixedDamage")
+                {
+                    selfUnit?.SetFixedDamage(effect.value);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "ExtraDamageOnStatus")
+                {
+                    selfUnit?.SetExtraDamageOnStatus(effect.value);
+                    continue;
+                }
+
                 if (targetType == SynergyTargetType.HighestHPUnit)
                 {
                     Unit highest = null;
@@ -215,6 +227,32 @@ namespace OzGameLab01.Controllers
                     effect = EffectType.GrantShield,
                     effectParam = node.value * 100f,
                     effectParamIsPercent = true,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "FixedDamage")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.FixedDamage,
+                    effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "ExtraDamageOnStatus")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.ExtraDamageOnStatus,
+                    effectParam = node.value,
                     untilBattleEnd = true
                 };
                 return true;
