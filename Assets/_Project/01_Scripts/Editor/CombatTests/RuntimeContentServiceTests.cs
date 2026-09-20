@@ -91,5 +91,42 @@ namespace OzGameLab01.Tests.EditMode
             foreach (UnitData unit in catalog.Units)
                 foreach (int id in unit.skillIds) Assert.That(catalog.GetSkill(id), Is.Not.Null);
         }
+
+        [Test]
+        public void RealResourcesSynergyEffectsHaveImplementedRuntimeTypes()
+        {
+            ContentCatalog catalog = ResourcesContentLoader.Load();
+            var supported = new HashSet<string>
+            {
+                "CooldownDecrease",
+                "DecreaseDmgDefense",
+                "ExtraDamageOnStatus",
+                "FixedDamage",
+                "IncreaseDamage",
+                "NoSkillStatBuff",
+                "RecoveryIncrease",
+                "ShieldBonusDamage",
+                "ShieldOnStart",
+                "StatBuff",
+                "StatusEffect",
+                "UseSkillTwoTimes"
+            };
+            int effectCount = 0;
+            foreach (SynergyData synergy in catalog.Synergies.Values)
+            {
+                foreach (SynergyTier tier in synergy.tiers)
+                {
+                    foreach (SynergyEffectNode effect in tier.effects)
+                    {
+                        effectCount++;
+                        Assert.That(supported, Does.Contain(effect.effectType),
+                            $"Unsupported synergy effect: {synergy.id}/{tier.tierLevel}/{effect.effectType}");
+                    }
+                }
+            }
+
+            Assert.That(catalog.Synergies.Count, Is.EqualTo(12));
+            Assert.That(effectCount, Is.EqualTo(50));
+        }
     }
 }
