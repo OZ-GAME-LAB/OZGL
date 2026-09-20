@@ -200,6 +200,12 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "DecreaseDmgDefense")
+                {
+                    selfUnit?.SetDefenseBasedDamageReduction(effect.value, effect.extraParam);
+                    continue;
+                }
+
                 if (targetType == SynergyTargetType.HighestHPUnit)
                 {
                     Unit highest = null;
@@ -310,6 +316,20 @@ namespace OzGameLab01.Controllers
                     target = EffectTarget.AllAllies,
                     effect = EffectType.NoSkillStatBuff,
                     effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "DecreaseDmgDefense")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.DecreaseDmgDefense,
+                    effectParam = node.value,
+                    effectSecondaryParam = node.extraParam,
                     untilBattleEnd = true
                 };
                 return true;

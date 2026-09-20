@@ -382,6 +382,8 @@ namespace OzGameLab01.Combat
                     return target.SetUseSkillTwice(true);
                 case EffectType.NoSkillStatBuff:
                     return target.SetNoSkillStatBuff(effect.effectParam);
+                case EffectType.DecreaseDmgDefense:
+                    return target.SetDefenseBasedDamageReduction(effect.effectParam, effect.effectSecondaryParam);
                 case EffectType.CleanseDebuffs:
                     target.CleanseDebuffs();
                     return true;

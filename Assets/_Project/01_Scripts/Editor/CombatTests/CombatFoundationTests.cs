@@ -389,6 +389,25 @@ namespace OzGameLab01.Tests.EditMode
             }
         }
 
+        [Test]
+        public void DefenseBasedDamageReductionScalesWithTargetDefense()
+        {
+            var unitObject = new UnityEngine.GameObject("Defense reduction target");
+            try
+            {
+                var unit = unitObject.AddComponent<Unit>();
+                InitializeUnit(unit);
+                unit.Configure(new UnitData { healthPoint = 100f, defensePoint = 20f });
+                Assert.That(unit.SetDefenseBasedDamageReduction(10f, 5f), Is.True);
+                unit.TakeDamage(50f);
+                Assert.That(unit.CurrentHp, Is.EqualTo(55f).Within(0.001f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(unitObject);
+            }
+        }
+
         private static void InitializeUnit(Unit unit)
         {
             typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)

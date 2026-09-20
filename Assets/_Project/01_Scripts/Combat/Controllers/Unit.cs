@@ -57,6 +57,8 @@ namespace OzGameLab01.Combat
         private bool _useSkillTwice;
         private bool _activeSkillsDisabled;
         private bool _noSkillStatBuffApplied;
+        private float _damageReductionDefenseStep;
+        private float _damageReductionPercent;
 
         public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
         public bool AreActiveSkillsDisabled => _activeSkillsDisabled;
@@ -247,6 +249,8 @@ namespace OzGameLab01.Combat
             _useSkillTwice = false;
             _activeSkillsDisabled = false;
             _noSkillStatBuffApplied = false;
+            _damageReductionDefenseStep = 0f;
+            _damageReductionPercent = 0f;
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
             _presenter.CaptureOriginalColor();
@@ -648,6 +652,19 @@ namespace OzGameLab01.Combat
             return applied;
         }
 
+        public bool SetDefenseBasedDamageReduction(float defenseStep, float reductionPercent)
+        {
+            if (float.IsNaN(defenseStep) || float.IsInfinity(defenseStep) || defenseStep <= 0f ||
+                float.IsNaN(reductionPercent) || float.IsInfinity(reductionPercent) || reductionPercent < 0f)
+            {
+                return false;
+            }
+
+            _damageReductionDefenseStep = defenseStep;
+            _damageReductionPercent = Mathf.Clamp(reductionPercent, 0f, 100f);
+            return true;
+        }
+
         private void TryApplyRandomStatusEffect(Unit target)
         {
             if (target == null || target.IsDead || _statusEffectChance <= 0f ||
@@ -702,6 +719,11 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            if (_damageReductionDefenseStep > 0f && dmg > 0f)
+            {
+                float reduction = defensePoint / _damageReductionDefenseStep * _damageReductionPercent / 100f;
+                dmg *= Mathf.Clamp01(1f - reduction);
+            }
             dmg = _shields.Absorb(dmg);
             if (dmg <= 0f) return;
             float previousRatio = maxHP > 0f ? _currentHP / maxHP : 0f;

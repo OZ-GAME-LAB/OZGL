@@ -52,6 +52,7 @@ namespace OzGameLab01.Data
         StatusEffect,
         UseSkillTwoTimes,
         NoSkillStatBuff,
+        DecreaseDmgDefense,
         Revive,
         CleanseDebuffs,
         DebuffImmunity,
@@ -105,6 +106,7 @@ namespace OzGameLab01.Data
         public EffectStatType statType;
         public EffectOperation operation;
         public float effectParam;
+        public float effectSecondaryParam;
         public bool effectParamIsPercent;
         public float chance;
         public bool once;
