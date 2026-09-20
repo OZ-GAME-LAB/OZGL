@@ -59,6 +59,8 @@ namespace OzGameLab01.Combat
         private bool _noSkillStatBuffApplied;
         private float _damageReductionDefenseStep;
         private float _damageReductionPercent;
+        private float _shieldBonusDamagePerDefensePercent;
+        private float _shieldDamageReductionPerDefensePercent;
 
         public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
         public bool AreActiveSkillsDisabled => _activeSkillsDisabled;
@@ -251,6 +253,8 @@ namespace OzGameLab01.Combat
             _noSkillStatBuffApplied = false;
             _damageReductionDefenseStep = 0f;
             _damageReductionPercent = 0f;
+            _shieldBonusDamagePerDefensePercent = 0f;
+            _shieldDamageReductionPerDefensePercent = 0f;
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
             _presenter.CaptureOriginalColor();
@@ -406,6 +410,10 @@ namespace OzGameLab01.Combat
                 baseDamage *= 1f + _extraDamageOnStatusPercent / 100f;
             }
             float effectiveDamage = baseDamage * _status.AttackMultiplier;
+            if (Shield > 0f)
+            {
+                effectiveDamage *= 1f + defensePoint * _shieldBonusDamagePerDefensePercent / 100f;
+            }
 
             if (target != null && applyDamage)
             {
@@ -570,6 +578,10 @@ namespace OzGameLab01.Combat
                 baseDamage *= 1f + _extraDamageOnStatusPercent / 100f;
             }
             float effectiveDamage = baseDamage * _status.AttackMultiplier;
+            if (Shield > 0f)
+            {
+                effectiveDamage *= 1f + defensePoint * _shieldBonusDamagePerDefensePercent / 100f;
+            }
             if (_random.NextDouble() < Mathf.Min(target.dodgeRate, 60f) / 100f) return;
             if (_random.NextDouble() < criticalRate / 100f) effectiveDamage *= criticalMult / 100f;
             effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
@@ -665,6 +677,19 @@ namespace OzGameLab01.Combat
             return true;
         }
 
+        public bool SetShieldBonusDamage(float bonusPerDefensePercent, float reductionPerDefensePercent)
+        {
+            if (float.IsNaN(bonusPerDefensePercent) || float.IsInfinity(bonusPerDefensePercent) || bonusPerDefensePercent < 0f ||
+                float.IsNaN(reductionPerDefensePercent) || float.IsInfinity(reductionPerDefensePercent) || reductionPerDefensePercent < 0f)
+            {
+                return false;
+            }
+
+            _shieldBonusDamagePerDefensePercent = bonusPerDefensePercent;
+            _shieldDamageReductionPerDefensePercent = reductionPerDefensePercent;
+            return true;
+        }
+
         private void TryApplyRandomStatusEffect(Unit target)
         {
             if (target == null || target.IsDead || _statusEffectChance <= 0f ||
@@ -722,6 +747,11 @@ namespace OzGameLab01.Combat
             if (_damageReductionDefenseStep > 0f && dmg > 0f)
             {
                 float reduction = defensePoint / _damageReductionDefenseStep * _damageReductionPercent / 100f;
+                dmg *= Mathf.Clamp01(1f - reduction);
+            }
+            if (Shield > 0f && _shieldDamageReductionPerDefensePercent > 0f && dmg > 0f)
+            {
+                float reduction = defensePoint * _shieldDamageReductionPerDefensePercent / 100f;
                 dmg *= Mathf.Clamp01(1f - reduction);
             }
             dmg = _shields.Absorb(dmg);

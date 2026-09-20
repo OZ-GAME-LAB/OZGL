@@ -53,6 +53,7 @@ namespace OzGameLab01.Data
         UseSkillTwoTimes,
         NoSkillStatBuff,
         DecreaseDmgDefense,
+        ShieldBonusDamage,
         Revive,
         CleanseDebuffs,
         DebuffImmunity,

@@ -384,6 +384,8 @@ namespace OzGameLab01.Combat
                     return target.SetNoSkillStatBuff(effect.effectParam);
                 case EffectType.DecreaseDmgDefense:
                     return target.SetDefenseBasedDamageReduction(effect.effectParam, effect.effectSecondaryParam);
+                case EffectType.ShieldBonusDamage:
+                    return target.SetShieldBonusDamage(effect.effectParam, effect.effectSecondaryParam);
                 case EffectType.CleanseDebuffs:
                     target.CleanseDebuffs();
                     return true;

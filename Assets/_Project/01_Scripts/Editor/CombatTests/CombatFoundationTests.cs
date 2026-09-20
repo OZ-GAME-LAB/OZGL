@@ -408,6 +408,52 @@ namespace OzGameLab01.Tests.EditMode
             }
         }
 
+        [Test]
+        public void ShieldBonusDamageUsesDefenseWhileShielded()
+        {
+            var casterObject = new UnityEngine.GameObject("Shield bonus caster");
+            var targetObject = new UnityEngine.GameObject("Shield bonus target");
+            try
+            {
+                var caster = casterObject.AddComponent<Unit>();
+                var target = targetObject.AddComponent<Unit>();
+                InitializeUnit(caster);
+                InitializeUnit(target);
+                caster.Configure(new UnitData { healthPoint = 100f, defensePoint = 20f });
+                caster.GrantShield(10f, 0f, true);
+                Assert.That(caster.SetShieldBonusDamage(0.4f, 0.2f), Is.True);
+                typeof(Unit).GetMethod("ApplySkillDamage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .Invoke(caster, new object[] { target, 50f });
+                Assert.That(target.CurrentHp, Is.EqualTo(46f).Within(0.001f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(casterObject);
+                UnityEngine.Object.DestroyImmediate(targetObject);
+            }
+        }
+
+        [Test]
+        public void ShieldBonusDamageReducesDamageReceivedWhileShielded()
+        {
+            var unitObject = new UnityEngine.GameObject("Shield bonus receiver");
+            try
+            {
+                var unit = unitObject.AddComponent<Unit>();
+                InitializeUnit(unit);
+                unit.Configure(new UnitData { healthPoint = 100f, defensePoint = 20f });
+                unit.GrantShield(100f, 0f, true);
+                Assert.That(unit.SetShieldBonusDamage(0.4f, 0.2f), Is.True);
+                unit.TakeDamage(50f);
+                Assert.That(unit.Shield, Is.EqualTo(52f).Within(0.001f));
+                Assert.That(unit.CurrentHp, Is.EqualTo(100f).Within(0.001f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(unitObject);
+            }
+        }
+
         private static void InitializeUnit(Unit unit)
         {
             typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)

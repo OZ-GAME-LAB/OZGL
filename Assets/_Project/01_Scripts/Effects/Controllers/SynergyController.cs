@@ -206,6 +206,12 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "ShieldBonusDamage")
+                {
+                    selfUnit?.SetShieldBonusDamage(effect.value, effect.extraParam);
+                    continue;
+                }
+
                 if (targetType == SynergyTargetType.HighestHPUnit)
                 {
                     Unit highest = null;
@@ -328,6 +334,20 @@ namespace OzGameLab01.Controllers
                     trigger = TriggerType.Always,
                     target = EffectTarget.AllAllies,
                     effect = EffectType.DecreaseDmgDefense,
+                    effectParam = node.value,
+                    effectSecondaryParam = node.extraParam,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "ShieldBonusDamage")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.ShieldBonusDamage,
                     effectParam = node.value,
                     effectSecondaryParam = node.extraParam,
                     untilBattleEnd = true
