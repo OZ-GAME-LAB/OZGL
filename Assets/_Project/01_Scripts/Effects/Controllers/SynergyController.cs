@@ -188,6 +188,18 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "UseSkillTwoTimes")
+                {
+                    selfUnit?.SetUseSkillTwice(true);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "NoSkillStatBuff")
+                {
+                    selfUnit?.SetNoSkillStatBuff(effect.value);
+                    continue;
+                }
+
                 if (targetType == SynergyTargetType.HighestHPUnit)
                 {
                     Unit highest = null;
@@ -271,6 +283,32 @@ namespace OzGameLab01.Controllers
                     trigger = TriggerType.Always,
                     target = EffectTarget.AllAllies,
                     effect = EffectType.StatusEffect,
+                    effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "UseSkillTwoTimes")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.UseSkillTwoTimes,
+                    effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "NoSkillStatBuff")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.NoSkillStatBuff,
                     effectParam = node.value,
                     untilBattleEnd = true
                 };

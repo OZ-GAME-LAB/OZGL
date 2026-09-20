@@ -54,8 +54,12 @@ namespace OzGameLab01.Combat
         private float _fixedDamage = -1f;
         private float _extraDamageOnStatusPercent;
         private float _statusEffectChance;
+        private bool _useSkillTwice;
+        private bool _activeSkillsDisabled;
+        private bool _noSkillStatBuffApplied;
 
         public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
+        public bool AreActiveSkillsDisabled => _activeSkillsDisabled;
 
         private void EnsureRuntimeComponents()
         {
@@ -127,7 +131,7 @@ namespace OzGameLab01.Combat
                 bool isBasicAttack = i == 0;
                 UnitSkillRuntime skill = _skills[i];
                 skill.timer -= Time.deltaTime;
-                if (skill.timer <= 0f && (isBasicAttack || !_status.IsSilenced))
+                if (skill.timer <= 0f && (isBasicAttack || (!_activeSkillsDisabled && !_status.IsSilenced)))
                 {
                     StartCoroutine(CastSkill(target, skill, isBasicAttack));
                     skill.timer = GetSkillCooldown(skill);
@@ -240,6 +244,9 @@ namespace OzGameLab01.Combat
             _fixedDamage = -1f;
             _extraDamageOnStatusPercent = 0f;
             _statusEffectChance = 0f;
+            _useSkillTwice = false;
+            _activeSkillsDisabled = false;
+            _noSkillStatBuffApplied = false;
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
             _presenter.CaptureOriginalColor();
@@ -426,6 +433,9 @@ namespace OzGameLab01.Combat
 
         private IEnumerator CastSkill(Unit target, UnitSkillRuntime skill, bool isBasicAttack)
         {
+            int useCount = !isBasicAttack && _useSkillTwice ? 2 : 1;
+            for (int useIndex = 0; useIndex < useCount; useIndex++)
+            {
             yield return _presenter.ShowSkillCastText(skill.data.name);
 
             if (target != null && !target.IsDead)
@@ -450,6 +460,7 @@ namespace OzGameLab01.Combat
                     Debug.Log($"[Unit] {name}({team}) 액티브 스킬 사용: {skill.data.name}");
                     PassiveEventBus.RaiseSkillUsed(this, skill.data);
                 }
+            }
             }
         }
 
@@ -604,6 +615,37 @@ namespace OzGameLab01.Combat
             if (float.IsNaN(percent) || float.IsInfinity(percent) || percent < 0f) return false;
             _statusEffectChance = Mathf.Clamp(percent, 0f, 100f);
             return true;
+        }
+
+        public bool SetUseSkillTwice(bool enabled)
+        {
+            _useSkillTwice = enabled;
+            return true;
+        }
+
+        public bool SetNoSkillStatBuff(float percent)
+        {
+            if (float.IsNaN(percent) || float.IsInfinity(percent) || percent < 0f) return false;
+            _activeSkillsDisabled = true;
+            if (_noSkillStatBuffApplied) return true;
+            _noSkillStatBuffApplied = true;
+
+            EffectStatType[] stats =
+            {
+                EffectStatType.MaxHealth,
+                EffectStatType.Attack,
+                EffectStatType.Defense,
+                EffectStatType.CriticalMultiplier,
+                EffectStatType.CriticalChance,
+                EffectStatType.DodgeChance,
+                EffectStatType.RecoveryAmount
+            };
+            bool applied = true;
+            for (int i = 0; i < stats.Length; i++)
+            {
+                applied &= ApplyStatEffect(stats[i], percent);
+            }
+            return applied;
         }
 
         private void TryApplyRandomStatusEffect(Unit target)

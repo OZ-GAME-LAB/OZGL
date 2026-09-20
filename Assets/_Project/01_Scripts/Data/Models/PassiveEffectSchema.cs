@@ -50,6 +50,8 @@ namespace OzGameLab01.Data
         FixedDamage,
         ExtraDamageOnStatus,
         StatusEffect,
+        UseSkillTwoTimes,
+        NoSkillStatBuff,
         Revive,
         CleanseDebuffs,
         DebuffImmunity,

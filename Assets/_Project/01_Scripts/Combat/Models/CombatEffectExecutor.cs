@@ -378,6 +378,10 @@ namespace OzGameLab01.Combat
                     return target.SetExtraDamageOnStatus(effect.effectParam);
                 case EffectType.StatusEffect:
                     return target.SetStatusEffectChance(effect.effectParam);
+                case EffectType.UseSkillTwoTimes:
+                    return target.SetUseSkillTwice(true);
+                case EffectType.NoSkillStatBuff:
+                    return target.SetNoSkillStatBuff(effect.effectParam);
                 case EffectType.CleanseDebuffs:
                     target.CleanseDebuffs();
                     return true;

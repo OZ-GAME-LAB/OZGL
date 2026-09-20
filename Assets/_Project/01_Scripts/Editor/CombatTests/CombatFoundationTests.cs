@@ -351,6 +351,44 @@ namespace OzGameLab01.Tests.EditMode
             }
         }
 
+        [Test]
+        public void UseSkillTwoTimesEnablesActiveSkillRepeatState()
+        {
+            var unitObject = new UnityEngine.GameObject("Double skill unit");
+            try
+            {
+                var unit = unitObject.AddComponent<Unit>();
+                InitializeUnit(unit);
+                Assert.That(unit.SetUseSkillTwice(true), Is.True);
+                Assert.That(typeof(Unit).GetField("_useSkillTwice", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .GetValue(unit), Is.EqualTo(true));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(unitObject);
+            }
+        }
+
+        [Test]
+        public void NoSkillStatBuffDisablesActiveSkillsAndAppliesStatsOnce()
+        {
+            var unitObject = new UnityEngine.GameObject("No skill stat buff unit");
+            try
+            {
+                var unit = unitObject.AddComponent<Unit>();
+                InitializeUnit(unit);
+                Assert.That(unit.SetNoSkillStatBuff(100f), Is.True);
+                Assert.That(unit.AreActiveSkillsDisabled, Is.True);
+                Assert.That(unit.MaxHp, Is.EqualTo(200f).Within(0.001f));
+                Assert.That(unit.SetNoSkillStatBuff(100f), Is.True);
+                Assert.That(unit.MaxHp, Is.EqualTo(200f).Within(0.001f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(unitObject);
+            }
+        }
+
         private static void InitializeUnit(Unit unit)
         {
             typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
