@@ -1864,7 +1864,6 @@ MonoBehaviour:
   - {fileID: 5161531038470156254}
   - {fileID: 2412715342294397052}
   enemySpawnPoint: {fileID: 3112188238950431945}
-  unitsRoot: {fileID: 8936725591135863658}
 --- !u!1 &4366102192973230107
 GameObject:
   m_ObjectHideFlags: 0

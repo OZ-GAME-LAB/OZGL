@@ -4,6 +4,7 @@ using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
 using OzGameLab01.Save;
+using OzGameLab01.Player;
 using UnityEngine;
 
 namespace OzGameLab01.Controllers
@@ -186,6 +187,40 @@ namespace OzGameLab01.Controllers
             }
 
             HasSavedFormation = true;
+        }
+
+        /// <summary>
+        /// Continue 저장 슬롯 ID를 전투용 UnitData 배열로 변환합니다.
+        /// </summary>
+        public static UnitData[] BuildCombatFormationFromSavedIds()
+        {
+            UnitData[] formation = new UnitData[BATTLE_SLOT_COUNT];
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            if (playerFacade == null || !HasSavedFormation)
+            {
+                return formation;
+            }
+
+            for (int slotIndex = 0; slotIndex < formation.Length; slotIndex++)
+            {
+                int unitId = SavedBattleUnitIds[slotIndex];
+                if (unitId < 0)
+                {
+                    continue;
+                }
+
+                // 저장 슬롯 ID와 현재 복원된 보유 유닛 데이터의 일치 항목 탐색
+                foreach (UnitData ownedUnit in playerFacade.OwnedUnits)
+                {
+                    if (ownedUnit != null && ownedUnit.id == unitId)
+                    {
+                        formation[slotIndex] = PlayerFacade.CloneUnitData(ownedUnit);
+                        break;
+                    }
+                }
+            }
+
+            return formation;
         }
 
         /// <summary>

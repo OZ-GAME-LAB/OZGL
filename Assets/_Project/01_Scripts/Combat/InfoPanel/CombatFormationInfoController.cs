@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using OzGameLab01.UI.Battle;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace OzGameLab01.Controllers
 {
@@ -20,8 +19,6 @@ namespace OzGameLab01.Controllers
         [SerializeField]
         [Tooltip("배틀 UI 전체 화면을 관리하는 View")]
         private CombatUIView battleUIView;
-
-        private readonly List<GameObject> createdSlotIcons = new List<GameObject>();
 
         private void Start()
         {
@@ -59,85 +56,16 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            ClearSlotIcons();
             unitInfoView.ClearUnitInfoItems();
 
             battleUIView.Show();
             battleUIView.ShowMainView();
             battleUIView.HideAllOverlayViews();
 
-            CreateBattleSlotIcons(mainView);
             CreateSupportCards(unitInfoView);
             CreateBattleCards(unitInfoView);
 
             Debug.Log("[CombatFormationInfoController] 전투 및 서브 유닛 편성을 표시했습니다.", this);
-        }
-
-        /// <summary>
-        /// 전투 편성 인덱스 0~8과 동일한 회색 슬롯에
-        /// 유닛 아이콘을 생성합니다.
-        /// </summary>
-        private void CreateBattleSlotIcons(CombatMainView mainView)
-        {
-            IReadOnlyList<PlayerSlotItemView> slotViews = mainView.PlayerSlotViews;
-
-            IReadOnlyList<UnitFormationCombatLink.TransferredUnit>
-                transferredUnits = UnitFormationCombatLink.BattleUnitList;
-
-            int slotCount = Mathf.Min(BattleSlotCount, slotViews.Count);
-
-            for (int slotIndex = 0; slotIndex < slotCount; slotIndex++)
-            {
-                UnitFormationCombatLink.TransferredUnit unit = transferredUnits[slotIndex];
-
-                PlayerSlotItemView slotView = slotViews[slotIndex];
-
-                if (unit == null || slotView == null || slotView.UnitAnchor == null)
-                {
-                    continue;
-                }
-
-                // CreateSlotIcon(slotView.UnitAnchor, unit, slotIndex);
-                // [수정] : CombatManager가 실제 Unit과 연결된 이미지를 이미 만들었다면 중복 아이콘을 생성하지 않습니다.
-                if (slotView.UnitAnchor.Find($"BattleCombatUnit_{slotIndex:00}") == null)
-                {
-                    CreateSlotIcon(slotView.UnitAnchor, unit, slotIndex);
-                }
-            }
-        }
-
-        /// <summary>
-        /// 회색 슬롯 중앙에 유닛 아이콘을 생성합니다.
-        /// </summary>
-        private void CreateSlotIcon(Transform unitAnchor, UnitFormationCombatLink.TransferredUnit unit, int slotIndex)
-        {
-            GameObject iconObject = new GameObject(
-                $"BattleSlotIcon_{slotIndex:00}",
-                typeof(RectTransform),
-                typeof(CanvasRenderer),
-                typeof(Image));
-
-            RectTransform iconRect = iconObject.GetComponent<RectTransform>();
-
-            iconRect.SetParent(unitAnchor, false);
-
-            // 부모 UnitAnchor 영역 전체에 맞춤
-            iconRect.anchorMin = Vector2.zero;
-            iconRect.anchorMax = Vector2.one;
-            iconRect.offsetMin = Vector2.zero;
-            iconRect.offsetMax = Vector2.zero;
-            iconRect.pivot = new Vector2(0.5f, 0.5f);
-            iconRect.localScale = Vector3.one;
-
-            Image iconImage = iconObject.GetComponent<Image>();
-
-            iconImage.sprite = unit.Sprite;
-            iconImage.color = unit.Color;
-            iconImage.preserveAspect = true;
-            iconImage.raycastTarget = false;
-            iconImage.enabled = unit.Sprite != null;
-
-            createdSlotIcons.Add(iconObject);
         }
 
         /// <summary>
@@ -223,17 +151,5 @@ namespace OzGameLab01.Controllers
             card.Show();
         }
 
-        private void ClearSlotIcons()
-        {
-            foreach (GameObject iconObject in createdSlotIcons)
-            {
-                if (iconObject != null)
-                {
-                    Destroy(iconObject);
-                }
-            }
-
-            createdSlotIcons.Clear();
-        }
     }
 }
