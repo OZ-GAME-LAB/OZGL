@@ -137,17 +137,11 @@ namespace OzGameLab01.Board.Models
             CalculateAllNodeDepths(startNode);
             ValidateWalkableConnectivity();
 
-            // 3. 타일 배치 (isSequential 옵션을 true로 주면 순차적으로 더 깊은 곳에 스폰됨)
-            // 최종 보스: 순차 배치 켬 (점점 깊은 곳)
-
-            // [추가됨] 랜덤 유닛 획득 타일 배치
+            // 3. 일반 상호작용 타일을 배치합니다.
+            // Elite와 Boss 목표는 MapRouteDirector가 진행 상태에 맞춰 별도로 배치합니다.
             PlaceNodesOfType(NodeType.UnitAcquisition, _settings.unitAcquisitionCount, _settings.minUnitAcquisitionDistance, availableNodes, _settings.minUnitAcquisitionDistFromStart, _settings.maxUnitAcquisitionDistFromStart, false);
 
-            // 상점 타일 배치
             PlaceNodesOfType(NodeType.Shop, _settings.shopCount, _settings.minShopDistance, availableNodes, _settings.minShopDistFromStart, _settings.maxShopDistFromStart, false);
-
-            // 엘리트: 순차 배치 켬! (엘리트1 -> 2 -> 3 순으로 맵의 더 깊은 곳으로 강제 전진)
-
             PlaceNodesOfType(NodeType.Event, _settings.eventCount, _settings.minEventDistance, availableNodes, _settings.minEventDistFromStart, _settings.maxEventDistFromStart, false);
             PlaceNodesOfType(NodeType.Battle, _settings.battleCount, _settings.minBattleDistance, availableNodes, _settings.minBattleDistFromStart, _settings.maxBattleDistFromStart, false);
         }

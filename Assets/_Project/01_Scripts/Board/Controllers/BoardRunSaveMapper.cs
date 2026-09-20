@@ -22,10 +22,13 @@ namespace OzGameLab01.Board.Controllers
                 isBossBattle = source.isBossBattle,
                 isEliteBattle = source.isEliteBattle,
                 isBossDefeated = source.isBossDefeated,
+                hasRolledThisTurn = source.hasRolledThisTurn,
+                rolledDiceValue = source.rolledDiceValue,
                 remainingDiceValue = source.remainingDiceValue,
                 unusedActionPoints = source.unusedActionPoints,
                 turnCount = source.turnCount,
                 defeatedElitesCount = source.defeatedElitesCount,
+
             };
             if (source.completedBattlePositions != null)
             {
@@ -59,6 +62,8 @@ namespace OzGameLab01.Board.Controllers
                 isBossBattle = source.isBossBattle,
                 isEliteBattle = source.isEliteBattle,
                 isBossDefeated = source.isBossDefeated,
+                hasRolledThisTurn = source.hasRolledThisTurn,
+                rolledDiceValue = source.rolledDiceValue,
                 remainingDiceValue = source.remainingDiceValue,
                 unusedActionPoints = source.unusedActionPoints,
                 turnCount = source.turnCount,

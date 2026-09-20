@@ -21,7 +21,9 @@ namespace OzGameLab01.Controllers
         [SerializeField] private MapGenerator _mapGenerator;
 
         [Header("시간 시스템")]
-        [SerializeField] private int _nightInterval = 3;
+        [SerializeField, Min(1)] private int _morningTurns = 8;
+        [SerializeField, Min(1)] private int _lunchTurns = 2;
+        [SerializeField, Min(1)] private int _eveningTurns = 5;
 
         [Header("시간대 명암")]
         [SerializeField] private Material _timeOfDayOverlayMaterial;
@@ -45,11 +47,12 @@ namespace OzGameLab01.Controllers
 
         public event Action<int> TurnEnded;
         public event Action<int> NightReached;
+        public event Action<int> NoonReached;
         public event Action<int> DayReached;
         public event Action PlayerTurnReady;
         public event Action<BoardTimeOfDay> TimeOfDayChanged;
         public BoardTimeOfDay CurrentTimeOfDay =>
-            BoardTurnRules.GetTimeOfDay(BoardRunData.TurnCount, _nightInterval);
+            BoardTurnRules.GetTimeOfDay(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
         // [추가] 저장 대기 중 중복 타이틀 이동 요청 방지
         private bool _isReturningToTitle;
         private MapNode _pendingEventNode;
@@ -61,7 +64,9 @@ namespace OzGameLab01.Controllers
         // 상태 확정 후 값 스냅샷 발행
         private void Publish(BoardNotificationKind kind, MapNode node = null, int unitId = 0, NodeType? tileType = null)
         {
-            Notification?.Invoke(new BoardNotification(kind, node != null ? node.Position : BoardRunData.PlayerPosition, tileType ?? (node != null ? node.Type : NodeType.Normal), BoardRunData.TurnCount, BoardRunData.RemainingDiceValue, unitId, BoardRunData.UnusedActionPoints, BoardTurnRules.IsNight(BoardRunData.TurnCount, _nightInterval)));
+            bool isEvening = BoardTurnRules.IsNight(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
+
+            Notification?.Invoke(new BoardNotification(kind, node != null ? node.Position : BoardRunData.PlayerPosition, tileType ?? (node != null ? node.Type : NodeType.Normal), BoardRunData.TurnCount, BoardRunData.RemainingDiceValue, unitId, BoardRunData.UnusedActionPoints, isEvening));
         }
 
         private void Awake()
@@ -85,7 +90,7 @@ namespace OzGameLab01.Controllers
                 _mapGenerator = FindFirstObjectByType<MapGenerator>();
             }
 
-            if(_eventUIPanel == null)
+            if (_eventUIPanel == null)
             {
                 _eventUIPanel = FindFirstObjectByType<OzGameLab01.Events.EventSession>(FindObjectsInactive.Include);
                 if (_eventUIPanel != null)
@@ -137,47 +142,56 @@ namespace OzGameLab01.Controllers
             _timeOfDayOverlay = null;
         }
 
-        public void EndTurn()
+       public void EndTurn()
+{
+    if (_boardPlayerController == null || !_boardPlayerController.EndTurn())
+    {
+        return;
+    }
+
+    SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
+
+    TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
+
+    BoardRunData.AdvanceTurn();
+
+    RefreshTimeOfDayOverlay();
+    Publish(BoardNotificationKind.TurnAdvanced);
+
+    bool hasTimeOfDayChanged = BoardTurnRules.ChangesPhase(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
+
+    if (hasTimeOfDayChanged)
+    {
+        switch (CurrentTimeOfDay)
         {
-            if (_boardPlayerController == null || !_boardPlayerController.EndTurn()) return;
+            case BoardTimeOfDay.Day:
+                DayReached?.Invoke(BoardRunData.TurnCount);
+                break;
 
-            SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
-            TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
-            BoardRunData.AdvanceTurn();
-            RefreshTimeOfDayOverlay();
-            Publish(BoardNotificationKind.TurnAdvanced);
+            case BoardTimeOfDay.Noon:
+                NoonReached?.Invoke(BoardRunData.TurnCount);
+                break;
 
-            bool hasTimeOfDayChanged = false;
-            if (BoardTurnRules.ChangesPhase(BoardRunData.TurnCount, _nightInterval))
-            {
-                bool isNight = BoardTurnRules.IsNight(BoardRunData.TurnCount, _nightInterval);
-
-                if (isNight)
-                {
-                    NightReached?.Invoke(BoardRunData.TurnCount);
-                }
-                else
-                {
-                    DayReached?.Invoke(BoardRunData.TurnCount);
-                }
-
-                hasTimeOfDayChanged = true;
-            }
-
-            UpdateTimeStatusHud();
-
-            if (!hasTimeOfDayChanged)
-            {
-                PlayerTurnReady?.Invoke();
-            }
+            case BoardTimeOfDay.Night:
+                NightReached?.Invoke(BoardRunData.TurnCount);
+                break;
         }
+    }
 
-        private void UpdateTimeStatusHud()
-        {
-            if (_nightInterval <= 0) { return; }
-            _feedback.ShowTurns(BoardTurnRules.TurnsUntilPhase(BoardRunData.TurnCount, _nightInterval));
-        }
+    UpdateTimeStatusHud();
 
+    if (!hasTimeOfDayChanged)
+    {
+        PlayerTurnReady?.Invoke();
+    }
+}
+
+       private void UpdateTimeStatusHud()
+{
+    int turnsUntilNextPhase = BoardTurnRules.TurnsUntilPhase(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
+
+    _feedback.ShowTurns(turnsUntilNextPhase);
+}
         private void HandleMapPresentationCompleted()
         {
             RefreshTimeOfDayOverlay();

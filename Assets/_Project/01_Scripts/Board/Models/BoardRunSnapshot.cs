@@ -15,6 +15,8 @@ namespace OzGameLab01.Board.Models
         public bool isBossBattle;
         public bool isEliteBattle;
         public bool isBossDefeated;
+        public bool hasRolledThisTurn;
+        public int rolledDiceValue;
         public int remainingDiceValue;
         public int unusedActionPoints;
         public int turnCount;
