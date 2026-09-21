@@ -154,6 +154,7 @@ namespace OzGameLab01.Controllers
             StopAllCoroutines();
             StopClockRotation();
             _automaticRollViewRoutine = null;
+            readySceneView?.MainView?.SetInteractable(true);
             _timeOfDayFeedbackRoutine = null;
             _feedbackView?.HideWarning();
 
@@ -595,6 +596,8 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            readySceneView?.MainView?.SetInteractable(false);
+
             _automaticRollViewRoutine =
                 StartCoroutine(OpenRollViewWhenAvailableRoutine(delay, null));
         }
@@ -608,6 +611,8 @@ namespace OzGameLab01.Controllers
 
             StopCoroutine(_automaticRollViewRoutine);
             _automaticRollViewRoutine = null;
+
+            readySceneView?.MainView?.SetInteractable(true);
         }
 
         private System.Collections.IEnumerator OpenRollViewWhenAvailableRoutine(
@@ -634,6 +639,8 @@ namespace OzGameLab01.Controllers
             }
 
             _automaticRollViewRoutine = null;
+
+            readySceneView?.MainView?.SetInteractable(true);
 
             if (result == RollViewOpenResult.Opened)
             {
