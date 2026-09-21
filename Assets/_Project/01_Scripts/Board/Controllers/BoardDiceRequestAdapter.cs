@@ -42,8 +42,8 @@ namespace OzGameLab01.Board.Controllers
                 // 최초 굴림값과 잔여 행동력을 동시에 기록합니다.
                 BoardRunData.RecordDiceRoll(request.Value);
 
-                // HUD를 포함한 기존 플레이어 표시 갱신을 실행합니다.
-                player.CurrentDiceValue = request.Value;
+                // 실제 행동력은 즉시 반영하되 HUD는 주사위 연출 완료 후 갱신합니다.
+                player.SetCurrentDiceValue(request.Value, refreshHud: false);
 
                 return true;
             });

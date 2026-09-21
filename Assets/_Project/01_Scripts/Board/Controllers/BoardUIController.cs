@@ -67,6 +67,7 @@ namespace OzGameLab01.Controllers
         private System.IDisposable _diceSubscription;
         private Sequence _clockRotationSequence;
         private bool _started;
+        private bool _actionPointUiRefreshPending;
 
 
         public static event Action OnRollViewClosed;
@@ -106,6 +107,9 @@ namespace OzGameLab01.Controllers
 
             if (readySceneView != null)
             {
+                readySceneView.ViewVisibilityChanged -= HandleReadyViewVisibilityChanged;
+                readySceneView.ViewVisibilityChanged += HandleReadyViewVisibilityChanged;
+
                 if (readySceneView.RollView != null)
                     readySceneView.RollView.RollClicked += HandleRollButtonClicked;
 
@@ -149,6 +153,11 @@ namespace OzGameLab01.Controllers
 
         private void OnDisable()
         {
+            if (_actionPointUiRefreshPending)
+            {
+                RefreshActionPointUi(immediate: true);
+            }
+
             StopAllCoroutines();
             StopClockRotation();
             _automaticRollViewRoutine = null;
@@ -163,6 +172,8 @@ namespace OzGameLab01.Controllers
 
             if (readySceneView != null)
             {
+                readySceneView.ViewVisibilityChanged -= HandleReadyViewVisibilityChanged;
+
                 if (readySceneView.RollView != null)
                     readySceneView.RollView.RollClicked -= HandleRollButtonClicked;
 
@@ -327,15 +338,21 @@ namespace OzGameLab01.Controllers
         private void HandleDiceRolled(int diceValue)
         {
             CancelAutomaticRollView();
-            RefreshEndTurnFeedback();
+            _actionPointUiRefreshPending = true;
 
             if (readySceneView == null)
+            {
+                RefreshActionPointUi();
                 return;
+            }
 
             DiceRollView view = readySceneView.RollView;
 
             if (!isActiveAndEnabled || view == null || !view.IsVisible)
+            {
+                RefreshActionPointUi();
                 return;
+            }
 
             _feedbackView.SetDiceResult("?");
 
@@ -343,6 +360,8 @@ namespace OzGameLab01.Controllers
 
             bool started = view.PlayRoll(diceValue, result =>
             {
+                RefreshActionPointUi();
+
                 if (!isActiveAndEnabled || view == null || !view.IsVisible)
                     return;
 
@@ -353,9 +372,18 @@ namespace OzGameLab01.Controllers
 
             if (!started)
             {
+                RefreshActionPointUi();
                 _feedbackView.SetDiceResult(diceValue.ToString());
 
                 StartCoroutine(CloseRollViewRoutine());
+            }
+        }
+
+        private void HandleReadyViewVisibilityChanged(ReadySceneViewType viewType, bool isVisible)
+        {
+            if (viewType == ReadySceneViewType.Roll && !isVisible && _actionPointUiRefreshPending)
+            {
+                RefreshActionPointUi(immediate: true);
             }
         }
 
@@ -736,6 +764,13 @@ namespace OzGameLab01.Controllers
                 state,
                 remainingPoints,
                 immediate);
+        }
+
+        private void RefreshActionPointUi(bool immediate = false)
+        {
+            _actionPointUiRefreshPending = false;
+            BoardPlayerController.Instance?.RefreshActionPowerHud();
+            RefreshEndTurnFeedback(immediate);
         }
 
         private System.Collections.IEnumerator HideWarningRoutine()

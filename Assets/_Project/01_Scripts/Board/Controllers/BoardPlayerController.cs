@@ -78,9 +78,15 @@ namespace OzGameLab01.Controllers
         public int CurrentDiceValue
         {
             get => Model.RemainingDiceValue;
-            set
+            set => SetCurrentDiceValue(value);
+        }
+
+        public void SetCurrentDiceValue(int value, bool refreshHud = true)
+        {
+            Model.SetRemainingDiceValue(value);
+
+            if (refreshHud)
             {
-                Model.SetRemainingDiceValue(value);
                 RefreshActionPowerHud();
             }
         }
@@ -173,7 +179,7 @@ namespace OzGameLab01.Controllers
             _isFeedbackPlaying = false;
         }
 
-        private void RefreshActionPowerHud()
+        public void RefreshActionPowerHud()
         {
             _currentDiceValue = Model.RemainingDiceValue;
             if (_actionPowerHud == null)
