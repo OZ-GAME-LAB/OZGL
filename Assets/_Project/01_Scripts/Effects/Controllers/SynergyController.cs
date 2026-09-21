@@ -137,7 +137,7 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 엑셀 설계 기반 SynergyData(RuntimeDataManager)에서 이름이 같은 시너지를 찾아, 현재
+        /// 엑셀 설계 기반 SynergyData(RuntimeContent.Catalog)에서 이름이 같은 시너지를 찾아, 현재
         /// 보유 수에 해당하는 단계의 효과 중 targetType이 일치하는 것만 적용합니다.
         /// 구버전 SynergyDefinition(job/tribe 트레이트)은 트레이트 보유 판정과 패널 표시에만 쓰고,
         /// 실제 스탯 적용은 이 SynergyData가 담당합니다 — 두 소스를 동시에 적용하면 중복 버프가 됩니다.

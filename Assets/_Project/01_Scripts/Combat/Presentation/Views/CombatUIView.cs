@@ -11,18 +11,15 @@ namespace OzGameLab01.UI.Battle
     {
         [Header("Views")]
         [SerializeField] private CombatMainView mainView;
-        [SerializeField] private BattleRewardView rewardView;
         [SerializeField] private CombatResultView resultView;
 
         #region Properties
 
         public CombatMainView MainView => mainView;
-        public BattleRewardView RewardView => rewardView;
         public CombatResultView ResultView => resultView;
 
         public bool IsVisible => gameObject.activeSelf;
 
-        public event Action<RewardOptionItemView> RewardSelected;
         public event Action<CombatResultView> EndBattleClicked;
 
         #endregion
@@ -31,11 +28,6 @@ namespace OzGameLab01.UI.Battle
 
         private void OnEnable()
         {
-            if (rewardView != null)
-            {
-                rewardView.RewardSelected += HandleRewardSelected;
-            }
-
             if (resultView != null)
             {
                 resultView.EndBattleClicked += HandleEndBattleClicked;
@@ -44,11 +36,6 @@ namespace OzGameLab01.UI.Battle
 
         private void OnDisable()
         {
-            if (rewardView != null)
-            {
-                rewardView.RewardSelected -= HandleRewardSelected;
-            }
-
             if (resultView != null)
             {
                 resultView.EndBattleClicked -= HandleEndBattleClicked;
@@ -85,26 +72,8 @@ namespace OzGameLab01.UI.Battle
             }
         }
 
-        public void ShowRewardView()
-        {
-            if (resultView != null)
-            {
-                resultView.Hide();
-            }
-
-            if (rewardView != null)
-            {
-                rewardView.Show();
-            }
-        }
-
         public void ShowResultView()
         {
-            if (rewardView != null)
-            {
-                rewardView.Hide();
-            }
-
             if (resultView != null)
             {
                 resultView.Show();
@@ -113,11 +82,6 @@ namespace OzGameLab01.UI.Battle
 
         public void HideAllOverlayViews()
         {
-            if (rewardView != null)
-            {
-                rewardView.Hide();
-            }
-
             if (resultView != null)
             {
                 resultView.Hide();
@@ -127,11 +91,6 @@ namespace OzGameLab01.UI.Battle
         #endregion
 
         #region Private Methods
-
-        private void HandleRewardSelected(RewardOptionItemView option)
-        {
-            RewardSelected?.Invoke(option);
-        }
 
         private void HandleEndBattleClicked(CombatResultView view)
         {

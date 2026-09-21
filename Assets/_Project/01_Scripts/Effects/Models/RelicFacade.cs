@@ -34,7 +34,7 @@ namespace OzGameLab01.Effects.Models
         /// <param name="relicId"> 유물 ID </param>
         public void AcquireRelic(int relicId)
         {
-            // 1. 정적 데이터 조회 (RuntimeDataManager 단일 진입점)
+            // 1. 정적 데이터 조회 (RuntimeContent.Catalog 단일 진입점)
             var relicData = OzGameLab01.Data.RuntimeContent.Catalog.GetRelic(relicId);
             if (relicData == null)
             {
