@@ -37,6 +37,8 @@ namespace OzGameLab01.Controllers
         [SerializeField] private string nightMessage = "Night Has Come";
         [SerializeField] private string dayMessage = "Day Has Come";
 
+        private const float FormationFeedbackDuration = 1.5f;
+
         [Header("Clock Rotation (Bow String Anim)")]
         [Tooltip("비워두면 MainView 하위에서 RotatingVisual 오브젝트를 자동으로 찾습니다.")]
         [SerializeField] private RectTransform clockRotatingVisual;
@@ -63,6 +65,7 @@ namespace OzGameLab01.Controllers
 
         private Coroutine _automaticRollViewRoutine;
         private Coroutine _timeOfDayFeedbackRoutine;
+        private Coroutine _formationFeedbackRoutine;
         private BoardFeedbackView _feedbackView;
         private System.IDisposable _diceSubscription;
         private Sequence _clockRotationSequence;
@@ -134,6 +137,7 @@ namespace OzGameLab01.Controllers
                 {
                     readySceneView.UnitView.CloseClicked += HandleUnitCloseClicked;
                 }
+
             }
 
             if (boardSceneController != null)
@@ -143,6 +147,7 @@ namespace OzGameLab01.Controllers
                 boardSceneController.DayReached += HandleDayReached;
                 boardSceneController.PlayerTurnReady += HandlePlayerTurnReady;
                 boardSceneController.UnitAcquired += HandleUnitAcquired;
+                boardSceneController.ForcedFormationRequested += HandleForcedFormationRequested;
             }
 
         }
@@ -154,6 +159,7 @@ namespace OzGameLab01.Controllers
             _automaticRollViewRoutine = null;
             readySceneView?.MainView?.SetInteractable(true);
             _timeOfDayFeedbackRoutine = null;
+            _formationFeedbackRoutine = null;
             _feedbackView?.HideWarning();
 
             _diceSubscription?.Dispose();
@@ -184,6 +190,7 @@ namespace OzGameLab01.Controllers
                 {
                     readySceneView.UnitView.CloseClicked -= HandleUnitCloseClicked;
                 }
+
             }
 
             if (boardSceneController != null)
@@ -193,6 +200,7 @@ namespace OzGameLab01.Controllers
                 boardSceneController.DayReached -= HandleDayReached;
                 boardSceneController.PlayerTurnReady -= HandlePlayerTurnReady;
                 boardSceneController.UnitAcquired -= HandleUnitAcquired;
+                boardSceneController.ForcedFormationRequested -= HandleForcedFormationRequested;
             }
         }
 
@@ -316,7 +324,48 @@ namespace OzGameLab01.Controllers
 
         private void HandleUnitCloseClicked(UnitView view)
         {
+            if (boardSceneController != null && boardSceneController.HasPendingBattleFormation)
+            {
+                if (!boardSceneController.TryCompletePendingBattleFormation())
+                {
+                    return;
+                }
+            }
+
             if (readySceneView != null) readySceneView.HideUnitView();
+        }
+
+        // 전투 타일 전용 유닛 배치 안내 및 화면 표시
+        private void HandleForcedFormationRequested()
+        {
+            if (readySceneView == null)
+            {
+                return;
+            }
+
+            if (_formationFeedbackRoutine != null)
+            {
+                StopCoroutine(_formationFeedbackRoutine);
+            }
+
+            _formationFeedbackRoutine = StartCoroutine(ShowFormationFeedbackRoutine());
+        }
+
+        // 강제 유닛 배치 피드백 표시 시간 관리
+        private System.Collections.IEnumerator ShowFormationFeedbackRoutine()
+        {
+            readySceneView.HideAllOverlayViews();
+            readySceneView.ShowUnitView();
+            readySceneView.ShowFeedbackView("유닛을 배치해주세요!");
+
+            yield return new WaitForSecondsRealtime(FormationFeedbackDuration);
+
+            if (readySceneView != null)
+            {
+                readySceneView.HideFeedbackView();
+            }
+
+            _formationFeedbackRoutine = null;
         }
 
         private void HandleRollButtonClicked(DiceRollView view)

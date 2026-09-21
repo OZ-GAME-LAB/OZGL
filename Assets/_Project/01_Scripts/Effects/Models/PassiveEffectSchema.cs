@@ -35,6 +35,7 @@ namespace OzGameLab01.Combat
         SupportRow,
         RandomAlly,
         WorstHpAlly,
+        SpecificTarget,
         Enemy
     }
 

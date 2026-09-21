@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -72,35 +71,21 @@ namespace OzGameLab01.Editor
 
                 if (battleUIView.MainView != null)
                 {
-                    errorCount += Require(battleUIView.MainView.TimerView, "CombatMainView.TimerView");
+                    // 현재 BattleUI에서 사용하지 않는 전투 타이머 선택 참조
+                    LogOptionalReference(
+                        battleUIView.MainView,
+                        "timerView",
+                        "현재 BattleUI에는 전투 타이머 표시를 사용하지 않습니다.");
                     errorCount += Require(battleUIView.MainView.ControlView, "CombatMainView.ControlView");
                     errorCount += Require(battleUIView.MainView.UnitInfoView, "CombatMainView.UnitInfoView");
                     errorCount += Require(battleUIView.MainView.SynergyView, "CombatMainView.SynergyView");
-                    errorCount += Require(battleUIView.MainView.AllyCombatArea, "CombatMainView.AllyCombatArea");
-                    errorCount += Require(battleUIView.MainView.EnemyCombatArea, "CombatMainView.EnemyCombatArea");
-
-                    IReadOnlyList<PlayerSlotItemView> slots = battleUIView.MainView.PlayerSlotViews;
-                    if (slots == null || slots.Count < 9)
-                    {
-                        LogError($"CombatMainView.PlayerSlotViews는 9개 이상이어야 합니다. 현재: {slots?.Count ?? 0}");
-                        errorCount++;
-                    }
-                    else
-                    {
-                        for (int i = 0; i < slots.Count; i++)
-                        {
-                            if (slots[i] == null || slots[i].UnitAnchor == null)
-                            {
-                                LogError($"CombatMainView.PlayerSlotViews[{i}]의 UnitAnchor가 없습니다.");
-                                errorCount++;
-                            }
-                        }
-                    }
                 }
             }
 
             if (combatSession != null)
             {
+                // 월드 전투 배치에 필요한 BattleMap 프리팹 필수 참조
+                errorCount += RequireSerializedReference(combatSession, "battleMapPrefab");
                 errorCount += RequireSerializedReference(combatSession, "allyTemplatePrefab");
                 LogOptionalReference(combatSession, "battleMainView", "CombatSession이 런타임 자동 탐색합니다.");
                 errorCount += RequireSerializedReference(combatSession, "rosterData");

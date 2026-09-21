@@ -9,10 +9,6 @@ namespace OzGameLab01.UI.Battle
         [SerializeField] private Transform[] allySpawnPoints = new Transform[9];
         [SerializeField] private Transform enemySpawnPoint;
 
-        [Header("Runtime Parent")] [SerializeField] private Transform unitsRoot;
-
-        public Transform UnitsRoot => unitsRoot;
-
         /// <summary>
         /// 편성 인덱스에 해당하는 월드 스폰 지점을 반환합니다.
         /// </summary>

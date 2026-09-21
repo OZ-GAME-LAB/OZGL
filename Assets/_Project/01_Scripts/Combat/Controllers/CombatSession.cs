@@ -17,15 +17,14 @@ namespace OzGameLab01.Combat
     /// </summary>
     public class CombatSession : MonoBehaviour
     {
-        [SerializeField] private Transform unitsRoot;
-        [SerializeField] private Vector3 enemyPosition = new Vector3(4.5f, 0f, 0f);
+        [SerializeField] private CombatMapView battleMapPrefab;
         [SerializeField] private string enemyPrefabResourceName = "Characters/EnemyTemplate";
         [SerializeField] private float enemyScale = 3f;
 
-        [Tooltip("모든 아군이 공유하는 프리팹입니다. Instantiate 후 UnitData로 Configure()하여 실제 유닛으로 만듭니다. 프리팹 루트는 비활성 상태여야 합니다(Configure가 Awake보다 먼저 실행되어야 하므로).")]
+        [Tooltip("BattleMap 슬롯에 생성할 공용 TestUnit 프리팹입니다. 편성 UnitData로 전투 능력치를 적용합니다.")]
         [SerializeField] private GameObject allyTemplatePrefab;
 
-        [Tooltip("아군 유닛마다 UnitAnchor 아래에 생성되는 체력/스킬 쿨다운 HUD입니다. 비워두면 HUD 없이 진행됩니다.")]
+        [Tooltip("아군 유닛마다 월드 캔버스 아래에 생성되는 체력/스킬 쿨다운 HUD입니다. 비워두면 HUD 없이 진행됩니다.")]
         [SerializeField] private AllyUnitCombatHUDView allyHudPrefab;
 
         [Header("플레이어 전투 슬롯")]
@@ -49,7 +48,7 @@ namespace OzGameLab01.Combat
         [SerializeField] private Color synergyInactiveColor = new Color(1f, 1f, 1f, 0.4f);
 
         private readonly CombatState _state = new CombatState();
-        private UIProjectilePool _uiProjectilePool;
+        private CombatMapView _battleMapView;
         private AllySpawner _allySpawner;
         private SynergyController _synergyController;
         private CombatEffectExecutor _combatEffectExecutor;
@@ -74,19 +73,37 @@ namespace OzGameLab01.Combat
             {
                 battleMainView = FindFirstObjectByType<CombatMainView>(FindObjectsInactive.Include);
             }
-            // CombatMainView 아래에 런타임 투사체 풀은 한번만 생성
+
+            // 월드 유닛과 중복되는 편성용 UI 그리드 비활성화
+            battleMainView?.SetFormationGridVisible(false);
+
+            // 직렬화된 월드 BattleMap 참조와 Resources 기반 TestUnit 참조 보정
+            if (allyTemplatePrefab == null || allyTemplatePrefab.name != "TestUnit")
+            {
+                allyTemplatePrefab = Resources.Load<GameObject>("Characters/TestUnit");
+            }
+
+            // 비활성 오브젝트를 포함한 씬 소속 BattleMap 우선 사용
+            _battleMapView = FindFirstObjectByType<CombatMapView>(FindObjectsInactive.Include);
+            if (_battleMapView == null && battleMapPrefab != null)
+            {
+                _battleMapView = Instantiate(battleMapPrefab, Vector3.zero, Quaternion.identity);
+                _battleMapView.name = battleMapPrefab.name;
+            }
+
+            if (_battleMapView == null)
+            {
+                Debug.LogError("[CombatSession] BattleMap 프리팹 참조가 없어 월드 전투 배치를 구성할 수 없습니다.", this);
+            }
+
+            if (allyTemplatePrefab == null)
+            {
+                Debug.LogError("[CombatSession] Resources/Characters/TestUnit 프리팹을 찾을 수 없습니다.", this);
+            }
+
             if (battleMainView != null)
             {
                 _feedbackView = CombatEffectFeedbackView.Create(battleMainView);
-                _uiProjectilePool = battleMainView.GetComponentInChildren<UIProjectilePool>(true);
-                if (_uiProjectilePool == null)
-                {
-                    GameObject poolObject =
-                        new GameObject("UIProjectilePool", typeof(RectTransform), typeof(UIProjectilePool));
-                    poolObject.transform.SetParent(battleMainView.transform, false);
-                    poolObject.transform.SetAsLastSibling();
-                    _uiProjectilePool = poolObject.GetComponent<UIProjectilePool>();
-                }
             }
 
             // 스폰/시너지 책임은 별도 클래스로 분리되어 있다. Inspector 참조는 CombatSession이
@@ -100,9 +117,9 @@ namespace OzGameLab01.Combat
             enemyMonsterData = EnemyManager.Instance.Facade.BuildCombatSpec(enemyMonsterData);
 
             _allySpawner = new AllySpawner(
-                battleMainView, allyTemplatePrefab, unitsRoot,
-                enemyPosition, enemyPrefabResourceName, enemyScale,
-                _uiProjectilePool, enemyMonsterData, allyHudPrefab);
+                _battleMapView, allyTemplatePrefab,
+                enemyPrefabResourceName, enemyScale,
+                enemyMonsterData, allyHudPrefab);
 
             // dev 브랜치 머지로 들어온 전투 UI(적 이름/체력/스킬쿨타임/상태이상)를 실제 수치와
             // 연동합니다. 아직 이 값들을 갱신하는 코드가 없어 화면에는 붙어 있어도 항상
@@ -127,8 +144,15 @@ namespace OzGameLab01.Combat
             BuildUnitStatLookup();
             _synergyController.BuildUnitTraitLookup(_state.UnitDataById);
 
+            UnitData[] formationData = SceneTransitioner.AllyFormationData;
+            if (formationData == null || formationData.Length == 0)
+            {
+                formationData = UnitFormationCombatLink.BuildCombatFormationFromSavedIds();
+                SceneTransitioner.AllyFormationData = formationData;
+            }
+
             _state.SpawnedFormation = _allySpawner.SpawnAllies(
-                _state.SlotUnits, SceneTransitioner.AllyFormationData, UnitFormationCombatLink.BattleUnitList);
+                _state.SlotUnits, formationData);
 
             _synergyController.ApplySynergies(_state.SpawnedFormation, _state.SlotUnits);
             _synergyController.PopulateSynergyPanel();
