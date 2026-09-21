@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,8 +19,6 @@ namespace OzGameLab01.UI
         [SerializeField] private TMP_Text messageText;
         [SerializeField] private Button confirmButton;
         [SerializeField] private TMP_FontAsset koreanFont;
-
-        private Action _confirmed;
 
         private void Awake()
         {
@@ -49,20 +46,13 @@ namespace OzGameLab01.UI
                 confirmButton = CreateConfirmButton();
             }
 
-            confirmButton.onClick.AddListener(HandleConfirmClicked);
+            confirmButton.onClick.AddListener(Hide);
 
             panel.SetActive(false);
         }
 
         public void Show(string message)
         {
-            Show(message, null);
-        }
-
-        public void Show(string message, Action confirmed)
-        {
-            _confirmed = confirmed;
-
             if (messageText != null)
             {
                 messageText.text = message;
@@ -74,16 +64,7 @@ namespace OzGameLab01.UI
 
         public void Hide()
         {
-            _confirmed = null;
             panel.SetActive(false);
-        }
-
-        // 확인 후속 동작의 일회성 실행
-        private void HandleConfirmClicked()
-        {
-            Action confirmed = _confirmed;
-            Hide();
-            confirmed?.Invoke();
         }
 
         private GameObject CreatePanel()
