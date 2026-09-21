@@ -49,6 +49,7 @@ namespace OzGameLab01.Controllers
         public event Action<int> NoonReached;
         public event Action<int> DayReached;
         public event Action PlayerTurnReady;
+        public event Action<UnitData> UnitAcquired;
         public event Action<BoardTimeOfDay> TimeOfDayChanged;
         public BoardTimeOfDay CurrentTimeOfDay =>
             BoardTurnRules.GetTimeOfDay(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
@@ -365,7 +366,7 @@ namespace OzGameLab01.Controllers
             }
             UnitData acquired = PlayerFacade.CloneUnitData(selected);
             playerFacade.AddUnit(acquired);
-            _feedback.ShowUnit(acquired.name, playerFacade.OwnedUnits.Count);
+            UnitAcquired?.Invoke(acquired);
             acquiredUnitId = acquired.id;
             return true;
         }

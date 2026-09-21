@@ -31,7 +31,8 @@ namespace OzGameLab01.Controllers
         [Header("Turn Sequence")]
         [Tooltip("끄면 턴 시작 시 RollView를 자동으로 열지 않습니다. 튜토리얼 Step 등에서 RequestRollViewOpen을 호출해 열 수 있습니다.")]
         [SerializeField] private bool automaticRollViewEnabled = true;
-        [Min(0f)][SerializeField] private float autoRollViewOpenDelay = 0.5f;
+        [Min(0f)][SerializeField] private float initialAutoRollViewDelay = 0.5f;
+        [Min(0f)][SerializeField] private float turnAutoRollViewDelay = 0.5f;
         [Min(0f)][SerializeField] private float timeOfDayFeedbackDuration = 1.5f;
         [SerializeField] private string nightMessage = "Night Has Come";
         [SerializeField] private string noonMessage = "Noon Has Come";
@@ -79,7 +80,7 @@ namespace OzGameLab01.Controllers
         {
             _started = true;
             BindEvents();
-            ScheduleAutomaticRollView();
+            ScheduleAutomaticRollView(initialAutoRollViewDelay);
         }
 
         private void OnEnable()
@@ -87,7 +88,7 @@ namespace OzGameLab01.Controllers
             if (_started)
             {
                 BindEvents();
-                ScheduleAutomaticRollView();
+                ScheduleAutomaticRollView(initialAutoRollViewDelay);
             }
         }
 
@@ -143,6 +144,7 @@ namespace OzGameLab01.Controllers
                 boardSceneController.NoonReached += HandleNoonReached;
                 boardSceneController.DayReached += HandleDayReached;
                 boardSceneController.PlayerTurnReady += HandlePlayerTurnReady;
+                boardSceneController.UnitAcquired += HandleUnitAcquired;
             }
 
         }
@@ -192,6 +194,7 @@ namespace OzGameLab01.Controllers
                 boardSceneController.NoonReached -= HandleNoonReached;
                 boardSceneController.DayReached -= HandleDayReached;
                 boardSceneController.PlayerTurnReady -= HandlePlayerTurnReady;
+                boardSceneController.UnitAcquired -= HandleUnitAcquired;
             }
         }
 
@@ -541,7 +544,15 @@ namespace OzGameLab01.Controllers
 
         private void HandlePlayerTurnReady()
         {
-            ScheduleAutomaticRollView();
+            ScheduleAutomaticRollView(turnAutoRollViewDelay);
+        }
+
+        private void HandleUnitAcquired(UnitData unitData)
+        {
+            if (readySceneView != null)
+            {
+                readySceneView.PlayUnitAcquirePopup(unitData.name, null);
+            }
         }
 
         private void ShowTimeOfDayFeedback(string message)
@@ -572,10 +583,10 @@ namespace OzGameLab01.Controllers
             }
 
             _timeOfDayFeedbackRoutine = null;
-            ScheduleAutomaticRollView();
+            ScheduleAutomaticRollView(turnAutoRollViewDelay);
         }
 
-        private void ScheduleAutomaticRollView()
+        private void ScheduleAutomaticRollView(float delay)
         {
             CancelAutomaticRollView();
 
@@ -585,7 +596,7 @@ namespace OzGameLab01.Controllers
             }
 
             _automaticRollViewRoutine =
-                StartCoroutine(OpenRollViewWhenAvailableRoutine(autoRollViewOpenDelay, null));
+                StartCoroutine(OpenRollViewWhenAvailableRoutine(delay, null));
         }
 
         private void CancelAutomaticRollView()
