@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 using OzGameLab01.Combat;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
-using OzGameLab01.Rewards;
 using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Editor
@@ -52,22 +51,7 @@ namespace OzGameLab01.Editor
             if (battleUIView != null)
             {
                 errorCount += Require(battleUIView.MainView, "CombatUIView.MainView");
-                errorCount += Require(battleUIView.RewardView, "CombatUIView.RewardView");
                 errorCount += Require(battleUIView.ResultView, "CombatUIView.ResultView");
-
-                if (battleUIView.RewardView != null)
-                {
-                    if (battleUIView.RewardView.ConfiguredRewards != null)
-                    {
-                        foreach (BattleRewardData reward in battleUIView.RewardView.ConfiguredRewards)
-                        {
-                            if (!CombatDataValidator.ValidateReward(reward, battleUIView.RewardView))
-                            {
-                                errorCount++;
-                            }
-                        }
-                    }
-                }
 
                 if (battleUIView.MainView != null)
                 {

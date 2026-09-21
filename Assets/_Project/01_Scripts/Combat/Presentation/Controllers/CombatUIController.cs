@@ -72,7 +72,6 @@ namespace OzGameLab01.Controllers
             if (battleUIView != null)
             {
                 battleUIView.EndBattleClicked += HandleEndBattleClicked;
-                battleUIView.RewardSelected += HandleRewardSelected;
             }
 
             if (settingsView != null)
@@ -104,7 +103,6 @@ namespace OzGameLab01.Controllers
             if (battleUIView != null)
             {
                 battleUIView.EndBattleClicked -= HandleEndBattleClicked;
-                battleUIView.RewardSelected -= HandleRewardSelected;
             }
 
             if (settingsView != null)
@@ -248,20 +246,10 @@ namespace OzGameLab01.Controllers
                         return;
                     }
 
-                    // 승리 시 보상 창(RewardView)을 먼저 띄웁니다.
-                    if (battleUIView.RewardView != null && battleUIView.RewardView.HasConfiguredRewards)
-                    {
-                        battleUIView.ShowRewardView();
-                        return;
-
-                        // 기획 데이터 연결 전까지 임시 보상 3개 생성
-                        // 보상 데이터가 준비되기 전까지 사용하던 임시 보상 생성은 제거합니다.
-                    }
-
                     if (battleUIView.ResultView != null)
                     {
-                        // 보상 화면이 구성되지 않은 일반 전투는 승리 시 무작위 유물 1개를
-                        // 자동으로 지급합니다(dropWeight 가중치, RelicFacade.AcquireRandomRelic).
+                        // 일반 전투는 승리 시 무작위 유물 1개를 자동으로 지급합니다
+                        // (dropWeight 가중치, RelicFacade.AcquireRandomRelic).
                         RelicData grantedRelic = BattleRewardService.ApplyAutomaticVictoryReward(this);
 
                         if (grantedRelic != null)
@@ -288,42 +276,6 @@ namespace OzGameLab01.Controllers
                     }
                     battleUIView.ShowResultView();
                 }
-            }
-        }
-
-        private void HandleRewardSelected(RewardOptionItemView option)
-        {
-            if (_rewardApplied || option == null || combatSceneController == null)
-            {
-                return;
-            }
-
-            CombatFacade combatFacade = CombatManager.Instance?.Facade;
-            bool applied = combatFacade != null && BattleRewardService.Apply(
-                option.RewardData,
-                combatFacade.GetParticipatingAllyUnits(),
-                this);
-
-            if (!applied)
-            {
-                return;
-            }
-
-            _rewardApplied = true;
-            // 보상을 선택하면 보상창이 닫히고 결과창으로 넘어갑니다.
-            if (battleUIView != null)
-            {
-                if (battleUIView.ResultView != null)
-                {
-                    battleUIView.ResultView.SetResultText("Victory!");
-                    battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
-                    
-                    // 선택한 보상의 설명을 결과창에 표기
-                    string selectedDesc = option.DescriptionText != null ? option.DescriptionText.text : "Reward";
-                    battleUIView.ResultView.SetOptionalMessage($"Obtained: {selectedDesc}");
-                }
-                
-                battleUIView.ShowResultView();
             }
         }
 
