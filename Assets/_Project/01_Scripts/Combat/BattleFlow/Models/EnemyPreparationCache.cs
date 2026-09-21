@@ -11,6 +11,7 @@ namespace OzGameLab01.Combat
     /// </summary>
     public sealed class EnemyPreparationCache
     {
+        private const int FinalBossFallbackStep = 3;
         private readonly Dictionary<Key, MonsterData> _prepared = new Dictionary<Key, MonsterData>();
         private long _contentRevision = -1;
 
@@ -58,7 +59,11 @@ namespace OzGameLab01.Combat
         private static EnemyGrowthRow FindGrowth(ContentCatalog content, MonsterType type, int turnCount, int defeatedElites)
         {
             MonsterType growthType = type == MonsterType.boss ? MonsterType.semiboss : type;
-            int requestedStep = Mathf.Max(1, turnCount + defeatedElites + 1);
+            // Final-boss rows are not authored yet. The agreed temporary rule is the
+            // third semiboss stage regardless of when the boss battle is entered.
+            int requestedStep = type == MonsterType.boss
+                ? FinalBossFallbackStep
+                : Mathf.Max(1, turnCount + defeatedElites + 1);
             EnemyGrowthRow best = null;
             foreach (EnemyGrowthRow row in content.EnemyGrowth.Values)
             {

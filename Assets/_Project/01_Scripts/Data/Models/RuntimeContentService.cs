@@ -5,7 +5,7 @@ namespace OzGameLab01.Data
     /// <summary>Loads and publishes a complete content snapshot without owning Unity lifecycle.</summary>
     public sealed class RuntimeContentService : IDataNotificationSource, IDisposable
     {
-        private readonly Func<ContentCatalog> _load;
+        private Func<ContentCatalog> _load;
         private readonly DataNotificationPublisher _notifications = new DataNotificationPublisher();
         private ContentCatalog _catalog;
         private bool _loading;
@@ -56,6 +56,17 @@ namespace OzGameLab01.Data
                 return true;
             }
             finally { _loading = false; }
+        }
+
+        public bool ReplaceLoader(Func<ContentCatalog> load)
+        {
+            if (load == null) throw new ArgumentNullException(nameof(load));
+            if (_disposed) throw new ObjectDisposedException(nameof(RuntimeContentService));
+            Func<ContentCatalog> previous = _load;
+            _load = load;
+            if (Reload()) return true;
+            _load = previous;
+            return false;
         }
 
         private void Record<T>(int count)

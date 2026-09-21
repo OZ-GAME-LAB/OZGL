@@ -4,6 +4,7 @@ using OzGameLab01.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using OzGameLab01.Common;
+using System.Threading.Tasks;
 
 namespace OzGameLab01.Managers
 {
@@ -82,19 +83,44 @@ namespace OzGameLab01.Managers
                 $"[GameBootstrapper] 전역 매니저 루트 등록 완료 | {gameObject.name}", this);
         }
 
-        private void Start()
+        private IEnumerator Start()
         {
             // Awake에서 루트 검증에 실패한 경우 초기화 중단
             if (!_isRootObjectValid)
             {
-                return;
+                yield break;
+            }
+
+            Task dataLoad = DataManager.InitializeAsync();
+            while (!dataLoad.IsCompleted) yield return null;
+            if (dataLoad.IsFaulted)
+            {
+                Debug.LogException(dataLoad.Exception?.GetBaseException() ??
+                    new System.InvalidOperationException("Gameplay database initialization failed."), this);
+                _notifications.Publish(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.ManagersFailed);
+                enabled = false;
+                yield break;
+            }
+
+            try
+            {
+                RuntimeContent.UseDataManager(_eventContent);
+                Debug.Log($"[GameBootstrapper] Addressables gameplay content activated | " +
+                          $"units={RuntimeContent.Catalog.UnitCount}, enemies={RuntimeContent.Catalog.EnemyCount}, " +
+                          $"skills={RuntimeContent.Catalog.Skills.Count}", this);
+            }
+            catch (System.Exception error)
+            {
+                Debug.LogException(error, this);
+                _notifications.Publish(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.ManagersFailed);
+                enabled = false;
+                yield break;
             }
 
             RegisterSystemBusManagers();
 
             // 모든 Awake() 콜백 완료 후 매니저 초기화 시작
             InitializeManagers();
-
         }
 
         /// <summary>

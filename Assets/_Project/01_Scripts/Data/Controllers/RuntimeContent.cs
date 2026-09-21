@@ -9,6 +9,7 @@ namespace OzGameLab01.Data
     {
         private static RuntimeContentService _owned;
         private static OzGameLab01.Events.EventDB _eventDatabase;
+        public static bool UsesDataManager { get; private set; }
         public static void BindEvents(OzGameLab01.Events.EventDB database)
         {
             if (database == null || _eventDatabase == database) return;
@@ -41,6 +42,17 @@ namespace OzGameLab01.Data
         }
         public static ContentCatalog Catalog => Service.Catalog;
 
+        public static void UseDataManager(OzGameLab01.Events.EventDB eventDatabase = null)
+        {
+            if (!OzGameLab01.Managers.DataManager.IsInitialized)
+                throw new InvalidOperationException("DataManager must be initialized before it becomes the runtime source.");
+            if (eventDatabase != null) _eventDatabase = eventDatabase;
+            RuntimeContentService service = Service;
+            if (!service.ReplaceLoader(() => DataManagerContentLoader.Load(_eventDatabase)))
+                throw new InvalidOperationException("Addressables content activation failed.", service.LastError);
+            UsesDataManager = true;
+        }
+
         private static void RefreshEffects(DataNotification notification)
         {
             if (notification.Dataset == typeof(ContentCatalog).FullName && notification.Kind == DataNotificationKind.CacheReplaced)
@@ -53,6 +65,7 @@ namespace OzGameLab01.Data
             SystemBus.Unregister(_owned);
             _owned.Dispose();
             _owned = null;
+            UsesDataManager = false;
         }
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -60,6 +73,7 @@ namespace OzGameLab01.Data
         {
             Shutdown();
             _eventDatabase = null;
+            UsesDataManager = false;
         }
     }
 }

@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
+using OzGameLab01.Common;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Events;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.Tests.EditMode
 {
@@ -204,6 +207,87 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
+        public void HpThresholdUsesPartyAggregateIncludesDeadAndFiresOnlyOnceBelowBoundary()
+        {
+            var sessionObject = new UnityEngine.GameObject("HP threshold session");
+            sessionObject.SetActive(false);
+            var session = sessionObject.AddComponent<CombatSession>();
+            var front = CreateUnit("threshold front", 100f);
+            var back = CreateUnit("threshold back", 100f);
+            var catalog = BuildThresholdCatalog(EffectTarget.AllAllies);
+            CombatEffectExecutor executor = null;
+            try
+            {
+                session.State.SlotUnits[0, (int)CombatManager.SlotRow.Front] = front;
+                session.State.SlotUnits[0, (int)CombatManager.SlotRow.Back] = back;
+                SystemBus.Unregister<CombatEffectCatalog>();
+                SystemBus.Register(catalog);
+                executor = new CombatEffectExecutor(new CombatFacade(), new CombatRandom(7));
+
+                front.TakeDamage(100f);
+                Assert.That(back.Shield, Is.EqualTo(0f).Within(0.001f),
+                    "Exactly 50% party HP must not satisfy a '< 50%' trigger.");
+
+                back.TakeDamage(1f);
+                Assert.That(back.Shield, Is.EqualTo(10f).Within(0.001f),
+                    "The dead ally must remain in the party aggregate denominator.");
+
+                back.Heal(1f);
+                back.TakeDamage(11f);
+                Assert.That(back.Shield, Is.EqualTo(0f).Within(0.001f),
+                    "The same threshold effect may fire only once per battle.");
+            }
+            finally
+            {
+                executor?.Dispose();
+                PassiveEventBus.ResetRunState();
+                SystemBus.Unregister<CombatEffectCatalog>(catalog);
+                UnityEngine.Object.DestroyImmediate(front.gameObject);
+                UnityEngine.Object.DestroyImmediate(back.gameObject);
+                UnityEngine.Object.DestroyImmediate(sessionObject);
+            }
+        }
+
+        [Test]
+        public void HpThresholdUsesConfiguredRowAndIgnoresDamageInOtherRows()
+        {
+            var sessionObject = new UnityEngine.GameObject("Row threshold session");
+            sessionObject.SetActive(false);
+            var session = sessionObject.AddComponent<CombatSession>();
+            var front = CreateUnit("row threshold front", 100f);
+            var back = CreateUnit("row threshold back", 100f);
+            var catalog = BuildThresholdCatalog(EffectTarget.FrontRow);
+            CombatEffectExecutor executor = null;
+            try
+            {
+                session.State.SlotUnits[0, (int)CombatManager.SlotRow.Front] = front;
+                session.State.SlotUnits[0, (int)CombatManager.SlotRow.Back] = back;
+                SystemBus.Unregister<CombatEffectCatalog>();
+                SystemBus.Register(catalog);
+                executor = new CombatEffectExecutor(new CombatFacade(), new CombatRandom(7));
+
+                back.TakeDamage(100f);
+                Assert.That(front.Shield, Is.EqualTo(0f).Within(0.001f));
+
+                front.TakeDamage(50f);
+                Assert.That(front.Shield, Is.EqualTo(0f).Within(0.001f),
+                    "Exactly 50% row HP must not fire.");
+
+                front.TakeDamage(1f);
+                Assert.That(front.Shield, Is.EqualTo(10f).Within(0.001f));
+            }
+            finally
+            {
+                executor?.Dispose();
+                PassiveEventBus.ResetRunState();
+                SystemBus.Unregister<CombatEffectCatalog>(catalog);
+                UnityEngine.Object.DestroyImmediate(front.gameObject);
+                UnityEngine.Object.DestroyImmediate(back.gameObject);
+                UnityEngine.Object.DestroyImmediate(sessionObject);
+            }
+        }
+
+        [Test]
         public void EnemyPreparationUsesGrowthRowAndReturnsDetachedCachedSpecs()
         {
             var catalog = new ContentCatalog(
@@ -240,6 +324,37 @@ namespace OzGameLab01.Tests.EditMode
             Assert.That(first.skillIds, Does.Contain(10));
             Assert.That(second.skillIds, Does.Contain(11));
             Assert.That(cache.Count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void EnemyPreparationUsesRealGrowthStepsAndFinalBossFallsBackToSemibossStageThree()
+        {
+            ContentCatalog content = ResourcesContentLoader.Load();
+            EnemyGrowthRow normalFirst = content.EnemyGrowth.Values.Single(row =>
+                row.type == MonsterType.normal && row.step == 1);
+            EnemyGrowthRow normalLast = content.EnemyGrowth.Values
+                .Where(row => row.type == MonsterType.normal)
+                .OrderByDescending(row => row.step)
+                .First();
+            EnemyGrowthRow finalBossFallback = content.EnemyGrowth.Values.Single(row =>
+                row.type == MonsterType.semiboss && row.step == 3);
+            var cache = new EnemyPreparationCache();
+            var normal = new MonsterData { id = 9001, type = MonsterType.normal };
+            var boss = new MonsterData { id = 9002, type = MonsterType.boss };
+
+            MonsterData first = cache.Prepare(content, 1, normal, 0, 0, 123,
+                Array.Empty<UnitData>());
+            MonsterData capped = cache.Prepare(content, 1, normal, 100, 10, 123,
+                Array.Empty<UnitData>());
+            MonsterData finalBoss = cache.Prepare(content, 1, boss, 0, 0, 123,
+                Array.Empty<UnitData>());
+
+            Assert.That(first.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(normalFirst.health)));
+            Assert.That(capped.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(normalLast.health)));
+            Assert.That(finalBoss.healthPoint,
+                Is.EqualTo(UnityEngine.Mathf.RoundToInt(finalBossFallback.health)));
+            Assert.That(finalBoss.attackPoint,
+                Is.EqualTo(UnityEngine.Mathf.RoundToInt(finalBossFallback.attack)));
         }
 
         [Test]
@@ -511,6 +626,28 @@ namespace OzGameLab01.Tests.EditMode
             unit.Configure(new UnitData { healthPoint = maxHp });
             InitializeUnit(unit);
             return unit;
+        }
+
+        private static CombatEffectCatalog BuildThresholdCatalog(EffectTarget target)
+        {
+            var catalog = new CombatEffectCatalog();
+            catalog.Rebuild(null, null, null, new[]
+            {
+                new RuntimeEffectManager.EffectSource(
+                    RuntimeEffectManager.EffectSourceKind.UnitPassive,
+                    100,
+                    new EffectInstance
+                    {
+                        trigger = TriggerType.OnHpBelowThreshold,
+                        triggerParam = 50f,
+                        target = target,
+                        effect = EffectType.GrantShield,
+                        effectParam = 10f,
+                        untilBattleEnd = true
+                    },
+                    0)
+            });
+            return catalog;
         }
     }
 }

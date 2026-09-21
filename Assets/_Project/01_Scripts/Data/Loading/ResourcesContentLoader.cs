@@ -36,7 +36,7 @@ namespace OzGameLab01.Data
                 ?? throw new InvalidOperationException("Empty enemy growth document.");
         }
 
-        private static IEnumerable<EventContent> LoadEvents(OzGameLab01.Events.EventDB database)
+        internal static IEnumerable<EventContent> LoadEvents(OzGameLab01.Events.EventDB database)
         {
             if (database == null) yield break;
             var pools = new[] { database.EventList_Battle, database.EventList_Quiz, database.EventList_Relic,

@@ -1,7 +1,11 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using OzGameLab01.Data;
+using OzGameLab01.Managers;
+using UnityEngine.TestTools;
 
 namespace OzGameLab01.Tests.EditMode
 {
@@ -90,6 +94,36 @@ namespace OzGameLab01.Tests.EditMode
             Assert.That(catalog.EnemyGrowth[200003].health, Is.EqualTo(1050));
             foreach (UnitData unit in catalog.Units)
                 foreach (int id in unit.skillIds) Assert.That(catalog.GetSkill(id), Is.Not.Null);
+        }
+
+        [UnityTest]
+        [Timeout(60000)]
+        public IEnumerator AddressablesDatabasesBuildGameplayCatalog()
+        {
+            yield return new EnterPlayMode();
+
+            Task initialization = DataManager.InitializeAsync();
+            while (!initialization.IsCompleted)
+                yield return null;
+
+            if (initialization.IsFaulted)
+                throw initialization.Exception?.GetBaseException() ?? new InvalidOperationException("DataManager initialization failed.");
+
+            ContentCatalog catalog = DataManagerContentLoader.Load();
+            Assert.That(DataManager.IsInitialized, Is.True);
+            Assert.That(DataManager.Units.Count, Is.EqualTo(21));
+            Assert.That(DataManager.Monsters.Count, Is.EqualTo(3));
+            Assert.That(DataManager.Skills.Count, Is.EqualTo(21));
+            Assert.That(DataManager.Synergies.Count, Is.EqualTo(12));
+            Assert.That(DataManager.Relics.Count, Is.EqualTo(41));
+            Assert.That(DataManager.EnemyGrowth.Count, Is.EqualTo(93));
+            Assert.That(catalog.Skills.Count, Is.EqualTo(38));
+            Assert.That(catalog.GetUnit(100).healthPoint, Is.EqualTo(92f));
+            Assert.That(catalog.GetSkill(920).damage, Is.EqualTo(8f));
+            Assert.That(catalog.GetEnemy(1).healthPoint, Is.EqualTo(100));
+            Assert.That(catalog.EnemyGrowth[200003].health, Is.EqualTo(1050f));
+
+            yield return new ExitPlayMode();
         }
 
         [Test]
