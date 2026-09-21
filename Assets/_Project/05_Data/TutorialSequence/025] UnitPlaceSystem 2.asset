@@ -10,22 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: daf81f11f4d88644086a711a9211e715, type: 3}
-  m_Name: Introduce 2
+  m_Name: 025] UnitPlaceSystem 2
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.TutorialSequenceStepData
-  stepName: Introduce2
-  trigger: 2
+  stepName: Introduce3
+  trigger: 1
   showDelay: 0
   ignoreShowDelayTimeScale: 1
-  targetReadyView: 2
+  targetReadyView: 0
   triggerButtonKey: 
   manualTriggerKey: 
   openRollView: 0
-  showGuide: 0
+  showGuide: 1
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
-  dialogue: "\u2460 \uC8FC\uC0AC\uC704\uB97C \uAD74\uB9B0\uB2E4.\r\n\u2461 \uB098\uC628
-    \uC218\uB9CC\uD07C \uC790\uC720\uB86D\uAC8C \uD0C0\uC77C \uC704\uB97C \uC774\uB3D9\uD55C\uB2E4.\r\n\u2462
-    \uD0C0\uC77C \uC704\uC758 \uC774\uBCA4\uD2B8\uB97C \uC2E4\uD589\uD55C\uB2E4. "
+  dialogue: "\uC774\uAC74 \uB3D9\uB8CC \uD68D\uB4DD \uD0C0\uC77C\uC774\uC57C. \uC774\uB3D9\uD574
+    \uBCFC\uAE4C?"
   showCharacter: 1
   highlightButton: 0
   highlightButtonKey: 
