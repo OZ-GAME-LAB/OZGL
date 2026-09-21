@@ -67,12 +67,15 @@ namespace OzGameLab01.Combat
             MonsterType growthType = type == MonsterType.boss ? MonsterType.semiboss : type;
             // Final-boss rows are not authored yet. The agreed temporary rule is the
             // third semiboss stage regardless of when the boss battle is entered.
-            // 중간보스 처치 수만큼 파도(wave)를 건너뛰고, 파도 내 위치는 누적 턴 수를
-            // WaveLength로 나눈 나머지로 정한다 — 처치 즉시 다음 파도의 +1.07 점프 행으로
-            // 넘어가고, 그 파도 안에서는 낮/밤 진행에 따라 계속 성장한다(2026-09-21 확정).
+            // 파도 번호는 "누적 턴 수로 자연스럽게 도달했을 파도"와 "중간보스 처치 수"
+            // 중 큰 쪽을 쓴다 — 중간보스를 처치하면 그만큼 파도를 앞당겨 점프하고,
+            // 처치 없이 턴만 흘러도 시간 경과만으로 계속 다음 파도로 넘어가(절대 약해지지
+            // 않음) 원본 표의 낮/밤/점프 구조를 재현한다(2026-09-21, turnCount%15로 순환시켜
+            // 15턴마다 최약체로 되돌아가던 첫 구현의 회귀를 수정).
+            int waveIndex = Mathf.Max(turnCount / WaveLength, defeatedElites);
             int requestedStep = type == MonsterType.boss
                 ? FinalBossFallbackStep
-                : Mathf.Max(1, (turnCount % WaveLength) + (defeatedElites * WaveLength) + 1);
+                : Mathf.Max(1, (waveIndex * WaveLength) + (turnCount % WaveLength) + 1);
             EnemyGrowthRow best = null;
             foreach (EnemyGrowthRow row in content.EnemyGrowth.Values)
             {

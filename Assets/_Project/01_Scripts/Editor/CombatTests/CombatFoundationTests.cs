@@ -386,6 +386,26 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
+        public void EnemyPreparationNeverWeakensAsTurnsPassWithoutElites()
+        {
+            // 중간보스를 한 마리도 못 잡은 채 파도 경계(15턴)를 넘겨도, turnCount % 15로 순환시켜
+            // 최약체로 되돌아가면 안 된다 — 시간 경과만으로도 계속 다음 파도로 넘어가야 한다.
+            ContentCatalog content = ResourcesContentLoader.Load();
+            var cache = new EnemyPreparationCache();
+            var normal = new MonsterData { id = 9004, type = MonsterType.normal };
+
+            MonsterData turn20 = cache.Prepare(content, 1, normal, 20, 0, 1, Array.Empty<UnitData>());
+            EnemyGrowthRow step21 = content.EnemyGrowth.Values.Single(
+                row => row.type == MonsterType.normal && row.step == 21);
+            Assert.That(turn20.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step21.health)));
+
+            MonsterData turn30 = cache.Prepare(content, 1, normal, 30, 0, 1, Array.Empty<UnitData>());
+            EnemyGrowthRow step31 = content.EnemyGrowth.Values.Single(
+                row => row.type == MonsterType.normal && row.step == 31);
+            Assert.That(turn30.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step31.health)));
+        }
+
+        [Test]
         public void SkillEffectsExecuteInDeclarationOrderAtImpact()
         {
             var casterObject = new UnityEngine.GameObject("Skill caster");
