@@ -24,7 +24,7 @@ namespace OzGameLab01.Data
             return LoadList<RelicData, RelicDataList>("RelicData");
         }
 
-        private static List<T> LoadList<T, TList>(string path) where TList : IDataList<T>
+        private static List<T> LoadList<T, TList>(string path) where T : IIdentifiable where TList : IDataList<T>
         {
             TextAsset asset = Resources.Load<TextAsset>(path);
             if (asset == null)

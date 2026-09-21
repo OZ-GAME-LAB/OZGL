@@ -142,6 +142,7 @@ namespace OzGameLab01.Controllers
                 boardSceneController.NoonReached += HandleNoonReached;
                 boardSceneController.DayReached += HandleDayReached;
                 boardSceneController.PlayerTurnReady += HandlePlayerTurnReady;
+                boardSceneController.ForcedFormationRequested += HandleForcedFormationRequested;
             }
 
         }
@@ -190,6 +191,7 @@ namespace OzGameLab01.Controllers
                 boardSceneController.NoonReached -= HandleNoonReached;
                 boardSceneController.DayReached -= HandleDayReached;
                 boardSceneController.PlayerTurnReady -= HandlePlayerTurnReady;
+                boardSceneController.ForcedFormationRequested -= HandleForcedFormationRequested;
             }
         }
 
@@ -313,7 +315,27 @@ namespace OzGameLab01.Controllers
 
         private void HandleUnitCloseClicked(UnitView view)
         {
+            if (boardSceneController != null && boardSceneController.HasPendingBattleFormation)
+            {
+                if (!boardSceneController.TryCompletePendingBattleFormation())
+                {
+                    return;
+                }
+            }
+
             if (readySceneView != null) readySceneView.HideUnitView();
+        }
+
+        // 전투 타일에서만 사용하는 강제 유닛 배치 화면 표시
+        private void HandleForcedFormationRequested()
+        {
+            if (readySceneView == null)
+            {
+                return;
+            }
+
+            readySceneView.HideAllOverlayViews();
+            readySceneView.ShowUnitView();
         }
 
         private void HandleRollButtonClicked(DiceRollView view)

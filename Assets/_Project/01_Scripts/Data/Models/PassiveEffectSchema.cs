@@ -35,6 +35,7 @@ namespace OzGameLab01.Data
         SupportRow,
         RandomAlly,
         WorstHpAlly,
+        SpecificTarget,
         Enemy
     }
 

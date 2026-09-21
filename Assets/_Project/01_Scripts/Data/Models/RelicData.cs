@@ -16,7 +16,7 @@ namespace OzGameLab01.Data
     }
 
     [System.Serializable]
-    public class RelicData
+    public class RelicData : IIdentifiable
     {
         public int id;                      // 유물 ID
         public string name;                 // 유물 명칭
@@ -26,6 +26,8 @@ namespace OzGameLab01.Data
         public float dropWeight;            // 전투 승리 보상 뽑기 가중치(RelicData.xlsx "확률" 열)
         public string targetScene;          // 효과가 적용되는 씬("보드씬"/"전투씬", RelicData.xlsx 원본 그대로)
         public List<EffectInstance> effects = new List<EffectInstance>();
+
+        public int Id => id;                // GameDB 식별자
     }
 }
 

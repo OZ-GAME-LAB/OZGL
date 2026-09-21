@@ -59,6 +59,12 @@ namespace OzGameLab01.Controllers
         private IDisposable _eventCompletionSubscription;
         private BoardSceneFeedbackView _feedback;
         private BoardTimeOfDayOverlayView _timeOfDayOverlay;
+        private MapNode _pendingBattleNode;
+        private bool _pendingBattleIsBoss;
+        private bool _pendingBattleIsElite;
+
+        public event Action ForcedFormationRequested;
+        public bool HasPendingBattleFormation => _pendingBattleNode != null;
         public event Action<BoardNotification> Notification;
 
         // 상태 확정 후 값 스냅샷 발행
@@ -213,16 +219,82 @@ namespace OzGameLab01.Controllers
             TimeOfDayChanged?.Invoke(timeOfDay);
         }
 
-        private bool EnsureCanStartBattle()
+        /// <summary>
+        /// 보류 중인 전투의 편성 상태를 확인하고 전투 씬으로 진입합니다.
+        /// </summary>
+        public bool TryCompletePendingBattleFormation()
+        {
+            if (_pendingBattleNode == null)
+            {
+                return false;
+            }
+
+            if (_unitFormationController != null && !_unitFormationController.CanStartBattle)
+            {
+                _feedback.Show(
+                    "To start a battle, you must place at least one combat unit.",
+                    confirmed: HandleBattleFormationPromptConfirmed);
+                return false;
+            }
+
+            MapNode battleNode = _pendingBattleNode;
+            bool isBoss = _pendingBattleIsBoss;
+            bool isElite = _pendingBattleIsElite;
+            if (!TryStartBattle(battleNode, isBoss, isElite))
+            {
+                return false;
+            }
+
+            ClearPendingBattleFormation();
+            return true;
+        }
+
+        // 전투 타일 전용 강제 편성 요청
+        private void RequestBattle(MapNode battleNode, bool isBoss, bool isElite = false)
         {
             if (_unitFormationController == null || _unitFormationController.CanStartBattle)
             {
-                return true;
+                TryStartBattle(battleNode, isBoss, isElite);
+                return;
             }
 
-            _feedback.Show("To start a battle, you must place at least one combat unit.");
+            _pendingBattleNode = battleNode;
+            _pendingBattleIsBoss = isBoss;
+            _pendingBattleIsElite = isElite;
+            _feedback.Show(
+                "To start a battle, you must place at least one combat unit.",
+                confirmed: HandleBattleFormationPromptConfirmed);
+        }
 
-            return false;
+        // 안내 확인 후 유닛 배치 화면 요청
+        private void HandleBattleFormationPromptConfirmed()
+        {
+            if (_pendingBattleNode != null)
+            {
+                ForcedFormationRequested?.Invoke();
+            }
+        }
+
+        // 보류 전투 상태 초기화
+        private void ClearPendingBattleFormation()
+        {
+            _pendingBattleNode = null;
+            _pendingBattleIsBoss = false;
+            _pendingBattleIsElite = false;
+        }
+
+        // 보류 여부와 무관한 실제 전투 진입
+        private bool TryStartBattle(MapNode battleNode, bool isBoss, bool isElite)
+        {
+            if (!TryGetSceneTransitioner(out SceneTransitioner transitioner))
+            {
+                return false;
+            }
+
+            BoardRunData.BeginBattle(battleNode.Position, isBoss, isElite);
+            Publish(BoardNotificationKind.BattleRequested, battleNode);
+            transitioner.LoadCombatScene();
+            return true;
         }
         /// <summary>
         /// [수정] 현재 런 저장 완료 후 타이틀 씬으로 이동
@@ -325,22 +397,12 @@ namespace OzGameLab01.Controllers
         private void HandleBattleNode(MapNode battleNode, bool isElite)
         {
             if (BoardRunData.IsBattleCompleted(battleNode.Position)) return;
-            if (!EnsureCanStartBattle()) return;
-            if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
-
-            BoardRunData.BeginBattle(battleNode.Position, false, isElite);
-            Publish(BoardNotificationKind.BattleRequested, battleNode);
-            transitioner.LoadCombatScene();
+            RequestBattle(battleNode, false, isElite);
         }
 
         private void HandleBossNode(MapNode bossNode)
         {
-            if (!EnsureCanStartBattle()) return;
-            if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
-
-            BoardRunData.BeginBattle(bossNode.Position, true);
-            Publish(BoardNotificationKind.BattleRequested, bossNode);
-            transitioner.LoadCombatScene();
+            RequestBattle(bossNode, true);
         }
 
         private bool TryGetSceneTransitioner(out SceneTransitioner transitioner)
