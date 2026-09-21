@@ -12,7 +12,8 @@ namespace OzGameLab01.UI
         Tooltip,
         Settings,
         ConfirmPopup,
-        Feedback
+        Feedback,
+        UnitAcquirePopup
     }
 
     [DisallowMultipleComponent]
@@ -33,6 +34,7 @@ namespace OzGameLab01.UI
         [SerializeField] private ConfirmPopupView _confirmPopupView;
         [UnityEngine.Serialization.FormerlySerializedAs("feedbackView")]
         [SerializeField] private FeedbackView _feedbackView;
+        [SerializeField] private UnitAcquirePopupView _unitAcquirePopupView;
 
         #region Properties
 
@@ -43,6 +45,7 @@ namespace OzGameLab01.UI
         public ReadySettingsView SettingsView => _settingsView;
         public ConfirmPopupView ConfirmPopupView => _confirmPopupView;
         public FeedbackView FeedbackView => _feedbackView;
+        public UnitAcquirePopupView UnitAcquirePopupView => _unitAcquirePopupView;
 
         /// <summary>
         /// ReadySceneView를 통해 UI가 표시되거나 해제됐을 때 호출됩니다.
@@ -199,6 +202,30 @@ namespace OzGameLab01.UI
             }
         }
 
+        public void PlayUnitAcquirePopup(string unitName, Sprite sprite)
+        {
+            if (_unitAcquirePopupView != null)
+            {
+                bool wasVisible = _unitAcquirePopupView.gameObject.activeSelf;
+                _unitAcquirePopupView.SetData(unitName, sprite);
+                _unitAcquirePopupView.Play(() => {
+                    NotifyVisibilityChanged(_unitAcquirePopupView, ReadySceneViewType.UnitAcquirePopup, true);
+                });
+                
+                NotifyVisibilityChanged(_unitAcquirePopupView, ReadySceneViewType.UnitAcquirePopup, wasVisible);
+            }
+        }
+
+        public void HideUnitAcquirePopup()
+        {
+            if (_unitAcquirePopupView != null)
+            {
+                bool wasVisible = _unitAcquirePopupView.gameObject.activeSelf;
+                _unitAcquirePopupView.Hide();
+                NotifyVisibilityChanged(_unitAcquirePopupView, ReadySceneViewType.UnitAcquirePopup, wasVisible);
+            }
+        }
+
         public void HideAllOverlayViews()
         {
             HideRollView();
@@ -207,6 +234,7 @@ namespace OzGameLab01.UI
             HideConfirmPopup();
             HideFeedbackView();
             HideTooltip();
+            HideUnitAcquirePopup();
         }
 
         private void NotifyVisibilityChanged(
