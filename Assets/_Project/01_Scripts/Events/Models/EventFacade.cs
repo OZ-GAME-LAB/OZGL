@@ -3,6 +3,7 @@ using UnityEngine;
 using OzGameLab01.Data;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Events.Contracts;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Events
 {
@@ -28,6 +29,7 @@ namespace OzGameLab01.Events
                 _session = UnityEngine.Object.FindFirstObjectByType<EventSession>(FindObjectsInactive.Include);
             }
 
+            if (_session != null) RuntimeContent.BindEvents(_session.EventDB);
             return _session;
         }
 
@@ -40,18 +42,18 @@ namespace OzGameLab01.Events
                 return false;
             }
 
-            EventDB eventDB = session.EventDB;
-            if (eventDB == null || eventDB.EventList_Event.Count == 0)
+            ContentCatalog eventDB = RuntimeContent.Catalog;
+            if (eventDB == null || eventDB.EventCount == 0)
             {
                 Debug.LogWarning("[EventFacade] 등록된 런타임 이벤트 데이터가 없습니다.", session.PanelObject);
                 return false;
             }
 
-            List<EventSO> validEvents = new();
+            List<EventContent> validEvents = new();
 
-            foreach (EventSO choiceEvent in eventDB.EventList_Event)
+            foreach (EventContent choiceEvent in eventDB.Events)
             {
-                if (choiceEvent != null && choiceEvent.choices != null && choiceEvent.choices.Count > 0)
+                if (choiceEvent.pool == EventChoiceCategory.Event && choiceEvent.choices != null && choiceEvent.choices.Count > 0)
                 {
                     validEvents.Add(choiceEvent);
                 }
@@ -67,6 +69,9 @@ namespace OzGameLab01.Events
         }
 
         public bool OpenChoiceEvent(EventSO choiceEvent)
+            => OpenChoiceEvent(EventContent.FromAsset(choiceEvent, choiceEvent != null ? choiceEvent.choiceCategory : EventChoiceCategory.Event));
+
+        public bool OpenChoiceEvent(EventContent choiceEvent)
         {
             EventSession session = GetSession();
             if (session == null)
@@ -139,7 +144,7 @@ namespace OzGameLab01.Events
 
         private void ExecuteChoice(EventChoice selectedChoice)
         {
-            EventDB eventDB = GetSession()?.EventDB;
+            ContentCatalog eventDB = RuntimeContent.Catalog;
 
             switch (selectedChoice.ChoiceCategory)
             {
@@ -158,13 +163,16 @@ namespace OzGameLab01.Events
                 case EventChoiceCategory.Quiz:
                     if (eventDB != null)
                     {
-                        OpenChoiceEvent(eventDB.GetRandomTypeEvent(EventChoiceCategory.Quiz));
+                        var quizzes = new List<EventContent>();
+                        foreach (var row in eventDB.Events)
+                            if (row.pool == EventChoiceCategory.Quiz) quizzes.Add(row);
+                        if (quizzes.Count > 0) OpenChoiceEvent(quizzes[UnityEngine.Random.Range(0, quizzes.Count)]);
                     }
                     break;
                 case EventChoiceCategory.Event:
                     if (eventDB != null)
                     {
-                        OpenChoiceEvent(eventDB.GetEventById(selectedChoice.ResultTargetID));
+                        OpenChoiceEvent(eventDB.GetEvent(selectedChoice.ResultTargetID));
                     }
                     Debug.Log($"다음 선택지로 이동[{selectedChoice.ResultTargetID}]");
                     break;

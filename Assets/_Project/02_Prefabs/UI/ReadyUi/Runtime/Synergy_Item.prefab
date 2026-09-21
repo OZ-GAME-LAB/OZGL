@@ -149,8 +149,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4287030783
+  m_fontColor: {r: 1, g: 0.89869624, b: 0.5235849, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -415,11 +415,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab787be6aa7e2874ea951d4ccacadbbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.SynergyItemView
-  rectTransform: {fileID: 3633599859358780338}
-  background: {fileID: 7973228702102379437}
-  icon: {fileID: 3789779238154640597}
-  titleText: {fileID: 7265596491789513995}
-  stackText: {fileID: 5563533202987276175}
+  _rectTransform: {fileID: 3633599859358780338}
+  _background: {fileID: 7973228702102379437}
+  _icon: {fileID: 3789779238154640597}
+  _titleText: {fileID: 7265596491789513995}
+  _stackText: {fileID: 5563533202987276175}
 --- !u!1 &6967101344147962510
 GameObject:
   m_ObjectHideFlags: 0

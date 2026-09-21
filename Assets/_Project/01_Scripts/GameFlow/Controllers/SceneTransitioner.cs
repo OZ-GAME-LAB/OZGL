@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using OzGameLab01.Data;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Managers
 {

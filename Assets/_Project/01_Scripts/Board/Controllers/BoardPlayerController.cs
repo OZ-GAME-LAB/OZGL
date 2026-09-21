@@ -9,6 +9,7 @@ using OzGameLab01.Map;
 using OzGameLab01.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {

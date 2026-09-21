@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using OzGameLab01.Data;
-using OzGameLab01.Combat;
 
 namespace OzGameLab01.Effects.Models
 {
@@ -82,6 +81,12 @@ namespace OzGameLab01.Effects.Models
             if (effect.effectType == "CooldownDecrease")
             {
                 statType = EffectStatType.AttackInterval;
+                return true;
+            }
+
+            if (effect.effectType == "RecoveryIncrease")
+            {
+                statType = EffectStatType.RecoveryAmount;
                 return true;
             }
 

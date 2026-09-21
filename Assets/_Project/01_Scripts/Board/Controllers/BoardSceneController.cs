@@ -10,6 +10,7 @@ using UnityEngine;
 using OzGameLab01.Board.Models;
 using OzGameLab01.Board.Views;
 using OzGameLab01.Board.Controllers;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {
@@ -396,7 +397,7 @@ namespace OzGameLab01.Controllers
         private bool HandleUnitAcquisitionNode(out int acquiredUnitId)
         {
             acquiredUnitId = 0;
-            UnitData selected = BoardUnitSelection.Select(RuntimeDataManager.Instance.Units, count => UnityEngine.Random.Range(0, count));
+            UnitData selected = BoardUnitSelection.Select(OzGameLab01.Data.RuntimeContent.Catalog.Units, count => UnityEngine.Random.Range(0, count));
             if (selected == null)
             {
                 Debug.LogWarning("[BoardSceneController] 획득 가능한 유닛 데이터가 없습니다.", this);

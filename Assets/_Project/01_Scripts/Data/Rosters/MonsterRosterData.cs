@@ -20,6 +20,7 @@ namespace OzGameLab01.Data
         [SerializeField] private List<SkillData> _skillDefinitions = new List<SkillData>();
 
         public IReadOnlyList<MonsterData> MonsterStats => _monsterStats;
+        public IReadOnlyList<SkillData> SkillDefinitions => _skillDefinitions;
 
         /// <summary>
         /// 씬에 로드된 MonsterRosterData asset. Unit이 MonsterData.skillIds를 SkillData로

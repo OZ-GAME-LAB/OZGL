@@ -29,6 +29,8 @@ namespace OzGameLab01.Controllers
 
         private Dictionary<int, List<SynergyDefinition>> _unitTraitsById;
         private Dictionary<SynergyDefinition, int> _traitCounts;
+        private readonly List<RuntimeEffectManager.EffectSource> _activeSharedEffects = new List<RuntimeEffectManager.EffectSource>();
+        public IReadOnlyList<RuntimeEffectManager.EffectSource> ActiveSharedEffects => _activeSharedEffects;
 
         public SynergyController(
             UnitRosterData rosterData,
@@ -63,6 +65,7 @@ namespace OzGameLab01.Controllers
 
         public void ApplySynergies(Dictionary<CombatManager.SlotKey, int> spawnedFormation, Unit[,] slotUnits)
         {
+            _activeSharedEffects.Clear();
             // 팀 전체에서 각 트레이트를 보유한 유닛 수를 센다 (시너지 발동 여부 판정용).
             // 인스펙터 폴백 편성이 아니라 실제로 스폰된 편성(spawnedFormation)을 기준으로 삼아야
             // 배치 화면에서 넘어온 편성에도 시너지가 정상 반영된다.
@@ -107,10 +110,30 @@ namespace OzGameLab01.Controllers
                     }
 
                     _traitCounts.TryGetValue(definition, out int count);
-                    ApplyTierEffects(definition, count, SynergyTargetType.AllAllies, null, spawnedFormation, slotUnits);
+                    CollectSharedTierEffects(definition, count);
+                    ApplyTierEffects(definition, count, SynergyTargetType.HighestHPUnit, null, spawnedFormation, slotUnits);
                 }
             }
             _notifications.Publish(OzGameLab01.Effects.Models.EffectsNotificationKind.SynergiesEvaluated, 0, _traitCounts.Count);
+        }
+
+        private void CollectSharedTierEffects(SynergyDefinition definition, int count)
+        {
+            SynergyData richData = FindSynergyData(definition.DisplayName);
+            SynergyTier tier = FindActiveTier(richData, count);
+            if (tier == null || tier.effects == null || richData == null) return;
+
+            int declarationIndex = 0;
+            foreach (SynergyEffectNode node in tier.effects)
+            {
+                if (node.targetType != SynergyTargetType.AllAllies || !TryResolveSynergyEffect(node, out EffectInstance effect))
+                    continue;
+                _activeSharedEffects.Add(new RuntimeEffectManager.EffectSource(
+                    RuntimeEffectManager.EffectSourceKind.Synergy,
+                    richData.id,
+                    effect,
+                    declarationIndex++));
+            }
         }
 
         /// <summary>
@@ -136,10 +159,80 @@ namespace OzGameLab01.Controllers
 
             foreach (SynergyEffectNode effect in tier.effects)
             {
-                if (effect.targetType != targetType || !TryResolveStatType(effect, out EffectStatType statType))
+                if (effect.targetType != targetType)
                 {
                     continue;
                 }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "ShieldOnStart")
+                {
+                    selfUnit?.GrantShield(selfUnit.MaxHp * effect.value, 0f, true);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "FixedDamage")
+                {
+                    selfUnit?.SetFixedDamage(effect.value);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "ExtraDamageOnStatus")
+                {
+                    selfUnit?.SetExtraDamageOnStatus(effect.value);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "StatusEffect")
+                {
+                    selfUnit?.SetStatusEffectChance(effect.value);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "UseSkillTwoTimes")
+                {
+                    selfUnit?.SetUseSkillTwice(true);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "NoSkillStatBuff")
+                {
+                    selfUnit?.SetNoSkillStatBuff(effect.value);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "DecreaseDmgDefense")
+                {
+                    selfUnit?.SetDefenseBasedDamageReduction(effect.value, effect.extraParam);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.SelfSynergy && effect.effectType == "ShieldBonusDamage")
+                {
+                    selfUnit?.SetShieldBonusDamage(effect.value, effect.extraParam);
+                    continue;
+                }
+
+                if (targetType == SynergyTargetType.HighestHPUnit)
+                {
+                    Unit highest = null;
+                    foreach (KeyValuePair<CombatManager.SlotKey, int> kvp in spawnedFormation)
+                    {
+                        Unit candidate = slotUnits[kvp.Key.column, (int)kvp.Key.row];
+                        if (candidate != null && (highest == null || candidate.CurrentHp > highest.CurrentHp)) highest = candidate;
+                    }
+                    if (highest == null) continue;
+                    if (effect.effectType == "ShieldOnStart")
+                    {
+                        highest.GrantShield(highest.MaxHp * effect.value, 0f, true);
+                    }
+                    else if (TryResolveStatType(effect, out EffectStatType highestStat))
+                    {
+                        ApplyAndReport(highest, richData.name, highestStat, effect.value);
+                    }
+                    continue;
+                }
+
+                if (!TryResolveStatType(effect, out EffectStatType statType)) continue;
 
                 if (targetType == SynergyTargetType.SelfSynergy)
                 {
@@ -147,12 +240,133 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                foreach (KeyValuePair<CombatManager.SlotKey, int> kvp in spawnedFormation)
-                {
-                    Unit unit = slotUnits[kvp.Key.column, (int)kvp.Key.row];
-                    ApplyAndReport(unit, richData.name, statType, (float)effect.value);
-                }
+                // Shared synergy effects are collected into CombatEffectCatalog and run by
+                // CombatEffectExecutor at battle start. This prevents a second direct path.
             }
+        }
+
+        private static bool TryResolveSynergyEffect(SynergyEffectNode node, out EffectInstance effect)
+        {
+            effect = default;
+            if (node.effectType == "ShieldOnStart")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.GrantShield,
+                    effectParam = node.value * 100f,
+                    effectParamIsPercent = true,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "FixedDamage")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.FixedDamage,
+                    effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "ExtraDamageOnStatus")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.ExtraDamageOnStatus,
+                    effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "StatusEffect")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.StatusEffect,
+                    effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "UseSkillTwoTimes")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.UseSkillTwoTimes,
+                    effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "NoSkillStatBuff")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.NoSkillStatBuff,
+                    effectParam = node.value,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "DecreaseDmgDefense")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.DecreaseDmgDefense,
+                    effectParam = node.value,
+                    effectSecondaryParam = node.extraParam,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (node.effectType == "ShieldBonusDamage")
+            {
+                effect = new EffectInstance
+                {
+                    trigger = TriggerType.Always,
+                    target = EffectTarget.AllAllies,
+                    effect = EffectType.ShieldBonusDamage,
+                    effectParam = node.value,
+                    effectSecondaryParam = node.extraParam,
+                    untilBattleEnd = true
+                };
+                return true;
+            }
+
+            if (!TryResolveStatType(node, out EffectStatType statType)) return false;
+            effect = new EffectInstance
+            {
+                trigger = TriggerType.Always,
+                target = EffectTarget.AllAllies,
+                effect = EffectType.StatModifier,
+                statType = statType,
+                operation = EffectOperation.Add,
+                effectParam = node.value,
+                untilBattleEnd = true
+            };
+            return true;
         }
 
         private void ApplyAndReport(Unit unit, string source, EffectStatType stat, float value)
@@ -164,12 +378,7 @@ namespace OzGameLab01.Controllers
 
         private static SynergyData FindSynergyData(string displayName)
         {
-            if (RuntimeDataManager.Instance == null)
-            {
-                return null;
-            }
-
-            foreach (SynergyData data in RuntimeDataManager.Instance.Synergies.Values)
+            foreach (SynergyData data in OzGameLab01.Data.RuntimeContent.Catalog.Synergies.Values)
             {
                 if (data != null && data.name == displayName)
                 {

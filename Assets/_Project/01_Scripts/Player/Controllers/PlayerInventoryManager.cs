@@ -1,5 +1,7 @@
 using OzGameLab01.Interfaces;
 using OzGameLab01.Player;
+using OzGameLab01.Save;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Managers
 {
@@ -30,7 +32,7 @@ namespace OzGameLab01.Managers
                 Facade = new PlayerFacade();
                 SystemBus.Register(Facade);
                 // [추가] Continue에서 보류된 인벤토리를 로스터 참조가 준비된 시점에 복원
-                SaveManager.Instance.Facade.RestorePendingInventory(Facade);
+                SystemBus.Get<SaveFacade>()?.RestorePendingInventory(Facade);
             }
             catch { Shutdown(); throw; }
         }

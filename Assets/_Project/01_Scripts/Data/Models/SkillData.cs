@@ -9,6 +9,7 @@ namespace OzGameLab01.Data
         public List<SkillData> GetList() => skillList;
     }
 
+    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "", sourceAssembly: null, sourceClassName: null)]
     [System.Serializable]
     public class SkillData : IIdentifiable
     {
@@ -19,11 +20,17 @@ namespace OzGameLab01.Data
         public string description;      // 스킬 설명
         public float cooldown;          // 스킬 쿨타임
 
+        // Legacy combat fields remain available while activeEffects is integrated into execution.
+        public float damage;
+        public DebuffProfile debuff;
+        // Effects are executed in declaration order when present. Older skills use damage/debuff above.
+        public List<EffectInstance> effects = new List<EffectInstance>();
+
         // 액티브 효과 정의 (패시브일 경우 Null)
         public List<ActiveSkillEffectNode> activeEffects = new();
         // 패시브 효과 정의 (액티브일 경우 Null)
         public List<EffectInstance> passiveEffects = new();
 
-        public int Id => id;            // GameDB 식별자
+        public int Id => id;
     }
 }
