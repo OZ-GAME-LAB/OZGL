@@ -174,6 +174,11 @@ namespace OzGameLab01.Controllers
                 DayReached?.Invoke(BoardRunData.TurnCount);
                 break;
 
+            case BoardTimeOfDay.Noon:
+                // 정오는 별도 전환 피드백이 없으므로 다음 턴 RollView를 바로 준비합니다.
+                PlayerTurnReady?.Invoke();
+                break;
+
             case BoardTimeOfDay.Night:
                 NightReached?.Invoke(BoardRunData.TurnCount);
                 break;
