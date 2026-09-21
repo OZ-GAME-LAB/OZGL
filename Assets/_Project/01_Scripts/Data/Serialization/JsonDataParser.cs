@@ -10,12 +10,12 @@ namespace OzGameLab01.Data
     public static class JsonDataParser
     {
         /// <summary>기존 로스터의 빈 입력 허용 역직렬화 계약</summary>
-        public static List<T> ParseOptional<T, TList>(string json) where TList : IDataList<T>
+        public static List<T> ParseOptional<T, TList>(string json) where T : IIdentifiable where TList : IDataList<T>
         {
             return string.IsNullOrWhiteSpace(json) ? null : Parse<T, TList>(json);
         }
 
-        public static List<T> Parse<T, TList>(string json) where TList : IDataList<T>
+        public static List<T> Parse<T, TList>(string json) where T : IIdentifiable where TList : IDataList<T>
         {
             if (string.IsNullOrWhiteSpace(json))
             {

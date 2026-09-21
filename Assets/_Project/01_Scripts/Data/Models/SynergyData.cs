@@ -17,7 +17,7 @@ namespace OzGameLab01.Data
     /// </summary>
     [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "", sourceAssembly: null, sourceClassName: null)]
     [System.Serializable]
-    public class SynergyData
+    public class SynergyData : IIdentifiable
     {
         public int id;
         public string name;
@@ -25,6 +25,8 @@ namespace OzGameLab01.Data
         public string iconAddress;
 
         public List<SynergyTier> tiers = new();
+
+        public int Id => id;
     }
 
     /// <summary>

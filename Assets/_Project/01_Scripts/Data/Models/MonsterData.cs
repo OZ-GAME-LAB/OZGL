@@ -11,7 +11,7 @@ namespace OzGameLab01.Data
 
     [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "", sourceAssembly: null, sourceClassName: null)]
     [System.Serializable]
-    public class MonsterData
+    public class MonsterData : IIdentifiable
     {
         public int id;
         public string name;
@@ -30,6 +30,8 @@ namespace OzGameLab01.Data
         public List<int> skillIds = new List<int>();
 
         public MonsterType type;
+
+        public int Id => id;        // GameDB 식별자
     }
 
     public enum MonsterType

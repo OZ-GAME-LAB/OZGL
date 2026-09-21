@@ -1,65 +1,38 @@
 using UnityEngine;
-using UnityEngine.UI;
 using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Combat
 {
     /// <summary>
-    /// AllySpawner에서 분리된 유닛 전투 UI 표시 책임을 담당합니다. 전투 이미지(Image) 생성,
-    /// Unit의 UI 앵커/투사체 풀 바인딩, HUD 부착을 한 곳에서 처리하는 순수 C# 클래스입니다
-    /// (씬/프리팹 재배선 불필요). 아군/적 스폰 경로가 거의 동일한 바인딩 코드를 각자
-    /// 갖고 있던 것을 통합했습니다.
+    /// 월드 좌표에 생성된 전투 유닛의 렌더러, 투사체 경로 및 HUD 표시를 연결합니다.
+    /// 아군과 적의 공통 표시 규칙을 한 곳에서 관리하는 순수 C# 클래스입니다.
     /// </summary>
     public static class CombatUnitViewBinder
     {
         /// <summary>
-        /// 전투 이미지를 생성해 Unit에 바인딩하고, hudPrefab이 있으면 HUD도 부착합니다.
-        /// 마지막으로 SetVisualsVisible(false)까지 호출해 스폰 직후 시각 상태를 정리합니다.
+        /// 프리팹의 월드 렌더러와 투사체 경로를 활성화하고 선택적 HUD를 월드 캔버스에 연결합니다.
         /// </summary>
-        public static Image BindCombatPresentation(
-            Unit unit,
-            RectTransform anchor,
-            string imageObjectName,
-            Sprite sprite,
-            Color color,
-            UIProjectilePool projectilePool,
-            AllyUnitCombatHUDView hudPrefab = null)
+        public static void BindCombatPresentation(Unit unit, AllyUnitCombatHUDView hudPrefab = null)
         {
-            Image combatImage = CreateCombatImage(anchor, imageObjectName, sprite, color);
-            unit.BindCombatUI(anchor, combatImage, projectilePool);
-
-            if (hudPrefab != null)
+            // UI 앵커 대신 실제 유닛 Transform을 사용하는 월드 투사체 경로
+            unit.BindCombatUI(null, null, null);
+            unit.SetVisualsVisible(true);
+            if (hudPrefab == null)
             {
-                AllyUnitCombatHUDView hud = Object.Instantiate(hudPrefab, anchor);
-                hud.transform.SetAsLastSibling();
-                unit.BindHud(hud);
+                return;
             }
 
-            unit.SetVisualsVisible(false);
-            return combatImage;
-        }
-
-        /// <summary>
-        /// 전투 UnitAnchor 전체를 채우는 유닛 이미지를 생성합니다.
-        /// </summary>
-        private static Image CreateCombatImage(Transform anchor, string objectName, Sprite sprite, Color color)
-        {
-            GameObject imageObject = new GameObject(objectName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-            RectTransform rect = imageObject.GetComponent<RectTransform>();
-            rect.SetParent(anchor, false);
-            rect.anchorMin = Vector2.zero;
-            rect.anchorMax = Vector2.one;
-            rect.offsetMin = Vector2.zero;
-            rect.offsetMax = Vector2.zero;
-            rect.localScale = Vector3.one;
-
-            Image image = imageObject.GetComponent<Image>();
-            image.sprite = sprite;
-            image.color = color;
-            image.preserveAspect = true;
-            image.raycastTarget = false;
-            image.enabled = sprite != null;
-            return image;
+            GameObject hudRoot = new GameObject("AllyCombatHUD", typeof(RectTransform), typeof(Canvas));
+            hudRoot.transform.SetParent(unit.transform, false);
+            hudRoot.transform.localPosition = new Vector3(-0.5f, 1.5f, 0f);
+            hudRoot.transform.localScale = Vector3.one * 0.01f;
+            RectTransform rect = hudRoot.GetComponent<RectTransform>();
+            rect.sizeDelta = new Vector2(100f, 30f);
+            Canvas canvas = hudRoot.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            canvas.sortingOrder = 10;
+            AllyUnitCombatHUDView hud = Object.Instantiate(hudPrefab, rect, false);
+            unit.BindHud(hud);
         }
     }
 }

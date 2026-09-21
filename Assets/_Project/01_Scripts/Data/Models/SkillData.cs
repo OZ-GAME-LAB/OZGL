@@ -9,16 +9,21 @@ namespace OzGameLab01.Data
         public List<SkillData> GetList() => skillList;
     }
 
-    [UnityEngine.Scripting.APIUpdating.MovedFrom(true, sourceNamespace: "", sourceAssembly: null, sourceClassName: null)]
     [System.Serializable]
-    public class SkillData
+    public class SkillData : IIdentifiable
     {
-        public int id;
-        public string name;
+        public int id;                  // 고유 ID
+        public int unitId;              // 연결된 유닛 ID
 
-        public float damage;
-        public float cooldown;
+        public string name;             // 스킬 명칭
+        public string description;      // 스킬 설명
+        public float cooldown;          // 스킬 쿨타임
 
-        public DebuffProfile debuff;
+        // 액티브 효과 정의 (패시브일 경우 Null)
+        public List<ActiveSkillEffectNode> activeEffects = new();
+        // 패시브 효과 정의 (액티브일 경우 Null)
+        public List<EffectInstance> passiveEffects = new();
+
+        public int Id => id;            // GameDB 식별자
     }
 }

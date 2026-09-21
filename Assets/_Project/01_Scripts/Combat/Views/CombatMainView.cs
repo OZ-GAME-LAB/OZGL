@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace OzGameLab01.UI.Battle
@@ -16,9 +15,8 @@ namespace OzGameLab01.UI.Battle
         [SerializeField] private BattleArtifactView artifactView;
 
         [Header("Battlefield")]
-        [SerializeField] private Transform allyCombatArea;
-        [SerializeField] private Transform enemyCombatArea;
-        [SerializeField] private List<PlayerSlotItemView> playerSlotViews = new ();
+        [Tooltip("월드 전투에서는 표시하지 않는 기존 UI 편성 그리드입니다.")]
+        [SerializeField] private GameObject formationGrid;
 
 
         #region Properties
@@ -52,21 +50,6 @@ namespace OzGameLab01.UI.Battle
         public BattleArtifactView ArtifactView => artifactView;
 
         /// <summary>
-        /// 아군 전투 배치 영역입니다.
-        /// </summary>
-        public Transform AllyCombatArea => allyCombatArea;
-
-        /// <summary>
-        /// 적 전투 배치 영역입니다.
-        /// </summary>
-        public Transform EnemyCombatArea => enemyCombatArea;
-
-        /// <summary>
-        /// 플레이어 유닛 배치 슬롯 목록입니다.
-        /// </summary>
-        public IReadOnlyList<PlayerSlotItemView> PlayerSlotViews => playerSlotViews;
-
-        /// <summary>
         /// 현재 Main View의 활성 상태입니다.
         /// </summary>
         public bool IsVisible => gameObject.activeSelf;
@@ -90,6 +73,17 @@ namespace OzGameLab01.UI.Battle
         public void Hide()
         {
             gameObject.SetActive(false);
+        }
+
+        /// <summary>
+        /// 기존 UI 편성 그리드의 표시 상태를 변경합니다.
+        /// </summary>
+        public void SetFormationGridVisible(bool visible)
+        {
+            if (formationGrid != null)
+            {
+                formationGrid.SetActive(visible);
+            }
         }
 
         #endregion
