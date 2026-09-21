@@ -5,7 +5,7 @@ using OzGameLab01.Common;
 namespace OzGameLab01.Combat
 {
     /// <summary>
-    /// EnemyManager가 노출하는 유일한 진입점입니다. 실제 계산은 EnemyCombatSpecModel이
+    /// EnemyManager가 노출하는 유일한 진입점입니다. 실제 계산은 EnemyPreparationCache가
     /// 전담하고, 이 클래스는 플레이어 보유 유닛 조회를 SystemBus 경유로 연결하는 얇은
     /// 어댑터 역할만 합니다.
     /// </summary>

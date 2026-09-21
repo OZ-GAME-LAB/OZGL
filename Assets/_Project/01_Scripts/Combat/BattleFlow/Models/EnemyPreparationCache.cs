@@ -12,6 +12,12 @@ namespace OzGameLab01.Combat
     public sealed class EnemyPreparationCache
     {
         private const int FinalBossFallbackStep = 3;
+
+        // EnemyGrowthData.json의 normal/night 45행은 15스텝짜리 파도가 3번 반복되는 구조다
+        // (낮 10턴 +0.07 → 밤 4턴 +0.12 → 중간보스 처치 파도 시작 +1.07 점프). 원본 엑셀
+        // 셀 주석("중간보스를 처치하고 다시 낮이 되면 1 증가")과 실제 45행 수치 확인(2026-09-21)
+        // 결과다.
+        private const int WaveLength = 15;
         private readonly Dictionary<Key, MonsterData> _prepared = new Dictionary<Key, MonsterData>();
         private long _contentRevision = -1;
 
@@ -61,9 +67,12 @@ namespace OzGameLab01.Combat
             MonsterType growthType = type == MonsterType.boss ? MonsterType.semiboss : type;
             // Final-boss rows are not authored yet. The agreed temporary rule is the
             // third semiboss stage regardless of when the boss battle is entered.
+            // 중간보스 처치 수만큼 파도(wave)를 건너뛰고, 파도 내 위치는 누적 턴 수를
+            // WaveLength로 나눈 나머지로 정한다 — 처치 즉시 다음 파도의 +1.07 점프 행으로
+            // 넘어가고, 그 파도 안에서는 낮/밤 진행에 따라 계속 성장한다(2026-09-21 확정).
             int requestedStep = type == MonsterType.boss
                 ? FinalBossFallbackStep
-                : Mathf.Max(1, turnCount + defeatedElites + 1);
+                : Mathf.Max(1, (turnCount % WaveLength) + (defeatedElites * WaveLength) + 1);
             EnemyGrowthRow best = null;
             foreach (EnemyGrowthRow row in content.EnemyGrowth.Values)
             {
