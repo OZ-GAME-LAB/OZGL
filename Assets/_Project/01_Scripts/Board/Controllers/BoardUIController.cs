@@ -101,6 +101,8 @@ namespace OzGameLab01.Controllers
             _diceSubscription = SystemBus.Messages.Subscribe<DiceRolled>(message => HandleDiceRolled(message.Value));
             BoardPlayerController.OnPlayerFinishedMoving -= HandlePlayerFinishedMoving;
             BoardPlayerController.OnPlayerFinishedMoving += HandlePlayerFinishedMoving;
+            BoardPlayerController.OnPlayerStepCompleted -= HandlePlayerStepCompleted;
+            BoardPlayerController.OnPlayerStepCompleted += HandlePlayerStepCompleted;
 
             if (readySceneView != null)
             {
@@ -156,6 +158,7 @@ namespace OzGameLab01.Controllers
             _diceSubscription?.Dispose();
             _diceSubscription = null;
             BoardPlayerController.OnPlayerFinishedMoving -= HandlePlayerFinishedMoving;
+            BoardPlayerController.OnPlayerStepCompleted -= HandlePlayerStepCompleted;
 
             if (readySceneView != null)
             {
@@ -368,6 +371,11 @@ namespace OzGameLab01.Controllers
         private void HandlePlayerFinishedMoving()
         {
             RefreshEndTurnFeedback();
+        }
+
+        private void HandlePlayerStepCompleted()
+        {
+            RefreshEndTurnFeedback(true);
         }
 
         private System.Collections.IEnumerator UpdateTurnUIRoutine()
