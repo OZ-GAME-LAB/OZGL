@@ -28,6 +28,7 @@ namespace OzGameLab01.Combat
         [SerializeField] private float skillNameDisplayDuration = 0.35f;
 
         private readonly List<UnitSkillRuntime> _skills = new List<UnitSkillRuntime>();
+        private UnitAnimationController _animationController;
 
         public bool IsDead => _isDead;
         public Team TeamValue => team;
@@ -67,6 +68,15 @@ namespace OzGameLab01.Combat
 
         private void EnsureRuntimeComponents()
         {
+            if (_animationController == null)
+            {
+                _animationController = GetComponent<UnitAnimationController>();
+                if (_animationController == null)
+                {
+                    _animationController = gameObject.AddComponent<UnitAnimationController>();
+                }
+            }
+
             if (_presenter == null)
             {
                 _presenter = new UnitPresenter(
@@ -137,6 +147,15 @@ namespace OzGameLab01.Combat
                 skill.timer -= Time.deltaTime;
                 if (skill.timer <= 0f && (isBasicAttack || (!_activeSkillsDisabled && !_status.IsSilenced)))
                 {
+                    if (isBasicAttack)
+                    {
+                        _animationController?.PlayAttack();
+                    }
+                    else
+                    {
+                        _animationController?.PlaySkill();
+                    }
+
                     StartCoroutine(CastSkill(target, skill, isBasicAttack));
                     skill.timer = GetSkillCooldown(skill);
                 }
@@ -172,6 +191,7 @@ namespace OzGameLab01.Combat
 
             ResolveSkills(data.skillIds, OzGameLab01.Data.RuntimeContent.Catalog.GetSkill);
             SetBasicAttackCooldown(data.attackSpeed);
+            _animationController?.PlayIdle();
 
             if (_awakeInitialized)
             {
@@ -450,31 +470,31 @@ namespace OzGameLab01.Combat
             int useCount = !isBasicAttack && _useSkillTwice ? 2 : 1;
             for (int useIndex = 0; useIndex < useCount; useIndex++)
             {
-            yield return _presenter.ShowSkillCastText(skill.data.name);
+                yield return _presenter.ShowSkillCastText(skill.data.name);
 
-            if (target != null && !target.IsDead)
-            {
-                if (skill.data.effects != null && skill.data.effects.Count > 0)
+                if (target != null && !target.IsDead)
                 {
-                    FireProjectile(target, 0f,
-                        () => ExecuteSkillEffects(skill.data.effects, target, skill.damageMultiplier), false);
-                }
-                else
-                {
-                    FireProjectile(target, skill.data.damage * skill.damageMultiplier);
-                    target._status.Apply(skill.data.debuff);
-                }
+                    if (skill.data.effects != null && skill.data.effects.Count > 0)
+                    {
+                        FireProjectile(target, 0f,
+                            () => ExecuteSkillEffects(skill.data.effects, target, skill.damageMultiplier), false);
+                    }
+                    else
+                    {
+                        FireProjectile(target, skill.data.damage * skill.damageMultiplier);
+                        target._status.Apply(skill.data.debuff);
+                    }
 
-                // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
-                if (!isBasicAttack)
-                {
-                    CombatManager.Instance?.Facade.ReportFeedback(new CombatFeedback(
-                        CombatFeedbackKind.Skill, skill.data.name,
-                        $"{DisplayName ?? name} → {target.DisplayName ?? target.name}", this));
-                    Debug.Log($"[Unit] {name}({team}) 액티브 스킬 사용: {skill.data.name}");
-                    PassiveEventBus.RaiseSkillUsed(this, skill.data);
+                    // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
+                    if (!isBasicAttack)
+                    {
+                        CombatManager.Instance?.Facade.ReportFeedback(new CombatFeedback(
+                            CombatFeedbackKind.Skill, skill.data.name,
+                            $"{DisplayName ?? name} → {target.DisplayName ?? target.name}", this));
+                        Debug.Log($"[Unit] {name}({team}) 액티브 스킬 사용: {skill.data.name}");
+                        PassiveEventBus.RaiseSkillUsed(this, skill.data);
+                    }
                 }
-            }
             }
         }
 
@@ -717,6 +737,7 @@ namespace OzGameLab01.Combat
             CombatUnitRegistry.Register(this);
             _presenter.SetVisualsVisible(true, gameObject);
             _presenter.SetHP(_currentHP);
+            _animationController?.PlayIdle();
             return true;
         }
 
@@ -761,10 +782,20 @@ namespace OzGameLab01.Combat
             _isDead = true;
             CombatUnitRegistry.Unregister(this);
 
-            _presenter.HideCombatImage();
-            gameObject.SetActive(false);
-
+            // 전투 로직 즉시 사망 처리
             PassiveEventBus.RaiseDeath(this);
+
+            // 사망 애니메이션 종료 후 화면 비활성화
+            if (_animationController != null)
+            { 
+                _animationController.PlayDead(() =>
+                {
+                    _presenter.HideCombatImage();
+                    gameObject.SetActive(false);
+                });
+
+                return;
+            }
         }
     }
 }
