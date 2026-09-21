@@ -53,7 +53,6 @@ namespace OzGameLab01.UI
         {
             CacheDefaultTransform();
             ResetMessage();
-            HideImmediate();
         }
 
 

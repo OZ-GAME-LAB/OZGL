@@ -89,6 +89,8 @@ namespace OzGameLab01.Controllers
         public event Action<MapNode> PlayerArrived;
         public static event Action OnPlayerStartedMoving;
         public static event Action OnPlayerFinishedMoving;
+        public static event Action OnPlayerStepCompleted;
+        public static event Action OnPlayerSetupCompleted;
 
         private void Awake()
         {
@@ -123,6 +125,7 @@ namespace OzGameLab01.Controllers
             {
                 _view.CompleteSpawnAnimation();
             }
+            OnPlayerSetupCompleted?.Invoke();
         }
 
         private IEnumerator PlaySpawnAnimationRoutine()
@@ -255,6 +258,7 @@ namespace OzGameLab01.Controllers
                     yield return _view.MoveTo(nodeView.transform.position, _moveSpeed);
                     Model.CompleteStep(node);
                     RefreshActionPowerHud();
+                    OnPlayerStepCompleted?.Invoke();
                 }
                 completed = true;
             }

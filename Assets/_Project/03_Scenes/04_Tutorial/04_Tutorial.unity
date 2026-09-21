@@ -1475,7 +1475,6 @@ MonoBehaviour:
   autoRollViewOpenDelay: 1
   timeOfDayFeedbackDuration: 1.5
   nightMessage: Night Has Come
-  noonMessage: Noon Has Come
   dayMessage: Day Has Come
   clockRotatingVisual: {fileID: 0}
   dayClockAngle: 45

@@ -54,6 +54,7 @@ namespace OzGameLab01.Controllers
             BoardUIController.OnRollViewClosed += TryDrawRange;
             BoardPlayerController.OnPlayerFinishedMoving += TryDrawRange;
             BoardPlayerController.OnPlayerStartedMoving += ClearMoveRange;
+            BoardPlayerController.OnPlayerSetupCompleted += TryDrawRange;
         }
 
         /// <summary>
@@ -64,6 +65,7 @@ namespace OzGameLab01.Controllers
             BoardUIController.OnRollViewClosed -= TryDrawRange;
             BoardPlayerController.OnPlayerFinishedMoving -= TryDrawRange;
             BoardPlayerController.OnPlayerStartedMoving -= ClearMoveRange;
+            BoardPlayerController.OnPlayerSetupCompleted -= TryDrawRange;
 
             ClearMoveRange();
         }
