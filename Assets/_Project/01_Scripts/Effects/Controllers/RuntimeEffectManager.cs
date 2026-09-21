@@ -1,6 +1,7 @@
-using OzGameLab01.Combat;
+using OzGameLab01.Data;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Interfaces;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Managers
 {
@@ -31,6 +32,7 @@ namespace OzGameLab01.Managers
             {
                 Facade = new EffectsFacade();
                 SystemBus.Register(Facade);
+                SystemBus.Register(Facade.CombatCatalog);
             }
             catch { Shutdown(); throw; }
         }
@@ -40,6 +42,7 @@ namespace OzGameLab01.Managers
             if (Facade != null)
             {
                 SystemBus.Unregister(Facade);
+                SystemBus.Unregister(Facade.CombatCatalog);
                 Facade.ClearSubscriptions();
             }
             Facade = null;
@@ -50,7 +53,8 @@ namespace OzGameLab01.Managers
         public enum EffectSourceKind
         {
             UnitPassive,
-            Relic
+            Relic,
+            Synergy
         }
 
         public readonly struct EffectSource
@@ -88,7 +92,7 @@ namespace OzGameLab01.Managers
 
             public float Apply(float baseValue)
             {
-                return (baseValue + Additive) * Multiplicative;
+                return baseValue * (1f + Additive / 100f) * (1f + Multiplicative / 100f);
             }
         }
 

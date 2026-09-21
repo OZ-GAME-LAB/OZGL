@@ -148,6 +148,32 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
+        public void AllySupportEventsIgnoreEnemyUnits()
+        {
+            Unit ally = CreateUnit(Unit.Team.Ally);
+            Unit enemy = CreateUnit(Unit.Team.Enemy);
+            int healed = 0, buffed = 0, shielded = 0, hpChanged = 0;
+            PassiveEventBus.OnAllyHealed += u => { if (u == ally) healed++; };
+            PassiveEventBus.OnAllyBuffed += u => { if (u == ally) buffed++; };
+            PassiveEventBus.OnAllyShielded += u => { if (u == ally) shielded++; };
+            PassiveEventBus.OnAllyHpChanged += (u, ratio) => { if (u == ally) hpChanged++; };
+
+            PassiveEventBus.RaiseHealed(ally);
+            PassiveEventBus.RaiseBuffed(ally);
+            PassiveEventBus.RaiseShielded(ally);
+            PassiveEventBus.RaiseHpChanged(ally, 1f);
+            PassiveEventBus.RaiseHealed(enemy);
+            PassiveEventBus.RaiseBuffed(enemy);
+            PassiveEventBus.RaiseShielded(enemy);
+            PassiveEventBus.RaiseHpChanged(enemy, 1f);
+
+            Assert.That(healed, Is.EqualTo(1));
+            Assert.That(buffed, Is.EqualTo(1));
+            Assert.That(shielded, Is.EqualTo(1));
+            Assert.That(hpChanged, Is.EqualTo(1));
+        }
+
+        [Test]
         public void ResetRunState_ClearsAllSubscribers()
         {
             int callCount = 0;
