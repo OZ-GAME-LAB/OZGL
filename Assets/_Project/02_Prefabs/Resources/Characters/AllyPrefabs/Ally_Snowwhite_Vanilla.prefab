@@ -72,6 +72,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 888472368706147716}
+  - component: {fileID: 8688882432157330506}
   m_Layer: 0
   m_Name: Ally_Snowwhite_Vanilla
   m_TagString: Untagged
@@ -96,6 +97,25 @@ Transform:
   - {fileID: 8039459274220364180}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8688882432157330506
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2926904601577289954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e07826437c41c5a4896e28bd24aad142, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.Unit
+  team: 0
+  maxHP: 100
+  healthBar: {fileID: 0}
+  spriteRenderer: {fileID: 7598035646266439839}
+  projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
+  skillNameLabel: {fileID: 0}
+  skillNameDisplayDuration: 0.35
 --- !u!1 &3271617267546623991
 GameObject:
   m_ObjectHideFlags: 0
@@ -252,5 +272,10 @@ PrefabInstance:
 --- !u!4 &72856205424649659 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5392395282676703908, guid: 9b59d5ef5ed5b6d4f9bb6200796edf1c, type: 3}
+  m_PrefabInstance: {fileID: 5464964927882725151}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &7598035646266439839 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 2496913458522259328, guid: 9b59d5ef5ed5b6d4f9bb6200796edf1c, type: 3}
   m_PrefabInstance: {fileID: 5464964927882725151}
   m_PrefabAsset: {fileID: 0}

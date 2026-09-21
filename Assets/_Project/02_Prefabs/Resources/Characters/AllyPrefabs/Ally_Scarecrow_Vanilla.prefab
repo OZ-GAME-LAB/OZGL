@@ -72,6 +72,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7670800896530597503}
+  - component: {fileID: 7372510821124192336}
   m_Layer: 0
   m_Name: Ally_Scarecrow_Vanilla
   m_TagString: Untagged
@@ -96,6 +97,25 @@ Transform:
   - {fileID: 1114469994672099198}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7372510821124192336
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1860014479623391961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e07826437c41c5a4896e28bd24aad142, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.Unit
+  team: 0
+  maxHP: 100
+  healthBar: {fileID: 0}
+  spriteRenderer: {fileID: 7717459560510623641}
+  projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
+  skillNameLabel: {fileID: 0}
+  skillNameDisplayDuration: 0.35
 --- !u!1 &2129116376411609040
 GameObject:
   m_ObjectHideFlags: 0
@@ -252,5 +272,10 @@ PrefabInstance:
 --- !u!4 &246184965251666621 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 9064996793474437433, guid: 5d2d1a917c7b11e4aa30d10f06df11ac, type: 3}
+  m_PrefabInstance: {fileID: 9126484609004422020}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &7717459560510623641 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 1566731437781732381, guid: 5d2d1a917c7b11e4aa30d10f06df11ac, type: 3}
   m_PrefabInstance: {fileID: 9126484609004422020}
   m_PrefabAsset: {fileID: 0}

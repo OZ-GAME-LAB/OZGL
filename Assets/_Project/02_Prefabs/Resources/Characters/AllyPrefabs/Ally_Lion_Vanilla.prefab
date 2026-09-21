@@ -40,6 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3897426220362499932}
+  - component: {fileID: 2847802715954777102}
   m_Layer: 0
   m_Name: Ally_Lion_Vanilla
   m_TagString: Untagged
@@ -64,6 +65,25 @@ Transform:
   - {fileID: 2729984792920843830}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2847802715954777102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3685207997199866394}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e07826437c41c5a4896e28bd24aad142, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.Unit
+  team: 0
+  maxHP: 100
+  healthBar: {fileID: 0}
+  spriteRenderer: {fileID: 721381740828771240}
+  projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
+  skillNameLabel: {fileID: 0}
+  skillNameDisplayDuration: 0.35
 --- !u!1 &4828188852616487259
 GameObject:
   m_ObjectHideFlags: 0
@@ -249,6 +269,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+--- !u!212 &721381740828771240 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 5239083513320512060, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+  m_PrefabInstance: {fileID: 4807076302481676692}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7093643990821428876 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2362003647818139416, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}

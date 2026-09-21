@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4000000000000000001}
+  - component: {fileID: 1751459889592981905}
   m_Layer: 0
   m_Name: Ally_Alice_Vanilla
   m_TagString: Untagged
@@ -33,6 +34,25 @@ Transform:
   - {fileID: 4000000000000000003}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1751459889592981905
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1000000000000000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e07826437c41c5a4896e28bd24aad142, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.Unit
+  team: 0
+  maxHP: 100
+  healthBar: {fileID: 0}
+  spriteRenderer: {fileID: 1543118524975233135}
+  projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
+  skillNameLabel: {fileID: 0}
+  skillNameDisplayDuration: 0.35
 --- !u!1 &1000000000000000002
 GameObject:
   m_ObjectHideFlags: 0
@@ -252,5 +272,10 @@ PrefabInstance:
 --- !u!4 &539429299274356700 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 763417469158496221, guid: 7dbddecd1a1ba43438ac19f2c901b5b1, type: 3}
+  m_PrefabInstance: {fileID: 1001000000000000001}
+  m_PrefabAsset: {fileID: 0}
+--- !u!212 &1543118524975233135 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 1769358494673385582, guid: 7dbddecd1a1ba43438ac19f2c901b5b1, type: 3}
   m_PrefabInstance: {fileID: 1001000000000000001}
   m_PrefabAsset: {fileID: 0}
