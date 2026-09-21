@@ -127,7 +127,6 @@ namespace OzGameLab01.Controllers
                     // [수정됨] 시작할 때 "현재 플레이 중인 턴(경과 턴 + 1)"을 표시합니다.
                     int initialTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
                     readySceneView.MainView.SetCurrentTurn(initialTurn);
-                    ApplyInitialClockRotation();
 
                     RefreshEndTurnFeedback(true);
                 }
@@ -485,16 +484,6 @@ namespace OzGameLab01.Controllers
             ShowTimeOfDayFeedback(dayMessage);
         }
 
-        private void ApplyInitialClockRotation()
-        {
-            float angle = boardSceneController != null &&
-                          boardSceneController.CurrentTimeOfDay == BoardTimeOfDay.Night
-                ? nightClockAngle
-                : dayClockAngle;
-
-            SetClockRotationImmediate(angle);
-        }
-
         private void PlayClockTransition(float finalTargetAngle)
         {
             RectTransform rotatingVisual = ResolveClockRotatingVisual();
@@ -538,18 +527,6 @@ namespace OzGameLab01.Controllers
                         RotateMode.FastBeyond360)
                     .SetEase(shootEase))
                 .OnComplete(() => _clockRotationSequence = null);
-        }
-
-        private void SetClockRotationImmediate(float angle)
-        {
-            RectTransform rotatingVisual = ResolveClockRotatingVisual();
-            if (rotatingVisual == null)
-            {
-                return;
-            }
-
-            StopClockRotation();
-            rotatingVisual.localEulerAngles = new Vector3(0f, 0f, angle);
         }
 
         private RectTransform ResolveClockRotatingVisual()
