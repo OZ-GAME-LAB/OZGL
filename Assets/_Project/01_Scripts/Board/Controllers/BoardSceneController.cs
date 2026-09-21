@@ -231,9 +231,7 @@ namespace OzGameLab01.Controllers
 
             if (_unitFormationController != null && !_unitFormationController.CanStartBattle)
             {
-                _feedback.Show(
-                    "To start a battle, you must place at least one combat unit.",
-                    confirmed: HandleBattleFormationPromptConfirmed);
+                ForcedFormationRequested?.Invoke();
                 return false;
             }
 
@@ -261,18 +259,7 @@ namespace OzGameLab01.Controllers
             _pendingBattleNode = battleNode;
             _pendingBattleIsBoss = isBoss;
             _pendingBattleIsElite = isElite;
-            _feedback.Show(
-                "To start a battle, you must place at least one combat unit.",
-                confirmed: HandleBattleFormationPromptConfirmed);
-        }
-
-        // 안내 확인 후 유닛 배치 화면 요청
-        private void HandleBattleFormationPromptConfirmed()
-        {
-            if (_pendingBattleNode != null)
-            {
-                ForcedFormationRequested?.Invoke();
-            }
+            ForcedFormationRequested?.Invoke();
         }
 
         // 보류 전투 상태 초기화

@@ -19,6 +19,8 @@ MonoBehaviour:
   targetReadyView: 2
   triggerButtonKey: 
   manualTriggerKey: 
+  openRollView: 0
+  showGuide: 1
   characterSprite: {fileID: 0}
   characterName: 
   dialogue: 
