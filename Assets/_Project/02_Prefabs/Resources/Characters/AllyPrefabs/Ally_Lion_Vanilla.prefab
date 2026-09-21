@@ -174,7 +174,7 @@ Transform:
   m_GameObject: {fileID: 7772527190708699431}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -1.5, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -220,6 +220,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2653122626726134233}
     m_Modifications:
+    - target: {fileID: 480120446167800049, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2202483424637812115, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 2362003647818139416, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -260,9 +268,33 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 3452310853022058313, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
     - target: {fileID: 3463158271654485883, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
       propertyPath: m_Name
       value: Ally_Lion_Vanilla
+      objectReference: {fileID: 0}
+    - target: {fileID: 5239083513320512060, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 6464643770964225886, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 6695273578715808723, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 8325909806668588543, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 9030233460871528928, guid: 7a35a09e77c2be74fb0b5d6943aca7d2, type: 3}
+      propertyPath: m_SortingOrder
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

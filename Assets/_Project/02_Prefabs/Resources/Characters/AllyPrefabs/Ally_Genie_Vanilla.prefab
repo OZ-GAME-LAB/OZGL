@@ -56,7 +56,7 @@ Transform:
   m_GameObject: {fileID: 1245103479373138800}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -1.5, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -260,9 +260,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 444589260115542340, guid: 17ece932d2cb7404da8b9f637bbfe790, type: 3}
+      propertyPath: m_SortingOrder
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 1346705694374762722, guid: 17ece932d2cb7404da8b9f637bbfe790, type: 3}
+      propertyPath: m_SortingOrder
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 1488559289389000381, guid: 17ece932d2cb7404da8b9f637bbfe790, type: 3}
       propertyPath: m_Name
       value: Ally_Genie_Vanilla
+      objectReference: {fileID: 0}
+    - target: {fileID: 3514686004826398972, guid: 17ece932d2cb7404da8b9f637bbfe790, type: 3}
+      propertyPath: m_SortingOrder
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 6281503380928224313, guid: 17ece932d2cb7404da8b9f637bbfe790, type: 3}
+      propertyPath: m_SortingOrder
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6482410138804189222, guid: 17ece932d2cb7404da8b9f637bbfe790, type: 3}
+      propertyPath: m_SortingOrder
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 7787575201077355514, guid: 17ece932d2cb7404da8b9f637bbfe790, type: 3}
+      propertyPath: m_SortingOrder
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 8668746523626076693, guid: 17ece932d2cb7404da8b9f637bbfe790, type: 3}
+      propertyPath: m_SortingOrder
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

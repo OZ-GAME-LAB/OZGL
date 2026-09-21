@@ -13,6 +13,20 @@ namespace OzGameLab01.Combat
         public static Unit CreateAlly(GameObject prefab, Transform parent, string instanceName, UnitData data)
         {
             GameObject instance = Object.Instantiate(prefab, parent, false);
+            return ConfigureAlly(instance, instanceName, data);
+        }
+
+        /// <summary>
+        /// Addressables에서 준비된 아군 인스턴스에 슬롯 Transform과 전투 데이터를 적용합니다.
+        /// </summary>
+        public static Unit ConfigureAlly(GameObject instance, string instanceName, UnitData data)
+        {
+            if (instance == null)
+            {
+                Debug.LogError("[CombatUnitFactory] 설정할 아군 인스턴스가 없습니다.");
+                return null;
+            }
+
             instance.name = instanceName;
             instance.transform.localPosition = Vector3.zero;
             instance.transform.localRotation = Quaternion.identity;
@@ -21,7 +35,7 @@ namespace OzGameLab01.Combat
             Unit unit = instance.GetComponent<Unit>();
             if (unit == null)
             {
-                Debug.LogError($"[CombatUnitFactory] '{prefab.name}' 루트에 Unit 컴포넌트가 없습니다.", instance);
+                Debug.LogError($"[CombatUnitFactory] '{instance.name}' 루트에 Unit 컴포넌트가 없습니다.", instance);
                 Object.Destroy(instance);
                 return null;
             }

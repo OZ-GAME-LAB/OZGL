@@ -22,9 +22,6 @@ namespace OzGameLab01.Combat
         [SerializeField] private string enemyPrefabResourceName = "Characters/EnemyTemplate";
         [SerializeField] private float enemyScale = 3f;
 
-        [Tooltip("BattleMap 슬롯에 생성할 공용 TestUnit 프리팹입니다. 편성 UnitData로 전투 능력치를 적용합니다.")]
-        [SerializeField] private GameObject allyTemplatePrefab;
-
         [Tooltip("아군 유닛마다 월드 캔버스 아래에 생성되는 체력/스킬 쿨다운 HUD입니다. 비워두면 HUD 없이 진행됩니다.")]
         [SerializeField] private AllyUnitCombatHUDView allyHudPrefab;
 
@@ -63,7 +60,7 @@ namespace OzGameLab01.Combat
             _feedbackView?.Show(feedback);
         }
 
-        private void Awake()
+        private async void Awake()
         {
             // 정적 상태라 실기기 빌드에서는 씬 전환만으로 비워지지 않는다.
             // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.
@@ -78,12 +75,6 @@ namespace OzGameLab01.Combat
             // 월드 유닛과 중복되는 편성용 UI 그리드 비활성화
             battleMainView?.SetFormationGridVisible(false);
 
-            // 직렬화된 월드 BattleMap 참조와 Resources 기반 TestUnit 참조 보정
-            if (allyTemplatePrefab == null || allyTemplatePrefab.name != "TestUnit")
-            {
-                allyTemplatePrefab = Resources.Load<GameObject>("Characters/TestUnit");
-            }
-
             // 비활성 오브젝트를 포함한 씬 소속 BattleMap 우선 사용
             _battleMapView = FindFirstObjectByType<CombatMapView>(FindObjectsInactive.Include);
             if (_battleMapView == null && battleMapPrefab != null)
@@ -95,11 +86,6 @@ namespace OzGameLab01.Combat
             if (_battleMapView == null)
             {
                 Debug.LogError("[CombatSession] BattleMap 프리팹 참조가 없어 월드 전투 배치를 구성할 수 없습니다.", this);
-            }
-
-            if (allyTemplatePrefab == null)
-            {
-                Debug.LogError("[CombatSession] Resources/Characters/TestUnit 프리팹을 찾을 수 없습니다.", this);
             }
 
             if (battleMainView != null)
@@ -116,7 +102,7 @@ namespace OzGameLab01.Combat
             enemyMonsterData = EnemyManager.Instance.Facade.BuildCombatSpec(enemyMonsterData);
 
             _allySpawner = new AllySpawner(
-                _battleMapView, allyTemplatePrefab,
+                _battleMapView,
                 enemyPrefabResourceName, enemyScale,
                 enemyMonsterData, allyHudPrefab);
 
@@ -150,8 +136,13 @@ namespace OzGameLab01.Combat
                 SceneTransitioner.AllyFormationData = formationData;
             }
 
-            _state.SpawnedFormation = _allySpawner.SpawnAllies(
+            _state.SpawnedFormation = await _allySpawner.SpawnAlliesAsync(
                 _state.SlotUnits, formationData);
+
+            if (this == null)
+            {
+                return;
+            }
 
             _synergyController.ApplySynergies(_state.SpawnedFormation, _state.SlotUnits);
             _synergyController.PopulateSynergyPanel();
@@ -176,6 +167,7 @@ namespace OzGameLab01.Combat
         private void OnDestroy()
         {
             _combatEffectExecutor?.Dispose();
+            _allySpawner?.Dispose();
         }
 
         private void BuildUnitStatLookup()
