@@ -45,11 +45,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e63d92052db74e4081031f3543a90c6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.CombatSession
-  unitsRoot: {fileID: 0}
-  enemyPosition: {x: 4.5, y: 0, z: 0}
+  battleMapPrefab: {fileID: 2179608495674926428, guid: 9506a8ece67103b4b810c871bcc027fe, type: 3}
   enemyPrefabResourceName: Characters/EnemyTemplate
   enemyScale: 3
-  allyTemplatePrefab: {fileID: 0}
+  allyTemplatePrefab: {fileID: 18250038763805400, guid: f2bb7222802f9334a94939940f227bd7, type: 3}
   allyHudPrefab: {fileID: 0}
   battleMainView: {fileID: 0}
   rosterData: {fileID: 0}
