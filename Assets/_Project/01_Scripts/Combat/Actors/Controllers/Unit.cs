@@ -314,7 +314,8 @@ namespace OzGameLab01.Combat
         /// 시너지 등 퍼센트 기반 스탯 보너스를 적용합니다. value는 "+20"이면 20%를 뜻하며,
         /// Add/Multiply 그룹의 합계를 원본 스탯에 적용하며 만료 시 원본에서 재계산합니다.
         /// 공격력 보너스는 기존 스킬 데미지 배율에도 반영하고,
-        /// 공격속도/쿨타임 감소는 기본공격 쿨다운에만 적용합니다(스킬별 쿨다운은 아직 배율 개념이 없음).
+        /// 공격속도/쿨타임 감소는 기본공격 쿨다운에만 적용합니다 — 액티브 스킬 쿨다운은
+        /// 의도적으로 제외한 확정 기획입니다(2026-09-21 확정, 배율 개념 없음).
         /// </summary>
         public bool ApplyStatEffect(EffectStatType statType, float percentValue)
             => ApplyStatEffect(statType, percentValue, EffectOperation.Add, 0, true);
@@ -323,7 +324,8 @@ namespace OzGameLab01.Combat
             float durationSeconds, bool untilBattleEnd)
         {
             if (_stats == null) CaptureBaseStats();
-            // Existing basic-attack interval rule is retained pending the cooldown scope decision.
+            // 확정 기획(2026-09-21): 공격속도는 기본공격 쿨다운에만 적용하고,
+            // untilBattleEnd가 아닌 시간제 효과는 지원하지 않는다.
             if (statType == EffectStatType.AttackInterval)
             {
                 if (_skills.Count == 0 || !untilBattleEnd) return false;
