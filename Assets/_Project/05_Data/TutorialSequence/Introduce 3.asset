@@ -19,6 +19,8 @@ MonoBehaviour:
   targetReadyView: 2
   triggerButtonKey: 
   manualTriggerKey: 
+  openRollView: 0
+  showGuide: 0
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
   dialogue: "\uC5B4\uB54C? \uAC04\uB2E8\uD558\uC9C0?\r\n\uC5B4\uB835\uB2E4\uACE0?
