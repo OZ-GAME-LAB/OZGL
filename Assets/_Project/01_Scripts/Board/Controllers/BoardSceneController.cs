@@ -46,7 +46,6 @@ namespace OzGameLab01.Controllers
 
         public event Action<int> TurnEnded;
         public event Action<int> NightReached;
-        public event Action<int> NoonReached;
         public event Action<int> DayReached;
         public event Action PlayerTurnReady;
         public event Action<UnitData> UnitAcquired;
@@ -166,10 +165,6 @@ namespace OzGameLab01.Controllers
         {
             case BoardTimeOfDay.Day:
                 DayReached?.Invoke(BoardRunData.TurnCount);
-                break;
-
-            case BoardTimeOfDay.Noon:
-                NoonReached?.Invoke(BoardRunData.TurnCount);
                 break;
 
             case BoardTimeOfDay.Night:

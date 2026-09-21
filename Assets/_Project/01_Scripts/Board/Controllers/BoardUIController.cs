@@ -35,7 +35,6 @@ namespace OzGameLab01.Controllers
         [Min(0f)][SerializeField] private float turnAutoRollViewDelay = 0.5f;
         [Min(0f)][SerializeField] private float timeOfDayFeedbackDuration = 1.5f;
         [SerializeField] private string nightMessage = "Night Has Come";
-        [SerializeField] private string noonMessage = "Noon Has Come";
         [SerializeField] private string dayMessage = "Day Has Come";
 
         [Header("Clock Rotation (Bow String Anim)")]
@@ -141,7 +140,6 @@ namespace OzGameLab01.Controllers
             {
                 boardSceneController.TurnEnded += HandleTurnEnded;
                 boardSceneController.NightReached += HandleNightReached;
-                boardSceneController.NoonReached += HandleNoonReached;
                 boardSceneController.DayReached += HandleDayReached;
                 boardSceneController.PlayerTurnReady += HandlePlayerTurnReady;
                 boardSceneController.UnitAcquired += HandleUnitAcquired;
@@ -192,7 +190,6 @@ namespace OzGameLab01.Controllers
             {
                 boardSceneController.TurnEnded -= HandleTurnEnded;
                 boardSceneController.NightReached -= HandleNightReached;
-                boardSceneController.NoonReached -= HandleNoonReached;
                 boardSceneController.DayReached -= HandleDayReached;
                 boardSceneController.PlayerTurnReady -= HandlePlayerTurnReady;
                 boardSceneController.UnitAcquired -= HandleUnitAcquired;
@@ -401,13 +398,6 @@ namespace OzGameLab01.Controllers
             PlayClockTransition(nightClockAngle);
             Debug.Log($"[BoardUIController] {turnCount}턴 째 밤이 되었습니다!");
             ShowTimeOfDayFeedback(nightMessage);
-        }
-
-        private void HandleNoonReached(int turnCount)
-        {
-            int displayTurn = BoardTurnRules.DisplayTurn(turnCount);
-            Debug.Log($"[BoardUIController] {displayTurn}턴부터 정오입니다.");
-            ShowTimeOfDayFeedback(noonMessage);
         }
 
         private void HandleDayReached(int turnCount)
