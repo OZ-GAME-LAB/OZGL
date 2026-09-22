@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 4029107581241151455}
   - component: {fileID: 5787052196207161398}
   - component: {fileID: 4055039507210650534}
+  - component: {fileID: 6058223328657399789}
   m_Layer: 0
   m_Name: Settings
   m_TagString: Untagged
@@ -108,6 +109,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88fc016107dc46f08411dd4b2b94a637, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Title.TitleSettingsAudioController
+  _settingsView: {fileID: 5787052196207161398}
+--- !u!114 &6058223328657399789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52088684614561356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dffe2b54a66a80044b3725cf9db4f510, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.SettingsVideoController
   _settingsView: {fileID: 5787052196207161398}
 --- !u!1 &130333480985058766
 GameObject:

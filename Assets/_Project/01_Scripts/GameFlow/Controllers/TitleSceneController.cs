@@ -49,22 +49,15 @@ namespace OzGameLab01.Controllers
             SaveFacade continueCheckFacade = SystemBus.Get<SaveFacade>();
             _titleView.SetContinueInteractable(continueCheckFacade != null && continueCheckFacade.HasContinueData);
 
-            // 설정 화면(Game 탭)의 요청 이벤트 구독
+            // 설정 화면(Game 탭)에 타이틀 전용 액션 버튼을 구성
+            // 컷씬 재시청/타이틀로 돌아가기는 타이틀 화면에서 의미가 없어 추가하지 않음
             TitleSettingsView settingsView = _titleView.Settings;
             if (settingsView != null)
             {
                 _subscribedSettings = settingsView;
-                settingsView.ReplayTutorialRequested += HandleReplayTutorialRequested;
-                settingsView.ResetGameDataRequested += HandleResetGameDataRequested;
-
-                // 컷씬 시스템이 아직 없어 재시청 버튼을 숨김
-                settingsView.SetReplayCutsceneButtonVisible(false);
-
-                // 튜토리얼 재시청/데이터 초기화는 타이틀 화면에서만 노출하고,
-                // 타이틀로 돌아가기 버튼은 이미 타이틀이므로 숨김
-                settingsView.SetReplayTutorialButtonVisible(true);
-                settingsView.SetResetGameDataButtonVisible(true);
-                settingsView.SetReturnToTitleButtonVisible(false);
+                settingsView.ClearGameButtons();
+                settingsView.AddGameButton("튜토리얼 다시보기", HandleReplayTutorialRequested);
+                settingsView.AddGameButton("게임 데이터 초기화", HandleResetGameDataRequested);
             }
         }
 
@@ -74,8 +67,7 @@ namespace OzGameLab01.Controllers
 
             if (_subscribedSettings != null)
             {
-                _subscribedSettings.ReplayTutorialRequested -= HandleReplayTutorialRequested;
-                _subscribedSettings.ResetGameDataRequested -= HandleResetGameDataRequested;
+                _subscribedSettings.ClearGameButtons();
                 _subscribedSettings = null;
             }
 

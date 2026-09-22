@@ -77,13 +77,10 @@ namespace OzGameLab01.Controllers
             if (settingsView != null)
             {
                 settingsView.CloseRequested += HandleSettingsBackClicked;
-                settingsView.ReturnToTitleRequested += HandleReturnToMainClicked;
 
-                // 전투에서는 튜토리얼/데이터 초기화/컷씬 버튼을 숨기고 복귀 버튼만 노출
-                settingsView.SetReplayTutorialButtonVisible(false);
-                settingsView.SetResetGameDataButtonVisible(false);
-                settingsView.SetReplayCutsceneButtonVisible(false);
-                settingsView.SetReturnToTitleButtonVisible(true);
+                // 전투에서는 타이틀로 돌아가기 버튼만 노출(튜토리얼/데이터 초기화는 타이틀 전용)
+                settingsView.ClearGameButtons();
+                settingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToMainClicked);
             }
 
             if (surrenderPopup != null)
@@ -114,7 +111,7 @@ namespace OzGameLab01.Controllers
             if (settingsView != null)
             {
                 settingsView.CloseRequested -= HandleSettingsBackClicked;
-                settingsView.ReturnToTitleRequested -= HandleReturnToMainClicked;
+                settingsView.ClearGameButtons();
             }
 
             if (surrenderPopup != null)

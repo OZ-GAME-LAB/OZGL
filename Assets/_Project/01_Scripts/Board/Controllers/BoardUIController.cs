@@ -134,13 +134,10 @@ namespace OzGameLab01.Controllers
                 if (readySceneView.SettingsView != null)
                 {
                     readySceneView.SettingsView.CloseRequested += HandleSettingsBackClicked;
-                    readySceneView.SettingsView.ReturnToTitleRequested += HandleReturnToTitleClicked;
 
-                    // 보드에서는 튜토리얼/데이터 초기화/컷씬 버튼을 숨기고 타이틀 복귀 버튼만 노출
-                    readySceneView.SettingsView.SetReplayTutorialButtonVisible(false);
-                    readySceneView.SettingsView.SetResetGameDataButtonVisible(false);
-                    readySceneView.SettingsView.SetReplayCutsceneButtonVisible(false);
-                    readySceneView.SettingsView.SetReturnToTitleButtonVisible(true);
+                    // 보드에서는 타이틀로 돌아가기 버튼만 노출(튜토리얼/데이터 초기화는 타이틀 전용)
+                    readySceneView.SettingsView.ClearGameButtons();
+                    readySceneView.SettingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToTitleClicked);
                 }
 
                 if (readySceneView.UnitView != null)
@@ -200,7 +197,7 @@ namespace OzGameLab01.Controllers
                 if (readySceneView.SettingsView != null)
                 {
                     readySceneView.SettingsView.CloseRequested -= HandleSettingsBackClicked;
-                    readySceneView.SettingsView.ReturnToTitleRequested -= HandleReturnToTitleClicked;
+                    readySceneView.SettingsView.ClearGameButtons();
                 }
 
                 if (readySceneView.UnitView != null)
