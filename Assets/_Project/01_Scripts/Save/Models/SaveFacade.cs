@@ -178,6 +178,24 @@ namespace OzGameLab01.Save
         }
 
         /// <summary>
+        /// 설정 화면의 "데이터 초기화" 요청을 받아 보유 유닛/유물/진행도를 포함한
+        /// 전체 저장 데이터를 신규 유저 상태로 되돌리고 파일에 반영합니다.
+        /// </summary>
+        public async Task<bool> ResetAllDataAsync()
+        {
+            ClearCurrentRun();
+
+            _state.CurrentData.lastChapter = 1;
+            _state.CurrentData.posX = 0;
+            _state.CurrentData.posY = 0;
+            _state.CurrentData.playTime = 0;
+            _state.CurrentData.combatFastForward = false;
+
+            MarkAsDirty();
+            return await SaveAsync();
+        }
+
+        /// <summary>
         /// 메인보드 씬의 PlayerInventoryManager가 준비된 뒤 대기 중인 인벤토리를 복원합니다.
         /// </summary>
         public void RestorePendingInventory(PlayerFacade facade)

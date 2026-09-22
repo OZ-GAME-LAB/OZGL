@@ -271,6 +271,18 @@ namespace OzGameLab01.UI.Title
         }
 
         /// <summary>
+        /// 컷씬 재시청 버튼의 표시 여부를 설정합니다.
+        /// 컷씬 시스템이 아직 없어 기본적으로 숨겨둡니다.
+        /// </summary>
+        public void SetReplayCutsceneButtonVisible(bool visible)
+        {
+            if (_replayCutsceneButton != null)
+            {
+                _replayCutsceneButton.gameObject.SetActive(visible);
+            }
+        }
+
+        /// <summary>
         /// 지정된 설정 탭만 활성화 됨
         /// 이때 notify가 트루면 TabSelected 이벤트가 발생함
         /// </summary>
