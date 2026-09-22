@@ -15,6 +15,7 @@ namespace OzGameLab01.Data
     {
         public int id;                  // 고유 ID
         public int unitId;              // 연결된 유닛 ID
+        public string iconAddress;      // 아이콘 스프라이트 주소
 
         public string name;             // 스킬 명칭
         public string description;      // 스킬 설명
