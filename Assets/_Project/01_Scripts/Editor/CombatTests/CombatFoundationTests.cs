@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using NUnit.Framework;
 using OzGameLab01.Common;
 using OzGameLab01.Combat;
@@ -288,19 +287,19 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
-        public void EnemyPreparationUsesGrowthRowAndReturnsDetachedCachedSpecs()
+        public void EnemyPreparationAppliesValueMultiplierAndReturnsDetachedCachedSpecs()
         {
             var catalog = new ContentCatalog(
                 new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } } },
-                new[] { new MonsterData { id = 1, type = MonsterType.normal, healthPoint = 999, skillIds = new List<int> { 1 } } },
+                new[] { new MonsterData { id = 1, type = MonsterType.normal, healthPoint = 100, attackPoint = 5, skillIds = new List<int> { 1 } } },
                 new[] { new SkillData { id = 1 }, new SkillData { id = 10 } },
-                Array.Empty<SynergyData>(), Array.Empty<RelicData>(),
-                new[] { new EnemyGrowthRow { id = 1, type = MonsterType.normal, step = 1, health = 70, attack = 3.5f, defense = 1.4f, attackInterval = 1, criticalMultiplier = 150, criticalChance = 10, dodgeChance = 10 } });
+                Array.Empty<SynergyData>(), Array.Empty<RelicData>());
             var cache = new EnemyPreparationCache();
             var owned = new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } } };
-            var first = cache.Prepare(catalog, 1, catalog.GetEnemy(1), 0, 0, 42, owned);
+            var first = cache.Prepare(1, catalog.GetEnemy(1), 0, 0, 42, owned);
             first.healthPoint = 1;
-            var second = cache.Prepare(catalog, 1, catalog.GetEnemy(1), 0, 0, 42, owned);
+            // 0턴(표시상 1턴)의 value는 0.7 — base 100/5에 곱해 70/4(3.5 반올림)가 나와야 한다.
+            var second = cache.Prepare(1, catalog.GetEnemy(1), 0, 0, 42, owned);
             Assert.That(second.healthPoint, Is.EqualTo(70));
             Assert.That(second.attackPoint, Is.EqualTo(4));
             Assert.That(second.skillIds, Does.Contain(10));
@@ -314,12 +313,11 @@ namespace OzGameLab01.Tests.EditMode
                 new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } }, new UnitData { id = 2, skillIds = new List<int> { 1, 11 } } },
                 new[] { new MonsterData { id = 1, type = MonsterType.normal, skillIds = new List<int> { 1 } } },
                 new[] { new SkillData { id = 1 }, new SkillData { id = 10 }, new SkillData { id = 11 } },
-                Array.Empty<SynergyData>(), Array.Empty<RelicData>(),
-                new[] { new EnemyGrowthRow { id = 1, type = MonsterType.normal, step = 1, health = 70 } });
+                Array.Empty<SynergyData>(), Array.Empty<RelicData>());
             var cache = new EnemyPreparationCache();
-            var first = cache.Prepare(catalog, 1, catalog.GetEnemy(1), 0, 0, 42,
+            var first = cache.Prepare(1, catalog.GetEnemy(1), 0, 0, 42,
                 new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } } });
-            var second = cache.Prepare(catalog, 1, catalog.GetEnemy(1), 0, 0, 42,
+            var second = cache.Prepare(1, catalog.GetEnemy(1), 0, 0, 42,
                 new[] { new UnitData { id = 2, skillIds = new List<int> { 1, 11 } } });
             Assert.That(first.skillIds, Does.Contain(10));
             Assert.That(second.skillIds, Does.Contain(11));
@@ -327,82 +325,39 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
-        public void EnemyPreparationUsesRealGrowthStepsAndFinalBossFallsBackToSemibossStageThree()
+        public void EnemyPreparationFreezesValueDuringOverturnAndAccumulatesOverturnGrowth()
         {
-            ContentCatalog content = ResourcesContentLoader.Load();
-            EnemyGrowthRow normalFirst = content.EnemyGrowth.Values.Single(row =>
-                row.type == MonsterType.normal && row.step == 1);
-            EnemyGrowthRow normalLast = content.EnemyGrowth.Values
-                .Where(row => row.type == MonsterType.normal)
-                .OrderByDescending(row => row.step)
-                .First();
-            EnemyGrowthRow finalBossFallback = content.EnemyGrowth.Values.Single(row =>
-                row.type == MonsterType.semiboss && row.step == 3);
             var cache = new EnemyPreparationCache();
-            var normal = new MonsterData { id = 9001, type = MonsterType.normal };
-            var boss = new MonsterData { id = 9002, type = MonsterType.boss };
+            var normal = new MonsterData { id = 1, type = MonsterType.normal, healthPoint = 100 };
 
-            MonsterData first = cache.Prepare(content, 1, normal, 0, 0, 123,
-                Array.Empty<UnitData>());
-            MonsterData capped = cache.Prepare(content, 1, normal, 100, 10, 123,
-                Array.Empty<UnitData>());
-            MonsterData finalBoss = cache.Prepare(content, 1, boss, 0, 0, 123,
-                Array.Empty<UnitData>());
+            // 0턴(표시상 1턴): value=0.7 그대로.
+            MonsterData turn0 = cache.Prepare(1, normal, 0, 0, 1, Array.Empty<UnitData>());
+            Assert.That(turn0.healthPoint, Is.EqualTo(70));
 
-            Assert.That(first.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(normalFirst.health)));
-            Assert.That(capped.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(normalLast.health)));
-            Assert.That(finalBoss.healthPoint,
-                Is.EqualTo(UnityEngine.Mathf.RoundToInt(finalBossFallback.health)));
-            Assert.That(finalBoss.attackPoint,
-                Is.EqualTo(UnityEngine.Mathf.RoundToInt(finalBossFallback.attack)));
+            // 15턴째(0-index)까지 중간보스를 못 잡으면 오버턴 진입 — value가 1.88에서 멈춘다.
+            MonsterData atDeadline = cache.Prepare(1, normal, 15, 0, 1, Array.Empty<UnitData>());
+            Assert.That(atDeadline.healthPoint, Is.EqualTo(188));
+
+            // 오버턴 1턴 경과 — value는 그대로에 0.3만 얹힌다(1.88 → 2.18).
+            MonsterData oneOverturnTurn = cache.Prepare(1, normal, 16, 0, 1, Array.Empty<UnitData>());
+            Assert.That(oneOverturnTurn.healthPoint, Is.EqualTo(218));
         }
 
         [Test]
-        public void EnemyPreparationSkipsFullWaveOnElitesAndWrapsTurnWithinWave()
+        public void EnemyPreparationNeverWeakensAndResolvesOverturnOnEliteKill()
         {
-            ContentCatalog content = ResourcesContentLoader.Load();
             var cache = new EnemyPreparationCache();
-            var normal = new MonsterData { id = 9003, type = MonsterType.normal };
+            var normal = new MonsterData { id = 1, type = MonsterType.normal, healthPoint = 100 };
 
-            // 중간보스 0마리, 15턴째(파도 경계 직전) — 해당 파도의 마지막 행(step 15)이어야 한다.
-            MonsterData beforeWave = cache.Prepare(content, 1, normal, 14, 0, 1, Array.Empty<UnitData>());
-            EnemyGrowthRow step15 = content.EnemyGrowth.Values.Single(
-                row => row.type == MonsterType.normal && row.step == 15);
-            Assert.That(beforeWave.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step15.health)));
+            // 중간보스를 한 마리도 못 잡은 채 오버턴이 길어져도 value는 계속 증가해야 한다
+            // (턴만 흘렀다고 최약체로 되돌아가면 안 된다). 1.88 + 0.3 × 15턴 = 6.38.
+            MonsterData longOverturn = cache.Prepare(1, normal, 30, 0, 1, Array.Empty<UnitData>());
+            Assert.That(longOverturn.healthPoint, Is.EqualTo(638));
 
-            // 중간보스 1마리 처치 직후(같은 턴) — 다음 파도 시작 행(step 16, +1.07 점프)으로
-            // 즉시 넘어가야 하며, 파도 안에서의 진행은 누적 턴 수를 15로 나눈 나머지로 정한다.
-            MonsterData afterFirstElite = cache.Prepare(content, 1, normal, 0, 1, 1, Array.Empty<UnitData>());
-            EnemyGrowthRow step16 = content.EnemyGrowth.Values.Single(
-                row => row.type == MonsterType.normal && row.step == 16);
-            Assert.That(afterFirstElite.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step16.health)));
-
-            // 두 번째 중간보스 처치 후 5턴 진행 — 세 번째 파도(step 31~) 안에서 5턴만큼 진행한
-            // step 36이어야 한다(턴 수가 파도 경계를 넘어도 wave index는 elites 기준으로 고정).
-            MonsterData secondWaveProgress = cache.Prepare(content, 1, normal, 5, 2, 1, Array.Empty<UnitData>());
-            EnemyGrowthRow step36 = content.EnemyGrowth.Values.Single(
-                row => row.type == MonsterType.normal && row.step == 36);
-            Assert.That(secondWaveProgress.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step36.health)));
-        }
-
-        [Test]
-        public void EnemyPreparationNeverWeakensAsTurnsPassWithoutElites()
-        {
-            // 중간보스를 한 마리도 못 잡은 채 파도 경계(15턴)를 넘겨도, turnCount % 15로 순환시켜
-            // 최약체로 되돌아가면 안 된다 — 시간 경과만으로도 계속 다음 파도로 넘어가야 한다.
-            ContentCatalog content = ResourcesContentLoader.Load();
-            var cache = new EnemyPreparationCache();
-            var normal = new MonsterData { id = 9004, type = MonsterType.normal };
-
-            MonsterData turn20 = cache.Prepare(content, 1, normal, 20, 0, 1, Array.Empty<UnitData>());
-            EnemyGrowthRow step21 = content.EnemyGrowth.Values.Single(
-                row => row.type == MonsterType.normal && row.step == 21);
-            Assert.That(turn20.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step21.health)));
-
-            MonsterData turn30 = cache.Prepare(content, 1, normal, 30, 0, 1, Array.Empty<UnitData>());
-            EnemyGrowthRow step31 = content.EnemyGrowth.Values.Single(
-                row => row.type == MonsterType.normal && row.step == 31);
-            Assert.That(turn30.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step31.health)));
+            // 처치가 늦게라도(20턴째, 5턴 지연) 일어나면 오버턴 값은 사라지고 +1 점프 후
+            // 정상 성장(웨이브2, 표시상 21턴 value=3.3)으로 복귀한다.
+            MonsterData caughtUp = cache.Prepare(1, normal, 20, 1, 1, Array.Empty<UnitData>());
+            Assert.That(caughtUp.healthPoint, Is.EqualTo(330));
         }
 
         [Test]

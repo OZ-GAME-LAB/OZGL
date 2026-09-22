@@ -25,15 +25,7 @@ namespace OzGameLab01.Data
             foreach (SkillData skill in enemies.SkillDefinitions) skillDefinitions[skill.id] = skill;
             return new ContentCatalog(UnitRosterData.ParseUnitList(unitJson.text),
                 MonsterRosterData.ParseMonsterList(enemyJson.text), skillDefinitions.Values,
-                GameDataLoader.LoadSynergies(), GameDataLoader.LoadRelics(), LoadGrowth(), LoadEvents(eventDatabase));
-        }
-
-        private static IEnumerable<EnemyGrowthRow> LoadGrowth()
-        {
-            TextAsset asset = Resources.Load<TextAsset>("EnemyGrowthData");
-            if (asset == null) throw new InvalidOperationException("Missing EnemyGrowthData JSON.");
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<List<EnemyGrowthRow>>(asset.text)
-                ?? throw new InvalidOperationException("Empty enemy growth document.");
+                GameDataLoader.LoadSynergies(), GameDataLoader.LoadRelics(), LoadEvents(eventDatabase));
         }
 
         internal static IEnumerable<EventContent> LoadEvents(OzGameLab01.Events.EventDB database)
