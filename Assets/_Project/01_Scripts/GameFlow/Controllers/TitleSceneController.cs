@@ -22,6 +22,7 @@ namespace OzGameLab01.Controllers
         private bool _isStartingGame;
         private TitleUIView _subscribedTitle;
         private int _requestVersion;
+        private SettingsActionButtonView _resetButton;
 
         #region Unity Lifecycle
 
@@ -44,9 +45,18 @@ namespace OzGameLab01.Controllers
             _subscribedTitle.ContinueRequested += HandleContinueRequested;
             _subscribedTitle.ExitConfirmed += HandleExitConfirmed;
 
+            _resetButton = _titleView.Settings.AddGameButton("데이터 초기화", HandleResetRequested);
+
             // [추가] 유효한 런 저장 파일이 있을 때만 Continue 버튼 활성화
             SaveFacade continueCheckFacade = SystemBus.Get<SaveFacade>();
             _titleView.SetContinueInteractable(continueCheckFacade != null && continueCheckFacade.HasContinueData);
+        }
+
+        private void Start()
+        {
+            // 매니저 초기화 이후 Continue 데이터 상태 확인
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            _titleView.SetContinueInteractable(saveFacade != null && saveFacade.HasContinueData);
         }
 
         private void OnDisable()
@@ -63,6 +73,9 @@ namespace OzGameLab01.Controllers
             // [추가] Continue 요청 이벤트 구독 해제
             _subscribedTitle.ContinueRequested -= HandleContinueRequested;
             _subscribedTitle.ExitConfirmed -= HandleExitConfirmed;
+            _titleView.Settings.HideResetConfirmation();
+            _titleView.Settings.RemoveGameButton(_resetButton);
+            _resetButton = null;
             _subscribedTitle = null;
         }
 
@@ -109,8 +122,10 @@ namespace OzGameLab01.Controllers
                 if (!saved)
                 {
                     Debug.LogError("[TitleSceneController] New Game 초기 상태 저장에 실패했습니다.", this);
+                    return;
                 }
 
+                _titleView.SetContinueInteractable(false);
                 transitioner.LoadBoardScene();
             }
             catch (System.Exception exception) { Debug.LogException(exception); }
@@ -154,6 +169,33 @@ namespace OzGameLab01.Controllers
             Debug.Log("[TitleSceneController] Continue 데이터 복원 완료 | 보드 씬 이동", this);
             transitioner.LoadBoardScene();
             _isStartingGame = false;
+        }
+
+        private void HandleResetRequested()
+        {
+            if (_isStartingGame)
+            {
+                return;
+            }
+
+            _titleView.Settings.ShowResetConfirmation(HandleResetConfirmed);
+        }
+
+        private void HandleResetConfirmed()
+        {
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                return;
+            }
+
+            if (saveFacade.FactoryReset() == false)
+            {
+                return;
+            }
+
+            _titleView.SetContinueInteractable(false);
+            _titleView.Settings.ResetTransientOptions();
         }
 
         /// <summary>
