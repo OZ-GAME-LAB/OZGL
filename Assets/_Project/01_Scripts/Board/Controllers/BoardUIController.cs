@@ -333,6 +333,8 @@ namespace OzGameLab01.Controllers
 
         private void HandleReturnToTitleClicked()
         {
+            // 설정창이 열린 채로 씬 전환되면 전환 연출 동안 그대로 보이는 문제가 있어 먼저 닫음
+            readySceneView?.HideSettingsView();
             boardSceneController?.ReturnToTitle();
         }
 

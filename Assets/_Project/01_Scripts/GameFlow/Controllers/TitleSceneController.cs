@@ -203,6 +203,9 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            // 설정창이 열린 채로 씬 전환되면 전환 연출 동안 그대로 보이는 문제가 있어 먼저 닫음
+            _titleView.Settings?.Hide();
+
             Debug.Log("[TitleSceneController] 튜토리얼 재시청 요청 | 튜토리얼 씬 이동", this);
             transitioner.LoadTutorialScene();
         }

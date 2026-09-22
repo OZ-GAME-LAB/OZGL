@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OzGameLab01.Managers;
 using OzGameLab01.UI.Title;
 using UnityEngine;
@@ -33,6 +34,7 @@ namespace OzGameLab01.Controllers
             }
 
             Subscribe();
+            ApplyResolutionOptions();
             RefreshView();
         }
 
@@ -51,6 +53,7 @@ namespace OzGameLab01.Controllers
             _subscribedView = _settingsView;
             _settingsView.ResolutionSelected += HandleResolutionSelected;
             _settingsView.ScreenModeSelected += HandleScreenModeSelected;
+            _displayManager.VideoSettingsChanged += RefreshView;
             _isSubscribed = true;
         }
 
@@ -67,6 +70,11 @@ namespace OzGameLab01.Controllers
                 _subscribedView.ScreenModeSelected -= HandleScreenModeSelected;
             }
 
+            if (_displayManager != null)
+            {
+                _displayManager.VideoSettingsChanged -= RefreshView;
+            }
+
             _isSubscribed = false;
             _subscribedView = null;
         }
@@ -81,6 +89,22 @@ namespace OzGameLab01.Controllers
             _displayManager.SetScreenModeIndex(index);
         }
 
+        private void ApplyResolutionOptions()
+        {
+            if (_displayManager == null || _settingsView == null)
+            {
+                return;
+            }
+
+            var labels = new List<string>(_displayManager.AvailableResolutions.Count);
+            foreach ((int Width, int Height) resolution in _displayManager.AvailableResolutions)
+            {
+                labels.Add(DisplayManager.FormatResolutionLabel(resolution));
+            }
+
+            _settingsView.SetResolutionOptions(labels);
+        }
+
         private void RefreshView()
         {
             if (_displayManager == null || _settingsView == null)
@@ -88,7 +112,9 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
-            _settingsView.ResolutionIndex = _displayManager.ResolutionIndex;
+            // 전체 화면은 모니터 해상도로 고정되므로 실제 저장값이 아닌
+            // DisplayedResolutionIndex(전체 화면이면 모니터 해상도)를 보여줍니다.
+            _settingsView.ResolutionIndex = _displayManager.DisplayedResolutionIndex;
             _settingsView.ScreenModeIndex = _displayManager.ScreenModeIndex;
         }
 
