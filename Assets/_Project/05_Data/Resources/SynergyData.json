@@ -1,15 +1,15 @@
 {
   "synergyList": [
     {
-      "id": 5001,
-      "name": "ê¸°ì‚¬",
-      "subTitle": "",
-      "iconAddress": "",
+      "id": 200,
+      "name": "±â»ç",
+      "subTitle": "´Ü´ÜÇÑ ¸¶À½",
+      "iconAddress": "I_Sy_200",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ì „íˆ¬ ì‹œì‘ ì‹œ ê¸°ì‚¬ë“¤ì—ê²Œ ì²´ë ¥ ë¹„ë¡€ ë³´í˜¸ë§‰ ë¶€ì—¬",
+          "description": "ÀüÅõ ½ÃÀÛ½Ã ±â»çµé¿¡°Ô Ã¼·Â ºñ·Ê º¸È£¸·",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -23,7 +23,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "ì „íˆ¬ ì‹œì‘ ì‹œ ì•„êµ°ì—ê²Œ ì²´ë ¥ì´ ê°€ì¥ ë†’ì€ ê¸°ì‚¬ì˜ ì²´ë ¥ ë¹„ë¡€ ë³´í˜¸ë§‰ ë¶€ì—¬",
+          "description": "ÀüÅõ ½ÃÀÛ½Ã ¾Æ±º¿¡°Ô Ã¼·ÂÀÌ °¡Àå ³ôÀº ±â»çÀÇ Ã¼·Â ºñ·Ê º¸È£¸·",
           "effects": [
             {
               "targetType": "HighestHpUnit",
@@ -37,7 +37,7 @@
         {
           "tierLevel": 3,
           "requiredCount": 4,
-          "description": "ëª¨ë“  ì•„êµ°ì´ ë³´í˜¸ë§‰ì´ ìˆì„ ë•Œ, ë°©ì–´ë ¥ ë¹„ë¡€ ì¶”ê°€ ë°ë¯¸ì§€ / ë°›ëŠ” í”¼í•´ëŸ‰ ê°ì†Œ",
+          "description": "¸ğµç ¾Æ±ºÀÌ º¸È£¸·ÀÌ ÀÖÀ» ¶§, ¹æ¾î·Â ºñ·Ê Ãß°¡ µ¥¹ÌÁö / ¹Ş ÇÇ°¨ °¨¼Ò",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -51,15 +51,15 @@
       ]
     },
     {
-      "id": 5002,
-      "name": "ì¬ê°„ë‘¥ì´",
-      "subTitle": "ë³´ì´ì§€ ì•ŠëŠ” ì†",
-      "iconAddress": "",
+      "id": 201,
+      "name": "¾Ï»ìÀÚ",
+      "subTitle": "Àç°£µÕÀÌ",
+      "iconAddress": "I_Sy_201",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ì¬ê°„ë‘¥ì´ê°€ ì£¼ëŠ” ë°ë¯¸ì§€ì˜ 30%ê°€ ê³ ì •ë°ë¯¸ì§€ë¡œ ë“¤ì–´ê°",
+          "description": "Àç°£µÕÀÌ°¡ ÁÖ´Â µ¥¹ÌÁöÀÇ 30%°¡ °íÁ¤µ¥¹ÌÁö·Î µé¾î°¨",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -73,7 +73,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "ì¬ê°„ë‘¥ì´ê°€ ì£¼ëŠ” ë°ë¯¸ì§€ì˜ 60%ê°€ ê³ ì •ë°ë¯¸ì§€ë¡œ ë“¤ì–´ê°",
+          "description": "Àç°£µÕÀÌ°¡ ÁÖ´Â µ¥¹ÌÁöÀÇ 60%°¡ °íÁ¤µ¥¹ÌÁö·Î µé¾î°¨",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -87,7 +87,7 @@
         {
           "tierLevel": 3,
           "requiredCount": 4,
-          "description": "ì¬ê°„ë‘¥ì´ê°€ ì£¼ëŠ” ë°ë¯¸ì§€ì˜ 100%ê°€ ê³ ì •ë°ë¯¸ì§€ë¡œ ë“¤ì–´ê°",
+          "description": "Àç°£µÕÀÌ°¡ ÁÖ´Â µ¥¹ÌÁöÀÇ 100%°¡ °íÁ¤µ¥¹ÌÁö·Î µé¾î°¨",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -101,15 +101,15 @@
       ]
     },
     {
-      "id": 5003,
-      "name": "ì‚¬ëƒ¥ê¾¼",
-      "subTitle": "ë‚ ì¹´ë¡œìš´ ëˆˆ",
-      "iconAddress": "",
+      "id": 202,
+      "name": "»ç³É²Û",
+      "subTitle": "³¯Ä«·Î¿î ´«",
+      "iconAddress": "I_Sy_202",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ì‚¬ëƒ¥ê¾¼ì˜ ê³µê²©ì‹œ 10% í™•ë¥ ë¡œ ì„ì˜ì˜ ìƒíƒœì´ìƒ ë¶€ì—¬",
+          "description": "»ç³É²ÛÀÇ °ø°İ½Ã 10% È®·ü·Î ÀÓÀÇÀÇ »óÅÂÀÌ»ó ºÎ¿©",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -123,7 +123,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 4,
-          "description": "ìƒíƒœì´ìƒì˜ ì ì„ ê³µê²©í•˜ë©´ ì¶”ê°€ í”¼í•´",
+          "description": "»óÅÂÀÌ»óÀÇ ÀûÀ» °ø°İÇÏ¸é Ãß°¡ ÇÇÇØ",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -137,15 +137,15 @@
       ]
     },
     {
-      "id": 5004,
-      "name": "ë„ìš°ë¯¸",
-      "subTitle": "ì¹˜ìœ ì˜ ì†",
-      "iconAddress": "",
+      "id": 203,
+      "name": "µµ¿ì¹Ì",
+      "subTitle": "Ä¡À¯ÀÇ ¼Õ",
+      "iconAddress": "I_Sy_203",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ë„ìš°ë¯¸ì˜ íšŒë³µëŸ‰ì´ ì¦ê°€í•œë‹¤.",
+          "description": "µµ¿ì¹ÌÀÇ È¸º¹·®ÀÌ Áõ°¡ÇÑ´Ù.",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -159,15 +159,15 @@
       ]
     },
     {
-      "id": 5005,
-      "name": "ì˜ˆì–¸ì",
-      "subTitle": "",
-      "iconAddress": "",
+      "id": 204,
+      "name": "¿¹¾ğÀÚ",
+      "subTitle": "À½À¯½ÃÀÎ",
+      "iconAddress": "I_Sy_204",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ì „íˆ¬ ì‹œì‘ ì‹œ, ì•„êµ°ì˜ ìŠ¤í‚¬ ì¿¨íƒ€ì„ì„ 30% ê°ì†Œ",
+          "description": "ÀüÅõ ½ÃÀÛ ½Ã, ¾Æ±ºÀÇ ½ºÅ³ ÄğÅ¸ÀÓÀ» 30% °¨¼Ò",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -181,7 +181,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "ì „íˆ¬ ì‹œì‘ ì‹œ, ì•„êµ°ì˜ ìŠ¤í‚¬ ì¿¨íƒ€ì„ì„ 55% ê°ì†Œ",
+          "description": "ÀüÅõ ½ÃÀÛ ½Ã, ¾Æ±ºÀÇ ½ºÅ³ ÄğÅ¸ÀÓÀ» 55% °¨¼Ò",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -195,15 +195,15 @@
       ]
     },
     {
-      "id": 5006,
-      "name": "ê±°ì§“ë§ìŸì´",
-      "subTitle": "ì§“ê¶‚ì€ ë¯¸ì†Œ",
-      "iconAddress": "",
+      "id": 205,
+      "name": "°ÅÁş¸»ÀïÀÌ",
+      "subTitle": "¾î¸´±¤´ë",
+      "iconAddress": "I_Sy_205",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 1,
-          "description": "ê±°ì§“ë§ìŸì´ê°€ í™•ì •ì ìœ¼ë¡œ ìŠ¤í‚¬ì„ ë‘ë²ˆ ì‚¬ìš©",
+          "description": "°ÅÁş¸»ÀïÀÌ°¡ È®Á¤ÀûÀ¸·Î ½ºÅ³ÀÌ µÎ¹ø »ç¿ë",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -217,7 +217,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 4,
-          "description": "ê±°ì§“ë§ìŸì´ë“¤ ìŠ¤í‚¬ ì‚¬ìš© ë¶ˆê°€ / ê±°ì§“ë§ìŸì´ë“¤ ìŠ¤íƒ¯ í¬ê²Œ ê°•í™”",
+          "description": "°ÅÁş¸»ÀïÀÌµé ½ºÅ³ »ç¿ë ºÒ°¡ / °ÅÁş¸»ÀïÀÌµé ½ºÅÈ Å©°Ô °­È­",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -231,15 +231,15 @@
       ]
     },
     {
-      "id": 5007,
-      "name": "ì¸ê°„",
-      "subTitle": "ì´ë¦„ì—†ëŠ” ì‚¬ëŒë“¤",
-      "iconAddress": "",
+      "id": 206,
+      "name": "ÀÎ°£",
+      "subTitle": "ÀÌ¸§¾ø´Â »ç¶÷µé",
+      "iconAddress": "I_Sy_206",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ì¸ê°„ë“¤ì˜ ì²´ë ¥ + 5%",
+          "description": "ÀÎ°£µéÀÇ Ã¼·Â + 5%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -253,7 +253,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "ì¸ê°„ë“¤ì˜ ì²´ë ¥ + 10% / ê³µê²©ë ¥ + 10%",
+          "description": "ÀÎ°£µéÀÇ Ã¼·Â + 10% / °ø°İ·Â 10%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -274,7 +274,7 @@
         {
           "tierLevel": 3,
           "requiredCount": 4,
-          "description": "ëª¨ë“  ì•„êµ°ì˜ ì²´ë ¥ + 10% / ê³µê²©ë ¥ + 10% / ë°©ì–´ë ¥ + 10%",
+          "description": "¸ğµç ¾Æ±ºÀÇ Ã¼·Â + 10% / °ø°İ·Â + 10% / ¹æ¾î·Â + 10%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -302,7 +302,7 @@
         {
           "tierLevel": 4,
           "requiredCount": 5,
-          "description": "ëª¨ë“  ì•„êµ°ì˜ ì²´ë ¥ + 15% / ê³µê²©ë ¥ + 15% / ë°©ì–´ë ¥ + 10% / ê³µê²©ì†ë„ + 10%",
+          "description": "¸ğµç ¾Æ±ºÀÇ Ã¼·Â + 15% / °ø°İ·Â + 15% / ¹æ¾î·Â + 10% / °ø°İ¼Óµµ + 10%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -337,15 +337,15 @@
       ]
     },
     {
-      "id": 5008,
-      "name": "ì•¼ìˆ˜",
-      "subTitle": "ì´ë¹¨ê³¼ ë°œí†±",
-      "iconAddress": "",
+      "id": 207,
+      "name": "¾ß¼ö",
+      "subTitle": "ÀÌ»¡°ú ¹ßÅé",
+      "iconAddress": "I_Sy_207",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ì•¼ìˆ˜ì˜ ì¹˜ëª…íƒ€ í™•ë¥  + 20%",
+          "description": "¾ß¼öÀÇ Ä¡¸íÅ¸ È®·ü + 20%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -359,7 +359,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "ì•¼ìˆ˜ì˜ ì¹˜ëª…íƒ€ í™•ë¥  + 20% / ì¹˜ëª…íƒ€ ë°°ìœ¨ + 30%",
+          "description": "¾ß¼öÀÇ Ä¡¸íÅ¸ È®·ü + 20% / Ä¡¸íÅ¸ ¹èÀ² + 30%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -380,7 +380,7 @@
         {
           "tierLevel": 3,
           "requiredCount": 4,
-          "description": "ì•¼ìˆ˜ì˜ ì¹˜ëª…íƒ€ í™•ë¥  + 30% / ì¹˜ëª…íƒ€ ë°°ìœ¨ + 60%",
+          "description": "¾ß¼öÀÇ Ä¡¸íÅ¸ È®·ü + 30% / Ä¡¸íÅ¸ ¹èÀ² + 60%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -401,15 +401,15 @@
       ]
     },
     {
-      "id": 5009,
-      "name": "ìš”ì •",
-      "subTitle": "ì‘ì€ ê¸°ì ",
-      "iconAddress": "",
+      "id": 208,
+      "name": "¿äÁ¤",
+      "subTitle": "ÀÛÀº ±âÀû",
+      "iconAddress": "I_Sy_208",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ì•„êµ° ì „ì²´ì˜ ê³µê²©ë ¥ + 15% / ìŠ¤í‚¬ í”¼í•´ + 20%",
+          "description": "¾Æ±º ÀüÃ¼ÀÇ °ø°İ·Â + 15% / ½ºÅ³ ÇÇÇØ + 20%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -430,7 +430,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 4,
-          "description": "ì•„êµ° ì „ì²´ì˜ ê³µê²©ë ¥ + 45% / ìŠ¤í‚¬ í”¼í•´ + 50%",
+          "description": "¾Æ±º ÀüÃ¼ÀÇ °ø°İ·Â + 45% / ½ºÅ³ ÇÇÇØ + 50%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -451,15 +451,15 @@
       ]
     },
     {
-      "id": 5010,
-      "name": "ê¼¬ë§ˆ",
-      "subTitle": "ì‘ì€ ë°œìêµ­",
-      "iconAddress": "",
+      "id": 209,
+      "name": "²¿¸¶",
+      "subTitle": "¾î¸®±¤ÀïÀÌ",
+      "iconAddress": "I_Sy_209",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ì•„êµ° ì „ì²´ì˜ ì¿¨íƒ€ì„ ê°ì†Œ 20% / ê¼¬ë§ˆì˜ íšŒí”¼ + 10%",
+          "description": "¾Æ±º ÀüÃ¼ÀÇ ÄğÅ¸ÀÓ °¨¼Ò 20% / ²¿¸¶ÀÇ È¸ÇÇ + 10%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -480,7 +480,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "ì•„êµ° ì „ì²´ì˜ ì¿¨íƒ€ì„ ê°ì†Œ 40% / ê¼¬ë§ˆì˜ íšŒí”¼ + 25%",
+          "description": "¾Æ±º ÀüÃ¼ÀÇ ÄğÅ¸ÀÓ °¨¼Ò 40% / ²¿¸¶ÀÇ È¸ÇÇ + 25%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -501,15 +501,15 @@
       ]
     },
     {
-      "id": 5011,
-      "name": "ê¸°ê³„",
-      "subTitle": "ì›ƒì§€ ì•ŠëŠ” ì",
-      "iconAddress": "",
+      "id": 210,
+      "name": "±â°è",
+      "subTitle": "¸ØÃßÁö ¾Ê´Â ÅÂ¿±",
+      "iconAddress": "I_Sy_210",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ê¸°ê³„ì˜ ë°©ì–´ë ¥ + 20% / ê¸°ê³„ ìœ ë‹›ì˜ ë°©ì–´ë ¥ 10ë‹¹ ë°›ëŠ” í”¼í•´ëŸ‰ 5% ê°ì†Œ.",
+          "description": "±â°èÀÇ ¹æ¾î·Â + 20% / ±â°è À¯´ÖÀÇ ¹æ¾î·Â 10´ç ¹Ş´Â ÇÇÇØ·® 5% °¨¼Ò.",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -530,7 +530,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "ê¸°ê³„ì˜ ë°©ì–´ë ¥ + 35% / ê¸°ê³„ ìœ ë‹›ì˜ ë°©ì–´ë ¥ 7ë‹¹ ë°›ëŠ” í”¼í•´ëŸ‰ 5% ê°ì†Œ.",
+          "description": "±â°èÀÇ ¹æ¾î·Â + 35% / ±â°è À¯´ÖÀÇ ¹æ¾î·Â 7´ç ¹Ş´Â ÇÇÇØ·® 5% °¨¼Ò.",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -551,15 +551,15 @@
       ]
     },
     {
-      "id": 5012,
-      "name": "ê³µì£¼",
-      "subTitle": "êº¾ì´ì§€ ì•ŠëŠ” ê½ƒ",
-      "iconAddress": "",
+      "id": 211,
+      "name": "°øÁÖ",
+      "subTitle": "²ªÀÌÁö ¾Ê´Â ²É",
+      "iconAddress": "I_Sy_211",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "ê³µì£¼ì˜ ì²´ë ¥ + 20% / ê³µê²©ë ¥ + 20% / ë°©ì–´ë ¥ + 20% / ê³µê²©ì†ë„ + 10% / ê³µì£¼ê°€ ì£¼ëŠ” í”¼í•´ + 15%",
+          "description": "°øÁÖÀÇ Ã¼·Â + 20% / °ø°İ·Â + 20% / ¹æ¾î·Â + 20% / °ø°İ¼Óµµ + 10% / °øÁÖ°¡ ÁÖ´Â ÇÇÇØ + 15%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -601,7 +601,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "ì•„êµ° ì „ì²´ì˜ ì²´ë ¥ + 20% / ê³µê²©ë ¥ + 20% / ë°©ì–´ë ¥ + 20% / ê³µê²©ì†ë„ + 10% / ê³µì£¼ê°€ ì£¼ëŠ” í”¼í•´ + 15%",
+          "description": "¾Æ±º ÀüÃ¼ÀÇ Ã¼·Â + 20% / °ø°İ·Â + 20% / ¹æ¾î·Â + 20% / °ø°İ¼Óµµ + 10% / °øÁÖ°¡ ÁÖ´Â ÇÇÇØ + 15%",
           "effects": [
             {
               "targetType": "AllAllies",
