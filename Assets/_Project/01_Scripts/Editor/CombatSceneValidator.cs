@@ -70,7 +70,6 @@ namespace OzGameLab01.Editor
             {
                 // 월드 전투 배치에 필요한 BattleMap 프리팹 필수 참조
                 errorCount += RequireSerializedReference(combatSession, "battleMapPrefab");
-                errorCount += RequireSerializedReference(combatSession, "allyTemplatePrefab");
                 LogOptionalReference(combatSession, "battleMainView", "CombatSession이 런타임 자동 탐색합니다.");
                 errorCount += RequireSerializedReference(combatSession, "rosterData");
                 errorCount += RequireSerializedReference(combatSession, "synergyPanelRoot");

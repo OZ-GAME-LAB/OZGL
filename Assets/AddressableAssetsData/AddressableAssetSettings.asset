@@ -63,6 +63,7 @@ MonoBehaviour:
   m_GroupAssets:
   - {fileID: 11400000, guid: e13c6ea2c3870b546bc8d5ea7033b70a, type: 2}
   - {fileID: 11400000, guid: 1a976dd2013ec874b89e4cdca3c0d1b2, type: 2}
+  - {fileID: 11400000, guid: 21bef65c2d12b4f45b39af9fdf6affba, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
@@ -103,6 +104,7 @@ MonoBehaviour:
     m_LabelNames:
     - default
     - JSON
+    - AllyPrefab
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 83b39a09d10a7fd4d98444d52cb376d9, type: 2}
