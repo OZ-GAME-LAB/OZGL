@@ -71,16 +71,16 @@ namespace OzGameLab01.Managers
     [DisallowMultipleComponent]
     public sealed class SoundManager : Singleton<SoundManager>, IGameManager
     {
-        private const string MasterVolumeKey = "Audio.MasterVolume";
-        private const string BgmVolumeKey = "Audio.BgmVolume";
-        private const string SfxVolumeKey = "Audio.SfxVolume";
-        private const string MuteAllKey = "Audio.MuteAll";
+        private const string MASTER_VOLUME_KEY = "Audio.MasterVolume";
+        private const string BGM_VOLUME_KEY = "Audio.BgmVolume";
+        private const string SFX_VOLUME_KEY = "Audio.SfxVolume";
+        private const string MUTE_ALL_KEY = "Audio.MuteAll";
 
-        private const float DefaultVolume = 1f;
-        private const float SaveDelaySeconds = 0.5f;
-        private bool volumeSettingsDirty;
-        private float saveAt;
-        private float currentBgmVolume = 1f;
+        private const float DEFAULT_VOLUME = 1f;
+        private const float SAVE_DELAY_SECONDS = 0.5f;
+        private bool _volumeSettingsDirty;
+        private float _saveAt;
+        private float _currentBgmVolume = 1f;
 
         [Header("Sound Library")]
         [Tooltip("SoundId별 AudioClip과 채널을 등록합니다. 음원이 없는 항목은 비워둘 수 있습니다.")]
@@ -90,13 +90,13 @@ namespace OzGameLab01.Managers
         [SerializeField] private AudioSource bgmSource;
         [SerializeField] private AudioSource sfxSource;
 
-        private readonly Dictionary<SoundId, SoundEntry> soundLookup = new();
-        private readonly HashSet<SoundId> missingSoundWarnings = new();
+        private readonly Dictionary<SoundId, SoundEntry> _soundLookup = new();
+        private readonly HashSet<SoundId> _missingSoundWarnings = new();
 
         public bool IsInitialized { get; private set; }
-        public float MasterVolume { get; private set; } = DefaultVolume;
-        public float BgmVolume { get; private set; } = DefaultVolume;
-        public float SfxVolume { get; private set; } = DefaultVolume;
+        public float MasterVolume { get; private set; } = DEFAULT_VOLUME;
+        public float BgmVolume { get; private set; } = DEFAULT_VOLUME;
+        public float SfxVolume { get; private set; } = DEFAULT_VOLUME;
         public bool IsMuted { get; private set; }
 
         public event Action VolumeSettingsChanged;
@@ -108,7 +108,7 @@ namespace OzGameLab01.Managers
 
         private void Update()
         {
-            if (volumeSettingsDirty && Time.unscaledTime >= saveAt)
+            if (_volumeSettingsDirty && Time.unscaledTime >= _saveAt)
                 SaveVolumeSettings();
         }
 
@@ -128,9 +128,34 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void SaveVolumeSettings()
         {
-            if (!volumeSettingsDirty) return;
+            if (!_volumeSettingsDirty) return;
             PlayerPrefs.Save();
-            volumeSettingsDirty = false;
+            _volumeSettingsDirty = false;
+        }
+
+        /// <summary>
+        /// 저장된 오디오 설정을 삭제하고 기본값으로 되돌립니다.
+        /// </summary>
+        public void ResetVolumeSettings()
+        {
+            PlayerPrefs.DeleteKey(MASTER_VOLUME_KEY);
+            PlayerPrefs.DeleteKey(BGM_VOLUME_KEY);
+            PlayerPrefs.DeleteKey(SFX_VOLUME_KEY);
+            PlayerPrefs.DeleteKey(MUTE_ALL_KEY);
+
+            MasterVolume = DEFAULT_VOLUME;
+            BgmVolume = DEFAULT_VOLUME;
+            SfxVolume = DEFAULT_VOLUME;
+            IsMuted = false;
+
+            _volumeSettingsDirty = false;
+
+            ApplySourceVolumes();
+            PlayerPrefs.Save();
+
+            VolumeSettingsChanged?.Invoke();
+
+            Debug.Log("[SoundManager] 오디오 설정 초기화 완료", this);
         }
 
         private void OnDestroy()
@@ -151,7 +176,7 @@ namespace OzGameLab01.Managers
             ApplySourceVolumes();
 
             IsInitialized = true;
-            Debug.Log($"[SoundManager] 초기화 완료 | 등록 사운드: {soundLookup.Count}", this);
+            Debug.Log($"[SoundManager] 초기화 완료 | 등록 사운드: {_soundLookup.Count}", this);
         }
 
         public void Shutdown()
@@ -172,8 +197,8 @@ namespace OzGameLab01.Managers
                 sfxSource.Stop();
             }
 
-            soundLookup.Clear();
-            missingSoundWarnings.Clear();
+            _soundLookup.Clear();
+            _missingSoundWarnings.Clear();
             IsInitialized = false;
         }
 
@@ -184,7 +209,7 @@ namespace OzGameLab01.Managers
                 return;
             }
 
-            currentBgmVolume = entry.Volume;
+            _currentBgmVolume = entry.Volume;
             ApplySourceVolumes();
             if (!restart && bgmSource.isPlaying && bgmSource.clip == entry.Clip)
             {
@@ -223,7 +248,7 @@ namespace OzGameLab01.Managers
             if (!IsInitialized) Initialize();
             if (MasterVolume == Mathf.Clamp01(value)) return;
             MasterVolume = Mathf.Clamp01(value);
-            PlayerPrefs.SetFloat(MasterVolumeKey, MasterVolume);
+            PlayerPrefs.SetFloat(MASTER_VOLUME_KEY, MasterVolume);
             CompleteVolumeChange();
         }
 
@@ -232,7 +257,7 @@ namespace OzGameLab01.Managers
             if (!IsInitialized) Initialize();
             if (BgmVolume == Mathf.Clamp01(value)) return;
             BgmVolume = Mathf.Clamp01(value);
-            PlayerPrefs.SetFloat(BgmVolumeKey, BgmVolume);
+            PlayerPrefs.SetFloat(BGM_VOLUME_KEY, BgmVolume);
             CompleteVolumeChange();
         }
 
@@ -241,7 +266,7 @@ namespace OzGameLab01.Managers
             if (!IsInitialized) Initialize();
             if (SfxVolume == Mathf.Clamp01(value)) return;
             SfxVolume = Mathf.Clamp01(value);
-            PlayerPrefs.SetFloat(SfxVolumeKey, SfxVolume);
+            PlayerPrefs.SetFloat(SFX_VOLUME_KEY, SfxVolume);
             CompleteVolumeChange();
         }
 
@@ -250,14 +275,14 @@ namespace OzGameLab01.Managers
             if (!IsInitialized) Initialize();
             if (IsMuted == isMuted) return;
             IsMuted = isMuted;
-            PlayerPrefs.SetInt(MuteAllKey, IsMuted ? 1 : 0);
+            PlayerPrefs.SetInt(MUTE_ALL_KEY, IsMuted ? 1 : 0);
             CompleteVolumeChange();
         }
 
         private void BuildSoundLookup()
         {
-            soundLookup.Clear();
-            missingSoundWarnings.Clear();
+            _soundLookup.Clear();
+            _missingSoundWarnings.Clear();
 
             foreach (SoundEntry entry in sounds)
             {
@@ -266,7 +291,7 @@ namespace OzGameLab01.Managers
                     continue;
                 }
 
-                if (!soundLookup.TryAdd(entry.Id, entry))
+                if (!_soundLookup.TryAdd(entry.Id, entry))
                 {
                     Debug.LogWarning($"[SoundManager] 중복 SoundId를 건너뜁니다: {entry.Id}", this);
                 }
@@ -298,17 +323,17 @@ namespace OzGameLab01.Managers
 
         private void LoadVolumeSettings()
         {
-            MasterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MasterVolumeKey, DefaultVolume));
-            BgmVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(BgmVolumeKey, DefaultVolume));
-            SfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(SfxVolumeKey, DefaultVolume));
-            IsMuted = PlayerPrefs.GetInt(MuteAllKey, 0) == 1;
+            MasterVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(MASTER_VOLUME_KEY, DEFAULT_VOLUME));
+            BgmVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(BGM_VOLUME_KEY, DEFAULT_VOLUME));
+            SfxVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(SFX_VOLUME_KEY, DEFAULT_VOLUME));
+            IsMuted = PlayerPrefs.GetInt(MUTE_ALL_KEY, 0) == 1;
         }
 
         private void CompleteVolumeChange()
         {
             ApplySourceVolumes();
-            volumeSettingsDirty = true;
-            saveAt = Time.unscaledTime + SaveDelaySeconds;
+            _volumeSettingsDirty = true;
+            _saveAt = Time.unscaledTime + SAVE_DELAY_SECONDS;
             VolumeSettingsChanged?.Invoke();
         }
 
@@ -316,7 +341,7 @@ namespace OzGameLab01.Managers
         {
             if (bgmSource != null)
             {
-                bgmSource.volume = GetChannelVolume(SoundChannel.Bgm) * currentBgmVolume;
+                bgmSource.volume = GetChannelVolume(SoundChannel.Bgm) * _currentBgmVolume;
             }
 
             if (sfxSource != null)
@@ -343,7 +368,7 @@ namespace OzGameLab01.Managers
                 Initialize();
             }
 
-            if (soundLookup.TryGetValue(id, out entry) && entry.Channel == expectedChannel)
+            if (_soundLookup.TryGetValue(id, out entry) && entry.Channel == expectedChannel)
             {
                 // 음원은 나중에 연결할 수 있습니다. 빈 항목은 건너뜁니다.
                 return entry.Clip != null;
@@ -351,7 +376,7 @@ namespace OzGameLab01.Managers
 
             if (id == SoundId.None) return false;
 
-            if (missingSoundWarnings.Add(id))
+            if (_missingSoundWarnings.Add(id))
             {
                 Debug.LogWarning($"[SoundManager] {expectedChannel} 사운드가 등록되지 않았습니다: {id}", this);
             }

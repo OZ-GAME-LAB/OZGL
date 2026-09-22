@@ -25,6 +25,8 @@ namespace OzGameLab01.Save
         private readonly string _savePath;
         private readonly string _tempPath;
         private readonly string _backUpPath;
+        // 초기화 이전에 시작한 비동기 저장 작업의 재기록 방지
+        private int _writeGeneration;
 
         public SaveFileStore(string persistentDataPath)
         {
@@ -61,6 +63,12 @@ namespace OzGameLab01.Save
         /// </summary>
         public async Task<bool> SaveAsync(SaveData data)
         {
+            int writeGeneration;
+            lock (_ioLock)
+            {
+                writeGeneration = _writeGeneration;
+            }
+
             // Unity API를 사용하는 경로는 메인 스레드에서 미리 확정
             string resolvedSavePath = _savePath;
             string resolvedTempPath = _tempPath;
@@ -71,6 +79,11 @@ namespace OzGameLab01.Save
             {
                 lock (_ioLock)
                 {
+                    if (writeGeneration != _writeGeneration)
+                    {
+                        return false;
+                    }
+
                     try
                     {
                         File.WriteAllText(resolvedTempPath, json, Encoding.UTF8);
@@ -93,6 +106,41 @@ namespace OzGameLab01.Save
                     }
                 }
             });
+        }
+
+        /// <summary>
+        /// 공장 초기화를 위해 모든 세이브 파일을 삭제합니다.
+        /// </summary>
+        public bool DeleteAll()
+        {
+            lock (_ioLock)
+            {
+                _writeGeneration++;
+                try
+                {
+                    DeleteIfExists(_savePath);
+                    DeleteIfExists(_tempPath);
+                    DeleteIfExists(_backUpPath);
+
+                    Debug.Log("[SaveFileStore] 모든 세이브 파일 삭제 완료");
+                    return true;
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogError($"[SaveFileStore] 세이브 파일 삭제 실패: {exception.Message}");
+                    return false;
+                }
+            }
+        }
+
+        private static void DeleteIfExists(string path)
+        {
+            if (File.Exists(path) == false)
+            {
+                return;
+            }
+
+            File.Delete(path);
         }
 
         private bool TryDeserialize(string path, out SaveData result)

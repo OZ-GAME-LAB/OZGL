@@ -63,8 +63,9 @@ MonoBehaviour:
   gameButtonFeedback: {fileID: 4812487281076125502}
   videoButtonFeedback: {fileID: 3860446998687618066}
   audioButtonFeedback: {fileID: 9180268851787305323}
-  _gameButtonPrefab: {fileID: -6857216840925041953, guid: e8e59a99b9f1fcb48925bf107242fe9e, type: 3}
+  _gameButtonPrefab: {fileID: -6857216840925041953, guid: 347a5baeacbf08e48b24bdacf801d6f8, type: 3}
   _gameButtonContainer: {fileID: 6283326259858785717}
+  resetConfirmPrefab: {fileID: 572633251285779678, guid: 7c781546b063cd641b20eaa2f6faf405, type: 3}
   _resolutionDropdown:
     dropdown: {fileID: 1804304143599481394}
     background: {fileID: 678900647990703526}
