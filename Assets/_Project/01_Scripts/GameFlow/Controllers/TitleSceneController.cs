@@ -57,8 +57,15 @@ namespace OzGameLab01.Controllers
                 _subscribedSettings = settingsView;
                 settingsView.ClearGameButtons();
                 settingsView.AddGameButton("튜토리얼 다시보기", HandleReplayTutorialRequested);
-                settingsView.AddGameButton("게임 데이터 초기화", HandleResetGameDataRequested);
+                settingsView.AddGameButton("데이터 초기화", HandleResetRequested);
             }
+        }
+
+        private void Start()
+        {
+            // 매니저 초기화 이후 Continue 데이터 상태 확인
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            _titleView.SetContinueInteractable(saveFacade != null && saveFacade.HasContinueData);
         }
 
         private void OnDisable()
@@ -67,6 +74,7 @@ namespace OzGameLab01.Controllers
 
             if (_subscribedSettings != null)
             {
+                _subscribedSettings.HideResetConfirmation();
                 _subscribedSettings.ClearGameButtons();
                 _subscribedSettings = null;
             }
@@ -128,8 +136,10 @@ namespace OzGameLab01.Controllers
                 if (!saved)
                 {
                     Debug.LogError("[TitleSceneController] New Game 초기 상태 저장에 실패했습니다.", this);
+                    return;
                 }
 
+                _titleView.SetContinueInteractable(false);
                 transitioner.LoadBoardScene();
             }
             catch (System.Exception exception) { Debug.LogException(exception); }
@@ -175,6 +185,33 @@ namespace OzGameLab01.Controllers
             _isStartingGame = false;
         }
 
+        private void HandleResetRequested()
+        {
+            if (_isStartingGame)
+            {
+                return;
+            }
+
+            _titleView.Settings.ShowResetConfirmation(HandleResetConfirmed);
+        }
+
+        private void HandleResetConfirmed()
+        {
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                return;
+            }
+
+            if (saveFacade.FactoryReset() == false)
+            {
+                return;
+            }
+
+            _titleView.SetContinueInteractable(false);
+            _titleView.Settings.ResetTransientOptions();
+        }
+
         /// <summary>
         /// 종료 확인 요청을 받아 애플리케이션을 종료합니다.
         /// </summary>
@@ -208,34 +245,6 @@ namespace OzGameLab01.Controllers
 
             Debug.Log("[TitleSceneController] 튜토리얼 재시청 요청 | 튜토리얼 씬 이동", this);
             transitioner.LoadTutorialScene();
-        }
-
-        /// <summary>
-        /// 게임 데이터 초기화 버튼 요청을 받아 저장 데이터를 신규 유저 상태로 되돌립니다.
-        /// </summary>
-        private async void HandleResetGameDataRequested()
-        {
-            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
-            if (saveFacade == null)
-            {
-                Debug.LogError("[TitleSceneController] SaveFacade를 찾을 수 없어 데이터를 초기화할 수 없습니다.", this);
-                return;
-            }
-
-            bool saved = await saveFacade.ResetAllDataAsync();
-            if (this == null || !isActiveAndEnabled)
-            {
-                return;
-            }
-
-            if (!saved)
-            {
-                Debug.LogError("[TitleSceneController] 게임 데이터 초기화 저장에 실패했습니다.", this);
-                return;
-            }
-
-            _titleView.SetContinueInteractable(saveFacade.HasContinueData);
-            Debug.Log("[TitleSceneController] 게임 데이터를 초기화했습니다.", this);
         }
 
         #endregion

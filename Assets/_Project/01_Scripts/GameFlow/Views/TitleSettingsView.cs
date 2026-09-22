@@ -1,4 +1,5 @@
 using OzGameLab01.UI.Common;
+using OzGameLab01.UI;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -81,6 +82,7 @@ namespace OzGameLab01.UI.Title
         [Header("Game Buttons")]
         [SerializeField] private SettingsActionButtonView _gameButtonPrefab;
         [SerializeField] private Transform _gameButtonContainer;
+        [SerializeField] private ConfirmPopupView resetConfirmPrefab;
 
         [Header("Video")]
         [UnityEngine.Serialization.FormerlySerializedAs("resolutionDropdown")]
@@ -104,6 +106,10 @@ namespace OzGameLab01.UI.Title
 
         private readonly List<SettingsActionButtonView> _gameButtons =
             new List<SettingsActionButtonView>();
+        private ConfirmPopupView _resetConfirm;
+        private Action _resetConfirmed;
+        private int _initialResolutionIndex;
+        private int _initialScreenModeIndex;
 
         #region Properties
 
@@ -169,6 +175,9 @@ namespace OzGameLab01.UI.Title
 
         private void Awake()
         {
+            _initialResolutionIndex = _resolutionDropdown.dropdown.value;
+            _initialScreenModeIndex = _screenModeDropdown.dropdown.value;
+
             _gameButton.onClick.AddListener(OnGameTabClicked);
             _videoButton.onClick.AddListener(OnVideoTabClicked);
             _audioButton.onClick.AddListener(OnAudioTabClicked);
@@ -203,6 +212,11 @@ namespace OzGameLab01.UI.Title
             _muteAllToggle.toggle.onValueChanged.RemoveListener(OnMuteAllChanged);
 
             ClearGameButtons();
+            if (_resetConfirm != null)
+            {
+                _resetConfirm.ConfirmClicked -= OnResetConfirmed;
+                _resetConfirm.CancelClicked -= OnResetCancelled;
+            }
         }
 
         #endregion
@@ -217,6 +231,7 @@ namespace OzGameLab01.UI.Title
 
         public void Hide()
         {
+            HideResetConfirmation();
             gameObject.SetActive(false);
         }
 
@@ -301,9 +316,72 @@ namespace OzGameLab01.UI.Title
             _resolutionDropdown.dropdown.RefreshShownValue();
         }
 
+        public void RemoveGameButton(SettingsActionButtonView buttonView)
+        {
+            if (buttonView == null || _gameButtons.Remove(buttonView) == false)
+            {
+                return;
+            }
+
+            buttonView.gameObject.SetActive(false);
+            Destroy(buttonView.gameObject);
+        }
+
+        /// <summary>
+        /// 타이틀 설정 화면의 데이터 초기화 확인 팝업입니다.
+        /// </summary>
+        public void ShowResetConfirmation(Action onConfirmed)
+        {
+            if (resetConfirmPrefab == null)
+            {
+                Debug.LogError("데이터 초기화 확인 팝업 프리팹을 연결해야 합니다.", this);
+                return;
+            }
+
+            if (_resetConfirm == null)
+            {
+                _resetConfirm = Instantiate(resetConfirmPrefab, transform, false);
+                _resetConfirm.HideImmediate();
+                _resetConfirm.ConfirmClicked += OnResetConfirmed;
+                _resetConfirm.CancelClicked += OnResetCancelled;
+            }
+
+            _resetConfirmed = onConfirmed;
+            _resetConfirm.SetConfirmButtonText("초기화");
+            _resetConfirm.SetCancelButtonText("취소");
+            _resetConfirm.Show("모든 게임 데이터와 설정을 초기화하시겠습니까?", "삭제한 데이터는 복구할 수 없습니다.");
+        }
+
+        public void HideResetConfirmation()
+        {
+            _resetConfirmed = null;
+            if (_resetConfirm != null)
+            {
+                _resetConfirm.HideImmediate();
+            }
+        }
+
+        public void ResetTransientOptions()
+        {
+            ResolutionIndex = _initialResolutionIndex;
+            ScreenModeIndex = _initialScreenModeIndex;
+        }
+
         #endregion
 
         #region Private Methods
+
+        private void OnResetConfirmed(ConfirmPopupView view)
+        {
+            Action onConfirmed = _resetConfirmed;
+            HideResetConfirmation();
+            onConfirmed?.Invoke();
+        }
+
+        private void OnResetCancelled(ConfirmPopupView view)
+        {
+            HideResetConfirmation();
+        }
 
         private void OnGameTabClicked()
         {

@@ -24,7 +24,7 @@ namespace OzGameLab01.Save
 
         public SaveData CurrentData => _state.CurrentData;
 
-        // [추가] Continue 버튼 활성화에 사용할 유효한 런 저장 여부
+        // Continue 버튼 활성화에 사용할 유효한 런 저장 여부
         public bool HasContinueData =>
             _state.CurrentData != null &&
             _state.CurrentData.boardRun != null &&
@@ -178,21 +178,38 @@ namespace OzGameLab01.Save
         }
 
         /// <summary>
-        /// 설정 화면의 "데이터 초기화" 요청을 받아 보유 유닛/유물/진행도를 포함한
-        /// 전체 저장 데이터를 신규 유저 상태로 되돌리고 파일에 반영합니다.
+        /// 게임 진행 데이터와 저장 파일, 사용자 설정을 최초 상태로 초기화합니다.
         /// </summary>
-        public async Task<bool> ResetAllDataAsync()
+        public bool FactoryReset()
         {
+            SoundManager soundManager = SoundManager.Instance;
+            if (soundManager == null)
+            {
+                return false;
+            }
+
+            // 원본, 임시, 백업 세이브 파일 전체 삭제
+            bool saveFilesDeleted = _fileStore.DeleteAll();
+
+            if (saveFilesDeleted == false)
+            {
+                Debug.LogError("[SaveFacade] 공장 초기화 중 세이브 파일 삭제에 실패했습니다.");
+                return false;
+            }
+
+            // 기존 런타임 데이터 초기화 로직 재사용
             ClearCurrentRun();
 
-            _state.CurrentData.lastChapter = 1;
-            _state.CurrentData.posX = 0;
-            _state.CurrentData.posY = 0;
-            _state.CurrentData.playTime = 0;
-            _state.CurrentData.combatFastForward = false;
+            // 자동 저장에 의해 파일이 다시 생성되지 않도록 최초 상태 유지
+            _state.CurrentData = SaveData.CreateDefault();
+            _state.IsInventoryRestorePending = false;
+            _state.IsDirty = false;
 
-            MarkAsDirty();
-            return await SaveAsync();
+            // 현재 구현된 사용자 설정 초기화
+            soundManager.ResetVolumeSettings();
+
+            Debug.Log("[SaveFacade] 게임 데이터 공장 초기화 완료");
+            return true;
         }
 
         /// <summary>
@@ -243,7 +260,7 @@ namespace OzGameLab01.Save
         // 비동기 파일 저장
         public async Task<bool> SaveAsync()
         {
-            if (!_state.IsDirty && _fileStore.SaveFileExists) return true;
+            if (_state.IsDirty == false) return true;
 
             bool saved = await _fileStore.SaveAsync(_state.CurrentData);
             if (saved)
