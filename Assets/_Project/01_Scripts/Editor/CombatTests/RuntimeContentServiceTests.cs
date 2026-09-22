@@ -91,7 +91,7 @@ namespace OzGameLab01.Tests.EditMode
             Assert.That(catalog.EnemyCount, Is.GreaterThan(0));
             Assert.That(catalog.Relics.Count, Is.GreaterThan(0));
             Assert.That(catalog.EnemyGrowth.Count, Is.EqualTo(93));
-            Assert.That(catalog.EnemyGrowth[200003].health, Is.EqualTo(1050));
+            Assert.That(catalog.EnemyGrowth[200003].health, Is.EqualTo(5250));
             foreach (UnitData unit in catalog.Units)
                 foreach (int id in unit.skillIds) Assert.That(catalog.GetSkill(id), Is.Not.Null);
         }
@@ -121,7 +121,7 @@ namespace OzGameLab01.Tests.EditMode
             Assert.That(catalog.GetUnit(100).healthPoint, Is.EqualTo(92f));
             Assert.That(catalog.GetSkill(920).damage, Is.EqualTo(8f));
             Assert.That(catalog.GetEnemy(1).healthPoint, Is.EqualTo(100));
-            Assert.That(catalog.EnemyGrowth[200003].health, Is.EqualTo(1050f));
+            Assert.That(catalog.EnemyGrowth[200003].health, Is.EqualTo(5250f));
 
             yield return new ExitPlayMode();
         }

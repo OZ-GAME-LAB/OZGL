@@ -358,6 +358,54 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
+        public void EnemyPreparationSkipsFullWaveOnElitesAndWrapsTurnWithinWave()
+        {
+            ContentCatalog content = ResourcesContentLoader.Load();
+            var cache = new EnemyPreparationCache();
+            var normal = new MonsterData { id = 9003, type = MonsterType.normal };
+
+            // 중간보스 0마리, 15턴째(파도 경계 직전) — 해당 파도의 마지막 행(step 15)이어야 한다.
+            MonsterData beforeWave = cache.Prepare(content, 1, normal, 14, 0, 1, Array.Empty<UnitData>());
+            EnemyGrowthRow step15 = content.EnemyGrowth.Values.Single(
+                row => row.type == MonsterType.normal && row.step == 15);
+            Assert.That(beforeWave.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step15.health)));
+
+            // 중간보스 1마리 처치 직후(같은 턴) — 다음 파도 시작 행(step 16, +1.07 점프)으로
+            // 즉시 넘어가야 하며, 파도 안에서의 진행은 누적 턴 수를 15로 나눈 나머지로 정한다.
+            MonsterData afterFirstElite = cache.Prepare(content, 1, normal, 0, 1, 1, Array.Empty<UnitData>());
+            EnemyGrowthRow step16 = content.EnemyGrowth.Values.Single(
+                row => row.type == MonsterType.normal && row.step == 16);
+            Assert.That(afterFirstElite.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step16.health)));
+
+            // 두 번째 중간보스 처치 후 5턴 진행 — 세 번째 파도(step 31~) 안에서 5턴만큼 진행한
+            // step 36이어야 한다(턴 수가 파도 경계를 넘어도 wave index는 elites 기준으로 고정).
+            MonsterData secondWaveProgress = cache.Prepare(content, 1, normal, 5, 2, 1, Array.Empty<UnitData>());
+            EnemyGrowthRow step36 = content.EnemyGrowth.Values.Single(
+                row => row.type == MonsterType.normal && row.step == 36);
+            Assert.That(secondWaveProgress.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step36.health)));
+        }
+
+        [Test]
+        public void EnemyPreparationNeverWeakensAsTurnsPassWithoutElites()
+        {
+            // 중간보스를 한 마리도 못 잡은 채 파도 경계(15턴)를 넘겨도, turnCount % 15로 순환시켜
+            // 최약체로 되돌아가면 안 된다 — 시간 경과만으로도 계속 다음 파도로 넘어가야 한다.
+            ContentCatalog content = ResourcesContentLoader.Load();
+            var cache = new EnemyPreparationCache();
+            var normal = new MonsterData { id = 9004, type = MonsterType.normal };
+
+            MonsterData turn20 = cache.Prepare(content, 1, normal, 20, 0, 1, Array.Empty<UnitData>());
+            EnemyGrowthRow step21 = content.EnemyGrowth.Values.Single(
+                row => row.type == MonsterType.normal && row.step == 21);
+            Assert.That(turn20.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step21.health)));
+
+            MonsterData turn30 = cache.Prepare(content, 1, normal, 30, 0, 1, Array.Empty<UnitData>());
+            EnemyGrowthRow step31 = content.EnemyGrowth.Values.Single(
+                row => row.type == MonsterType.normal && row.step == 31);
+            Assert.That(turn30.healthPoint, Is.EqualTo(UnityEngine.Mathf.RoundToInt(step31.health)));
+        }
+
+        [Test]
         public void SkillEffectsExecuteInDeclarationOrderAtImpact()
         {
             var casterObject = new UnityEngine.GameObject("Skill caster");
