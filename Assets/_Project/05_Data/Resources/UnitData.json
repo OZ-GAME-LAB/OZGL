@@ -2,8 +2,9 @@
   "unitList": [
     {
       "id": 100,
-      "name": "Ïï®Î¶¨Ïä§",
+      "name": "æŸ∏ÆΩ∫",
       "spriteAddress": "001_100",
+      "iconAddress": "I_Un_100",
       "prefabAddress": "Units/Ally/Alice/Vanilla",
       "healthPoint": 92.0,
       "attackPoint": 10.3,
@@ -23,8 +24,9 @@
     },
     {
       "id": 101,
-      "name": "Ìù∞ÌÜ†ÎÅº",
+      "name": "»Ú≈‰≥¢",
       "spriteAddress": "001_101",
+      "iconAddress": "I_Un_101",
       "prefabAddress": "Units/Ally/Rabbit/Vanilla",
       "healthPoint": 77.39,
       "attackPoint": 12.32,
@@ -44,8 +46,9 @@
     },
     {
       "id": 102,
-      "name": "Ï≤¥ÏÖîÏ∫£",
+      "name": "√ºº≈ƒπ",
       "spriteAddress": "001_102",
+      "iconAddress": "I_Un_102",
       "prefabAddress": "Units/Ally/CheshireCat/Vanilla",
       "healthPoint": 62.48,
       "attackPoint": 10.42,
@@ -64,51 +67,10 @@
       "statusDuration": 1.0
     },
     {
-      "id": 103,
-      "name": "ÏïåÎùºÎîò",
-      "spriteAddress": "001_103",
-      "prefabAddress": "Units/Ally/Dorothy/Vanilla",
-      "healthPoint": 117.0,
-      "attackPoint": 8.1,
-      "defensePoint": 4.4,
-      "attackSpeed": 1.14,
-      "criticalMult": 150.0,
-      "criticalRate": 8.0,
-      "dodgeRate": 2.5,
-      "jobType": "Knight",
-      "tribeType": "Human",
-      "skillIds": [
-        900,
-        923
-      ],
-      "recoveryAmount": 1.0,
-      "statusDuration": 1.0
-    },
-    {
-      "id": 104,
-      "name": "ÏûêÏä§ÎØº",
-      "spriteAddress": "001_104",
-      "prefabAddress": "Units/Ally/Dorothy/Vanilla",
-      "healthPoint": 49.7,
-      "attackPoint": 9.52,
-      "defensePoint": 2.92,
-      "attackSpeed": 1.02,
-      "criticalMult": 150.0,
-      "criticalRate": 9.0,
-      "dodgeRate": 4.0,
-      "jobType": "Sage",
-      "tribeType": "Princess",
-      "skillIds": [
-        900,
-        924
-      ],
-      "recoveryAmount": 1.0,
-      "statusDuration": 1.0
-    },
-    {
       "id": 105,
-      "name": "ÏßÄÎãà",
+      "name": "¡ˆ¥œ",
       "spriteAddress": "001_105",
+      "iconAddress": "I_Un_105",
       "prefabAddress": "Units/Ally/Genie/Vanilla",
       "healthPoint": 80.96,
       "attackPoint": 9.58,
@@ -128,8 +90,9 @@
     },
     {
       "id": 106,
-      "name": "ÏÇ¨Ïûê",
+      "name": "ªÁ¿⁄",
       "spriteAddress": "001_106",
+      "iconAddress": "I_Un_106",
       "prefabAddress": "Units/Ally/Lion/Vanilla",
       "healthPoint": 127.53,
       "attackPoint": 8.91,
@@ -148,30 +111,10 @@
       "statusDuration": 1.0
     },
     {
-      "id": 107,
-      "name": "ÏñëÏ≤†Î°úÎ¥á",
-      "spriteAddress": "001_107",
-      "prefabAddress": "Units/Ally/Dorothy/Vanilla",
-      "healthPoint": 99.44,
-      "attackPoint": 9.37,
-      "defensePoint": 3.48,
-      "attackSpeed": 1.04,
-      "criticalMult": 150.0,
-      "criticalRate": 12.0,
-      "dodgeRate": 1.0,
-      "jobType": "Shooter",
-      "tribeType": "Machine",
-      "skillIds": [
-        900,
-        927
-      ],
-      "recoveryAmount": 1.0,
-      "statusDuration": 1.0
-    },
-    {
       "id": 108,
-      "name": "ÌóàÏàòÏïÑÎπÑ",
+      "name": "«„ºˆæ∆∫Ò",
       "spriteAddress": "001_108",
+      "iconAddress": "I_Un_108",
       "prefabAddress": "Units/Ally/Scarecrow/Vanilla",
       "healthPoint": 103.96,
       "attackPoint": 10.61,
@@ -191,8 +134,9 @@
     },
     {
       "id": 109,
-      "name": "ÎèÑÎ°úÏãú",
+      "name": "µµ∑ŒΩ√",
       "spriteAddress": "001_109",
+      "iconAddress": "I_Un_109",
       "prefabAddress": "Units/Ally/Dorothy/Vanilla",
       "healthPoint": 101.0,
       "attackPoint": 8.7,
@@ -212,8 +156,9 @@
     },
     {
       "id": 110,
-      "name": "Ïù∏Ïñ¥Í≥µÏ£º",
+      "name": "¿ŒæÓ∞¯¡÷",
       "spriteAddress": "001_110",
+      "iconAddress": "I_Un_110",
       "prefabAddress": "Units/Ally/Mermaid/Vanilla",
       "healthPoint": 55.3,
       "attackPoint": 8.67,
@@ -233,8 +178,9 @@
     },
     {
       "id": 111,
-      "name": "Î∞±ÏÑ§Í≥µÏ£º",
+      "name": "πÈº≥∞¯¡÷",
       "spriteAddress": "001_111",
+      "iconAddress": "I_Un_111",
       "prefabAddress": "Units/Ally/Snowwhite/Vanilla",
       "healthPoint": 61.6,
       "attackPoint": 7.74,
@@ -253,51 +199,10 @@
       "statusDuration": 1.0
     },
     {
-      "id": 112,
-      "name": "Ìó®Ï†§",
-      "spriteAddress": "001_112",
-      "prefabAddress": "Units/Ally/Dorothy/Vanilla",
-      "healthPoint": 61.64,
-      "attackPoint": 7.52,
-      "defensePoint": 2.44,
-      "attackSpeed": 0.76,
-      "criticalMult": 150.0,
-      "criticalRate": 11.0,
-      "dodgeRate": 6.0,
-      "jobType": "Assasin",
-      "tribeType": "Kid",
-      "skillIds": [
-        900,
-        932
-      ],
-      "recoveryAmount": 1.0,
-      "statusDuration": 1.0
-    },
-    {
-      "id": 113,
-      "name": "Í∑∏Î†àÌÖî",
-      "spriteAddress": "001_113",
-      "prefabAddress": "Units/Ally/Dorothy/Vanilla",
-      "healthPoint": 58.96,
-      "attackPoint": 6.64,
-      "defensePoint": 2.21,
-      "attackSpeed": 0.7,
-      "criticalMult": 150.0,
-      "criticalRate": 9.0,
-      "dodgeRate": 2.0,
-      "jobType": "Shooter",
-      "tribeType": "Kid",
-      "skillIds": [
-        900,
-        933
-      ],
-      "recoveryAmount": 1.0,
-      "statusDuration": 1.0
-    },
-    {
       "id": 114,
-      "name": "ÌîºÌÑ∞Ìå¨",
+      "name": "««≈Õ∆“",
       "spriteAddress": "001_114",
+      "iconAddress": "I_Un_114",
       "prefabAddress": "Units/Ally/PeterPan/Vanilla",
       "healthPoint": 88.0,
       "attackPoint": 9.1,
@@ -317,8 +222,9 @@
     },
     {
       "id": 115,
-      "name": "ÌåÖÏª§Î≤®",
+      "name": "∆√ƒø∫ß",
       "spriteAddress": "001_115",
+      "iconAddress": "I_Un_115",
       "prefabAddress": "Units/Ally/Tinkerbell/Vanilla",
       "healthPoint": 88.88,
       "attackPoint": 8.09,
@@ -337,93 +243,10 @@
       "statusDuration": 1.0
     },
     {
-      "id": 116,
-      "name": "Ï≤´Ïß∏ÎèºÏßÄ",
-      "spriteAddress": "001_116",
-      "prefabAddress": "Units/Ally/Dorothy/Vanilla",
-      "healthPoint": 110.09,
-      "attackPoint": 9.57,
-      "defensePoint": 3.37,
-      "attackSpeed": 1.21,
-      "criticalMult": 150.0,
-      "criticalRate": 10.0,
-      "dodgeRate": 4.0,
-      "jobType": "Tricster",
-      "tribeType": "Beast",
-      "skillIds": [
-        900,
-        936
-      ],
-      "recoveryAmount": 1.0,
-      "statusDuration": 1.0
-    },
-    {
-      "id": 117,
-      "name": "ÎëòÏß∏ÎèºÏßÄ",
-      "spriteAddress": "001_117",
-      "prefabAddress": "Units/Ally/Dorothy/Vanilla",
-      "healthPoint": 86.11,
-      "attackPoint": 11.22,
-      "defensePoint": 2.72,
-      "attackSpeed": 1.36,
-      "criticalMult": 150.0,
-      "criticalRate": 5.0,
-      "dodgeRate": 2.0,
-      "jobType": "Healer",
-      "tribeType": "Beast",
-      "skillIds": [
-        900,
-        937
-      ],
-      "recoveryAmount": 1.0,
-      "statusDuration": 1.0
-    },
-    {
-      "id": 118,
-      "name": "ÏÖãÏß∏ÎèºÏßÄ",
-      "spriteAddress": "001_118",
-      "prefabAddress": "Units/Ally/Dorothy/Vanilla",
-      "healthPoint": 78.39,
-      "attackPoint": 5.91,
-      "defensePoint": 3.08,
-      "attackSpeed": 1.06,
-      "criticalMult": 150.0,
-      "criticalRate": 4.0,
-      "dodgeRate": 1.0,
-      "jobType": "Knight",
-      "tribeType": "Kid",
-      "skillIds": [
-        900,
-        938
-      ],
-      "recoveryAmount": 1.0,
-      "statusDuration": 1.0
-    },
-    {
-      "id": 119,
-      "name": "ÌîºÎÖ∏ÌÇ§Ïò§",
-      "spriteAddress": "001_119",
-      "prefabAddress": "Units/Ally/Dorothy/Vanilla",
-      "healthPoint": 102.96,
-      "attackPoint": 7.53,
-      "defensePoint": 4.18,
-      "attackSpeed": 1.04,
-      "criticalMult": 150.0,
-      "criticalRate": 9.0,
-      "dodgeRate": 3.0,
-      "jobType": "Knight",
-      "tribeType": "Fairy",
-      "skillIds": [
-        900,
-        939
-      ],
-      "recoveryAmount": 1.0,
-      "statusDuration": 1.0
-    },
-    {
       "id": 120,
-      "name": "Ï†úÌéòÌÜ†",
+      "name": "¡¶∆‰≈‰",
       "spriteAddress": "001_120",
+      "iconAddress": "I_Un_120",
       "prefabAddress": "Units/Ally/Zepeto/Vanilla",
       "healthPoint": 80.23,
       "attackPoint": 11.54,
