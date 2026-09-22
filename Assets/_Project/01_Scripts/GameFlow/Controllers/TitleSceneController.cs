@@ -49,20 +49,22 @@ namespace OzGameLab01.Controllers
             SaveFacade continueCheckFacade = SystemBus.Get<SaveFacade>();
             _titleView.SetContinueInteractable(continueCheckFacade != null && continueCheckFacade.HasContinueData);
 
-            // 설정 화면(Game/Video 탭)의 요청 이벤트 구독
+            // 설정 화면(Game 탭)의 요청 이벤트 구독
             TitleSettingsView settingsView = _titleView.Settings;
             if (settingsView != null)
             {
                 _subscribedSettings = settingsView;
-                settingsView.ResolutionSelected += HandleResolutionSelected;
-                settingsView.ScreenModeSelected += HandleScreenModeSelected;
                 settingsView.ReplayTutorialRequested += HandleReplayTutorialRequested;
                 settingsView.ResetGameDataRequested += HandleResetGameDataRequested;
 
                 // 컷씬 시스템이 아직 없어 재시청 버튼을 숨김
                 settingsView.SetReplayCutsceneButtonVisible(false);
 
-                RefreshVideoSettings(settingsView);
+                // 튜토리얼 재시청/데이터 초기화는 타이틀 화면에서만 노출하고,
+                // 타이틀로 돌아가기 버튼은 이미 타이틀이므로 숨김
+                settingsView.SetReplayTutorialButtonVisible(true);
+                settingsView.SetResetGameDataButtonVisible(true);
+                settingsView.SetReturnToTitleButtonVisible(false);
             }
         }
 
@@ -72,8 +74,6 @@ namespace OzGameLab01.Controllers
 
             if (_subscribedSettings != null)
             {
-                _subscribedSettings.ResolutionSelected -= HandleResolutionSelected;
-                _subscribedSettings.ScreenModeSelected -= HandleScreenModeSelected;
                 _subscribedSettings.ReplayTutorialRequested -= HandleReplayTutorialRequested;
                 _subscribedSettings.ResetGameDataRequested -= HandleResetGameDataRequested;
                 _subscribedSettings = null;
@@ -202,22 +202,6 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 해상도 드롭다운 선택을 받아 DisplayManager에 반영합니다.
-        /// </summary>
-        private void HandleResolutionSelected(int index)
-        {
-            DisplayManager.Instance.SetResolutionIndex(index);
-        }
-
-        /// <summary>
-        /// 화면 모드 드롭다운 선택을 받아 DisplayManager에 반영합니다.
-        /// </summary>
-        private void HandleScreenModeSelected(int index)
-        {
-            DisplayManager.Instance.SetScreenModeIndex(index);
-        }
-
-        /// <summary>
         /// 튜토리얼 재시청 버튼 요청을 받아 튜토리얼 씬으로 이동합니다.
         /// </summary>
         private void HandleReplayTutorialRequested()
@@ -262,26 +246,6 @@ namespace OzGameLab01.Controllers
         #endregion
 
         #region Private Methods
-
-        /// <summary>
-        /// DisplayManager의 현재 값을 설정 화면의 Video 탭에 반영합니다.
-        /// </summary>
-        private static void RefreshVideoSettings(TitleSettingsView settingsView)
-        {
-            DisplayManager displayManager = DisplayManager.Instance;
-            if (displayManager == null)
-            {
-                return;
-            }
-
-            if (!displayManager.IsInitialized)
-            {
-                displayManager.Initialize();
-            }
-
-            settingsView.ResolutionIndex = displayManager.ResolutionIndex;
-            settingsView.ScreenModeIndex = displayManager.ScreenModeIndex;
-        }
 
         /// <summary>
         /// 현재 유지 중인 SceneTransitioner를 가져옵니다.

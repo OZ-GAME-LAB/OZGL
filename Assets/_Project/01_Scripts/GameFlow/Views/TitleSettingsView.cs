@@ -49,6 +49,7 @@ namespace OzGameLab01.UI.Title
         [SerializeField] private Image _panel; //버튼을 담는 팝업 패널
         [UnityEngine.Serialization.FormerlySerializedAs("backButton")]
         [SerializeField] private Button _backButton;
+        [SerializeField] private Button _returnToTitleButton; //보드/전투 등 타이틀이 아닌 씬에서만 표시되는 복귀 버튼
 
         [Header("Category Buttons")]
         [UnityEngine.Serialization.FormerlySerializedAs("gameButton")]
@@ -72,15 +73,7 @@ namespace OzGameLab01.UI.Title
         [SerializeField] private UITabButtonFeedback audioButtonFeedback;
 
         [Header("Game")]
-        [UnityEngine.Serialization.FormerlySerializedAs("languageDropdown")]
-        [SerializeField] private DropdownRefs _languageDropdown;
-        [UnityEngine.Serialization.FormerlySerializedAs("simplifyEffectsToggle")]
-        [SerializeField] private ToggleRefs _simplifyEffectsToggle;
-        [UnityEngine.Serialization.FormerlySerializedAs("synergySummaryToggle")]
-        [SerializeField] private ToggleRefs _synergySummaryToggle;
-
         [UnityEngine.Serialization.FormerlySerializedAs("replayTutorialButton")]
-
         [SerializeField] private Button _replayTutorialButton;
         [UnityEngine.Serialization.FormerlySerializedAs("replayCutsceneButton")]
         [SerializeField] private Button _replayCutsceneButton;
@@ -116,16 +109,8 @@ namespace OzGameLab01.UI.Title
         public SettingsTab CurrentTab { get; private set; } = SettingsTab.Game;
         
         /// <summary>
-        /// 현재 선택된 언어 옵션의 인덱스
-        /// 외부 설정 데이터를 ui에 반영할 때 설정하며, 사용자 변경은 LanguageSelected 이벤트를 통해 전달됨
-        /// 아래도 동일
+        /// 외부 설정 데이터를 ui에 반영할 때 설정하며, 사용자 변경은 각 Selected/Changed 이벤트를 통해 전달됨
         /// </summary>
-        public int LanguageIndex
-        {
-            get => _languageDropdown.dropdown.value;
-            set => SetDropdownValue(_languageDropdown.dropdown, value); //외부 값 반영 시 이벤트를 다시 발생시키지 않음
-        }
-
         public int ResolutionIndex
         {
             get => _resolutionDropdown.dropdown.value;
@@ -162,26 +147,14 @@ namespace OzGameLab01.UI.Title
             set => _muteAllToggle.toggle.SetIsOnWithoutNotify(value);
         }
 
-        public bool IsEffectsSimplified
-        {
-            get => _simplifyEffectsToggle.toggle.isOn;
-            set => _simplifyEffectsToggle.toggle.SetIsOnWithoutNotify(value);
-        }
-
-        public bool IsSynergySummaryEnabled
-        {
-            get => _synergySummaryToggle.toggle.isOn;
-            set => _synergySummaryToggle.toggle.SetIsOnWithoutNotify(value);
-        }
-
         #endregion
 
         #region Events
 
         public event Action CloseRequested; //설정 팝업의 닫기 버튼을 누르면 발생하는 이벤트
         public event Action<SettingsTab> TabSelected; //설정 팝업의 탭 버튼을 누르면 발생하는 이벤트 (Game, Video, Audio)
+        public event Action ReturnToTitleRequested; //사용자가 타이틀로 돌아가기 버튼을 누르면 발생하는 이벤트 (타이틀이 아닌 씬에서만 표시됨)
 
-        public event Action<int> LanguageSelected; //사용자가 언어 옵션을 변경하면 발생하는 이벤트 (옵션 인덱스 전달)
         public event Action<int> ResolutionSelected; //사용자가 해상도 옵션을 변경하면 발생하는 이벤트 (옵션 인덱스 전달)
         public event Action<int> ScreenModeSelected; //사용자가 화면 모드 옵션을 변경하면 발생하는 이벤트 (옵션 인덱스 전달)
 
@@ -190,8 +163,6 @@ namespace OzGameLab01.UI.Title
         public event Action<float> SfxVolumeChanged; //사용자가 SFX 볼륨 슬라이더를 변경하면 발생하는 이벤트 (볼륨 값 전달)
 
         public event Action<bool> MuteAllChanged; //사용자가 전체 음소거 토글을 변경하면 발생하는 이벤트 (토글 상태 전달)
-        public event Action<bool> EffectsSimplifiedChanged; //사용자가 이펙트 단순화 토글을 변경하면 발생하는 이벤트 (토글 상태 전달)
-        public event Action<bool> SynergySummaryChanged; //사용자가 시너지 요약 토글을 변경하면 발생하는 이벤트 (토글 상태 전달)
 
         public event Action ReplayTutorialRequested; //사용자가 튜토리얼 재시청 버튼을 누르면 발생하는 이벤트
         public event Action ReplayCutsceneRequested; //사용자가 컷씬 재시청 버튼을 누르면 발생하는 이벤트
@@ -207,8 +178,8 @@ namespace OzGameLab01.UI.Title
             _videoButton.onClick.AddListener(OnVideoTabClicked);
             _audioButton.onClick.AddListener(OnAudioTabClicked);
             _backButton.onClick.AddListener(OnBackClicked);
+            _returnToTitleButton.onClick.AddListener(OnReturnToTitleClicked);
 
-            _languageDropdown.dropdown.onValueChanged.AddListener(OnLanguageChanged);
             _resolutionDropdown.dropdown.onValueChanged.AddListener(OnResolutionChanged);
             _screenModeDropdown.dropdown.onValueChanged.AddListener(OnScreenModeChanged);
 
@@ -217,8 +188,6 @@ namespace OzGameLab01.UI.Title
             _sfxSlider.slider.onValueChanged.AddListener(OnSfxVolumeChanged);
 
             _muteAllToggle.toggle.onValueChanged.AddListener(OnMuteAllChanged);
-            _simplifyEffectsToggle.toggle.onValueChanged.AddListener(OnEffectsSimplifiedChanged);
-            _synergySummaryToggle.toggle.onValueChanged.AddListener(OnSynergySummaryChanged);
 
             _replayTutorialButton.onClick.AddListener(OnReplayTutorialClicked);
             _replayCutsceneButton.onClick.AddListener(OnReplayCutsceneClicked);
@@ -233,8 +202,8 @@ namespace OzGameLab01.UI.Title
             _videoButton.onClick.RemoveListener(OnVideoTabClicked);
             _audioButton.onClick.RemoveListener(OnAudioTabClicked);
             _backButton.onClick.RemoveListener(OnBackClicked);
+            _returnToTitleButton.onClick.RemoveListener(OnReturnToTitleClicked);
 
-            _languageDropdown.dropdown.onValueChanged.RemoveListener(OnLanguageChanged);
             _resolutionDropdown.dropdown.onValueChanged.RemoveListener(OnResolutionChanged);
             _screenModeDropdown.dropdown.onValueChanged.RemoveListener(OnScreenModeChanged);
 
@@ -243,8 +212,6 @@ namespace OzGameLab01.UI.Title
             _sfxSlider.slider.onValueChanged.RemoveListener(OnSfxVolumeChanged);
 
             _muteAllToggle.toggle.onValueChanged.RemoveListener(OnMuteAllChanged);
-            _simplifyEffectsToggle.toggle.onValueChanged.RemoveListener(OnEffectsSimplifiedChanged);
-            _synergySummaryToggle.toggle.onValueChanged.RemoveListener(OnSynergySummaryChanged);
 
             _replayTutorialButton.onClick.RemoveListener(OnReplayTutorialClicked);
             _replayCutsceneButton.onClick.RemoveListener(OnReplayCutsceneClicked);
@@ -279,6 +246,39 @@ namespace OzGameLab01.UI.Title
             if (_replayCutsceneButton != null)
             {
                 _replayCutsceneButton.gameObject.SetActive(visible);
+            }
+        }
+
+        /// <summary>
+        /// 튜토리얼 재시청 버튼의 표시 여부를 설정합니다. 타이틀 씬에서만 표시됩니다.
+        /// </summary>
+        public void SetReplayTutorialButtonVisible(bool visible)
+        {
+            if (_replayTutorialButton != null)
+            {
+                _replayTutorialButton.gameObject.SetActive(visible);
+            }
+        }
+
+        /// <summary>
+        /// 게임 데이터 초기화 버튼의 표시 여부를 설정합니다. 타이틀 씬에서만 표시됩니다.
+        /// </summary>
+        public void SetResetGameDataButtonVisible(bool visible)
+        {
+            if (_resetGameDataButton != null)
+            {
+                _resetGameDataButton.gameObject.SetActive(visible);
+            }
+        }
+
+        /// <summary>
+        /// 타이틀로 돌아가기 버튼의 표시 여부를 설정합니다. 타이틀이 아닌 씬에서만 표시됩니다.
+        /// </summary>
+        public void SetReturnToTitleButtonVisible(bool visible)
+        {
+            if (_returnToTitleButton != null)
+            {
+                _returnToTitleButton.gameObject.SetActive(visible);
             }
         }
 
@@ -336,9 +336,9 @@ namespace OzGameLab01.UI.Title
             CloseRequested?.Invoke();
         }
 
-        private void OnLanguageChanged(int value)
+        private void OnReturnToTitleClicked()
         {
-            LanguageSelected?.Invoke(value);
+            ReturnToTitleRequested?.Invoke();
         }
 
         private void OnResolutionChanged(int value)
@@ -369,16 +369,6 @@ namespace OzGameLab01.UI.Title
         private void OnMuteAllChanged(bool value)
         {
             MuteAllChanged?.Invoke(value);
-        }
-
-        private void OnEffectsSimplifiedChanged(bool value)
-        {
-            EffectsSimplifiedChanged?.Invoke(value);
-        }
-
-        private void OnSynergySummaryChanged(bool value)
-        {
-            SynergySummaryChanged?.Invoke(value);
         }
 
         private void OnReplayTutorialClicked()

@@ -133,8 +133,14 @@ namespace OzGameLab01.Controllers
 
                 if (readySceneView.SettingsView != null)
                 {
-                    readySceneView.SettingsView.BackClicked += HandleSettingsBackClicked;
-                    readySceneView.SettingsView.ReturnToMainClicked += HandleReturnToTitleClicked;
+                    readySceneView.SettingsView.CloseRequested += HandleSettingsBackClicked;
+                    readySceneView.SettingsView.ReturnToTitleRequested += HandleReturnToTitleClicked;
+
+                    // 보드에서는 튜토리얼/데이터 초기화/컷씬 버튼을 숨기고 타이틀 복귀 버튼만 노출
+                    readySceneView.SettingsView.SetReplayTutorialButtonVisible(false);
+                    readySceneView.SettingsView.SetResetGameDataButtonVisible(false);
+                    readySceneView.SettingsView.SetReplayCutsceneButtonVisible(false);
+                    readySceneView.SettingsView.SetReturnToTitleButtonVisible(true);
                 }
 
                 if (readySceneView.UnitView != null)
@@ -193,8 +199,8 @@ namespace OzGameLab01.Controllers
 
                 if (readySceneView.SettingsView != null)
                 {
-                    readySceneView.SettingsView.BackClicked -= HandleSettingsBackClicked;
-                    readySceneView.SettingsView.ReturnToMainClicked -= HandleReturnToTitleClicked;
+                    readySceneView.SettingsView.CloseRequested -= HandleSettingsBackClicked;
+                    readySceneView.SettingsView.ReturnToTitleRequested -= HandleReturnToTitleClicked;
                 }
 
                 if (readySceneView.UnitView != null)
@@ -323,12 +329,12 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void HandleSettingsBackClicked(OzGameLab01.UI.Settings.SettingsView view)
+        private void HandleSettingsBackClicked()
         {
             if (readySceneView != null) readySceneView.HideSettingsView();
         }
 
-        private void HandleReturnToTitleClicked(OzGameLab01.UI.Settings.SettingsView view)
+        private void HandleReturnToTitleClicked()
         {
             boardSceneController?.ReturnToTitle();
         }
