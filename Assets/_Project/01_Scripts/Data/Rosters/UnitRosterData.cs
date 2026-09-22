@@ -12,8 +12,8 @@ namespace OzGameLab01.Data
     /// 읽어 캐싱해두는 값입니다. 지금은 TempUnitData.json(임시, 실제 스킬 기획 전)을 읽고,
     /// 나중에 실제 UnitJSON으로 전환할 때는 OnEnable()의 로드 경로만 바꾸면 됩니다.
     ///
-    /// 아군은 공용 프리팹 하나(CombatManager.allyTemplatePrefab)를 Instantiate한 뒤
-    /// UnitStats의 값으로 Unit.Configure()를 호출해 생성합니다. id별 프리팹은 더 이상 없습니다.
+    /// 아군은 UnitData.prefabAddress의 Addressables 프리팹을 비동기로 불러온 뒤
+    /// UnitStats의 값으로 Unit.Configure()를 호출해 생성합니다.
     /// </summary>
     [CreateAssetMenu(fileName = "UnitRosterData", menuName = "Combat/Unit Roster Data")]
     public class UnitRosterData : ScriptableObject
@@ -53,6 +53,7 @@ namespace OzGameLab01.Data
         [SerializeField] private List<SynergyDefinition> _synergyDefinitions = new List<SynergyDefinition>();
 
         public IReadOnlyList<UnitData> UnitStats => _unitStats;
+        public IReadOnlyList<SkillData> SkillDefinitions => _skillDefinitions;
         public IReadOnlyList<SynergyDefinition> SynergyDefinitions => _synergyDefinitions;
 
         public SynergyDefinition GetJobTrait(UnitTypeJob job)

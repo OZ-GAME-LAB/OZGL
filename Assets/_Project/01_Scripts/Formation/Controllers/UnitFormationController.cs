@@ -8,6 +8,7 @@ using OzGameLab01.UI;
 using OzGameLab01.Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {
@@ -421,16 +422,8 @@ namespace OzGameLab01.Controllers
                 return null;
             }
 
-            if (rosterData != null)
-            {
-                foreach (UnitData rosterUnit in rosterData.UnitStats)
-                {
-                    if (rosterUnit != null && rosterUnit.id == ownedUnit.id)
-                    {
-                        return PlayerFacade.CloneUnitData(rosterUnit);
-                    }
-                }
-            }
+            UnitData definition = RuntimeContent.Catalog.GetUnit(ownedUnit.id);
+            if (definition != null) return definition;
 
             // 로스터에 없는 런타임 유닛은 기존 인벤토리 데이터를 복사해 유지
             return PlayerFacade.CloneUnitData(ownedUnit);

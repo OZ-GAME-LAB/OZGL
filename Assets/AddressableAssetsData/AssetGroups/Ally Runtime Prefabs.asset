@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Ally Runtime Prefabs
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Ally Runtime Prefabs
+  m_GUID: 842f4eddd066eaa48b6b15dacfa8f7d6
+  m_SerializeEntries:
+  - m_GUID: 28eb36f037c3c204984298d99d6a7851
+    m_Address: Units/Ally/PeterPan/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 50ce0e47d1a1e04499bc626c73ee9328
+    m_Address: Units/Ally/CheshireCat/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 73c6d596474b45a993296c75dd40447a
+    m_Address: Units/Ally/Alice/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 79bb440289dcda14da314b9c913b9fc3
+    m_Address: Units/Ally/Rabbit/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 896a9f767666588448339f2d0a057a70
+    m_Address: Units/Ally/Tinkerbell/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8fce18dd5e1ecf64aa6b50f23f2563fd
+    m_Address: Units/Ally/Genie/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ab4fd08b2d6f7634d817b012693a96b4
+    m_Address: Units/Ally/Snowwhite/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bda0c5c2923305c4d9b35034c5f7be83
+    m_Address: Units/Ally/Mermaid/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c9675134978e5374890723381e2f7725
+    m_Address: Units/Ally/Zepeto/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cbf20b0a4a2902e46b6a556b1b9cc666
+    m_Address: Units/Ally/Scarecrow/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ccb0fb7f9cc4ce849b3db9b9c2d12160
+    m_Address: Units/Ally/Dorothy/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e40a1457017b0f446a211dc69a23f198
+    m_Address: Units/Ally/Lion/Vanilla
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - AllyPrefab
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: ce5f67fb151836b46b2008baa3abfb8c, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: b9d81978d6fccc741880e863b8c8a890, type: 2}
+    - {fileID: 11400000, guid: 3f1772b35ac2bc74fb995266c39e5fed, type: 2}

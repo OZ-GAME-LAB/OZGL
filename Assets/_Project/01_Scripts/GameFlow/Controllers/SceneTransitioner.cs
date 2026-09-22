@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using OzGameLab01.Data;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Managers
 {
@@ -20,7 +21,7 @@ namespace OzGameLab01.Managers
 
         /// <summary>
         /// 유닛 편성 화면(UnitFormationCombatLink)이 채우는 배치 결과(인덱스 0-8, 3x3 row-major).
-        /// CombatManager.SpawnAllies()가 이 데이터가 있으면 우선 사용하고, 비어 있으면 인스펙터 allyFormation으로 폴백한다.
+        /// CombatSession이 이 데이터가 있으면 우선 사용하고, 비어 있으면 저장된 편성을 복원합니다.
         /// </summary>
         public static UnitData[] AllyFormationData { get; set; }
 
@@ -133,6 +134,14 @@ namespace OzGameLab01.Managers
         public void LoadCombatScene()
         {
             LoadScene(SceneNames.Combat);
+        }
+
+        /// <summary>
+        /// 튜토리얼 씬으로 이동합니다.
+        /// </summary>
+        public void LoadTutorialScene()
+        {
+            LoadScene(SceneNames.Tutorial);
         }
 
 

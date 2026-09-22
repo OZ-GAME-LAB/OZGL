@@ -1,4 +1,3 @@
-using OzGameLab01.Rewards;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -101,38 +100,6 @@ namespace OzGameLab01.Data
             }
 
             return valid;
-        }
-
-        public static bool ValidateReward(BattleRewardData reward, Object context = null)
-        {
-            if (string.IsNullOrWhiteSpace(reward.description))
-            {
-                Debug.LogWarning("[CombatDataValidator] 보상 설명이 비어 있습니다.", context);
-            }
-
-            switch (reward.kind)
-            {
-                case BattleRewardKind.Experience:
-                    if (reward.amount <= 0f)
-                    {
-                        Debug.LogError("[CombatDataValidator] 경험치 보상 값은 0보다 커야 합니다.", context);
-                        return false;
-                    }
-                    break;
-                case BattleRewardKind.Relic:
-                case BattleRewardKind.Unit:
-                    if (reward.targetId < 0)
-                    {
-                        Debug.LogError($"[CombatDataValidator] 보상 대상 ID가 올바르지 않습니다: {reward.targetId}", context);
-                        return false;
-                    }
-                    break;
-                default:
-                    Debug.LogError($"[CombatDataValidator] 지원하지 않는 보상 유형입니다: {reward.kind}", context);
-                    return false;
-            }
-
-            return true;
         }
     }
 }

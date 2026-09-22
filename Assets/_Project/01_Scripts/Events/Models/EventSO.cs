@@ -36,6 +36,7 @@ namespace OzGameLab01.Events
         public Sprite ChoiceSprite => choiceSprite;
         public EventChoiceCategory ChoiceCategory => choiceCategory;
         public string ResultTargetID => resultTargetID;
+        public EventChoice Copy() => (EventChoice)MemberwiseClone();
 
         public void SetEventChoice(string dialog, string targetID, Sprite sprite = null)
         {

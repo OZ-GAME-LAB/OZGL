@@ -106,6 +106,14 @@ namespace OzGameLab01.UI
             gameObject.SetActive(false);
         }
 
+        public void SetInteractable(bool interactable)
+        {
+            if (_unitButton != null) _unitButton.interactable = interactable;
+            if (_settingsButton != null) _settingsButton.interactable = interactable;
+            if (_locateButton != null) _locateButton.interactable = interactable;
+            if (_endTurnButton != null) _endTurnButton.interactable = interactable;
+        }
+
         public void SetUnitButtonInteractable(bool value)
         {
             if (_unitButton != null)

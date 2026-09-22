@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using OzGameLab01.Common;
 using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using OzGameLab01.Data;
@@ -76,6 +77,28 @@ namespace OzGameLab01.Controllers
 
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Creates the deterministic first-run formation used by New Game.
+        /// </summary>
+        public static void SetStarterFormation(UnitData starterUnit)
+        {
+            ClearSavedFormation();
+
+            if (starterUnit == null)
+            {
+                return;
+            }
+
+            UnitData formationUnit = PlayerFacade.CloneUnitData(starterUnit);
+            BattleUnits[0] = new TransferredUnit(formationUnit, null, formationUnit.color);
+            SavedBattleUnitIds[0] = formationUnit.id;
+            HasSavedFormation = true;
+
+            UnitData[] formation = new UnitData[BATTLE_SLOT_COUNT];
+            formation[0] = PlayerFacade.CloneUnitData(formationUnit);
+            SceneTransitioner.AllyFormationData = formation;
         }
 
         private void Awake()

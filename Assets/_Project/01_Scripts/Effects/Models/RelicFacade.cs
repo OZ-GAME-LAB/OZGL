@@ -6,6 +6,7 @@ using OzGameLab01.Effects.Contracts;
 using OzGameLab01.Effects.Controllers;
 using OzGameLab01.Managers;
 using OzGameLab01.Save;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Effects.Models
 {
@@ -33,8 +34,8 @@ namespace OzGameLab01.Effects.Models
         /// <param name="relicId"> 유물 ID </param>
         public void AcquireRelic(int relicId)
         {
-            // 1. 정적 데이터 조회 (RuntimeDataManager 단일 진입점)
-            var relicData = RuntimeDataManager.Instance.GetRelic(relicId);
+            // 1. 정적 데이터 조회 (RuntimeContent.Catalog 단일 진입점)
+            var relicData = OzGameLab01.Data.RuntimeContent.Catalog.GetRelic(relicId);
             if (relicData == null)
             {
                 Debug.LogError($"[RelicFacade] ID: {relicId}에 해당하는 유물을 발견하지 못 했습니다.");
@@ -61,7 +62,7 @@ namespace OzGameLab01.Effects.Models
             {
                 if (owned != null) ownedIds.Add(owned.id);
             }
-            RelicData picked = RelicSelectionModel.Select(RuntimeDataManager.Instance.Relics,
+            RelicData picked = RelicSelectionModel.Select(OzGameLab01.Data.RuntimeContent.Catalog.Relics,
                 ownedIds, count => UnityEngine.Random.Range(0, count), () => UnityEngine.Random.value);
             if (picked == null) return null;
             AcquireRelic(picked.id);
@@ -79,7 +80,7 @@ namespace OzGameLab01.Effects.Models
 
             foreach (var entry in saveEntries)
             {
-                RelicData data = RuntimeDataManager.Instance.GetRelic(entry.relicId);
+                RelicData data = OzGameLab01.Data.RuntimeContent.Catalog.GetRelic(entry.relicId);
                 if (data == null) continue;
 
                 _relics.Add(data);

@@ -14,6 +14,7 @@ namespace OzGameLab01.Data
         public const string TITLE = "01_Title";
         public const string BOARD = "02_MainGame";
         public const string COMBAT = "03_Combat";
+        public const string TUTORIAL = "04_Tutorial";
 
         // 기존 외부 호출과 상수식의 호환 별칭
         /// <summary>
@@ -36,7 +37,9 @@ namespace OzGameLab01.Data
         /// </summary>
         public const string Combat = COMBAT;
 
-
-        
+        /// <summary>
+        /// 튜토리얼 시퀀스를 재생하는 씬입니다.
+        /// </summary>
+        public const string Tutorial = TUTORIAL;
     }
 }

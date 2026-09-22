@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using OzGameLab01.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using OzGameLab01.Common;
+using System.Threading.Tasks;
 
 namespace OzGameLab01.Managers
 {
@@ -18,6 +20,7 @@ namespace OzGameLab01.Managers
 
         [Header("초기화 대상 매니저")]
         [SerializeField] private List<MonoBehaviour> _managerComponents = new();
+        [SerializeField] private OzGameLab01.Events.EventDB _eventContent;
         private static GameBootstrapper _instance;
         private bool _isRootObjectValid;
         private OzGameLab01.Controllers.ManagerInitializationController _initialization;
@@ -64,6 +67,15 @@ namespace OzGameLab01.Managers
             // 최초 GameBootstrapper 인스턴스 등록
             _instance = this;
 
+            // Content must be ready before player restore and manager initialization.
+            try { RuntimeContent.BindEvents(_eventContent); _ = RuntimeContent.Service; }
+            catch (System.Exception error)
+            {
+                Debug.LogException(error, this);
+                enabled = false;
+                return;
+            }
+
             // GlobalManagers 루트와 모든 자식 매니저 유지
             DontDestroyOnLoad(gameObject);
 
@@ -71,19 +83,44 @@ namespace OzGameLab01.Managers
                 $"[GameBootstrapper] 전역 매니저 루트 등록 완료 | {gameObject.name}", this);
         }
 
-        private void Start()
+        private IEnumerator Start()
         {
             // Awake에서 루트 검증에 실패한 경우 초기화 중단
             if (!_isRootObjectValid)
             {
-                return;
+                yield break;
+            }
+
+            Task dataLoad = DataManager.InitializeAsync();
+            while (!dataLoad.IsCompleted) yield return null;
+            if (dataLoad.IsFaulted)
+            {
+                Debug.LogException(dataLoad.Exception?.GetBaseException() ??
+                    new System.InvalidOperationException("Gameplay database initialization failed."), this);
+                _notifications.Publish(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.ManagersFailed);
+                enabled = false;
+                yield break;
+            }
+
+            try
+            {
+                RuntimeContent.UseDataManager(_eventContent);
+                Debug.Log($"[GameBootstrapper] Addressables gameplay content activated | " +
+                          $"units={RuntimeContent.Catalog.UnitCount}, enemies={RuntimeContent.Catalog.EnemyCount}, " +
+                          $"skills={RuntimeContent.Catalog.Skills.Count}", this);
+            }
+            catch (System.Exception error)
+            {
+                Debug.LogException(error, this);
+                _notifications.Publish(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.ManagersFailed);
+                enabled = false;
+                yield break;
             }
 
             RegisterSystemBusManagers();
 
             // 모든 Awake() 콜백 완료 후 매니저 초기화 시작
             InitializeManagers();
-
         }
 
         /// <summary>
@@ -97,12 +134,13 @@ namespace OzGameLab01.Managers
         private void RegisterSystemBusManagers()
         {
             _managerComponents.Add(DiceManager.Instance);
-            _managerComponents.Add(OzGameLab01.Combat.CombatManager.Instance);
+            _managerComponents.Add(CombatManager.Instance);
             _managerComponents.Add(EventManager.Instance);
             _managerComponents.Add(PlayerInventoryManager.Instance);
             _managerComponents.Add(RuntimeEffectManager.Instance);
             _managerComponents.Add(RelicManager.Instance);
             _managerComponents.Add(SaveManager.Instance);
+            _managerComponents.Add(DisplayManager.Instance);
         }
 
         /// <summary>
@@ -160,6 +198,7 @@ namespace OzGameLab01.Managers
 
             // 이 부트스트래퍼가 직접 초기화한 매니저 정리
             _initialization?.ShutdownManagers();
+            RuntimeContent.Shutdown();
             _notifications.ClearSubscribers();
 
             // 정적 인스턴스 참조 해제

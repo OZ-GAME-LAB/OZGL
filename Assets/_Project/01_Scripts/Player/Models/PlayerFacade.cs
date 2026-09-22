@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
-using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Managers;
 using OzGameLab01.Player.Contracts;
 using OzGameLab01.Save;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Player
 {
@@ -89,7 +89,7 @@ namespace OzGameLab01.Player
         /// </summary>
         private static UnitData FindRosterUnit(int unitId)
         {
-            return RuntimeDataManager.Instance.GetUnit(unitId);
+            return OzGameLab01.Data.RuntimeContent.Catalog.GetUnit(unitId);
         }
 
         /// <summary>
@@ -103,6 +103,7 @@ namespace OzGameLab01.Player
                 id = source.id,
                 name = source.name,
                 spriteAddress = source.spriteAddress,
+                prefabAddress = source.prefabAddress,
                 healthPoint = source.healthPoint,
                 attackPoint = source.attackPoint,
                 defensePoint = source.defensePoint,

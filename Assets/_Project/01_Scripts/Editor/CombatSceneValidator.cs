@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 using OzGameLab01.Combat;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
-using OzGameLab01.Rewards;
 using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Editor
@@ -52,22 +51,7 @@ namespace OzGameLab01.Editor
             if (battleUIView != null)
             {
                 errorCount += Require(battleUIView.MainView, "CombatUIView.MainView");
-                errorCount += Require(battleUIView.RewardView, "CombatUIView.RewardView");
                 errorCount += Require(battleUIView.ResultView, "CombatUIView.ResultView");
-
-                if (battleUIView.RewardView != null)
-                {
-                    if (battleUIView.RewardView.ConfiguredRewards != null)
-                    {
-                        foreach (BattleRewardData reward in battleUIView.RewardView.ConfiguredRewards)
-                        {
-                            if (!CombatDataValidator.ValidateReward(reward, battleUIView.RewardView))
-                            {
-                                errorCount++;
-                            }
-                        }
-                    }
-                }
 
                 if (battleUIView.MainView != null)
                 {
@@ -86,7 +70,6 @@ namespace OzGameLab01.Editor
             {
                 // 월드 전투 배치에 필요한 BattleMap 프리팹 필수 참조
                 errorCount += RequireSerializedReference(combatSession, "battleMapPrefab");
-                errorCount += RequireSerializedReference(combatSession, "allyTemplatePrefab");
                 LogOptionalReference(combatSession, "battleMainView", "CombatSession이 런타임 자동 탐색합니다.");
                 errorCount += RequireSerializedReference(combatSession, "rosterData");
                 errorCount += RequireSerializedReference(combatSession, "synergyPanelRoot");

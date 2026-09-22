@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using OzGameLab01.Combat;
+using OzGameLab01.Data;
 
 namespace OzGameLab01.Effects.Models
 {
@@ -80,7 +80,7 @@ namespace OzGameLab01.Effects.Models
 
             public float Apply(float baseValue)
             {
-                return (baseValue + Additive) * Multiplicative;
+                return baseValue * (1f + Additive / 100f) * (1f + Multiplicative / 100f);
             }
         }
 
@@ -167,10 +167,10 @@ namespace OzGameLab01.Effects.Models
                 {
                     if (!multiplicative.ContainsKey(key))
                     {
-                        multiplicative[key] = 1f;
+                        multiplicative[key] = 0f;
                     }
 
-                    multiplicative[key] *= effect.effectParam;
+                    multiplicative[key] += effect.effectParam;
                 }
                 else
                 {
@@ -188,7 +188,7 @@ namespace OzGameLab01.Effects.Models
                 float add = additive.TryGetValue(pair.Key, out float additiveValue) ? additiveValue : 0f;
                 float multiply = multiplicative.TryGetValue(pair.Key, out float multiplicativeValue)
                     ? multiplicativeValue
-                    : 1f;
+                    : 0f;
                 _alwaysStatCache[pair.Key] = new EffectStatModifier(add, multiply, pair.Value);
             }
 
@@ -204,12 +204,6 @@ namespace OzGameLab01.Effects.Models
                 return compare;
             }
 
-            compare = GetOperationPriority(_definition(left)).CompareTo(GetOperationPriority(_definition(right)));
-            if (compare != 0)
-            {
-                return compare;
-            }
-
             compare = _kind(left).CompareTo(_kind(right));
             if (compare != 0)
             {
@@ -220,16 +214,6 @@ namespace OzGameLab01.Effects.Models
             return compare != 0
                 ? compare
                 : _declarationIndex(left).CompareTo(_declarationIndex(right));
-        }
-
-        private static int GetOperationPriority(EffectInstance effect)
-        {
-            if (effect.trigger == TriggerType.Always && effect.effect == EffectType.StatModifier)
-            {
-                return effect.operation == EffectOperation.Add ? 0 : 1;
-            }
-
-            return 0;
         }
 
         private static int GetTriggerPriority(TriggerType trigger)

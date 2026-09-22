@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using OzGameLab01.Combat;
 
 namespace OzGameLab01.Data
 {
@@ -16,6 +15,8 @@ namespace OzGameLab01.Data
         public int id;
         public string name;
         public string spriteAddress;
+        public string iconAddress;      // 아이콘 스프라이트 주소
+        public string prefabAddress;    // 런타임 아군 프리팹 Addressables 주소
 
         public float healthPoint;       // 체력
         public float attackPoint;       // 공격력

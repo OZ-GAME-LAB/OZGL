@@ -15,6 +15,7 @@ GameObject:
   - component: {fileID: 1383285813284759138}
   - component: {fileID: 7155312204337198451}
   - component: {fileID: -6857216840925041953}
+  - component: {fileID: 5646548151686567204}
   m_Layer: 0
   m_Name: SettingsActionButton
   m_TagString: Untagged
@@ -172,6 +173,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Title.SettingsActionButtonView
   _button: {fileID: 2671599981312882217}
   _label: {fileID: 1844321988726907170}
+--- !u!114 &5646548151686567204
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1138713609925457618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 7
+  hoverSound: 8
 --- !u!1 &7048869715060410081
 GameObject:
   m_ObjectHideFlags: 0

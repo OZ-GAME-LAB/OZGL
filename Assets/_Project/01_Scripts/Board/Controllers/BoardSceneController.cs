@@ -10,6 +10,7 @@ using UnityEngine;
 using OzGameLab01.Board.Models;
 using OzGameLab01.Board.Views;
 using OzGameLab01.Board.Controllers;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {
@@ -46,9 +47,9 @@ namespace OzGameLab01.Controllers
 
         public event Action<int> TurnEnded;
         public event Action<int> NightReached;
-        public event Action<int> NoonReached;
         public event Action<int> DayReached;
         public event Action PlayerTurnReady;
+        public event Action<UnitData> UnitAcquired;
         public event Action<BoardTimeOfDay> TimeOfDayChanged;
         public BoardTimeOfDay CurrentTimeOfDay =>
             BoardTurnRules.GetTimeOfDay(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
@@ -174,7 +175,8 @@ namespace OzGameLab01.Controllers
                 break;
 
             case BoardTimeOfDay.Noon:
-                NoonReached?.Invoke(BoardRunData.TurnCount);
+                // 정오는 별도 전환 피드백이 없으므로 다음 턴 RollView를 바로 준비합니다.
+                PlayerTurnReady?.Invoke();
                 break;
 
             case BoardTimeOfDay.Night:
@@ -400,7 +402,7 @@ namespace OzGameLab01.Controllers
         private bool HandleUnitAcquisitionNode(out int acquiredUnitId)
         {
             acquiredUnitId = 0;
-            UnitData selected = BoardUnitSelection.Select(RuntimeDataManager.Instance.Units, count => UnityEngine.Random.Range(0, count));
+            UnitData selected = BoardUnitSelection.Select(OzGameLab01.Data.RuntimeContent.Catalog.Units, count => UnityEngine.Random.Range(0, count));
             if (selected == null)
             {
                 Debug.LogWarning("[BoardSceneController] 획득 가능한 유닛 데이터가 없습니다.", this);
@@ -414,7 +416,7 @@ namespace OzGameLab01.Controllers
             }
             UnitData acquired = PlayerFacade.CloneUnitData(selected);
             playerFacade.AddUnit(acquired);
-            _feedback.ShowUnit(acquired.name, playerFacade.OwnedUnits.Count);
+            UnitAcquired?.Invoke(acquired);
             acquiredUnitId = acquired.id;
             return true;
         }

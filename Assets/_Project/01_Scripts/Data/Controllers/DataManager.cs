@@ -13,9 +13,11 @@ namespace OzGameLab01.Managers
     public static class DataManager
     {
         public static GameDB<UnitData, UnitDataList> Units { get; } = new();
+        public static GameDB<MonsterData, MonsterDataList> Monsters { get; } = new();
         public static GameDB<RelicData, RelicDataList> Relics { get; } = new();
         public static GameDB<SynergyData, SynergyDataList> Synergies { get; } = new();
         public static GameDB<SkillData, SkillDataList> Skills { get; } = new();
+        public static GameDB<EnemyGrowthRow, EnemyGrowthDataList> EnemyGrowth { get; } = new();
 
         public static bool IsInitialized { get; private set; }
 
@@ -25,24 +27,42 @@ namespace OzGameLab01.Managers
             if (IsInitialized) return;
 
             // 어드레서블 주소 매핑 일원화
-            var tasks = new List<Task>()
+            var tasks = new List<Task<bool>>()
             {
                 Units.LoadAsync("JSON/UnitJSON"),
+                Monsters.LoadAsync("JSON/MonsterJSON"),
                 Relics.LoadAsync("JSON/RelicJSON"),
                 Synergies.LoadAsync("JSON/SynergyJSON"),
-                Skills.LoadAsync("JSON/SkillJSON")
+                Skills.LoadAsync("JSON/SkillJSON"),
+                EnemyGrowth.LoadAsync("JSON/EnemyGrowthJSON")
             };
 
-            await Task.WhenAll(tasks);
+            bool[] loaded = await Task.WhenAll(tasks);
+            if (System.Array.Exists(loaded, success => !success))
+                throw new System.InvalidOperationException("One or more gameplay databases failed to load.");
             IsInitialized = true;
-            Debug.Log("[DataManager] 모든 데이터베이스 캐싱 완료.");
+            Debug.Log($"[DataManager] Gameplay databases ready: units={Units.Count}, monsters={Monsters.Count}, " +
+                      $"skills={Skills.Count}, synergies={Synergies.Count}, relics={Relics.Count}, growth={EnemyGrowth.Count}.");
         }
 
         // 각 도메인 조회 편의 API
         public static UnitData GetUnit(int id) => Units.Get(id);
+        public static MonsterData GetMonster(int id) => Monsters.Get(id);
         public static RelicData GetRelic(int id) => Relics.Get(id);
         public static SynergyData GetSynergy(int id) => Synergies.Get(id);
         public static SkillData GetSkill(int id) => Skills.Get(id);
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        private static void ResetSession()
+        {
+            IsInitialized = false;
+            Units.Clear();
+            Monsters.Clear();
+            Relics.Clear();
+            Synergies.Clear();
+            Skills.Clear();
+            EnemyGrowth.Clear();
+        }
     }
 }
 

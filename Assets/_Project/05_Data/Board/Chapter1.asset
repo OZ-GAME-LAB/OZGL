@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5cb70e69399fc44f881993bb35235c8, type: 3}
+  m_Name: Chapter1
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Data.MapThemeData
+  ObjectScaleMultiplier: 1
+  ObjectHeightOffset: -2.5
+  NormalPrefabs:
+  - Prefab: {fileID: 9150932866408316143, guid: b6128de8885074b4eacfe88382d4960c, type: 3}
+    Weight: 86
+  - Prefab: {fileID: 4381401734808919376, guid: 6dc4f5e82ce7d9a45948d9ffda675604, type: 3}
+    Weight: 3
+  - Prefab: {fileID: 3583985641599858537, guid: 971ac22e685175544b077c68f244f80f, type: 3}
+    Weight: 3
+  - Prefab: {fileID: 9053954794494941965, guid: ffe615b8e82b8764786dc70dee7e79a6, type: 3}
+    Weight: 2
+  - Prefab: {fileID: 5514711199985657012, guid: 4d8ca5921f8d5d4448ebe7367d019599, type: 3}
+    Weight: 3
+  BattleBasePrefab: {fileID: 8528840883518735778, guid: b0fdd408eb7cb534b9735d7d99ee24dc, type: 3}
+  BattleObjectPrefab: {fileID: 8934828572044419785, guid: 9c8bd18f8d945d5408f3ba8913e06469, type: 3}
+  EventBasePrefab: {fileID: 8528840883518735778, guid: b0fdd408eb7cb534b9735d7d99ee24dc, type: 3}
+  EventObjectPrefab: {fileID: 8934828572044419785, guid: 8da7a6c2702096a45bdc1f97a1589bea, type: 3}
+  ShopBasePrefab: {fileID: 0}
+  ShopObjectPrefab: {fileID: 0}
+  UnitAcqBasePrefab: {fileID: 7929028402518197454, guid: 3d6759da95caf274b992f98fb1e2548a, type: 3}
+  UnitAcqObjectPrefab: {fileID: 8934828572044419785, guid: 4da19e874946d7847b1adcf531d28237, type: 3}
+  MidBossBasePrefab: {fileID: 8528840883518735778, guid: b0fdd408eb7cb534b9735d7d99ee24dc, type: 3}
+  MidBossObjectPrefab: {fileID: 8934828572044419785, guid: 88fb414899279a448973967aa8cc90d3, type: 3}
+  BossBasePrefab: {fileID: 8528840883518735778, guid: b0fdd408eb7cb534b9735d7d99ee24dc, type: 3}
+  BossObjectPrefab: {fileID: 8934828572044419785, guid: bb98ce337923ffd4e84357cf75084b73, type: 3}
+  NormalPrefab: {fileID: 3575520010445509818, guid: 333de61d15bd631449cab7606e91f1ee, type: 3}
+  BossPrefab: {fileID: 4607070878859336425, guid: b3308cfd4075b6b4c871fd3052b822c4, type: 3}
+  BattlePrefab: {fileID: 3818873648761647536, guid: e4ce07350acc1af4d927bbb04c2d5fca, type: 3}
+  EventPrefab: {fileID: 91718390391217005, guid: 123936827043c1a4ba9aba176fac559f, type: 3}
+  ShopPrefab: {fileID: 0}
+  ElitePrefab: {fileID: 8694107122199768055, guid: 2f83f1cb377a39a46b806b140f70a5c5, type: 3}
+  UnitAcquisitionPrefab: {fileID: 889529249090256097, guid: ecf1cdc1380edb8489b447e8bd90cfed, type: 3}
+  TreePrefabs:
+  - {fileID: 7198429968998971520, guid: 8145c8f3bf969bf409c783cbc2d1bf07, type: 3}
+  - {fileID: 4203533459651163166, guid: f2ea9713fadd8b74da26320dbf39a989, type: 3}
+  RockPrefabs:
+  - {fileID: 7198429968998971520, guid: 8145c8f3bf969bf409c783cbc2d1bf07, type: 3}
+  - {fileID: 4203533459651163166, guid: f2ea9713fadd8b74da26320dbf39a989, type: 3}
+  WaterPuddlePrefab: {fileID: 0}
+  WaterStartPrefab: {fileID: 0}
+  WaterBodyPrefabs: []
+  WaterEndPrefab: {fileID: 0}

@@ -2,6 +2,7 @@ using OzGameLab01.Managers;
 using OzGameLab01.Save;
 using OzGameLab01.UI.Title;
 using UnityEngine;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {
@@ -20,6 +21,7 @@ namespace OzGameLab01.Controllers
         // [추가] 비동기 New Game 저장 중 중복 요청 방지
         private bool _isStartingGame;
         private TitleUIView _subscribedTitle;
+        private TitleSettingsView _subscribedSettings;
         private int _requestVersion;
 
         #region Unity Lifecycle
@@ -46,11 +48,37 @@ namespace OzGameLab01.Controllers
             // [추가] 유효한 런 저장 파일이 있을 때만 Continue 버튼 활성화
             SaveFacade continueCheckFacade = SystemBus.Get<SaveFacade>();
             _titleView.SetContinueInteractable(continueCheckFacade != null && continueCheckFacade.HasContinueData);
+
+            // 설정 화면(Game 탭)에 타이틀 전용 액션 버튼을 구성
+            // 컷씬 재시청/타이틀로 돌아가기는 타이틀 화면에서 의미가 없어 추가하지 않음
+            TitleSettingsView settingsView = _titleView.Settings;
+            if (settingsView != null)
+            {
+                _subscribedSettings = settingsView;
+                settingsView.ClearGameButtons();
+                settingsView.AddGameButton("튜토리얼 다시보기", HandleReplayTutorialRequested);
+                settingsView.AddGameButton("데이터 초기화", HandleResetRequested);
+            }
+        }
+
+        private void Start()
+        {
+            // 매니저 초기화 이후 Continue 데이터 상태 확인
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            _titleView.SetContinueInteractable(saveFacade != null && saveFacade.HasContinueData);
         }
 
         private void OnDisable()
         {
             _requestVersion++;
+
+            if (_subscribedSettings != null)
+            {
+                _subscribedSettings.HideResetConfirmation();
+                _subscribedSettings.ClearGameButtons();
+                _subscribedSettings = null;
+            }
+
             // TitleUIView가 없으면 해제 작업 생략
             if (_subscribedTitle == null)
             {
@@ -108,8 +136,10 @@ namespace OzGameLab01.Controllers
                 if (!saved)
                 {
                     Debug.LogError("[TitleSceneController] New Game 초기 상태 저장에 실패했습니다.", this);
+                    return;
                 }
 
+                _titleView.SetContinueInteractable(false);
                 transitioner.LoadBoardScene();
             }
             catch (System.Exception exception) { Debug.LogException(exception); }
@@ -155,6 +185,33 @@ namespace OzGameLab01.Controllers
             _isStartingGame = false;
         }
 
+        private void HandleResetRequested()
+        {
+            if (_isStartingGame)
+            {
+                return;
+            }
+
+            _titleView.Settings.ShowResetConfirmation(HandleResetConfirmed);
+        }
+
+        private void HandleResetConfirmed()
+        {
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                return;
+            }
+
+            if (saveFacade.FactoryReset() == false)
+            {
+                return;
+            }
+
+            _titleView.SetContinueInteractable(false);
+            _titleView.Settings.ResetTransientOptions();
+        }
+
         /// <summary>
         /// 종료 확인 요청을 받아 애플리케이션을 종료합니다.
         /// </summary>
@@ -171,6 +228,23 @@ namespace OzGameLab01.Controllers
             // 실제 빌드에서는 애플리케이션 종료
             Application.Quit();
 #endif
+        }
+
+        /// <summary>
+        /// 튜토리얼 재시청 버튼 요청을 받아 튜토리얼 씬으로 이동합니다.
+        /// </summary>
+        private void HandleReplayTutorialRequested()
+        {
+            if (!TryGetSceneTransitioner(out SceneTransitioner transitioner))
+            {
+                return;
+            }
+
+            // 설정창이 열린 채로 씬 전환되면 전환 연출 동안 그대로 보이는 문제가 있어 먼저 닫음
+            _titleView.Settings?.Hide();
+
+            Debug.Log("[TitleSceneController] 튜토리얼 재시청 요청 | 튜토리얼 씬 이동", this);
+            transitioner.LoadTutorialScene();
         }
 
         #endregion

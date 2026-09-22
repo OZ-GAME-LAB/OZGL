@@ -9,6 +9,7 @@ using OzGameLab01.Map;
 using OzGameLab01.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using OzGameLab01.Common;
 
 namespace OzGameLab01.Controllers
 {
@@ -78,9 +79,15 @@ namespace OzGameLab01.Controllers
         public int CurrentDiceValue
         {
             get => Model.RemainingDiceValue;
-            set
+            set => SetCurrentDiceValue(value);
+        }
+
+        public void SetCurrentDiceValue(int value, bool refreshHud = true)
+        {
+            Model.SetRemainingDiceValue(value);
+
+            if (refreshHud)
             {
-                Model.SetRemainingDiceValue(value);
                 RefreshActionPowerHud();
             }
         }
@@ -88,6 +95,8 @@ namespace OzGameLab01.Controllers
         public event Action<MapNode> PlayerArrived;
         public static event Action OnPlayerStartedMoving;
         public static event Action OnPlayerFinishedMoving;
+        public static event Action OnPlayerStepCompleted;
+        public static event Action OnPlayerSetupCompleted;
 
         private void Awake()
         {
@@ -122,6 +131,7 @@ namespace OzGameLab01.Controllers
             {
                 _view.CompleteSpawnAnimation();
             }
+            OnPlayerSetupCompleted?.Invoke();
         }
 
         private IEnumerator PlaySpawnAnimationRoutine()
@@ -170,7 +180,7 @@ namespace OzGameLab01.Controllers
             _isFeedbackPlaying = false;
         }
 
-        private void RefreshActionPowerHud()
+        public void RefreshActionPowerHud()
         {
             _currentDiceValue = Model.RemainingDiceValue;
             if (_actionPowerHud == null)
@@ -254,6 +264,7 @@ namespace OzGameLab01.Controllers
                     yield return _view.MoveTo(nodeView.transform.position, _moveSpeed);
                     Model.CompleteStep(node);
                     RefreshActionPowerHud();
+                    OnPlayerStepCompleted?.Invoke();
                 }
                 completed = true;
             }

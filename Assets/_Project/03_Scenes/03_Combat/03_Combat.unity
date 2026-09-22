@@ -211,17 +211,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &377783531 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 3746613562160561807, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
-  m_PrefabInstance: {fileID: 1295932623}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f86c7136c6f9ac147b80f733b72a47db, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Settings.SettingsView
 --- !u!1 &404384625
 GameObject:
   m_ObjectHideFlags: 0
@@ -296,7 +285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BattleUIController
   battleUIView: {fileID: 1624536359}
-  settingsView: {fileID: 377783531}
+  settingsView: {fileID: 1295932624}
   surrenderPopup: {fileID: 1391918161}
   combatSceneController: {fileID: 404384626}
 --- !u!4 &410593572
@@ -327,10 +316,6 @@ PrefabInstance:
       value: CombatManager
       objectReference: {fileID: 0}
     - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
-      propertyPath: battleMapPrefab
-      value:
-      objectReference: {fileID: 2179608495674926428, guid: 9506a8ece67103b4b810c871bcc027fe, type: 3}
-    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
       propertyPath: enemyScale
       value: 1
       objectReference: {fileID: 0}
@@ -342,6 +327,10 @@ PrefabInstance:
       propertyPath: allyHudPrefab
       value: 
       objectReference: {fileID: 6512804900257678260, guid: a5853972a94e8f847b461a72cfb559f8, type: 3}
+    - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
+      propertyPath: battleMapPrefab
+      value: 
+      objectReference: {fileID: 2179608495674926428, guid: 9506a8ece67103b4b810c871bcc027fe, type: 3}
     - target: {fileID: 1922386724310859879, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
       propertyPath: synergyPanelRoot
       value: 
@@ -467,11 +456,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
---- !u!4 &1032302331 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 636346463687936712, guid: 202d05087a0f77042b53e672a6ced88a, type: 3}
-  m_PrefabInstance: {fileID: 1032302330}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1295932623
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -480,6 +464,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 48057784497142676, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_SortingOrder
+      value: -100
+      objectReference: {fileID: 0}
+    - target: {fileID: 48057784497142676, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_OverrideSorting
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 98071072005797084, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -655,6 +647,14 @@ PrefabInstance:
     - target: {fileID: 2426983972657810805, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2726131650488746521, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_SortingOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2726131650488746521, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_OverrideSorting
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2901050371713021947, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1052,6 +1052,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6480222881586279500, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_SortingOrder
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 6481265695570389054, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1143,6 +1147,14 @@ PrefabInstance:
     - target: {fileID: 7504081118807317909, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7505558707555550461, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_SortingOrder
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 7505558707555550461, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_OverrideSorting
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7604336645045370428, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1349,6 +1361,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+--- !u!114 &1295932624 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 1998168449570980296, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+  m_PrefabInstance: {fileID: 1295932623}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c006715070938640adf27f40a11c357, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Title.TitleSettingsView
 --- !u!224 &1309662701 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2877259615996179313, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
