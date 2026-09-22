@@ -303,6 +303,19 @@ namespace OzGameLab01.UI.Title
             _gameButtons.Clear();
         }
 
+        /// <summary>
+        /// 해상도 드롭다운의 선택지를 채웁니다. 모니터마다 실제 지원 해상도가 달라
+        /// 런타임에 DisplayManager가 구성한 목록으로 갈아끼웁니다. 값 설정은
+        /// ResolutionIndex 세터(SetValueWithoutNotify)로 분리 유지 — 옵션 교체가
+        /// ResolutionSelected 이벤트를 발생시키면 안 됩니다.
+        /// </summary>
+        public void SetResolutionOptions(IReadOnlyList<string> labels)
+        {
+            _resolutionDropdown.dropdown.ClearOptions();
+            _resolutionDropdown.dropdown.AddOptions(new List<string>(labels));
+            _resolutionDropdown.dropdown.RefreshShownValue();
+        }
+
         public void RemoveGameButton(SettingsActionButtonView buttonView)
         {
             if (buttonView == null || _gameButtons.Remove(buttonView) == false)

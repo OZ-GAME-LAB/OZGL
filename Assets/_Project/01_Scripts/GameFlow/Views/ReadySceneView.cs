@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-using ReadySettingsView = OzGameLab01.UI.Settings.SettingsView;
+using ReadySettingsView = OzGameLab01.UI.Title.TitleSettingsView;
 
 namespace OzGameLab01.UI
 {

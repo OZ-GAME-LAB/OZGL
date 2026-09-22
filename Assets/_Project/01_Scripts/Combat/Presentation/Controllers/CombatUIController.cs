@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
-using OzGameLab01.UI.Settings;
+using OzGameLab01.UI.Title;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
@@ -16,7 +16,7 @@ namespace OzGameLab01.Controllers
     {
         [Header("Views (UI 연결)")]
         public CombatUIView battleUIView;
-        public SettingsView settingsView;
+        public TitleSettingsView settingsView;
         public ConfirmPopupView surrenderPopup;
 
         [Header("Scene Controller (로직 연결)")]
@@ -40,7 +40,7 @@ namespace OzGameLab01.Controllers
 
             // 1. 최상단 UI 및 컨트롤러들을 찾습니다.
             if (battleUIView == null) battleUIView = FindFirstObjectByType<CombatUIView>(FindObjectsInactive.Include);
-            if (settingsView == null) settingsView = FindFirstObjectByType<SettingsView>(FindObjectsInactive.Include);
+            if (settingsView == null) settingsView = FindFirstObjectByType<TitleSettingsView>(FindObjectsInactive.Include);
             if (surrenderPopup == null) surrenderPopup = FindFirstObjectByType<ConfirmPopupView>(FindObjectsInactive.Include);
             if (combatSceneController == null) combatSceneController = FindFirstObjectByType<CombatSceneController>(FindObjectsInactive.Include);
 
@@ -76,8 +76,11 @@ namespace OzGameLab01.Controllers
 
             if (settingsView != null)
             {
-                settingsView.BackClicked += HandleSettingsBackClicked;
-                settingsView.ReturnToMainClicked += HandleReturnToMainClicked;
+                settingsView.CloseRequested += HandleSettingsBackClicked;
+
+                // 전투에서는 타이틀로 돌아가기 버튼만 노출(튜토리얼/데이터 초기화는 타이틀 전용)
+                settingsView.ClearGameButtons();
+                settingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToMainClicked);
             }
 
             if (surrenderPopup != null)
@@ -107,8 +110,8 @@ namespace OzGameLab01.Controllers
 
             if (settingsView != null)
             {
-                settingsView.BackClicked -= HandleSettingsBackClicked;
-                settingsView.ReturnToMainClicked -= HandleReturnToMainClicked;
+                settingsView.CloseRequested -= HandleSettingsBackClicked;
+                settingsView.ClearGameButtons();
             }
 
             if (surrenderPopup != null)
@@ -177,7 +180,7 @@ namespace OzGameLab01.Controllers
             settingsView?.Show();
         }
 
-        private void HandleSettingsBackClicked(SettingsView view)
+        private void HandleSettingsBackClicked()
         {
             settingsView?.Hide();
             if (combatSceneController != null && !combatSceneController.IsResolved)
@@ -187,7 +190,7 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void HandleReturnToMainClicked(SettingsView view)
+        private void HandleReturnToMainClicked()
         {
             surrenderPopup?.Show("Would you like to surrender and return to the board?");
         }

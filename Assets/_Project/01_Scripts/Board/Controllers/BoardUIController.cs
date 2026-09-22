@@ -133,8 +133,11 @@ namespace OzGameLab01.Controllers
 
                 if (readySceneView.SettingsView != null)
                 {
-                    readySceneView.SettingsView.BackClicked += HandleSettingsBackClicked;
-                    readySceneView.SettingsView.ReturnToMainClicked += HandleReturnToTitleClicked;
+                    readySceneView.SettingsView.CloseRequested += HandleSettingsBackClicked;
+
+                    // 보드에서는 타이틀로 돌아가기 버튼만 노출(튜토리얼/데이터 초기화는 타이틀 전용)
+                    readySceneView.SettingsView.ClearGameButtons();
+                    readySceneView.SettingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToTitleClicked);
                 }
 
                 if (readySceneView.UnitView != null)
@@ -193,8 +196,8 @@ namespace OzGameLab01.Controllers
 
                 if (readySceneView.SettingsView != null)
                 {
-                    readySceneView.SettingsView.BackClicked -= HandleSettingsBackClicked;
-                    readySceneView.SettingsView.ReturnToMainClicked -= HandleReturnToTitleClicked;
+                    readySceneView.SettingsView.CloseRequested -= HandleSettingsBackClicked;
+                    readySceneView.SettingsView.ClearGameButtons();
                 }
 
                 if (readySceneView.UnitView != null)
@@ -323,13 +326,15 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void HandleSettingsBackClicked(OzGameLab01.UI.Settings.SettingsView view)
+        private void HandleSettingsBackClicked()
         {
             if (readySceneView != null) readySceneView.HideSettingsView();
         }
 
-        private void HandleReturnToTitleClicked(OzGameLab01.UI.Settings.SettingsView view)
+        private void HandleReturnToTitleClicked()
         {
+            // 설정창이 열린 채로 씬 전환되면 전환 연출 동안 그대로 보이는 문제가 있어 먼저 닫음
+            readySceneView?.HideSettingsView();
             boardSceneController?.ReturnToTitle();
         }
 

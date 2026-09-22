@@ -140,6 +140,7 @@ namespace OzGameLab01.Managers
             _managerComponents.Add(RuntimeEffectManager.Instance);
             _managerComponents.Add(RelicManager.Instance);
             _managerComponents.Add(SaveManager.Instance);
+            _managerComponents.Add(DisplayManager.Instance);
         }
 
         /// <summary>

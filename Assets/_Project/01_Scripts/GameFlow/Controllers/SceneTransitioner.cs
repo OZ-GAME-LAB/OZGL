@@ -136,6 +136,14 @@ namespace OzGameLab01.Managers
             LoadScene(SceneNames.Combat);
         }
 
+        /// <summary>
+        /// 튜토리얼 씬으로 이동합니다.
+        /// </summary>
+        public void LoadTutorialScene()
+        {
+            LoadScene(SceneNames.Tutorial);
+        }
+
 
         private IEnumerator LoadSceneRoutine(string sceneName)
         {

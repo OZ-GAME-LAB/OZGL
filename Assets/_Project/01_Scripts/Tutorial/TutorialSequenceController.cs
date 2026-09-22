@@ -482,6 +482,7 @@ namespace OzGameLab01.Controllers
             UnbindWaitingButton();
             CancelPendingStep();
             StopButtonHighlight();
+            TutorialProgress.MarkCompleted();
             SequenceCompleted?.Invoke();
         }
     }

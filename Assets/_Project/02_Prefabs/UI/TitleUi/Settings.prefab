@@ -11,13 +11,14 @@ GameObject:
   - component: {fileID: 4029107581241151455}
   - component: {fileID: 5787052196207161398}
   - component: {fileID: 4055039507210650534}
+  - component: {fileID: 6058223328657399789}
   m_Layer: 0
   m_Name: Settings
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &4029107581241151455
 RectTransform:
   m_ObjectHideFlags: 0
@@ -109,6 +110,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88fc016107dc46f08411dd4b2b94a637, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.Title.TitleSettingsAudioController
+  _settingsView: {fileID: 5787052196207161398}
+--- !u!114 &6058223328657399789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52088684614561356}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dffe2b54a66a80044b3725cf9db4f510, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.SettingsVideoController
   _settingsView: {fileID: 5787052196207161398}
 --- !u!1 &130333480985058766
 GameObject:
@@ -2407,6 +2421,7 @@ GameObject:
   - component: {fileID: 781389585274748317}
   - component: {fileID: 8195011176752896644}
   - component: {fileID: 4812487281076125502}
+  - component: {fileID: 438130321902615149}
   m_Layer: 0
   m_Name: GameButton
   m_TagString: Untagged
@@ -2553,6 +2568,20 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   selectedColor: {r: 0.8490566, g: 0.27634388, b: 0.27634388, a: 1}
   unselectedColor: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 1}
+--- !u!114 &438130321902615149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3062713586946015840}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 7
+  hoverSound: 8
 --- !u!1 &3164326608589652972
 GameObject:
   m_ObjectHideFlags: 0
@@ -2854,6 +2883,7 @@ GameObject:
   - component: {fileID: 8580618340829683881}
   - component: {fileID: 8666325348771030908}
   - component: {fileID: 3012202868186711329}
+  - component: {fileID: 6826705563589327667}
   m_Layer: 0
   m_Name: BackButton
   m_TagString: Untagged
@@ -2997,6 +3027,20 @@ MonoBehaviour:
   normalColor: {r: 1, g: 1, b: 1, a: 1}
   hoverColor: {r: 0.86666673, g: 0.29803923, b: 0.29803923, a: 1}
   fadeDuration: 0.15
+--- !u!114 &6826705563589327667
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3353860230096467657}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 13
+  hoverSound: 8
 --- !u!1 &3588920027832690186
 GameObject:
   m_ObjectHideFlags: 0
@@ -4714,6 +4758,7 @@ GameObject:
   - component: {fileID: 9038349200120133554}
   - component: {fileID: 2248501195006023845}
   - component: {fileID: 9180268851787305323}
+  - component: {fileID: 5139945118154955791}
   m_Layer: 0
   m_Name: AudioButton
   m_TagString: Untagged
@@ -4860,6 +4905,20 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   selectedColor: {r: 0.8490566, g: 0.27634388, b: 0.27634388, a: 1}
   unselectedColor: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 1}
+--- !u!114 &5139945118154955791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5675071234372132253}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 7
+  hoverSound: 8
 --- !u!1 &5742386472079583731
 GameObject:
   m_ObjectHideFlags: 0
@@ -4976,6 +5035,7 @@ GameObject:
   - component: {fileID: 121642050348840935}
   - component: {fileID: 1326007221251538597}
   - component: {fileID: 3860446998687618066}
+  - component: {fileID: 8463372737250561138}
   m_Layer: 0
   m_Name: VideoButton
   m_TagString: Untagged
@@ -5122,6 +5182,20 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   selectedColor: {r: 0.8490566, g: 0.27634388, b: 0.27634388, a: 1}
   unselectedColor: {r: 0.2924528, g: 0.2924528, b: 0.2924528, a: 1}
+--- !u!114 &8463372737250561138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5904723670883991160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 7
+  hoverSound: 8
 --- !u!1 &6008129239998205712
 GameObject:
   m_ObjectHideFlags: 0
