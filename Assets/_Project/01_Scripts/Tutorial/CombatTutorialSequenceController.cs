@@ -35,6 +35,8 @@ namespace OzGameLab01.Controllers
         private bool combatEventsBound;
         private bool tutorialPauseHeld;
         private bool targetCompletionRequested;
+        private bool combatEntryEvaluated;
+        private bool enteredFromTutorial;
 
         public bool IsPlaying => sequenceState != null && sequenceState.IsPlaying;
         public string ActiveStepName => sequenceState?.ActiveStep != null
@@ -47,6 +49,15 @@ namespace OzGameLab01.Controllers
         {
             EnsureSequenceState();
             ResolveReferences();
+
+            // 일반 전투에서는 튜토리얼용 Canvas와 GuideView 자체를 생성하지 않습니다.
+            // 전투 진입 컨텍스트는 이 시점에 한 번 소비되고 현재 컨트롤러에 캐시됩니다.
+            if (!CanPlaySequence())
+            {
+                enabled = false;
+                return;
+            }
+
             overlayPresenter = new CombatTutorialOverlayPresenter();
             overlayPresenter.Initialize(transform, guidePrefab, overlaySortingOrder);
             TryAcquireInitialPause();
@@ -358,8 +369,7 @@ namespace OzGameLab01.Controllers
 
         private bool CanPlaySequence()
         {
-            SceneTransitioner transitioner = SceneTransitioner.Instance;
-            if (transitioner == null || !transitioner.IsTutorialCombat)
+            if (!IsTutorialCombatEntry())
                 return false;
 
             EnsureSequenceState();
@@ -388,6 +398,20 @@ namespace OzGameLab01.Controllers
             }
 
             return true;
+        }
+
+        private bool IsTutorialCombatEntry()
+        {
+            if (combatEntryEvaluated)
+                return enteredFromTutorial;
+
+            combatEntryEvaluated = true;
+            SceneTransitioner transitioner = SceneTransitioner.Instance;
+            enteredFromTutorial =
+                transitioner != null &&
+                transitioner.TryConsumeTutorialCombatEntry();
+
+            return enteredFromTutorial;
         }
 
         private void TryAcquireInitialPause()
