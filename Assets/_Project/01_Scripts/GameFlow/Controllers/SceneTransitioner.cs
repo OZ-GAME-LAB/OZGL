@@ -54,13 +54,18 @@ namespace OzGameLab01.Managers
         private Coroutine _initialFade;
         private AsyncOperation _activeLoad;
         private CombatEntryMode _combatEntryMode = CombatEntryMode.Normal;
+        private string _combatEntryFromScene = string.Empty;
+        private string _combatEntryToScene = string.Empty;
+        private bool _combatEntryPending;
 
         /// <summary>
         /// 외부에서 현재 씬 전환 여부를 확인할 수 있습니다.
         /// </summary>
         public bool IsTransitioning => _transition.IsTransitioning;
         public CombatEntryMode CurrentCombatEntryMode => _combatEntryMode;
-        public bool IsTutorialCombat => _combatEntryMode == CombatEntryMode.Tutorial;
+        public bool IsTutorialCombat =>
+            _combatEntryPending &&
+            _combatEntryMode == CombatEntryMode.Tutorial;
 
         private void Awake()
         {
@@ -87,6 +92,13 @@ namespace OzGameLab01.Managers
         /// 씬 전환 중에는 추가 요청을 받지 않습니다.
         /// </summary>
         public void LoadScene(string sceneName)
+        {
+            LoadScene(sceneName,null);
+        }
+
+        private void LoadScene(
+            string sceneName,
+            CombatEntryMode? combatEntryMode)
         {
             // 중복 씬 전환 요청 방지
             if (IsTransitioning || (_activeLoad != null && !_activeLoad.isDone))
@@ -116,7 +128,7 @@ namespace OzGameLab01.Managers
             }
 
             if (_initialFade != null) { StopCoroutine(_initialFade); _initialFade = null; }
-            StartCoroutine(LoadSceneRoutine(sceneName));
+            StartCoroutine(LoadSceneRoutine(sceneName,combatEntryMode));
         }
 
         // ==================== 공용 씬 이동 메서드 ====================
@@ -126,7 +138,6 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadTitleScene()
         {
-            _combatEntryMode = CombatEntryMode.Normal;
             LoadScene(SceneNames.Title);
         }
 
@@ -135,7 +146,6 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadBoardScene()
         {
-            _combatEntryMode = CombatEntryMode.Normal;
             LoadScene(SceneNames.Board);
         }
 
@@ -144,11 +154,12 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadCombatScene()
         {
-            _combatEntryMode = SceneManager.GetActiveScene().name == SceneNames.Tutorial
+            CombatEntryMode entryMode =
+                SceneManager.GetActiveScene().name == SceneNames.Tutorial
                 ? CombatEntryMode.Tutorial
                 : CombatEntryMode.Normal;
 
-            LoadScene(SceneNames.Combat);
+            LoadScene(SceneNames.Combat,entryMode);
         }
 
         /// <summary>
@@ -156,20 +167,57 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadTutorialScene()
         {
-            _combatEntryMode = CombatEntryMode.Normal;
             LoadScene(SceneNames.Tutorial);
         }
 
+        public bool TryConsumeTutorialCombatEntry()
+        {
+            bool isTutorialEntry =
+                _combatEntryPending &&
+                _combatEntryMode == CombatEntryMode.Tutorial &&
+                string.Equals(
+                    _combatEntryFromScene,
+                    SceneNames.Tutorial,
+                    System.StringComparison.Ordinal) &&
+                string.Equals(
+                    _combatEntryToScene,
+                    SceneNames.Combat,
+                    System.StringComparison.Ordinal) &&
+                string.Equals(
+                    SceneManager.GetActiveScene().name,
+                    SceneNames.Combat,
+                    System.StringComparison.Ordinal);
 
-        private IEnumerator LoadSceneRoutine(string sceneName)
+            ClearCombatEntryContext();
+            return isTutorialEntry;
+        }
+
+        private IEnumerator LoadSceneRoutine(
+            string sceneName,
+            CombatEntryMode? combatEntryMode)
         {
             // 씬 전환 시작
-            if (!_transition.TryBegin(SceneManager.GetActiveScene().name, sceneName)) yield break;
-            PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.TransitionStarted);
-            if (!IsTransitioning) yield break;
+            string previousSceneName = SceneManager.GetActiveScene().name;
+            if (!_transition.TryBegin(previousSceneName, sceneName)) yield break;
 
-            string previousSceneName =
-                SceneManager.GetActiveScene().name;
+            if (combatEntryMode.HasValue && sceneName == SceneNames.Combat)
+            {
+                SetCombatEntryContext(
+                    previousSceneName,
+                    sceneName,
+                    combatEntryMode.Value);
+            }
+            else
+            {
+                ClearCombatEntryContext();
+            }
+
+            PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.TransitionStarted);
+            if (!IsTransitioning)
+            {
+                ClearCombatEntryContext();
+                yield break;
+            }
 
             Debug.Log(
                 $"[SceneTransitioner] 씬 전환 시작 | " +
@@ -204,6 +252,7 @@ namespace OzGameLab01.Managers
                 yield return Fade(1f, 0f);
 
                 _transition.Cancel();
+                ClearCombatEntryContext();
                 PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.TransitionFailed);
                 yield break;
             }
@@ -215,7 +264,11 @@ namespace OzGameLab01.Managers
             }
 
             PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.SceneActivated);
-            if (!IsTransitioning) yield break;
+            if (!IsTransitioning)
+            {
+                ClearCombatEntryContext();
+                yield break;
+            }
 
             // 새 씬의 초기 콜백 실행을 위해 한 프레임 대기
             yield return null;
@@ -233,6 +286,25 @@ namespace OzGameLab01.Managers
 
         private IEnumerator Fade(float fromAlpha, float toAlpha) => _fadeView.Fade(fromAlpha, toAlpha);
 
+        private void SetCombatEntryContext(
+            string fromScene,
+            string toScene,
+            CombatEntryMode entryMode)
+        {
+            _combatEntryFromScene = fromScene ?? string.Empty;
+            _combatEntryToScene = toScene ?? string.Empty;
+            _combatEntryMode = entryMode;
+            _combatEntryPending = true;
+        }
+
+        private void ClearCombatEntryContext()
+        {
+            _combatEntryFromScene = string.Empty;
+            _combatEntryToScene = string.Empty;
+            _combatEntryMode = CombatEntryMode.Normal;
+            _combatEntryPending = false;
+        }
+
         private void PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind kind)
             => _notifications.Publish(kind, _transition.FromScene, _transition.ToScene);
 
@@ -247,6 +319,7 @@ namespace OzGameLab01.Managers
                 _activeLoad.completed += _ => _transition.Cancel();
             else
                 _transition.Cancel();
+            ClearCombatEntryContext();
             PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind.TransitionInterrupted);
         }
 
