@@ -42,13 +42,21 @@ namespace OzGameLab01.Combat
             if (_prepared.TryGetValue(key, out MonsterData cached)) return Clone(cached);
 
             MonsterData prepared = Clone(baseData);
-            prepared.healthPoint = Mathf.Max(1, Mathf.RoundToInt(baseData.healthPoint * enemyGrowthValue));
-            prepared.attackPoint = Mathf.Max(0, Mathf.RoundToInt(baseData.attackPoint * enemyGrowthValue));
-            prepared.defensePoint = Mathf.Max(0, baseData.defensePoint * enemyGrowthValue);
-            prepared.attackSpeed = Mathf.Max(MinAttackSpeed, baseData.attackSpeed - AttackSpeedDecayPerTurn * turnCount);
-            prepared.criticalMult = Mathf.Max(0, baseData.criticalMult);
-            prepared.criticalRate = Mathf.Max(0, Mathf.RoundToInt(baseData.criticalRate + CriticalRateGrowthPerTurn * turnCount));
-            prepared.dodgeRate = Mathf.Clamp(Mathf.RoundToInt(baseData.dodgeRate + DodgeRateGrowthPerTurn * turnCount), 0, 100);
+            if (baseData.type == MonsterType.boss)
+            {
+                // 최종보스는 엑셀 finalbossEnemy 시트의 고정값을 그대로 쓴다 — 턴 진행에 따른
+                // 성장 공식을 전혀 적용하지 않는다(2026-09-23, 사용자 확인).
+            }
+            else
+            {
+                prepared.healthPoint = Mathf.Max(1, Mathf.RoundToInt(baseData.healthPoint * enemyGrowthValue));
+                prepared.attackPoint = Mathf.Max(0, Mathf.RoundToInt(baseData.attackPoint * enemyGrowthValue));
+                prepared.defensePoint = Mathf.Max(0, baseData.defensePoint * enemyGrowthValue);
+                prepared.attackSpeed = Mathf.Max(MinAttackSpeed, baseData.attackSpeed - AttackSpeedDecayPerTurn * turnCount);
+                prepared.criticalMult = Mathf.Max(0, baseData.criticalMult);
+                prepared.criticalRate = Mathf.Max(0, Mathf.RoundToInt(baseData.criticalRate + CriticalRateGrowthPerTurn * turnCount));
+                prepared.dodgeRate = Mathf.Clamp(Mathf.RoundToInt(baseData.dodgeRate + DodgeRateGrowthPerTurn * turnCount), 0, 100);
+            }
 
             prepared.skillIds = BuildSkillIds(prepared.skillIds, ownedUnits, MakeSeed(mapSeed, key));
             _prepared[key] = Clone(prepared);
