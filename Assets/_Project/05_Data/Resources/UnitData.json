@@ -2,7 +2,7 @@
   "unitList": [
     {
       "id": 100,
-      "name": "¾Ù¸®½º",
+      "name": "ì•¨ë¦¬ìŠ¤",
       "spriteAddress": "001_100",
       "iconAddress": "I_Un_100",
       "prefabAddress": "Units/Ally/Alice/Vanilla",
@@ -24,7 +24,7 @@
     },
     {
       "id": 101,
-      "name": "ÈòÅä³¢",
+      "name": "í°í† ë¼",
       "spriteAddress": "001_101",
       "iconAddress": "I_Un_101",
       "prefabAddress": "Units/Ally/Rabbit/Vanilla",
@@ -46,7 +46,7 @@
     },
     {
       "id": 102,
-      "name": "Ã¼¼ÅÄ¹",
+      "name": "ì²´ì…”ìº£",
       "spriteAddress": "001_102",
       "iconAddress": "I_Un_102",
       "prefabAddress": "Units/Ally/CheshireCat/Vanilla",
@@ -68,7 +68,7 @@
     },
     {
       "id": 105,
-      "name": "Áö´Ï",
+      "name": "ì§€ë‹ˆ",
       "spriteAddress": "001_105",
       "iconAddress": "I_Un_105",
       "prefabAddress": "Units/Ally/Genie/Vanilla",
@@ -90,7 +90,7 @@
     },
     {
       "id": 106,
-      "name": "»çÀÚ",
+      "name": "ì‚¬ì",
       "spriteAddress": "001_106",
       "iconAddress": "I_Un_106",
       "prefabAddress": "Units/Ally/Lion/Vanilla",
@@ -112,7 +112,7 @@
     },
     {
       "id": 108,
-      "name": "Çã¼ö¾Æºñ",
+      "name": "í—ˆìˆ˜ì•„ë¹„",
       "spriteAddress": "001_108",
       "iconAddress": "I_Un_108",
       "prefabAddress": "Units/Ally/Scarecrow/Vanilla",
@@ -134,7 +134,7 @@
     },
     {
       "id": 109,
-      "name": "µµ·Î½Ã",
+      "name": "ë„ë¡œì‹œ",
       "spriteAddress": "001_109",
       "iconAddress": "I_Un_109",
       "prefabAddress": "Units/Ally/Dorothy/Vanilla",
@@ -156,7 +156,7 @@
     },
     {
       "id": 110,
-      "name": "ÀÎ¾î°øÁÖ",
+      "name": "ì¸ì–´ê³µì£¼",
       "spriteAddress": "001_110",
       "iconAddress": "I_Un_110",
       "prefabAddress": "Units/Ally/Mermaid/Vanilla",
@@ -178,7 +178,7 @@
     },
     {
       "id": 111,
-      "name": "¹é¼³°øÁÖ",
+      "name": "ë°±ì„¤ê³µì£¼",
       "spriteAddress": "001_111",
       "iconAddress": "I_Un_111",
       "prefabAddress": "Units/Ally/Snowwhite/Vanilla",
@@ -200,7 +200,7 @@
     },
     {
       "id": 114,
-      "name": "ÇÇÅÍÆÒ",
+      "name": "í”¼í„°íŒ¬",
       "spriteAddress": "001_114",
       "iconAddress": "I_Un_114",
       "prefabAddress": "Units/Ally/PeterPan/Vanilla",
@@ -222,7 +222,7 @@
     },
     {
       "id": 115,
-      "name": "ÆÃÄ¿º§",
+      "name": "íŒ…ì»¤ë²¨",
       "spriteAddress": "001_115",
       "iconAddress": "I_Un_115",
       "prefabAddress": "Units/Ally/Tinkerbell/Vanilla",
@@ -244,7 +244,7 @@
     },
     {
       "id": 120,
-      "name": "Á¦ÆäÅä",
+      "name": "ì œí˜í† ",
       "spriteAddress": "001_120",
       "iconAddress": "I_Un_120",
       "prefabAddress": "Units/Ally/Zepeto/Vanilla",

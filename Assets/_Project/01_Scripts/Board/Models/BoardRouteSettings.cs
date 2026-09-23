@@ -12,6 +12,8 @@ namespace OzGameLab01.Board.Models
         public float futureRouteReserveRatio;
         public float forwardProgressWeight;
         public float explorationOpportunityWeight;
+        public float unvisitedRegionWeight;
+        public int unvisitedRegionRadius;
         public float sideAlternationWeight;
         public float maximumDetourRatio;
     }

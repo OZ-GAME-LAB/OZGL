@@ -45,6 +45,23 @@ namespace OzGameLab01.Board.Models
             return BoardTimeOfDay.Night;
         }
 
+        public static BoardTimeOfDay GetRunTimeOfDay(
+            int turnCount,
+            int cycleStartTurn,
+            bool isNightLocked,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            if (isNightLocked)
+            {
+                return BoardTimeOfDay.Night;
+            }
+
+            int elapsedTurns = System.Math.Max(0, turnCount - cycleStartTurn);
+            return GetTimeOfDay(elapsedTurns, morningTurns, lunchTurns, eveningTurns);
+        }
+
         public static bool ChangesPhase(
             int turnCount,
             int morningTurns,
@@ -118,6 +135,28 @@ namespace OzGameLab01.Board.Models
             }
 
             return cycleLength - cycleTurn;
+        }
+
+        public static int TurnsUntilRunPhase(
+            int turnCount,
+            int cycleStartTurn,
+            bool isNightLocked,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            int elapsedTurns = System.Math.Max(0, turnCount - cycleStartTurn);
+            if (isNightLocked)
+            {
+                int scheduledMorningTurn =
+                    NormalizeDuration(morningTurns) +
+                    NormalizeDuration(lunchTurns) +
+                    NormalizeDuration(eveningTurns);
+
+                return System.Math.Max(0, scheduledMorningTurn - elapsedTurns);
+            }
+
+            return TurnsUntilPhase(elapsedTurns, morningTurns, lunchTurns, eveningTurns);
         }
 
         public static int DisplayTurn(int turnCount)

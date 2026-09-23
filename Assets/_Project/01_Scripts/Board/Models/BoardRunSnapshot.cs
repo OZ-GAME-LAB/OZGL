@@ -21,13 +21,19 @@ namespace OzGameLab01.Board.Models
         public int remainingDiceValue;
         public int unusedActionPoints;
         public int turnCount;
+        public int timeCycleStartTurn;
+        public bool isMidBossActive;
         public int defeatedElitesCount;
+        public bool hasObjective;
+        public int objectivePositionX;
+        public int objectivePositionY;
         public float enemyGrowthValue;
         public float enemyOverturnValue;
         public bool isInEnemyOverturn;
         public bool eliteDefeatedThisCycle;
         public List<BoardRunPosition> completedBattlePositions = new List<BoardRunPosition>();
         public List<BoardRunPosition> consumedSpecialTilePositions = new List<BoardRunPosition>();
+        public List<BoardRunPosition> visitedPositions = new List<BoardRunPosition>();
     }
     // 보드 좌표 전달 값
     public sealed class BoardRunPosition

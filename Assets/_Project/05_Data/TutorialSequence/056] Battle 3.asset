@@ -13,14 +13,21 @@ MonoBehaviour:
   m_Name: 056] Battle 3
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.TutorialSequenceStepData
   stepName: Introduce3
-  trigger: 1
+  trigger: 3
   showDelay: 0
   ignoreShowDelayTimeScale: 1
-  targetReadyView: 0
+  targetReadyView: 1
   triggerButtonKey: 
   manualTriggerKey: 
+  targetOwnedUnitId: 0
   openRollView: 0
   showGuide: 1
+  focusBoardTile: 1
+  tileTargetMode: 1
+  tilePosition: {x: 0, y: 0}
+  tileType: 2
+  tileTypeOccurrence: 0
+  showGuideAfterLocate: 1
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
   dialogue: "\uB2E4\uC2DC \uD65C\uB3D9\uB825\uC744 \uC5BB\uC5C8\uC5B4. \r\n\uC5B4\uC11C
@@ -28,6 +35,7 @@ MonoBehaviour:
   showCharacter: 1
   highlightButton: 0
   highlightButtonKey: 
+  keepButtonHighlightUntilClicked: 0
   highlightScale: 1.08
   highlightHalfDuration: 0.3
   highlightColor: {r: 1, g: 0.8, b: 0.2, a: 1}
@@ -35,6 +43,9 @@ MonoBehaviour:
   ignoreTimeScale: 1
   outlineHighlight: 0
   outlineTargetKey: 
+  formationSlotHighlightGroup: 0
+  keepFormationSlotHighlightUntilReadyViewHidden: 1
+  formationSlotHighlightReleaseView: 2
   outlineColor: {r: 1, g: 0.8, b: 0.2, a: 1}
   outlineMinDistance: {x: 2, y: 2}
   outlineMaxDistance: {x: 8, y: 8}

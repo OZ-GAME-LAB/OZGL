@@ -243,6 +243,24 @@ namespace OzGameLab01.Managers
             sfxSource.PlayOneShot(entry.Clip, entry.Volume);
         }
 
+        /// <summary>
+        /// 외부 컴포넌트에서 지정한 효과음 클립을 재생합니다.
+        /// </summary>
+        public void PlaySfx(AudioClip clip, float volume = 1f)
+        {
+            if (clip == null)
+            {
+                return;
+            }
+
+            if (!IsInitialized)
+            {
+                Initialize();
+            }
+
+            sfxSource.PlayOneShot(clip, Mathf.Clamp01(volume));
+        }
+
         public void SetMasterVolume(float value)
         {
             if (!IsInitialized) Initialize();

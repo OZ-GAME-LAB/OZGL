@@ -13,11 +13,14 @@ MonoBehaviour:
   m_Name: DefaultBoardRouteProfile
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Board.Models.BoardRouteProfile
   requiredEliteCount: 3
+  firstEliteSpawnOrigin: 0
   minimumEliteLegDistance: 7
   maximumEliteLegDistance: 7
   minimumBossLegDistance: 10
   futureRouteReserveRatio: 0.6
   forwardProgressWeight: 1.5
   explorationOpportunityWeight: 1.2
+  unvisitedRegionWeight: 1
+  unvisitedRegionRadius: 3
   sideAlternationWeight: 2
   maximumDetourRatio: 1.6

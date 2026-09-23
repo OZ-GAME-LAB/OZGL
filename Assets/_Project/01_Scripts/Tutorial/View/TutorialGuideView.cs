@@ -63,7 +63,7 @@ namespace OzGameLab01.UI
                 dialoguePanelButton.onClick.RemoveListener(HandleDialoguePanelClicked);
 
             KillTween();
-            RestoreSiblingOrder();
+
         }
 
         #endregion

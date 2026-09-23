@@ -2,6 +2,7 @@ using System.Collections;
 using OzGameLab01.Board.Models;
 using OzGameLab01.Board.Views;
 using System.Collections.Generic;
+using OzGameLab01.Controllers;
 using OzGameLab01.Data;
 using UnityEngine;
 
@@ -16,15 +17,23 @@ namespace OzGameLab01.Map
     [DisallowMultipleComponent]
     public sealed class MapRouteDirector : MonoBehaviour
     {
-        [Header("References")]
+        [Header("참조")]
+        [Tooltip("목표 타일의 종류와 프리팹을 교체할 맵 생성기입니다. 비워두면 씬에서 자동으로 찾습니다.")]
         [SerializeField] private MapGenerator mapGenerator;
+        [Tooltip("중간 보스 거리와 경로 점수 규칙을 가진 프로필입니다.")]
         [SerializeField] private BoardRouteProfile routeProfile;
+        [Tooltip("밤 시작과 시간대 전환 이벤트를 제공하는 보드 씬 컨트롤러입니다. 비워두면 씬에서 자동으로 찾습니다.")]
+        [SerializeField] private BoardSceneController boardSceneController;
+        [Tooltip("생성된 보스 타일을 비춘 뒤 플레이어에게 복귀시킬 카메라입니다. 비워두면 씬에서 자동으로 찾습니다.")]
+        [SerializeField] private BoardCameraController boardCameraController;
+        [Tooltip("현재 목표 타일 위에 표시할 하이라이트 프리팹입니다.")]
         [SerializeField] private GameObject highlightPrefab;
 
         [Tooltip("맵 생성 애니메이션이 끝난 뒤 목표를 배치하기까지의 추가 대기 시간입니다.")]
         [Min(0f)] [SerializeField] private float objectiveSpawnDelay = 0.5f;
 
         [Header("Highlight")]
+        [Tooltip("목표 타일 중심에서 하이라이트를 띄울 높이입니다.")]
         [SerializeField] private float highlightHeight = 2f;
 
         private readonly BoardObjectiveHighlightView _highlightView = new BoardObjectiveHighlightView();
@@ -40,24 +49,31 @@ namespace OzGameLab01.Map
 
         private void Awake()
         {
-            ResolveActiveMapGenerator();
+            ResolveReferences();
         }
 
         private void OnEnable()
         {
             BoardRunData.OnBattleCompleted += HandleBattleCompleted;
+            BindNightReached();
         }
 
         private void OnDisable()
         {
             BoardRunData.OnBattleCompleted -= HandleBattleCompleted;
+
+            if (boardSceneController != null)
+            {
+                boardSceneController.NightReached -= HandleNightReached;
+            }
         }
 
         private IEnumerator Start()
         {
             while (mapGenerator == null || mapGenerator.NodeDict.Count == 0)
             {
-                ResolveActiveMapGenerator();
+                ResolveReferences();
+                BindNightReached();
                 yield return null;
             }
 
@@ -67,17 +83,54 @@ namespace OzGameLab01.Map
                 yield return new WaitForSeconds(mapGenerator.animationDuration + objectiveSpawnDelay);
             }
 
-            RefreshNextObjective();
+            bool hasSavedObjective = BoardRunData.HasObjective;
+            bool isNight = boardSceneController != null &&
+                           boardSceneController.CurrentTimeOfDay == BoardTimeOfDay.Night;
+
+            // 낮에는 목표를 미리 만들지 않습니다. 저장 복원 또는 밤 도중 재진입만 복원합니다.
+            if (hasSavedObjective || BoardRunData.IsMidBossActive || isNight)
+            {
+                RefreshNextObjective(!hasSavedObjective && (BoardRunData.IsMidBossActive || isNight));
+            }
         }
 
-        private void ResolveActiveMapGenerator()
+        private void ResolveReferences()
         {
-            if (mapGenerator != null && mapGenerator.isActiveAndEnabled)
+            if (mapGenerator == null || !mapGenerator.isActiveAndEnabled)
+            {
+                mapGenerator = FindFirstObjectByType<MapGenerator>();
+            }
+
+            if (boardSceneController == null)
+            {
+                boardSceneController = FindFirstObjectByType<BoardSceneController>();
+            }
+
+            if (boardCameraController == null)
+            {
+                boardCameraController = FindFirstObjectByType<BoardCameraController>();
+            }
+        }
+
+        private void BindNightReached()
+        {
+            if (boardSceneController == null)
+            {
+                ResolveReferences();
+            }
+
+            if (boardSceneController == null)
             {
                 return;
             }
 
-            mapGenerator = FindFirstObjectByType<MapGenerator>();
+            boardSceneController.NightReached -= HandleNightReached;
+            boardSceneController.NightReached += HandleNightReached;
+        }
+
+        private void HandleNightReached(int turnCount)
+        {
+            RefreshNextObjective(revealObjective: true);
         }
 
         private void HandleBattleCompleted()
@@ -97,14 +150,21 @@ namespace OzGameLab01.Map
         private IEnumerator RefreshAfterBattle()
         {
             yield return null;
-            RefreshNextObjective();
+            ClearHighlight();
+
+            // 일반 전투 뒤에는 기존 보스 목표만 복원합니다. 중간 보스 처치 직후에는
+            // 다음 밤까지 새 목표를 만들지 않습니다.
+            if (BoardRunData.HasObjective || BoardRunData.IsMidBossActive)
+            {
+                RefreshNextObjective(revealObjective: false);
+            }
         }
 
         /// <summary>
         /// 현재 플레이어 위치와 중간 보스 처치 수를 기준으로 다음 목표를 배치하고 하이라이트합니다.
         /// 보드 진입 및 전투 종료 후 목표 갱신
         /// </summary>
-        public void RefreshNextObjective()
+        public void RefreshNextObjective(bool revealObjective = false)
         {
             if (mapGenerator == null || mapGenerator.NodeDict.Count == 0)
             {
@@ -141,7 +201,7 @@ namespace OzGameLab01.Map
                 {
                     if (currentObjective != savedNode || savedNode.Type != targetType)
                     {
-                        SetObjective(savedNode, targetType);
+                        SetObjective(savedNode, targetType, revealObjective);
                     }
 
                     return;
@@ -159,18 +219,30 @@ namespace OzGameLab01.Map
                 }
             }
             BoardRouteSettings settings = routeProfile.CreateSettings();
-            BoardRouteModel model = new BoardRouteModel(mapGenerator.NodeDict, consumed, BoardRunData.DefeatedElitesCount, settings);
-            BoardRouteDecision decision = model.SelectNext(BoardRunData.HasPlayerPosition, BoardRunData.PlayerPosition);
+            BoardRouteModel model = new BoardRouteModel(
+                mapGenerator.NodeDict,
+                consumed,
+                BoardRunData.VisitedPositions,
+                BoardRunData.DefeatedElitesCount,
+                settings);
+            bool usePlayerPosition = BoardRunData.HasPlayerPosition;
+            bool isFirstElite = targetType == NodeType.Elite && BoardRunData.DefeatedElitesCount == 0;
+            if (isFirstElite && routeProfile.FirstEliteSpawnOrigin == FirstEliteSpawnOrigin.StartNode)
+            {
+                usePlayerPosition = false;
+            }
+
+            BoardRouteDecision decision = model.SelectNext(usePlayerPosition, BoardRunData.PlayerPosition);
             if (decision.Status != BoardRouteStatus.MissingStart) { finalBossNode = decision.Boss; }
             if (decision.Status != BoardRouteStatus.Ready)
             {
                 Debug.LogError("[MapRouteDirector] 목표 선정 실패: " + decision.Status, this);
                 return;
             }
-            SetObjective(decision.Target, decision.Type);
+            SetObjective(decision.Target, decision.Type, revealObjective);
         }
 
-        private void SetObjective(MapNode targetNode, NodeType targetType)
+        private void SetObjective(MapNode targetNode, NodeType targetType, bool revealObjective)
         {
             ClearHighlight();
 
@@ -178,11 +250,25 @@ namespace OzGameLab01.Map
             mapGenerator.ReplaceTileVisual(targetNode);
             currentObjective = targetNode;
             BoardRunData.SaveObjectivePosition(targetNode.Position);
+            if (targetType == NodeType.Elite)
+            {
+                BoardRunData.ActivateMidBoss();
+            }
 
             GameObject targetView = mapGenerator.GetNodeView(targetNode);
             if (highlightPrefab != null && targetView != null)
             {
                 _highlightView.Show(highlightPrefab, targetView.transform, highlightHeight);
+            }
+
+            if (revealObjective && targetView != null)
+            {
+                if (boardCameraController == null)
+                {
+                    boardCameraController = FindFirstObjectByType<BoardCameraController>();
+                }
+
+                boardCameraController?.Locate(targetView.transform);
             }
 
             Debug.Log(

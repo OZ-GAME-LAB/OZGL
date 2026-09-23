@@ -28,6 +28,7 @@ namespace OzGameLab01.Controllers
         private GameObject _globalDimOverlay;
         private readonly List<GameObject> _activeTileMasks = new List<GameObject>();
         private Material _reachableDimMaterial;
+        private bool _tutorialTileFocusActive;
 
         private MapGenerator _mapGenerator;
 
@@ -67,6 +68,7 @@ namespace OzGameLab01.Controllers
             BoardPlayerController.OnPlayerStartedMoving -= ClearMoveRange;
             BoardPlayerController.OnPlayerSetupCompleted -= TryDrawRange;
 
+            _tutorialTileFocusActive = false;
             ClearMoveRange();
         }
 
@@ -89,6 +91,11 @@ namespace OzGameLab01.Controllers
         /// </summary>
         private void TryDrawRange()
         {
+            if (_tutorialTileFocusActive)
+            {
+                return;
+            }
+
             BoardPlayerController player = BoardPlayerController.Instance;
 
             // 플레이어가 없거나
@@ -125,7 +132,7 @@ namespace OzGameLab01.Controllers
             IReadOnlyDictionary<MapNode, int> reachableNodes,
             MapNode currentNode)
         {
-            ClearMoveRange();
+            ClearVisuals();
 
             if (reachableNodes == null || currentNode == null ||
                 stencilWriterMaterial == null || stencilReaderMaterial == null)
@@ -186,6 +193,68 @@ namespace OzGameLab01.Controllers
             // 마스크와 오버레이를 같은 평면에 두어 기울어진 카메라에서도
             // 스텐실 구멍과 실제 타일 위치가 어긋나지 않게 합니다.
             ConfigureGlobalOverlay(boardBounds, drawingPlaneY);
+        }
+
+        /// <summary>
+        /// 튜토리얼 연출용으로 지정한 타일 하나만 밝게 남기고 나머지 보드를 암전합니다.
+        /// 기존 이동 범위와 같은 스텐실 머티리얼을 재사용합니다.
+        /// </summary>
+        public bool ShowTutorialTileFocus(MapNode focusNode)
+        {
+            ClearVisuals();
+            _tutorialTileFocusActive = false;
+
+            if (focusNode == null ||
+                stencilWriterMaterial == null ||
+                stencilReaderMaterial == null)
+            {
+                return false;
+            }
+
+            ResolveMapGenerator();
+            if (_mapGenerator == null)
+            {
+                return false;
+            }
+
+            List<MapNode> visibleNodes = new List<MapNode>(1)
+            {
+                focusNode
+            };
+
+            CalculateBoardLayout(
+                visibleNodes,
+                out Bounds boardBounds,
+                out float drawingPlaneY);
+            CreateTileOverlay(
+                focusNode,
+                drawingPlaneY,
+                stencilWriterMaterial,
+                0f,
+                "TutorialTileMask");
+            ConfigureGlobalOverlay(boardBounds, drawingPlaneY);
+
+            _tutorialTileFocusActive = true;
+            return true;
+        }
+
+        /// <summary>
+        /// 튜토리얼 단일 타일 포커스를 해제하고, 현재 이동 가능한 범위가 있으면 복원합니다.
+        /// </summary>
+        public void ClearTutorialTileFocus(bool restoreMoveRange = true)
+        {
+            if (!_tutorialTileFocusActive)
+            {
+                return;
+            }
+
+            _tutorialTileFocusActive = false;
+            ClearVisuals();
+
+            if (restoreMoveRange)
+            {
+                TryDrawRange();
+            }
         }
 
         private void CreateTileOverlay(
@@ -412,6 +481,16 @@ namespace OzGameLab01.Controllers
         /// </summary>
         private void ClearMoveRange()
         {
+            if (_tutorialTileFocusActive)
+            {
+                return;
+            }
+
+            ClearVisuals();
+        }
+
+        private void ClearVisuals()
+        {
             if (_globalDimOverlay != null)
             {
                 _globalDimOverlay.SetActive(false);
@@ -430,6 +509,9 @@ namespace OzGameLab01.Controllers
 
         private void OnDestroy()
         {
+            _tutorialTileFocusActive = false;
+            ClearVisuals();
+
             if (_reachableDimMaterial != null)
             {
                 Destroy(_reachableDimMaterial);

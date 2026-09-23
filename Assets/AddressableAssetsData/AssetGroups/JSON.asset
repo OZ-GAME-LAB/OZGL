@@ -15,6 +15,8 @@ MonoBehaviour:
   m_GroupName: JSON
   m_GUID: 4de1656c400a25b4dae182b3c2e99678
   m_SerializeEntries:
+  - m_GUID: 5407f0a3b2d6e2240add044259951dfe
+    m_Address: JSON/EnemyGrowthJSON
   - m_GUID: 00c74c3c758fea34bbba28f853b523da
     m_Address: JSON/SynergyDesignJSON
     m_ReadOnly: 0
@@ -30,6 +32,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5e2e4529e4fe394a97150c64cdfea9d
+    m_Address: JSON/RelicJSON
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: b7d0c73ddf702ee41935c8a88f1032aa
     m_Address: JSON/UnitJSON
     m_ReadOnly: 0
@@ -37,11 +44,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: dc7ca12c0f20934479b6ccfd0a037ec3
     m_Address: JSON/SkillDesignJSON
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f5e2e4529e4fe394a97150c64cdfea9d
-    m_Address: JSON/RelicJSON
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

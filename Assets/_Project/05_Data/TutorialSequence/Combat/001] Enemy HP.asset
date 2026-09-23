@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d179393727942a28d77d90baa7b9e76, type: 3}
+  m_Name: 001] Enemy HP
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.CombatTutorialStepData
+  stepName: Enemy HP
+  trigger: 0
+  manualTriggerKey:
+  showDelay: 0
+  showGuide: 1
+  characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
+  characterName: "\uB3C4\uB85C\uC2DC"
+  dialogue: "\uD654\uBA74 \uC0C1\uB2E8\uC5D0\uC11C \uC801\uC758 \uD604\uC7AC \uCCB4\uB825\uC744 \uD655\uC778\uD560 \uC218 \uC788\uC5B4. \uC801\uC758 \uCCB4\uB825\uC744 0\uC73C\uB85C \uB9CC\uB4E4\uBA74 \uC804\uD22C\uC5D0\uC11C \uC2B9\uB9AC\uD574!"
+  showCharacter: 1
+  pauseCombat: 1
+  resumeCombatOnComplete: 1
+  target: 1
+  highlightTarget: 1
+  completionMode: 0
+  targetPadding: {x: 12, y: 12}
+  outlineColor: {r: 1, g: 0.8, b: 0.2, a: 1}
+  outlineMinDistance: {x: 2, y: 2}
+  outlineMaxDistance: {x: 8, y: 8}
+  outlineMinAlpha: 0.4
+  outlineMaxAlpha: 1
+  outlineHalfDuration: 0.8
+  outlineEase: 4

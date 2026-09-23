@@ -28,7 +28,13 @@ namespace OzGameLab01.Board.Controllers
                 remainingDiceValue = source.remainingDiceValue,
                 unusedActionPoints = source.unusedActionPoints,
                 turnCount = source.turnCount,
+                timeCycleStartTurn = source.timeCycleStartTurn,
+                isMidBossActive = source.isMidBossActive,
                 defeatedElitesCount = source.defeatedElitesCount,
+                hasObjective = source.hasObjective,
+                objectivePositionX = source.objectivePositionX,
+                objectivePositionY = source.objectivePositionY,
+
                 enemyGrowthValue = source.enemyGrowthValue,
                 enemyOverturnValue = source.enemyOverturnValue,
                 isInEnemyOverturn = source.isInEnemyOverturn,
@@ -46,6 +52,13 @@ namespace OzGameLab01.Board.Controllers
                 foreach (var position in source.consumedSpecialTilePositions)
                 {
                     if (position != null) { result.consumedSpecialTilePositions.Add(new BoardPositionSaveEntry { x = position.x, y = position.y }); }
+                }
+            }
+            if (source.visitedPositions != null)
+            {
+                foreach (var position in source.visitedPositions)
+                {
+                    if (position != null) { result.visitedPositions.Add(new BoardPositionSaveEntry { x = position.x, y = position.y }); }
                 }
             }
             return result;
@@ -72,7 +85,12 @@ namespace OzGameLab01.Board.Controllers
                 remainingDiceValue = source.remainingDiceValue,
                 unusedActionPoints = source.unusedActionPoints,
                 turnCount = source.turnCount,
+                timeCycleStartTurn = source.timeCycleStartTurn,
+                isMidBossActive = source.isMidBossActive,
                 defeatedElitesCount = source.defeatedElitesCount,
+                hasObjective = source.hasObjective,
+                objectivePositionX = source.objectivePositionX,
+                objectivePositionY = source.objectivePositionY,
                 enemyGrowthValue = source.enemyGrowthValue,
                 enemyOverturnValue = source.enemyOverturnValue,
                 isInEnemyOverturn = source.isInEnemyOverturn,
@@ -90,6 +108,13 @@ namespace OzGameLab01.Board.Controllers
                 foreach (var position in source.consumedSpecialTilePositions)
                 {
                     if (position != null) { result.consumedSpecialTilePositions.Add(new BoardRunPosition { x = position.x, y = position.y }); }
+                }
+            }
+            if (source.visitedPositions != null)
+            {
+                foreach (var position in source.visitedPositions)
+                {
+                    if (position != null) { result.visitedPositions.Add(new BoardRunPosition { x = position.x, y = position.y }); }
                 }
             }
             return result;

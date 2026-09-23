@@ -15,6 +15,14 @@ namespace OzGameLab01.Controllers
     /// </summary>
     public sealed class CombatSceneController : MonoBehaviour
     {
+        [Flags]
+        public enum PauseReason
+        {
+            None = 0,
+            UserInterface = 1 << 0,
+            Tutorial = 1 << 1
+        }
+
         public enum BattleState
         {
             Running,
@@ -31,9 +39,11 @@ namespace OzGameLab01.Controllers
         private bool _fastForward;
         private bool _outcomeDirty;
         private bool _isReturningToTitle; // [추가] 런 종료 저장 중 중복 타이틀 이동 요청 방지
+        private PauseReason _pauseReasons;
 
         public BattleState CurrentState { get; private set; } = BattleState.Running;
-        public bool IsPaused => CurrentState == BattleState.Paused;
+        public bool IsPaused => _pauseReasons != PauseReason.None;
+        public PauseReason ActivePauseReasons => _pauseReasons;
         public float CurrentTimeScale => _fastForward ? 2f : 1f;
 
         public bool IsResolved => _resolved;
@@ -50,12 +60,24 @@ namespace OzGameLab01.Controllers
 
         public void SetPaused(bool paused)
         {
-            if (_resolved)
+            SetPauseReason(PauseReason.UserInterface, paused);
+        }
+
+        public void SetPauseReason(PauseReason reason, bool paused)
+        {
+            if (_resolved || reason == PauseReason.None)
             {
                 return;
             }
 
-            CurrentState = paused ? BattleState.Paused : BattleState.Running;
+            if (paused)
+                _pauseReasons |= reason;
+            else
+                _pauseReasons &= ~reason;
+
+            CurrentState = IsPaused
+                ? BattleState.Paused
+                : BattleState.Running;
             ApplyTimeScale();
         }
 
@@ -189,6 +211,7 @@ namespace OzGameLab01.Controllers
         private void ResetTimeScale()
         {
             _fastForward = false;
+            _pauseReasons = PauseReason.None;
             CurrentState = BattleState.Running;
             Time.timeScale = 1f;
         }

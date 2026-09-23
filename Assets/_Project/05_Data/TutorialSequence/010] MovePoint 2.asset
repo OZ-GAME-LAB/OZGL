@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 010] MovePoint 2
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.TutorialSequenceStepData
   stepName: MovePoint1
-  trigger: 0
+  trigger: 1
   showDelay: 0
   ignoreShowDelayTimeScale: 1
   targetReadyView: 0
@@ -28,9 +28,9 @@ MonoBehaviour:
     \uD074\uB9AD\uD574\uC11C \uC6D0\uD558\uB294 \uD0C0\uC77C\uB85C \uC774\uB3D9\uD560
     \uC218 \uC788\uC5B4."
   showCharacter: 1
-  highlightButton: 0
-  highlightButtonKey: 
-  highlightScale: 1.08
+  highlightButton: 1
+  highlightButtonKey: EndTurnButton
+  highlightScale: 1.1
   highlightHalfDuration: 0.3
   highlightColor: {r: 1, g: 0.8, b: 0.2, a: 1}
   highlightEase: 4

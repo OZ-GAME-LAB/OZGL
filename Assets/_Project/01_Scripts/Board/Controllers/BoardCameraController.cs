@@ -26,9 +26,9 @@ namespace OzGameLab01.Controllers
         public float maxZoomMultiplier = 2.5f;
 
         [Header("Locate Focus")]
-        [Tooltip("Locate 버튼으로 목표와 플레이어 사이를 이동하는 편도 시간입니다.")]
+        [Tooltip("Locate 버튼과 보스 타일 연출에서 목표와 플레이어 사이를 이동하는 편도 시간입니다. 값이 작을수록 빠르게 이동합니다.")]
         [Min(0.01f)] public float locateMoveDuration = 0.75f;
-        [Tooltip("Locate 대상 타일을 보여주는 시간입니다.")]
+        [Tooltip("Locate 버튼과 보스 타일 연출에서 대상 타일을 화면에 유지하는 시간입니다.")]
         [Min(0f)] public float locateHoldDuration = 1.5f;
 
         private readonly BoardCameraModel _model = new BoardCameraModel();
@@ -37,6 +37,9 @@ namespace OzGameLab01.Controllers
         private Coroutine _locateRoutine;
 
         public bool IsLocating => _locateRoutine != null;
+        public event System.Action<Transform> LocateStarted;
+        public event System.Action LocateReturnStarted;
+        public event System.Action LocateCompleted;
 
         private void LateUpdate()
         {
@@ -82,6 +85,7 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            LocateStarted?.Invoke(focusTarget);
             _locateRoutine = StartCoroutine(LocateRoutine(focusTarget, target));
         }
 
@@ -96,10 +100,12 @@ namespace OzGameLab01.Controllers
 
             if (playerTarget != null)
             {
+                LocateReturnStarted?.Invoke();
                 yield return MoveTo(playerTarget);
             }
 
             _locateRoutine = null;
+            LocateCompleted?.Invoke();
         }
 
         private IEnumerator MoveTo(Transform destinationTarget)
@@ -114,8 +120,14 @@ namespace OzGameLab01.Controllers
 
         private void OnDisable()
         {
+            bool wasLocating = IsLocating;
             StopAllCoroutines();
             _locateRoutine = null;
+
+            if (wasLocating)
+            {
+                LocateCompleted?.Invoke();
+            }
         }
     }
 }

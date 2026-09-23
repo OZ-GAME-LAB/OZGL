@@ -18,6 +18,9 @@ namespace OzGameLab01.Controllers
         [Tooltip("_boardEnvironmentRoot 아래의 Main Camera입니다.")]
         [SerializeField] private Camera boardCamera;
 
+        [Tooltip("Locate 연출 시작과 종료에 맞춰 안개의 가시 영역을 이동할 보드 카메라 컨트롤러입니다. 비워두면 자동으로 찾습니다.")]
+        [SerializeField] private BoardCameraController boardCameraController;
+
         [Tooltip("보드 위 플레이어를 관리하는 BoardPlayerController입니다.")]
         [SerializeField] private BoardPlayerController boardPlayerController;
 
@@ -30,11 +33,18 @@ namespace OzGameLab01.Controllers
 
         private void OnEnable()
         {
-            ResolveBoardSceneController();
+            ResolveReferences();
 
             if (boardSceneController != null)
             {
                 boardSceneController.TimeOfDayChanged += HandleTimeOfDayChanged;
+            }
+
+            if (boardCameraController != null)
+            {
+                boardCameraController.LocateStarted += HandleLocateStarted;
+                boardCameraController.LocateReturnStarted += HandleLocateReturnStarted;
+                boardCameraController.LocateCompleted += HandleLocateCompleted;
             }
         }
 
@@ -54,6 +64,15 @@ namespace OzGameLab01.Controllers
             {
                 boardSceneController.TimeOfDayChanged -= HandleTimeOfDayChanged;
             }
+
+            if (boardCameraController != null)
+            {
+                boardCameraController.LocateStarted -= HandleLocateStarted;
+                boardCameraController.LocateReturnStarted -= HandleLocateReturnStarted;
+                boardCameraController.LocateCompleted -= HandleLocateCompleted;
+            }
+
+            boardSightEffectView?.ResetFocus();
         }
 
         /// <summary>
@@ -72,12 +91,37 @@ namespace OzGameLab01.Controllers
                 boardPlane);
         }
 
-        private void ResolveBoardSceneController()
+        private void ResolveReferences()
         {
             if (boardSceneController == null)
             {
                 boardSceneController = FindFirstObjectByType<BoardSceneController>();
             }
+
+            if (boardCameraController == null && boardCamera != null)
+            {
+                boardCameraController = boardCamera.GetComponent<BoardCameraController>();
+            }
+
+            if (boardCameraController == null)
+            {
+                boardCameraController = FindFirstObjectByType<BoardCameraController>();
+            }
+        }
+
+        private void HandleLocateStarted(Transform focusTarget)
+        {
+            boardSightEffectView?.SetFocusTarget(focusTarget);
+        }
+
+        private void HandleLocateCompleted()
+        {
+            boardSightEffectView?.ResetFocus();
+        }
+
+        private void HandleLocateReturnStarted()
+        {
+            boardSightEffectView?.ResetFocus();
         }
 
         private void HandleTimeOfDayChanged(BoardTimeOfDay timeOfDay)

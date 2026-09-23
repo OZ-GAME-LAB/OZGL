@@ -17,12 +17,17 @@ namespace OzGameLab01.Controllers
     public sealed class BoardSceneController : MonoBehaviour, IBoardNotificationSource
     {
         [Header("보드 씬 연결")]
+        [Tooltip("플레이어 이동과 턴 종료를 처리하는 보드 플레이어 컨트롤러입니다.")]
         [SerializeField] private BoardPlayerController _boardPlayerController;
+        [Tooltip("시간대 오버레이를 적용할 현재 보드 맵 생성기입니다.")]
         [SerializeField] private MapGenerator _mapGenerator;
 
         [Header("시간 시스템")]
+        [Tooltip("한 주기에서 아침이 유지되는 턴 수입니다.")]
         [SerializeField, Min(1)] private int _morningTurns = 8;
+        [Tooltip("한 주기에서 정오가 유지되는 턴 수입니다. 아침 턴 수와 합쳐 밤 시작 시점을 결정합니다.")]
         [SerializeField, Min(1)] private int _lunchTurns = 2;
+        [Tooltip("중간 보스를 처치한 상태에서 밤이 유지되는 기본 턴 수입니다. 중간 보스가 살아 있으면 이 시간이 지나도 밤이 유지됩니다.")]
         [SerializeField, Min(1)] private int _eveningTurns = 5;
 
         [Header("시간대 명암")]
@@ -40,6 +45,12 @@ namespace OzGameLab01.Controllers
         [Tooltip("전투 시작 전 최소 편성 인원을 확인할 유닛 편성 컨트롤러입니다. 비워두면 씬에서 자동으로 찾습니다.")]
         [SerializeField] private UnitFormationController _unitFormationController;
 
+        [Header("유닛 획득 설정")]
+        [Tooltip("활성화하면 유닛 획득 타일에서 무작위 선택 대신 지정한 ID의 유닛만 획득합니다.")]
+        [SerializeField] private bool _useFixedUnitAcquisition;
+        [Tooltip("고정 획득할 UnitData ID입니다. 백설공주는 111입니다.")]
+        [SerializeField, Min(1)] private int _fixedUnitAcquisitionId = 111;
+
         [Header("Event UI")]
         [SerializeField] private OzGameLab01.Events.EventSession _eventUIPanel;
 
@@ -52,7 +63,13 @@ namespace OzGameLab01.Controllers
         public event Action<UnitData> UnitAcquired;
         public event Action<BoardTimeOfDay> TimeOfDayChanged;
         public BoardTimeOfDay CurrentTimeOfDay =>
-            BoardTurnRules.GetTimeOfDay(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
+            BoardTurnRules.GetRunTimeOfDay(
+                BoardRunData.TurnCount,
+                BoardRunData.TimeCycleStartTurn,
+                BoardRunData.IsMidBossActive,
+                _morningTurns,
+                _lunchTurns,
+                _eveningTurns);
         // [추가] 저장 대기 중 중복 타이틀 이동 요청 방지
         private bool _isReturningToTitle;
         private MapNode _pendingEventNode;
@@ -70,7 +87,7 @@ namespace OzGameLab01.Controllers
         // 상태 확정 후 값 스냅샷 발행
         private void Publish(BoardNotificationKind kind, MapNode node = null, int unitId = 0, NodeType? tileType = null)
         {
-            bool isEvening = BoardTurnRules.IsNight(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
+            bool isEvening = CurrentTimeOfDay == BoardTimeOfDay.Night;
 
             Notification?.Invoke(new BoardNotification(kind, node != null ? node.Position : BoardRunData.PlayerPosition, tileType ?? (node != null ? node.Type : NodeType.Normal), BoardRunData.TurnCount, BoardRunData.RemainingDiceValue, unitId, BoardRunData.UnusedActionPoints, isEvening));
         }
@@ -129,6 +146,8 @@ namespace OzGameLab01.Controllers
 
             if (_mapGenerator != null)
                 _mapGenerator.PresentationCompleted += HandleMapPresentationCompleted;
+
+            BoardRunData.OnMidBossDefeated += HandleMidBossDefeated;
         }
 
         private void OnDisable()
@@ -139,6 +158,8 @@ namespace OzGameLab01.Controllers
             if (_mapGenerator != null)
                 _mapGenerator.PresentationCompleted -= HandleMapPresentationCompleted;
 
+            BoardRunData.OnMidBossDefeated -= HandleMidBossDefeated;
+
             UnsubscribeEventCompletion();
         }
 
@@ -148,67 +169,78 @@ namespace OzGameLab01.Controllers
             _timeOfDayOverlay = null;
         }
 
-       public void EndTurn()
-{
-    if (_boardPlayerController == null || !_boardPlayerController.EndTurn())
-    {
-        return;
-    }
-
-    SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
-
-    TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
-
-    bool wasNightTurn = BoardTurnRules.IsNight(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
-    BoardTimeOfDay previousTimeOfDay = CurrentTimeOfDay;
-
-    BoardRunData.AdvanceTurn(wasNightTurn);
-
-    RefreshTimeOfDayOverlay();
-    Publish(BoardNotificationKind.TurnAdvanced);
-
-    bool hasTimeOfDayChanged = BoardTurnRules.ChangesPhase(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
-
-    // 낮→밤→낮 한 사이클(웨이브)이 방금 끝났으면 적 성장 오버턴 여부를 갱신한다.
-    // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-3절.
-    if (previousTimeOfDay == BoardTimeOfDay.Night && CurrentTimeOfDay == BoardTimeOfDay.Day)
-    {
-        BoardRunData.RegisterEnemyGrowthCycleBoundary();
-    }
-
-    if (hasTimeOfDayChanged)
-    {
-        switch (CurrentTimeOfDay)
+        public void EndTurn()
         {
-            case BoardTimeOfDay.Day:
-                DayReached?.Invoke(BoardRunData.TurnCount);
-                break;
+            if (_boardPlayerController == null || !_boardPlayerController.EndTurn())
+            {
+                return;
+            }
 
-            case BoardTimeOfDay.Noon:
-                // 정오는 별도 전환 피드백이 없으므로 다음 턴 RollView를 바로 준비합니다.
+            BoardTimeOfDay previousTimeOfDay = CurrentTimeOfDay;
+
+            SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
+
+            TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
+
+            bool wasNightTurn = BoardTurnRules.IsNight(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
+            BoardRunData.AdvanceTurn(wasNightTurn);
+
+            RefreshTimeOfDayOverlay();
+            Publish(BoardNotificationKind.TurnAdvanced);
+
+            // 낮→밤→낮 한 사이클(웨이브)이 방금 끝났으면 적 성장 오버턴 여부를 갱신한다.
+            // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-3절.
+            if (previousTimeOfDay == BoardTimeOfDay.Night && CurrentTimeOfDay == BoardTimeOfDay.Day)
+            {
+                BoardRunData.RegisterEnemyGrowthCycleBoundary();
+            }
+
+            bool hasTimeOfDayChanged = previousTimeOfDay != CurrentTimeOfDay;
+            if (hasTimeOfDayChanged)
+            {
+                switch (CurrentTimeOfDay)
+                {
+                    case BoardTimeOfDay.Day:
+                        DayReached?.Invoke(BoardRunData.TurnCount);
+                        break;
+
+                    case BoardTimeOfDay.Noon:
+                        // 정오는 별도 전환 피드백이 없으므로 다음 턴 RollView를 바로 준비합니다.
+                        PlayerTurnReady?.Invoke();
+                        break;
+
+                    case BoardTimeOfDay.Night:
+                        NightReached?.Invoke(BoardRunData.TurnCount);
+                        break;
+                }
+            }
+            else
+            {
                 PlayerTurnReady?.Invoke();
-                break;
+            }
 
-            case BoardTimeOfDay.Night:
-                NightReached?.Invoke(BoardRunData.TurnCount);
-                break;
+            UpdateTimeStatusHud();
         }
-    }
 
-    UpdateTimeStatusHud();
+        private void UpdateTimeStatusHud()
+        {
+            int turnsUntilNextPhase = BoardTurnRules.TurnsUntilRunPhase(
+                BoardRunData.TurnCount,
+                BoardRunData.TimeCycleStartTurn,
+                BoardRunData.IsMidBossActive,
+                _morningTurns,
+                _lunchTurns,
+                _eveningTurns);
 
-    if (!hasTimeOfDayChanged)
-    {
-        PlayerTurnReady?.Invoke();
-    }
-}
+            _feedback.ShowTurns(turnsUntilNextPhase);
+        }
 
-       private void UpdateTimeStatusHud()
-{
-    int turnsUntilNextPhase = BoardTurnRules.TurnsUntilPhase(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
-
-    _feedback.ShowTurns(turnsUntilNextPhase);
-}
+        private void HandleMidBossDefeated()
+        {
+            RefreshTimeOfDayOverlay();
+            UpdateTimeStatusHud();
+            DayReached?.Invoke(BoardRunData.TurnCount);
+        }
         private void HandleMapPresentationCompleted()
         {
             RefreshTimeOfDayOverlay();
@@ -412,10 +444,18 @@ namespace OzGameLab01.Controllers
         private bool HandleUnitAcquisitionNode(out int acquiredUnitId)
         {
             acquiredUnitId = 0;
-            UnitData selected = BoardUnitSelection.Select(OzGameLab01.Data.RuntimeContent.Catalog.Units, count => UnityEngine.Random.Range(0, count));
+            UnitData selected = _useFixedUnitAcquisition
+                ? OzGameLab01.Data.RuntimeContent.Catalog.GetUnit(_fixedUnitAcquisitionId)
+                : BoardUnitSelection.Select(
+                    OzGameLab01.Data.RuntimeContent.Catalog.Units,
+                    count => UnityEngine.Random.Range(0, count));
+
             if (selected == null)
             {
-                Debug.LogWarning("[BoardSceneController] 획득 가능한 유닛 데이터가 없습니다.", this);
+                string reason = _useFixedUnitAcquisition
+                    ? $"지정한 유닛 ID({_fixedUnitAcquisitionId})를 찾을 수 없습니다."
+                    : "획득 가능한 유닛 데이터가 없습니다.";
+                Debug.LogWarning($"[BoardSceneController] {reason}", this);
                 return false;
             }
             PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();

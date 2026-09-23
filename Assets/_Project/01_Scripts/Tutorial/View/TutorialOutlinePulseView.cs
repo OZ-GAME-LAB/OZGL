@@ -12,12 +12,13 @@ namespace OzGameLab01.UI
         [SerializeField] private Outline outline;
 
         private Tween pulseTween;
+        private bool isHighlightPlaying;
 
         private void Awake()
         {
             ResolveOutline();
 
-            if (outline != null)
+            if (outline != null && !isHighlightPlaying)
                 outline.enabled = false;
         }
 
@@ -42,6 +43,7 @@ namespace OzGameLab01.UI
                 return;
 
             StopTween();
+            isHighlightPlaying = true;
 
             outline.enabled = true;
             ApplyValue(
@@ -78,6 +80,7 @@ namespace OzGameLab01.UI
         public void StopHighlight()
         {
             StopTween();
+            isHighlightPlaying = false;
 
             if (outline != null)
                 outline.enabled = false;

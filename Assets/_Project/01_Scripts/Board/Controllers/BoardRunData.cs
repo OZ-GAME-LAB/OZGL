@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Board.Models;
 using OzGameLab01.Board.Controllers;
@@ -22,6 +23,8 @@ namespace OzGameLab01.Data
         public static int RolledDiceValue => _state.RolledDiceValue;
         public static int RemainingDiceValue => _state.RemainingDiceValue;
         public static int TurnCount => _state.TurnCount;
+        public static int TimeCycleStartTurn => _state.TimeCycleStartTurn;
+        public static bool IsMidBossActive => _state.IsMidBossActive;
         public static int DefeatedElitesCount => _state.DefeatedElitesCount;
         public static float EnemyGrowthValue => _state.EnemyGrowthValue;
         public static float EnemyOverturnValue => _state.EnemyOverturnValue;
@@ -29,10 +32,16 @@ namespace OzGameLab01.Data
         public static bool HasObjective => _state.HasObjective;
         public static Vector2Int ObjectivePosition => _state.ObjectivePosition;
         public static bool IsEliteBattle => _state.IsEliteBattle;
+        public static IReadOnlyCollection<Vector2Int> VisitedPositions => _state.VisitedPositions;
         public static event System.Action OnBattleCompleted
         {
             add { _state.OnBattleCompleted += value; }
             remove { _state.OnBattleCompleted -= value; }
+        }
+        public static event System.Action OnMidBossDefeated
+        {
+            add { _state.OnMidBossDefeated += value; }
+            remove { _state.OnMidBossDefeated -= value; }
         }
         public static void BeginNewRun() { _state.BeginNewRun(Random.Range(1, int.MaxValue)); }
         public static void EnsureActiveRun() { if (!HasActiveRun) { BeginNewRun(); } }
@@ -41,6 +50,7 @@ namespace OzGameLab01.Data
         public static void SaveUnusedActionPoints(int actionPoints) { EnsureActiveRun(); _state.SaveUnusedActionPoints(actionPoints); }
         public static void SaveObjectivePosition(Vector2Int position) { EnsureActiveRun(); _state.SaveObjectivePosition(position); }
         public static void ClearObjective() { _state.ClearObjective(); }
+        public static void ActivateMidBoss() { EnsureActiveRun(); _state.ActivateMidBoss(); }
         public static void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false, bool isNightEncounter = false) { EnsureActiveRun(); _state.BeginBattle(battlePosition, isBossBattle, isEliteBattle, isNightEncounter); }
         public static void CompleteCurrentBattle() { _state.CompleteCurrentBattle(); }
         public static bool IsBattleCompleted(Vector2Int position) { return _state.IsBattleCompleted(position); }
