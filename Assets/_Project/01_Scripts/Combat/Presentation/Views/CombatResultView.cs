@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI.Battle
 {
@@ -23,6 +25,7 @@ namespace OzGameLab01.UI.Battle
         [SerializeField] private OverlayTransitionView overlayTransition;
 
         private readonly List<DpsInfoItemView> dpsInfoItems = new ();
+        private string _currentRewardIconAddress;
 
         #region Properties
 
@@ -125,6 +128,29 @@ namespace OzGameLab01.UI.Battle
 
             rewardIconImage.sprite = icon;
             rewardIconImage.enabled = icon != null;
+        }
+
+        /// <summary>
+        /// 어드레서블 주소를 기반 전투 결과 보상 아이콘 설정
+        /// </summary>
+        public async Task SetRewardIconAsync(string iconAddress)
+        {
+            if (rewardIconImage == null) return;
+
+            if (string.IsNullOrEmpty(iconAddress))
+            {
+                SetRewardIcon(null);
+                return;
+            }
+
+            _currentRewardIconAddress = iconAddress;
+            Sprite sprite = await SpriteManager.GetSpriteAsync(iconAddress);
+
+            if (_currentRewardIconAddress == iconAddress && rewardIconImage != null)
+            {
+                rewardIconImage.sprite = sprite;
+                rewardIconImage.enabled = sprite != null;
+            }
         }
 
         public void SetEndBattleButtonInteractable(bool value)
