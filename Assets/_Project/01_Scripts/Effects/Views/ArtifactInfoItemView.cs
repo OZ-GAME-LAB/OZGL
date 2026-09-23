@@ -8,7 +8,7 @@ using OzGameLab01.Managers;
 namespace OzGameLab01.UI
 {
     [DisallowMultipleComponent]
-    public sealed class ArtifactInfoItemView : MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler
+    public sealed class ArtifactInfoItemView : MonoBehaviour,IPointerClickHandler,IPointerEnterHandler,IPointerExitHandler, IRelicDisplayable
     {
         [Header("References")]
         [UnityEngine.Serialization.FormerlySerializedAs("rectTransform")]
@@ -38,6 +38,8 @@ namespace OzGameLab01.UI
         public event Action<ArtifactInfoItemView, PointerEventData> Clicked; //아이템 클릭 이벤트
         public event Action<ArtifactInfoItemView, PointerEventData> PointerEntered; //아이템 포인터 진입 이벤트
         public event Action<ArtifactInfoItemView, PointerEventData> PointerExited; //아이템 포인터 이탈 이벤트
+
+        public async Task UpdateRelicIconAsync(string iconAddress) => await SetIconAsync(iconAddress);
 
         #endregion
 

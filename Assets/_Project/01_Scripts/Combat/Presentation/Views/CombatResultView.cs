@@ -9,7 +9,7 @@ using OzGameLab01.Managers;
 namespace OzGameLab01.UI.Battle
 {
     [DisallowMultipleComponent]
-    public sealed class CombatResultView : MonoBehaviour
+    public sealed class CombatResultView : MonoBehaviour, IRelicDisplayable
     {
         private const int MaxDpsInfoCount = 4;
 
@@ -40,6 +40,8 @@ namespace OzGameLab01.UI.Battle
         public bool IsVisible => gameObject.activeSelf;
 
         public event Action<CombatResultView> EndBattleClicked;
+
+        public async Task UpdateRelicIconAsync(string iconAddress) => await SetRewardIconAsync(iconAddress);
 
         #endregion
 

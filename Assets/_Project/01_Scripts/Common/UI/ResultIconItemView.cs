@@ -7,7 +7,7 @@ namespace OzGameLab01.UI
 {
     /// <summary>기존 프레임과 원형 마스크를 유지하면서 결과 아이콘을 표시합니다.</summary>
     [DisallowMultipleComponent]
-    public sealed class ResultIconItemView : MonoBehaviour
+    public sealed class ResultIconItemView : MonoBehaviour, IRelicDisplayable
     {
         [SerializeField] private Image iconImage;
         private string _currentIconAddress;
@@ -16,6 +16,8 @@ namespace OzGameLab01.UI
 
         /// <summary>원형 마스크 내부의 아이콘 이미지입니다.</summary>
         public Image IconImage => iconImage;
+
+        public async Task UpdateRelicIconAsync(string iconAddress) => await SetIconAsync(iconAddress);
 
         #endregion
 
