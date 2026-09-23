@@ -30,6 +30,7 @@ namespace OzGameLab01.Events
             }
 
             if (_session != null) RuntimeContent.BindEvents(_session.EventDB);
+
             return _session;
         }
 
@@ -91,7 +92,7 @@ namespace OzGameLab01.Events
                 ApplyRelicChoiceRewards(choiceEvent.choices);
             }
 
-            if (!session.ShowEvent(choiceEvent, ChoiceResult))
+            if (!session.ShowEvent(choiceEvent, ChoiceResult , AnotherButtonDisable))
             {
                 return false;
             }
@@ -128,7 +129,10 @@ namespace OzGameLab01.Events
                 choices[i].SetEventChoice(relic.name, relic.id.ToString(), null);
             }
         }
-
+        public void AnotherButtonDisable(int choiceIndex)
+        {
+            _session.ButtonDisabled(choiceIndex);
+        }
         public void ChoiceResult(int choiceIndex)
         {
             EventChoice selected = _state.GetChoice(choiceIndex);
@@ -139,6 +143,8 @@ namespace OzGameLab01.Events
             }
 
             ExecuteChoice(selected);
+
+
             SystemBus.Messages.Publish(new EventChoiceCompleted());
         }
 

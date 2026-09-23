@@ -34,10 +34,10 @@ namespace OzGameLab01.Events
         /// 이벤트 패널을 열고 제목/설명/선택지를 표시합니다. UI 참조가 없으면 false를
         /// 반환합니다.
         /// </summary>
-        public bool ShowEvent(EventSO choiceEvent, Action<int> onChoiceSelected)
-            => choiceEvent != null && ShowEvent(OzGameLab01.Data.EventContent.FromAsset(choiceEvent, choiceEvent.choiceCategory), onChoiceSelected);
+        //public bool ShowEvent(EventSO choiceEvent, Action<int> onChoiceSelected, Action<int> onChoiceEventBeforeBurn = null)
+        //    => choiceEvent != null && ShowEvent(OzGameLab01.Data.EventContent.FromAsset(choiceEvent, choiceEvent.choiceCategory), onChoiceSelected);
 
-        public bool ShowEvent(OzGameLab01.Data.EventContent choiceEvent, Action<int> onChoiceSelected)
+        public bool ShowEvent(OzGameLab01.Data.EventContent choiceEvent, Action<int> onChoiceSelected, Action<int> onChoiceEventBeforeBurn)
         {
             if (eventUIView == null)
             {
@@ -52,7 +52,7 @@ namespace OzGameLab01.Events
 
             if (choiceEvent.eventCategory == EventCategory.Choice)
             {
-                eventUIView.ShowChoices(choiceEvent.choices, onChoiceSelected);
+                eventUIView.ShowChoices(choiceEvent.choices, onChoiceSelected , onChoiceEventBeforeBurn);
             }
             else if (choiceEvent.eventCategory == EventCategory.Action)
             {
@@ -61,7 +61,10 @@ namespace OzGameLab01.Events
 
             return true;
         }
-
+        public void ButtonDisabled(int selectedButtonIndex)
+        {
+            eventUIView.DisableButtons(selectedButtonIndex);
+        }
         public void CloseEvent()
         {
             gameObject.SetActive(false);
