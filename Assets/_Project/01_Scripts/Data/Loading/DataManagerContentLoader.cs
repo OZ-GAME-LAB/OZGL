@@ -30,7 +30,6 @@ namespace OzGameLab01.Data
                 skills.Values,
                 DataManager.Synergies.GetAll().Values,
                 DataManager.Relics.GetAll().Values,
-                DataManager.EnemyGrowth.GetAll().Values,
                 ResourcesContentLoader.LoadEvents(eventDatabase));
         }
 

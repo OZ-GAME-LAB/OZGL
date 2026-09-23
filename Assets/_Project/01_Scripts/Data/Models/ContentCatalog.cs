@@ -63,7 +63,6 @@ namespace OzGameLab01.Data
         public ContentTable<SkillData> Skills { get; }
         public ContentTable<SynergyData> Synergies { get; }
         public ContentTable<RelicData> Relics { get; }
-        public ContentTable<EnemyGrowthRow> EnemyGrowth { get; }
         private readonly Dictionary<string, EventContent> _events = new Dictionary<string, EventContent>();
         public IReadOnlyList<EventContent> Events => _events.Values.Select(row => row.Copy()).ToList().AsReadOnly();
         public int EventCount => _events.Count;
@@ -76,14 +75,13 @@ namespace OzGameLab01.Data
 
         public ContentCatalog(IEnumerable<UnitData> units, IEnumerable<MonsterData> enemies,
             IEnumerable<SkillData> skills, IEnumerable<SynergyData> synergies, IEnumerable<RelicData> relics,
-            IEnumerable<EnemyGrowthRow> enemyGrowth = null, IEnumerable<EventContent> events = null)
+            IEnumerable<EventContent> events = null)
         {
             _units = new ContentTable<UnitData>(units, row => row.id);
             _enemies = new ContentTable<MonsterData>(enemies, row => row.id);
             Skills = new ContentTable<SkillData>(skills, row => row.id);
             Synergies = new ContentTable<SynergyData>(synergies, row => row.id);
             Relics = new ContentTable<RelicData>(relics, row => row.id);
-            EnemyGrowth = new ContentTable<EnemyGrowthRow>(enemyGrowth ?? Array.Empty<EnemyGrowthRow>(), row => row.id);
             if (events != null)
                 foreach (EventContent row in events)
                 {

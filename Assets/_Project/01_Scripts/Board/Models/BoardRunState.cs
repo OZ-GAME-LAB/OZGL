@@ -15,6 +15,7 @@ namespace OzGameLab01.Board.Models
         public Vector2Int CurrentBattlePosition { get; private set; }
         public bool HasCurrentBattle { get; private set; }
         public bool IsBossBattle { get; private set; }
+        public bool IsNightEncounter { get; private set; }
         public bool IsBossDefeated { get; private set; }
         public int UnusedActionPoints { get; private set; }
         public bool HasRolledThisTurn { get; private set; }
@@ -27,6 +28,18 @@ namespace OzGameLab01.Board.Models
         public Vector2Int ObjectivePosition { get; private set; }
         public bool IsEliteBattle { get; private set; }
         public event System.Action OnBattleCompleted; // 전투 종료 알림 이벤트
+
+        // 적 성장(HP/공격력/방어력에 곱하는 value) — 매 턴 종료 시점의 보드 낮/밤 상태로 누적.
+        // 웨이브 마감(낮→밤→낮 한 사이클)까지 중간보스를 못 잡으면 오버턴으로 넘어가 성장이
+        // 멈추고 별도 오버턴 값만 쌓인다. 상세: Docs/ENEMY_SCALING_DESIGN.md 4-3절.
+        private const float EnemyGrowthValueBase = 0.7f;
+        private const float EnemyDayValueIncrement = 0.07f;
+        private const float EnemyNightValueIncrement = 0.12f;
+        private const float EnemyOverturnValueIncrement = 0.3f;
+        public float EnemyGrowthValue { get; private set; } = EnemyGrowthValueBase;
+        public float EnemyOverturnValue { get; private set; }
+        public bool IsInEnemyOverturn { get; private set; }
+        private bool _eliteDefeatedThisCycle;
 
         public void SetRemainingDiceValue(int value)
         {
@@ -70,6 +83,7 @@ namespace OzGameLab01.Board.Models
                 currentBattlePositionY = CurrentBattlePosition.y,
                 isBossBattle = IsBossBattle,
                 isEliteBattle = IsEliteBattle,
+                isNightEncounter = IsNightEncounter,
                 isBossDefeated = IsBossDefeated,
 
                 hasRolledThisTurn = HasRolledThisTurn,
@@ -78,7 +92,12 @@ namespace OzGameLab01.Board.Models
 
                 unusedActionPoints = UnusedActionPoints,
                 turnCount = TurnCount,
-                defeatedElitesCount = DefeatedElitesCount
+                defeatedElitesCount = DefeatedElitesCount,
+
+                enemyGrowthValue = EnemyGrowthValue,
+                enemyOverturnValue = EnemyOverturnValue,
+                isInEnemyOverturn = IsInEnemyOverturn,
+                eliteDefeatedThisCycle = _eliteDefeatedThisCycle
             };
 
             foreach (Vector2Int position in _completedBattlePositions)
@@ -120,6 +139,7 @@ namespace OzGameLab01.Board.Models
                 saveData.currentBattlePositionY);
             IsBossBattle = saveData.isBossBattle;
             IsEliteBattle = saveData.isEliteBattle;
+            IsNightEncounter = saveData.isNightEncounter;
             IsBossDefeated = saveData.isBossDefeated;
             // 기존 저장 파일의 누락 필드 기본값 0 및 음수 보정
             int restoredRemaining = Mathf.Max(0, saveData.remainingDiceValue);
@@ -146,6 +166,23 @@ namespace OzGameLab01.Board.Models
             UnusedActionPoints = Mathf.Max(0, saveData.unusedActionPoints);
             TurnCount = Mathf.Max(0, saveData.turnCount);
             DefeatedElitesCount = Mathf.Max(0, saveData.defeatedElitesCount);
+
+            // 구버전 세이브(이 필드가 생기기 전)에는 enemyGrowthValue가 항상 기본값 0이다.
+            // 실제 진행 중에는 이 값이 절대 0 이하로 내려가지 않으므로 0을 "필드 없음" 신호로 쓴다.
+            if (saveData.enemyGrowthValue > 0f)
+            {
+                EnemyGrowthValue = saveData.enemyGrowthValue;
+                EnemyOverturnValue = Mathf.Max(0f, saveData.enemyOverturnValue);
+                IsInEnemyOverturn = saveData.isInEnemyOverturn;
+                _eliteDefeatedThisCycle = saveData.eliteDefeatedThisCycle;
+            }
+            else
+            {
+                EnemyGrowthValue = EnemyGrowthSaveMigration.EstimateValue(TurnCount, DefeatedElitesCount);
+                EnemyOverturnValue = 0f;
+                IsInEnemyOverturn = false;
+                _eliteDefeatedThisCycle = false;
+            }
 
             if (saveData.completedBattlePositions != null)
             {
@@ -195,12 +232,13 @@ namespace OzGameLab01.Board.Models
             HasObjective = false;
             ObjectivePosition = Vector2Int.zero;
         }
-        public void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false)
+        public void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false, bool isNightEncounter = false)
         {
             CurrentBattlePosition = battlePosition;
             HasCurrentBattle = true;
             IsBossBattle = isBossBattle;
             IsEliteBattle = isEliteBattle; // 엘리트전 여부 기록
+            IsNightEncounter = isNightEncounter; // 전투 시작 시점의 보드 낮/밤 — 적 종류/스탯 선택에 사용
             SavePlayerPosition(battlePosition);
         }
         public void CompleteCurrentBattle()
@@ -218,7 +256,16 @@ namespace OzGameLab01.Board.Models
                 IsBossDefeated = true; // [추가] 보스 처치 플래그 설정
             }
 
-            if (IsEliteBattle) DefeatedElitesCount++; // 엘리트전 카운트 증가!
+            if (IsEliteBattle)
+            {
+                DefeatedElitesCount++; // 엘리트전 카운트 증가!
+                // 중간보스 처치 시 오버턴 값은 사라지고, 성장값에 +1을 더한 뒤
+                // 다음 턴부터 정상 낮/밤 성장으로 복귀한다.
+                _eliteDefeatedThisCycle = true;
+                IsInEnemyOverturn = false;
+                EnemyOverturnValue = 0f;
+                EnemyGrowthValue += 1f;
+            }
 
             // 일반 전투에서는 목표를 유지하고, 목표 전투가 끝났을 때만 해제합니다.
             if (IsEliteBattle || IsBossBattle ||
@@ -230,6 +277,7 @@ namespace OzGameLab01.Board.Models
             HasCurrentBattle = false;
             IsBossBattle = false;
             IsEliteBattle = false;
+            IsNightEncounter = false;
 
             OnBattleCompleted?.Invoke(); // 목표 매니저 알림 이벤트!
         }
@@ -247,11 +295,35 @@ namespace OzGameLab01.Board.Models
         {
             return _consumedSpecialTilePositions.Contains(position);
         }
-        public void AdvanceTurn()
+        public void AdvanceTurn(bool wasNightTurn)
         {
 
             TurnCount++;
             ResetTurnDiceState();
+
+            if (IsInEnemyOverturn)
+            {
+                EnemyOverturnValue += EnemyOverturnValueIncrement;
+            }
+            else
+            {
+                EnemyGrowthValue += wasNightTurn ? EnemyNightValueIncrement : EnemyDayValueIncrement;
+            }
+        }
+
+        /// <summary>
+        /// 낮→밤→낮 한 사이클(웨이브)이 방금 끝났을 때 호출한다. 그 사이클 안에서 중간보스를
+        /// 못 잡았으면 오버턴에 진입시킨다. 호출 시점은 <see cref="AdvanceTurn"/> 이후,
+        /// 사이클이 실제로 끝난 턴에 한정된다 — 호출부(BoardSceneController)가 낮/밤 전환을
+        /// 감지해서 판단한다.
+        /// </summary>
+        public void RegisterEnemyGrowthCycleBoundary()
+        {
+            if (!_eliteDefeatedThisCycle)
+            {
+                IsInEnemyOverturn = true;
+            }
+            _eliteDefeatedThisCycle = false;
         }
         public void Clear()
         {
@@ -267,6 +339,7 @@ namespace OzGameLab01.Board.Models
             IsBossDefeated = false; // 보스 처치 상태 초기화
             // [추가] New Game에서 이전 엘리트 전투 상태가 남지 않도록 초기화
             IsEliteBattle = false;
+            IsNightEncounter = false;
 
             HasRolledThisTurn = false;
             RolledDiceValue = 0;
@@ -280,6 +353,11 @@ namespace OzGameLab01.Board.Models
 
             DefeatedElitesCount = 0;
             ClearObjective();
+
+            EnemyGrowthValue = EnemyGrowthValueBase;
+            EnemyOverturnValue = 0f;
+            IsInEnemyOverturn = false;
+            _eliteDefeatedThisCycle = false;
 
             // [추가] 이전 런의 씬 객체가 남긴 전투 완료 구독 정보 초기화
             OnBattleCompleted = null;

@@ -21,6 +21,7 @@ namespace OzGameLab01.Board.Controllers
                 currentBattlePositionY = source.currentBattlePositionY,
                 isBossBattle = source.isBossBattle,
                 isEliteBattle = source.isEliteBattle,
+                isNightEncounter = source.isNightEncounter,
                 isBossDefeated = source.isBossDefeated,
                 hasRolledThisTurn = source.hasRolledThisTurn,
                 rolledDiceValue = source.rolledDiceValue,
@@ -28,7 +29,10 @@ namespace OzGameLab01.Board.Controllers
                 unusedActionPoints = source.unusedActionPoints,
                 turnCount = source.turnCount,
                 defeatedElitesCount = source.defeatedElitesCount,
-
+                enemyGrowthValue = source.enemyGrowthValue,
+                enemyOverturnValue = source.enemyOverturnValue,
+                isInEnemyOverturn = source.isInEnemyOverturn,
+                eliteDefeatedThisCycle = source.eliteDefeatedThisCycle,
             };
             if (source.completedBattlePositions != null)
             {
@@ -61,6 +65,7 @@ namespace OzGameLab01.Board.Controllers
                 currentBattlePositionY = source.currentBattlePositionY,
                 isBossBattle = source.isBossBattle,
                 isEliteBattle = source.isEliteBattle,
+                isNightEncounter = source.isNightEncounter,
                 isBossDefeated = source.isBossDefeated,
                 hasRolledThisTurn = source.hasRolledThisTurn,
                 rolledDiceValue = source.rolledDiceValue,
@@ -68,6 +73,10 @@ namespace OzGameLab01.Board.Controllers
                 unusedActionPoints = source.unusedActionPoints,
                 turnCount = source.turnCount,
                 defeatedElitesCount = source.defeatedElitesCount,
+                enemyGrowthValue = source.enemyGrowthValue,
+                enemyOverturnValue = source.enemyOverturnValue,
+                isInEnemyOverturn = source.isInEnemyOverturn,
+                eliteDefeatedThisCycle = source.eliteDefeatedThisCycle,
             };
             if (source.completedBattlePositions != null)
             {

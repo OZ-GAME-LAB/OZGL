@@ -16,6 +16,20 @@ namespace OzGameLab01.Combat
     /// </summary>
     public class AllySpawner : IDisposable
     {
+        // 일반 몹(normal/night)은 이 6종 풀에서 매번 랜덤으로 하나 고른다 — 어느 종이
+        // 나올지 고정 매핑은 없다. semiboss/boss(중간·최종보스)는 MonsterData.prefabAddress를
+        // 그대로 쓰고 크게 스케일업한다. 상세: Docs/ENEMY_SCALING_DESIGN.md 4-1절.
+        private static readonly string[] NormalEnemySpeciesPool =
+        {
+            "Characters/EnemyPrefabs/Enemy_Crow_Vanilla",
+            "Characters/EnemyPrefabs/Enemy_ToySoldier_Vanilla",
+            "Characters/EnemyPrefabs/Enemy_CandyMonster_Vanilla",
+            "Characters/EnemyPrefabs/Enemy_Wolf_Vanilla",
+            "Characters/EnemyPrefabs/Enemy_Book_Vanilla",
+            "Characters/EnemyPrefabs/Enemy_Hunter_Vanilla",
+        };
+        private const float BossEnemyScaleMultiplier = 2.5f;
+
         private readonly CombatMapView _battleMapView;
         private readonly string _enemyPrefabResourceName;
         private readonly float _enemyScale;
@@ -181,22 +195,40 @@ namespace OzGameLab01.Combat
                 return null;
             }
 
-            GameObject prefab = UnitPrefabProvider.GetEnemyPrefab(_enemyPrefabResourceName);
+            bool isBossTier = _enemyMonsterData != null &&
+                (_enemyMonsterData.type == MonsterType.semiboss || _enemyMonsterData.type == MonsterType.boss);
+            string resourceName = ResolveEnemyPrefabResourceName(isBossTier);
+
+            GameObject prefab = UnitPrefabProvider.GetEnemyPrefab(resourceName);
             if (prefab == null)
             {
-                Debug.LogError("[AllySpawner] Enemy prefab is missing.");
+                Debug.LogError($"[AllySpawner] Enemy prefab is missing: {resourceName}");
                 return null;
             }
 
             Unit enemyUnit = CombatUnitFactory.CreateEnemy(prefab, spawnPoint, _enemyMonsterData);
             if (enemyUnit != null)
             {
-                enemyUnit.transform.localScale = prefab.transform.localScale * _enemyScale;
+                float scale = _enemyScale * (isBossTier ? BossEnemyScaleMultiplier : 1f);
+                enemyUnit.transform.localScale = prefab.transform.localScale * scale;
                 CombatUnitViewBinder.BindCombatPresentation(enemyUnit);
                 enemyUnit.gameObject.SetActive(true);
             }
 
             return enemyUnit;
+        }
+
+        private string ResolveEnemyPrefabResourceName(bool isBossTier)
+        {
+            if (isBossTier)
+            {
+                return string.IsNullOrWhiteSpace(_enemyMonsterData.prefabAddress)
+                    ? _enemyPrefabResourceName
+                    : _enemyMonsterData.prefabAddress;
+            }
+
+            int index = UnityEngine.Random.Range(0, NormalEnemySpeciesPool.Length);
+            return NormalEnemySpeciesPool[index];
         }
 
         private readonly struct AllySpawnRequest

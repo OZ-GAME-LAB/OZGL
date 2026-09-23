@@ -50,7 +50,6 @@ namespace OzGameLab01.Data
                 Record<SynergyData>(next.Synergies.Count);
                 Record<RelicData>(next.Relics.Count);
                 Record<EventContent>(next.EventCount);
-                Record<EnemyGrowthRow>(next.EnemyGrowth.Count);
                 _notifications.Record(typeof(ContentCatalog).FullName, DataNotificationKind.CacheReplaced, next.UnitCount);
                 _notifications.DispatchPending();
                 return true;
