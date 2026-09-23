@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI
 {
@@ -8,6 +10,7 @@ namespace OzGameLab01.UI
     public sealed class ResultIconItemView : MonoBehaviour
     {
         [SerializeField] private Image iconImage;
+        private string _currentIconAddress;
 
         #region Properties
 
@@ -24,6 +27,29 @@ namespace OzGameLab01.UI
             if (iconImage == null) return;
             iconImage.sprite = sprite;
             iconImage.enabled = sprite != null;
+        }
+
+        /// <summary>
+        /// SpriteManager를 사용하여 어드레서블 주소로 결과 아이콘 비동기 변경
+        /// </summary>
+        public async Task SetIconAsync(string iconAddress)
+        {
+            if (iconImage == null) return;
+
+            if (string.IsNullOrEmpty(iconAddress))
+            {
+                SetIcon(null);
+                return;
+            }
+
+            _currentIconAddress = iconAddress;
+            Sprite sprite = await SpriteManager.GetSpriteAsync(iconAddress);
+
+            if (_currentIconAddress == iconAddress && iconImage != null)
+            {
+                iconImage.sprite = sprite;
+                iconImage.enabled = sprite != null;
+            }
         }
 
         #endregion
