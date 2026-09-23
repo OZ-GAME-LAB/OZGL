@@ -2,14 +2,14 @@
   "synergyList": [
     {
       "id": 200,
-      "name": "���",
-      "subTitle": "�ܴ��� ����",
+      "name": "기사",
+      "subTitle": "단단한 마음",
       "iconAddress": "I_Sy_200",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "���� ���۽� ���鿡�� ü�� ��� ��ȣ��",
+          "description": "전투 시작시 기사들에게 체력 비례 보호막",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -23,7 +23,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "���� ���۽� �Ʊ����� ü���� ���� ���� ����� ü�� ��� ��ȣ��",
+          "description": "전투 시작시 아군에게 체력이 가장 높은 기사의 체력 비례 보호막",
           "effects": [
             {
               "targetType": "HighestHpUnit",
@@ -37,7 +37,7 @@
         {
           "tierLevel": 3,
           "requiredCount": 4,
-          "description": "��� �Ʊ��� ��ȣ���� ���� ��, ���� ��� �߰� ������ / �� �ǰ� ����",
+          "description": "모든 아군이 보호막이 있을 때, 방어력 비례 추가 데미지 / 받 피감 감소",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -52,14 +52,14 @@
     },
     {
       "id": 201,
-      "name": "�ϻ���",
-      "subTitle": "�簣����",
+      "name": "암살자",
+      "subTitle": "재간둥이",
       "iconAddress": "I_Sy_201",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "�簣���̰� �ִ� �������� 30%�� ������������ ��",
+          "description": "재간둥이가 주는 데미지의 30%가 고정데미지로 들어감",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -73,7 +73,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "�簣���̰� �ִ� �������� 60%�� ������������ ��",
+          "description": "재간둥이가 주는 데미지의 60%가 고정데미지로 들어감",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -87,7 +87,7 @@
         {
           "tierLevel": 3,
           "requiredCount": 4,
-          "description": "�簣���̰� �ִ� �������� 100%�� ������������ ��",
+          "description": "재간둥이가 주는 데미지의 100%가 고정데미지로 들어감",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -102,14 +102,14 @@
     },
     {
       "id": 202,
-      "name": "��ɲ�",
-      "subTitle": "��ī�ο� ��",
+      "name": "사냥꾼",
+      "subTitle": "날카로운 눈",
       "iconAddress": "I_Sy_202",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "��ɲ��� ���ݽ� 10% Ȯ���� ������ �����̻� �ο�",
+          "description": "사냥꾼의 공격시 10% 확률로 임의의 상태이상 부여",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -123,7 +123,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 4,
-          "description": "�����̻��� ���� �����ϸ� �߰� ����",
+          "description": "상태이상의 적을 공격하면 추가 피해",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -138,14 +138,14 @@
     },
     {
       "id": 203,
-      "name": "�����",
-      "subTitle": "ġ���� ��",
+      "name": "도우미",
+      "subTitle": "치유의 손",
       "iconAddress": "I_Sy_203",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "������� ȸ������ �����Ѵ�.",
+          "description": "도우미의 회복량이 증가한다.",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -160,14 +160,14 @@
     },
     {
       "id": 204,
-      "name": "������",
-      "subTitle": "��������",
+      "name": "예언자",
+      "subTitle": "음유시인",
       "iconAddress": "I_Sy_204",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "���� ���� ��, �Ʊ��� ��ų ��Ÿ���� 30% ����",
+          "description": "전투 시작 시, 아군의 스킬 쿨타임을 30% 감소",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -181,7 +181,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "���� ���� ��, �Ʊ��� ��ų ��Ÿ���� 55% ����",
+          "description": "전투 시작 시, 아군의 스킬 쿨타임을 55% 감소",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -196,14 +196,14 @@
     },
     {
       "id": 205,
-      "name": "����������",
-      "subTitle": "�����",
+      "name": "거짓말쟁이",
+      "subTitle": "어릿광대",
       "iconAddress": "I_Sy_205",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 1,
-          "description": "���������̰� Ȯ�������� ��ų�� �ι� ���",
+          "description": "거짓말쟁이가 확정적으로 스킬이 두번 사용",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -217,7 +217,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 4,
-          "description": "���������̵� ��ų ��� �Ұ� / ���������̵� ���� ũ�� ��ȭ",
+          "description": "거짓말쟁이들 스킬 사용 불가 / 거짓말쟁이들 스탯 크게 강화",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -232,14 +232,14 @@
     },
     {
       "id": 206,
-      "name": "�ΰ�",
-      "subTitle": "�̸����� �����",
+      "name": "인간",
+      "subTitle": "이름없는 사람들",
       "iconAddress": "I_Sy_206",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "�ΰ����� ü�� + 5%",
+          "description": "인간들의 체력 + 5%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -253,7 +253,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "�ΰ����� ü�� + 10% / ���ݷ� 10%",
+          "description": "인간들의 체력 + 10% / 공격력 10%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -274,7 +274,7 @@
         {
           "tierLevel": 3,
           "requiredCount": 4,
-          "description": "��� �Ʊ��� ü�� + 10% / ���ݷ� + 10% / ���� + 10%",
+          "description": "모든 아군의 체력 + 10% / 공격력 + 10% / 방어력 + 10%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -302,7 +302,7 @@
         {
           "tierLevel": 4,
           "requiredCount": 5,
-          "description": "��� �Ʊ��� ü�� + 15% / ���ݷ� + 15% / ���� + 10% / ���ݼӵ� + 10%",
+          "description": "모든 아군의 체력 + 15% / 공격력 + 15% / 방어력 + 10% / 공격속도 + 10%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -338,14 +338,14 @@
     },
     {
       "id": 207,
-      "name": "�߼�",
-      "subTitle": "�̻��� ����",
+      "name": "야수",
+      "subTitle": "이빨과 발톱",
       "iconAddress": "I_Sy_207",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "�߼��� ġ��Ÿ Ȯ�� + 20%",
+          "description": "야수의 치명타 확률 + 20%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -359,7 +359,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "�߼��� ġ��Ÿ Ȯ�� + 20% / ġ��Ÿ ���� + 30%",
+          "description": "야수의 치명타 확률 + 20% / 치명타 배율 + 30%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -380,7 +380,7 @@
         {
           "tierLevel": 3,
           "requiredCount": 4,
-          "description": "�߼��� ġ��Ÿ Ȯ�� + 30% / ġ��Ÿ ���� + 60%",
+          "description": "야수의 치명타 확률 + 30% / 치명타 배율 + 60%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -402,14 +402,14 @@
     },
     {
       "id": 208,
-      "name": "����",
-      "subTitle": "���� ����",
+      "name": "요정",
+      "subTitle": "작은 기적",
       "iconAddress": "I_Sy_208",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "�Ʊ� ��ü�� ���ݷ� + 15% / ��ų ���� + 20%",
+          "description": "아군 전체의 공격력 + 15% / 스킬 피해 + 20%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -430,7 +430,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 4,
-          "description": "�Ʊ� ��ü�� ���ݷ� + 45% / ��ų ���� + 50%",
+          "description": "아군 전체의 공격력 + 45% / 스킬 피해 + 50%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -452,14 +452,14 @@
     },
     {
       "id": 209,
-      "name": "����",
-      "subTitle": "�������",
+      "name": "꼬마",
+      "subTitle": "어리광쟁이",
       "iconAddress": "I_Sy_209",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "�Ʊ� ��ü�� ��Ÿ�� ���� 20% / ������ ȸ�� + 10%",
+          "description": "아군 전체의 쿨타임 감소 20% / 꼬마의 회피 + 10%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -480,7 +480,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "�Ʊ� ��ü�� ��Ÿ�� ���� 40% / ������ ȸ�� + 25%",
+          "description": "아군 전체의 쿨타임 감소 40% / 꼬마의 회피 + 25%",
           "effects": [
             {
               "targetType": "AllAllies",
@@ -502,14 +502,14 @@
     },
     {
       "id": 210,
-      "name": "���",
-      "subTitle": "������ �ʴ� �¿�",
+      "name": "기계",
+      "subTitle": "멈추지 않는 태엽",
       "iconAddress": "I_Sy_210",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "����� ���� + 20% / ��� ������ ���� 10�� �޴� ���ط� 5% ����.",
+          "description": "기계의 방어력 + 20% / 기계 유닛의 방어력 10당 받는 피해량 5% 감소.",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -530,7 +530,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "����� ���� + 35% / ��� ������ ���� 7�� �޴� ���ط� 5% ����.",
+          "description": "기계의 방어력 + 35% / 기계 유닛의 방어력 7당 받는 피해량 5% 감소.",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -552,14 +552,14 @@
     },
     {
       "id": 211,
-      "name": "����",
-      "subTitle": "������ �ʴ� ��",
+      "name": "공주",
+      "subTitle": "꺾이지 않는 꽃",
       "iconAddress": "I_Sy_211",
       "tiers": [
         {
           "tierLevel": 1,
           "requiredCount": 2,
-          "description": "������ ü�� + 20% / ���ݷ� + 20% / ���� + 20% / ���ݼӵ� + 10% / ���ְ� �ִ� ���� + 15%",
+          "description": "공주의 체력 + 20% / 공격력 + 20% / 방어력 + 20% / 공격속도 + 10% / 공주가 주는 피해 + 15%",
           "effects": [
             {
               "targetType": "SelfSynergy",
@@ -601,7 +601,7 @@
         {
           "tierLevel": 2,
           "requiredCount": 3,
-          "description": "�Ʊ� ��ü�� ü�� + 20% / ���ݷ� + 20% / ���� + 20% / ���ݼӵ� + 10% / ���ְ� �ִ� ���� + 15%",
+          "description": "아군 전체의 체력 + 20% / 공격력 + 20% / 방어력 + 20% / 공격속도 + 10% / 공주가 주는 피해 + 15%",
           "effects": [
             {
               "targetType": "AllAllies",
