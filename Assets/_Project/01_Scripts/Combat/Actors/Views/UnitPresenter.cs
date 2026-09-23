@@ -158,27 +158,49 @@ namespace OzGameLab01.Combat
             bool applyDamage = true, Action onImpact = null)
         {
             // UI에 배치된 유닛은 자신의 UnitAnchor에서 대상 UnitAnchor로 풀링 투사체를 발사합니다.
+            // 종족별 발사 이펙트는 UI Image로 표현할 수 없어 캐스터 위치의 캐스트 플래시로만 남긴다.
             if (_uiProjectilePool != null && _combatAnchor != null && targetPresenter != null && targetPresenter._combatAnchor != null)
             {
                 _uiProjectilePool.Fire(_combatAnchor, targetPresenter._combatAnchor, target, damage, _projectileSprite, _projectileColor, applyDamage, onImpact);
+                PlayAttackEffect(worldPosition);
                 return;
             }
 
             if (projectilePrefab == null)
             {
+                PlayAttackEffect(worldPosition);
                 return;
             }
 
             GameObject projectileObj = UnityEngine.Object.Instantiate(projectilePrefab, worldPosition, Quaternion.identity);
-            SpriteRenderer projectileRenderer = projectileObj.GetComponentInChildren<SpriteRenderer>(true);
-            if (projectileRenderer != null)
-            {
-                if (_projectileSprite != null)
-                {
-                    projectileRenderer.sprite = _projectileSprite;
-                }
 
-                projectileRenderer.color = _projectileColor;
+            if (attackEffectPrefab != null)
+            {
+                // 종족별 발사 이펙트(화살/총알/쿠키 등)는 트레일이 달린 "날아가는 물체" 아트라
+                // 캐스터 위치에 고정해서 재생하면 트레일이 그려지지 않고 그냥 멈춰있는 것처럼
+                // 보인다(리포트: 쿠키 이펙트가 적 발밑에 멈춰있고 공용 원형 스프라이트만 날아감).
+                // 실제 이동을 담당하는 투사체 오브젝트의 자식으로 붙여 함께 이동시키고,
+                // 겹쳐 보이지 않도록 공용 원형 스프라이트는 숨긴다.
+                GameObject flightFx = UnityEngine.Object.Instantiate(attackEffectPrefab, projectileObj.transform);
+                flightFx.transform.localPosition = Vector3.zero;
+                SpriteRenderer genericRenderer = projectileObj.GetComponentInChildren<SpriteRenderer>(true);
+                if (genericRenderer != null)
+                {
+                    genericRenderer.enabled = false;
+                }
+            }
+            else
+            {
+                SpriteRenderer projectileRenderer = projectileObj.GetComponentInChildren<SpriteRenderer>(true);
+                if (projectileRenderer != null)
+                {
+                    if (_projectileSprite != null)
+                    {
+                        projectileRenderer.sprite = _projectileSprite;
+                    }
+
+                    projectileRenderer.color = _projectileColor;
+                }
             }
 
             Projectile projectile = projectileObj.GetComponent<Projectile>();

@@ -82,6 +82,7 @@ namespace OzGameLab01.DebugTools
             unit.BindCombatUI(null, null, null);
             unit.SetVisualsVisible(true);
             unit.gameObject.SetActive(true);
+            unit.AutoActionEnabled = false;
             return unit;
         }
 

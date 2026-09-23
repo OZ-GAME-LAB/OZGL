@@ -71,6 +71,12 @@ namespace OzGameLab01.Combat
         public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
         public bool AreActiveSkillsDisabled => _activeSkillsDisabled;
 
+        /// <summary>
+        /// false로 설정하면 Update()의 자동 공격/스킬 루프가 멈추고 ForceUseSkill로만 발동됩니다
+        /// (디버그 VFX 테스트 전용). 기본값 true는 기존 자동전투 동작을 그대로 유지합니다.
+        /// </summary>
+        public bool AutoActionEnabled { get; set; } = true;
+
         private void EnsureRuntimeComponents()
         {
             if (_animationController == null)
@@ -135,6 +141,11 @@ namespace OzGameLab01.Combat
             }
 
             if (_status.IsStunned)
+            {
+                return;
+            }
+
+            if (!AutoActionEnabled)
             {
                 return;
             }
@@ -498,7 +509,6 @@ namespace OzGameLab01.Combat
 
             _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, effectiveDamage,
                 applyDamage, onImpact);
-            _presenter.PlayAttackEffect(transform.position);
 
             PassiveEventBus.RaiseAttackLanded(this, target);
             if (applyDamage) TryApplyRandomStatusEffect(target);

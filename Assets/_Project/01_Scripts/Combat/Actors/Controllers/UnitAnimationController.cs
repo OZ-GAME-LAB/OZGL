@@ -129,8 +129,9 @@ namespace OzGameLab01.Combat
             AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
             float duration = stateInfo.length > 0f ? stateInfo.length : 0.1f;
 
-            yield return new WaitForSeconds(
-                duration / Mathf.Max(0.01f, stateInfo.speed));
+            // AnimatorStateInfo.length는 Animator.speed가 이미 반영된 실제 재생 시간이라
+            // 여기서 다시 animator.speed로 나누면 안 됩니다(3배속이면 1/3 지점에서 끊겨버림).
+            yield return new WaitForSeconds(duration / Mathf.Max(0.01f, stateInfo.speed));
 
             if (_animator != null &&
                 _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == stateHash)
@@ -152,8 +153,8 @@ namespace OzGameLab01.Combat
             AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
             float duration = stateInfo.length > 0f ? stateInfo.length : 0.1f;
 
-            yield return new WaitForSeconds(
-                duration / Mathf.Max(0.01f, stateInfo.speed));
+            // AnimatorStateInfo.length는 Animator.speed가 이미 반영된 실제 재생 시간입니다.
+            yield return new WaitForSeconds(duration / Mathf.Max(0.01f, stateInfo.speed));
 
             if (_animator != null &&
                 _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == stateHash)
