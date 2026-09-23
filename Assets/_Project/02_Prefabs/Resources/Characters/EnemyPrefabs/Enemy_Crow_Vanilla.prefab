@@ -174,11 +174,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e07826437c41c5a4896e28bd24aad142, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.Unit
-  team: 0
+  team: 1
   maxHP: 100
   healthBar: {fileID: 0}
   spriteRenderer: {fileID: 4795038453515094}
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
   attackEffectPrefab: {fileID: 1941226523401448535, guid: da62e445c088383478fdca9983a53d93, type: 3}
   hitEffectPrefab: {fileID: 6903045325319923393, guid: 94897df442dffe44dafc30e65e54216c, type: 3}
   skillNameLabel: {fileID: 0}

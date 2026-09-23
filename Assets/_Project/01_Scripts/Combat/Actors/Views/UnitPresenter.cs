@@ -167,6 +167,17 @@ namespace OzGameLab01.Combat
             }
 
             GameObject projectileObj = UnityEngine.Object.Instantiate(projectilePrefab, worldPosition, Quaternion.identity);
+            SpriteRenderer projectileRenderer = projectileObj.GetComponentInChildren<SpriteRenderer>(true);
+            if (projectileRenderer != null)
+            {
+                if (_projectileSprite != null)
+                {
+                    projectileRenderer.sprite = _projectileSprite;
+                }
+
+                projectileRenderer.color = _projectileColor;
+            }
+
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
