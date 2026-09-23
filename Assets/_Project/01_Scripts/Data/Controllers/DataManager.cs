@@ -17,7 +17,6 @@ namespace OzGameLab01.Managers
         public static GameDB<RelicData, RelicDataList> Relics { get; } = new();
         public static GameDB<SynergyData, SynergyDataList> Synergies { get; } = new();
         public static GameDB<SkillData, SkillDataList> Skills { get; } = new();
-        public static GameDB<EnemyGrowthRow, EnemyGrowthDataList> EnemyGrowth { get; } = new();
 
         public static bool IsInitialized { get; private set; }
 
@@ -33,8 +32,7 @@ namespace OzGameLab01.Managers
                 Monsters.LoadAsync("JSON/MonsterJSON"),
                 Relics.LoadAsync("JSON/RelicJSON"),
                 Synergies.LoadAsync("JSON/SynergyJSON"),
-                Skills.LoadAsync("JSON/SkillJSON"),
-                EnemyGrowth.LoadAsync("JSON/EnemyGrowthJSON")
+                Skills.LoadAsync("JSON/SkillDesignJSON")
             };
 
             bool[] loaded = await Task.WhenAll(tasks);
@@ -42,7 +40,7 @@ namespace OzGameLab01.Managers
                 throw new System.InvalidOperationException("One or more gameplay databases failed to load.");
             IsInitialized = true;
             Debug.Log($"[DataManager] Gameplay databases ready: units={Units.Count}, monsters={Monsters.Count}, " +
-                      $"skills={Skills.Count}, synergies={Synergies.Count}, relics={Relics.Count}, growth={EnemyGrowth.Count}.");
+                      $"skills={Skills.Count}, synergies={Synergies.Count}, relics={Relics.Count}.");
         }
 
         // 각 도메인 조회 편의 API
@@ -61,7 +59,6 @@ namespace OzGameLab01.Managers
             Relics.Clear();
             Synergies.Clear();
             Skills.Clear();
-            EnemyGrowth.Clear();
         }
     }
 }

@@ -17,7 +17,7 @@
       "tribeType": "Human",
       "skillIds": [
         900,
-        920
+        51001
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -39,7 +39,7 @@
       "tribeType": "Beast",
       "skillIds": [
         900,
-        921
+        51011
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -61,7 +61,7 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        922
+        51021
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -83,7 +83,7 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        925
+        51051
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -105,7 +105,7 @@
       "tribeType": "Beast",
       "skillIds": [
         900,
-        926
+        51061
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -126,8 +126,7 @@
       "jobType": "Assasin",
       "tribeType": "Machine",
       "skillIds": [
-        900,
-        928
+        900
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -148,8 +147,7 @@
       "jobType": "Tricster",
       "tribeType": "Human",
       "skillIds": [
-        900,
-        929
+        900
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -171,7 +169,7 @@
       "tribeType": "Princess",
       "skillIds": [
         900,
-        930
+        51101
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -193,7 +191,7 @@
       "tribeType": "Princess",
       "skillIds": [
         900,
-        931
+        51111
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -215,7 +213,7 @@
       "tribeType": "Human",
       "skillIds": [
         900,
-        934
+        51141
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -237,7 +235,7 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        935
+        51151
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -259,7 +257,7 @@
       "tribeType": "Machine",
       "skillIds": [
         900,
-        940
+        51201
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
