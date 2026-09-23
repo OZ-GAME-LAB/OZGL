@@ -329,6 +329,35 @@ namespace OzGameLab01.Combat
             return false;
         }
 
+        /// <summary>스킬 슬롯 개수(0번째 = 기본공격). 디버그 툴에서 몇 개의 버튼을 그려야 하는지 알 때 사용.</summary>
+        public int SkillCount => _skills.Count;
+
+        /// <summary>스킬 슬롯의 표시용 이름(0번째 = 기본공격). 범위 밖이면 null.</summary>
+        public string GetSkillName(int index) => (index >= 0 && index < _skills.Count) ? _skills[index].data?.name : null;
+
+        /// <summary>
+        /// 쿨다운/타이머를 무시하고 즉시 스킬을 발동시킵니다(디버그 툴 전용). 대상 해석·기절/침묵
+        /// 제약은 Update()의 자동 발동과 동일하게 적용하고, 발동 후 쿨다운은 정상적으로 갱신합니다.
+        /// </summary>
+        public void ForceUseSkill(int index)
+        {
+            if (_isDead || index < 0 || index >= _skills.Count) return;
+            if (_status.IsStunned) return;
+
+            Unit target = ResolveTarget();
+            if (target == null) return;
+
+            bool isBasicAttack = index == 0;
+            if (!isBasicAttack && (_activeSkillsDisabled || _status.IsSilenced)) return;
+
+            UnitSkillRuntime skill = _skills[index];
+            if (isBasicAttack) _animationController?.PlayAttack();
+            else _animationController?.PlaySkill();
+
+            StartCoroutine(CastSkill(target, skill, isBasicAttack));
+            skill.timer = GetSkillCooldown(skill);
+        }
+
         /// <summary>
         /// 전투 HUD 상태이상 아이콘 표시용. UnitStatusEffects.TryGetPrimaryDebuff 그대로 위임.
         /// </summary>

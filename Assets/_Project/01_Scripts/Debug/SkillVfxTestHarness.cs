@@ -1,5 +1,4 @@
 #if UNITY_EDITOR
-using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
@@ -8,18 +7,14 @@ using OzGameLab01.Managers;
 namespace OzGameLab01.DebugTools
 {
     /// <summary>
-    /// TestScenes/SkillVfxTest 전용 디버그 하니스. allyPrefab/enemyPrefab 슬롯에 테스트하고 싶은
-    /// Ally_*/Enemy_* 프리팹을 꽂고 Play하면 실제 매니저(같은 씬의 GlobalManagers)가 살아있는
-    /// 상태로 두 유닛이 스폰되고, 화면의 버튼으로 힐/상태이상/스탯 버프·디버프를 즉시 발동시켜
-    /// CombatVfxLibrary가 재생하는 VFX를 바로 확인할 수 있다. 실제 게임 코드 경로는 건드리지
-    /// 않고 CombatSession의 상태(State)만 채워서 Unit.Update()의 타겟 해석이 정상 동작하게 한다.
+    /// TestScenes/SkillVfxTest 전용 디버그 하니스. 실제 전투 씬처럼 왼쪽에 아군 하나, 오른쪽에
+    /// 적 하나를 배치하고 기본공격/스킬 사용 버튼 4개(아군 기본공격/스킬, 적 기본공격/스킬)로
+    /// 즉시 발동시켜 VFX만 확인한다. 데미지가 실제로 들어가든 말든 상관없어서(체력을 크게 잡아
+    /// 죽지 않게만 해둠) 별도의 데미지 억제 로직은 두지 않았다. 좌우 화살표로 Resources 폴더에
+    /// 있는 모든 Ally_*/Enemy_* 프리팹을 순서대로 훑어볼 수 있다.
     /// </summary>
     public class SkillVfxTestHarness : MonoBehaviour
     {
-        [Header("테스트할 유닛 프리팹을 여기에 꽂고 Play (Resources/Characters 하위 어떤 Ally_*/Enemy_*든 가능)")]
-        [SerializeField] private Unit allyPrefab;
-        [SerializeField] private Unit enemyPrefab;
-
         [Header("전투 세션 스텁 (씬에 비활성 상태로 있어야 함 — Awake가 돌면 안 됨)")]
         [SerializeField] private CombatSession sessionStub;
 
@@ -30,20 +25,43 @@ namespace OzGameLab01.DebugTools
         [SerializeField] private float testHealthPoints = 999999f;
         [SerializeField] private float testAttackPoint = 3f;
 
+        private Unit[] _allyPrefabs;
+        private Unit[] _enemyPrefabs;
+        private int _allyIndex;
+        private int _enemyIndex;
         private Unit _ally;
         private Unit _enemy;
 
         private void Start()
         {
-            _ally = Spawn(allyPrefab, allySpawnPosition, isAlly: true);
-            _enemy = Spawn(enemyPrefab, enemySpawnPosition, isAlly: false);
+            _allyPrefabs = Resources.LoadAll<Unit>("Characters/AllyPrefabs");
+            _enemyPrefabs = Resources.LoadAll<Unit>("Characters/EnemyPrefabs");
+            System.Array.Sort(_allyPrefabs, (a, b) => string.CompareOrdinal(a.name, b.name));
+            System.Array.Sort(_enemyPrefabs, (a, b) => string.CompareOrdinal(a.name, b.name));
 
-            if (sessionStub != null)
-            {
-                sessionStub.State.SlotUnits[0, (int)CombatManager.SlotRow.Front] = _ally;
-                sessionStub.State.EnemyUnit = _enemy;
-            }
+            SpawnAlly(0);
+            SpawnEnemy(0);
         }
+
+        private void SpawnAlly(int index)
+        {
+            if (_allyPrefabs == null || _allyPrefabs.Length == 0) return;
+            _allyIndex = Wrap(index, _allyPrefabs.Length);
+            if (_ally != null) Destroy(_ally.gameObject);
+            _ally = Spawn(_allyPrefabs[_allyIndex], allySpawnPosition, isAlly: true);
+            if (sessionStub != null) sessionStub.State.SlotUnits[0, (int)CombatManager.SlotRow.Front] = _ally;
+        }
+
+        private void SpawnEnemy(int index)
+        {
+            if (_enemyPrefabs == null || _enemyPrefabs.Length == 0) return;
+            _enemyIndex = Wrap(index, _enemyPrefabs.Length);
+            if (_enemy != null) Destroy(_enemy.gameObject);
+            _enemy = Spawn(_enemyPrefabs[_enemyIndex], enemySpawnPosition, isAlly: false);
+            if (sessionStub != null) sessionStub.State.EnemyUnit = _enemy;
+        }
+
+        private static int Wrap(int index, int length) => ((index % length) + length) % length;
 
         private Unit Spawn(Unit prefab, Vector3 position, bool isAlly)
         {
@@ -72,7 +90,7 @@ namespace OzGameLab01.DebugTools
             foreach (UnitData candidate in RuntimeContent.Catalog.Units)
             {
                 if (!MatchesPrefabName(candidate.prefabAddress, prefabName)) continue;
-                UnitData clone = new UnitData
+                return new UnitData
                 {
                     id = candidate.id, name = candidate.name, prefabAddress = candidate.prefabAddress,
                     healthPoint = testHealthPoints, attackPoint = candidate.attackPoint,
@@ -80,10 +98,7 @@ namespace OzGameLab01.DebugTools
                     criticalMult = candidate.criticalMult, criticalRate = candidate.criticalRate,
                     dodgeRate = candidate.dodgeRate, skillIds = candidate.skillIds, color = candidate.color,
                 };
-                Debug.Log($"[SkillVfxTestHarness] '{prefabName}' -> UnitData #{candidate.id} '{candidate.name}' 매칭됨 (실제 스킬 사용)");
-                return clone;
             }
-            Debug.LogWarning($"[SkillVfxTestHarness] '{prefabName}'에 대응하는 UnitData를 못 찾음 — 합성 스탯 사용(액티브 스킬 없음, 버튼으로만 테스트 가능)");
             return null;
         }
 
@@ -92,7 +107,7 @@ namespace OzGameLab01.DebugTools
             foreach (MonsterData candidate in RuntimeContent.Catalog.Enemies)
             {
                 if (!MatchesPrefabName(candidate.prefabAddress, prefabName)) continue;
-                MonsterData clone = new MonsterData
+                return new MonsterData
                 {
                     id = candidate.id, name = candidate.name, prefabAddress = candidate.prefabAddress,
                     healthPoint = (int)testHealthPoints, attackPoint = candidate.attackPoint,
@@ -101,26 +116,19 @@ namespace OzGameLab01.DebugTools
                     dodgeRate = candidate.dodgeRate, skillCooldown = candidate.skillCooldown,
                     skillIds = candidate.skillIds, type = candidate.type,
                 };
-                Debug.Log($"[SkillVfxTestHarness] '{prefabName}' -> MonsterData #{candidate.id} '{candidate.name}' 매칭됨 (실제 스킬 사용)");
-                return clone;
             }
             // 일반/야간 몹(1,2)은 종족 프리팹이 랜덤 배정이라 프리팹명으로 매칭이 안 된다 — id=1(일반)로 폴백.
             MonsterData normal = RuntimeContent.Catalog.GetEnemy(1);
-            if (normal != null)
+            if (normal == null) return null;
+            return new MonsterData
             {
-                Debug.Log($"[SkillVfxTestHarness] '{prefabName}'은 일반 몹 종족(랜덤 배정) — MonsterData #1로 폴백(실제 스킬 사용)");
-                return new MonsterData
-                {
-                    id = normal.id, name = normal.name, prefabAddress = prefabName,
-                    healthPoint = (int)testHealthPoints, attackPoint = normal.attackPoint,
-                    defensePoint = normal.defensePoint, attackSpeed = normal.attackSpeed,
-                    criticalMult = normal.criticalMult, criticalRate = normal.criticalRate,
-                    dodgeRate = normal.dodgeRate, skillCooldown = normal.skillCooldown,
-                    skillIds = normal.skillIds, type = normal.type,
-                };
-            }
-            Debug.LogWarning($"[SkillVfxTestHarness] '{prefabName}'에 대응하는 MonsterData를 못 찾음 — 합성 스탯 사용(액티브 스킬 없음)");
-            return null;
+                id = normal.id, name = normal.name, prefabAddress = prefabName,
+                healthPoint = (int)testHealthPoints, attackPoint = normal.attackPoint,
+                defensePoint = normal.defensePoint, attackSpeed = normal.attackSpeed,
+                criticalMult = normal.criticalMult, criticalRate = normal.criticalRate,
+                dodgeRate = normal.dodgeRate, skillCooldown = normal.skillCooldown,
+                skillIds = normal.skillIds, type = normal.type,
+            };
         }
 
         /// <summary>
@@ -146,67 +154,53 @@ namespace OzGameLab01.DebugTools
         {
             id = -1, name = "TestAlly", healthPoint = testHealthPoints, attackPoint = testAttackPoint,
             defensePoint = 0, attackSpeed = 1f, criticalMult = 150f, criticalRate = 10f, dodgeRate = 5f,
-            skillIds = new List<int> { 900 }, color = Color.white,
+            skillIds = new System.Collections.Generic.List<int> { 900 }, color = Color.white,
         };
 
         private MonsterData SyntheticMonsterData() => new MonsterData
         {
             id = -1, name = "TestEnemy", healthPoint = (int)testHealthPoints, attackPoint = (int)testAttackPoint,
             defensePoint = 0, attackSpeed = 1f, criticalMult = 150f, criticalRate = 10, dodgeRate = 5,
-            skillIds = new List<int> { 900 }, type = MonsterType.normal,
+            skillIds = new System.Collections.Generic.List<int> { 900 }, type = MonsterType.normal,
         };
 
         private void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(10, 10, 600, 700));
+            GUILayout.BeginArea(new Rect(10, 10, 700, 160));
             GUILayout.BeginHorizontal();
 
-            GUILayout.BeginVertical(GUILayout.Width(290));
-            GUILayout.Label($"Ally: {(_ally != null ? _ally.DisplayName ?? _ally.gameObject.name : "없음")}");
-            DrawEffectButtons(_ally);
-            GUILayout.EndVertical();
+            DrawUnitPanel(
+                _ally, allyPrefabsLength: _allyPrefabs?.Length ?? 0,
+                onPrev: () => SpawnAlly(_allyIndex - 1), onNext: () => SpawnAlly(_allyIndex + 1),
+                onBasicAttack: () => _ally?.ForceUseSkill(0), onSkill: () => _ally?.ForceUseSkill(1));
 
-            GUILayout.BeginVertical(GUILayout.Width(290));
-            GUILayout.Label($"Enemy: {(_enemy != null ? _enemy.DisplayName ?? _enemy.gameObject.name : "없음")}");
-            DrawEffectButtons(_enemy);
-            GUILayout.EndVertical();
+            GUILayout.FlexibleSpace();
+
+            DrawUnitPanel(
+                _enemy, allyPrefabsLength: _enemyPrefabs?.Length ?? 0,
+                onPrev: () => SpawnEnemy(_enemyIndex - 1), onNext: () => SpawnEnemy(_enemyIndex + 1),
+                onBasicAttack: () => _enemy?.ForceUseSkill(0), onSkill: () => _enemy?.ForceUseSkill(1));
 
             GUILayout.EndHorizontal();
             GUILayout.EndArea();
         }
 
-        private static void DrawEffectButtons(Unit unit)
+        private static void DrawUnitPanel(Unit unit, int allyPrefabsLength,
+            System.Action onPrev, System.Action onNext, System.Action onBasicAttack, System.Action onSkill)
         {
-            if (unit == null)
-            {
-                GUILayout.Label("(프리팹 미배치)");
-                return;
-            }
+            GUILayout.BeginVertical(GUILayout.Width(320));
 
-            if (GUILayout.Button("Heal (+9999)")) unit.Heal(9999f);
-            if (GUILayout.Button("Cleanse Debuffs")) unit.CleanseDebuffs();
-
-            GUILayout.Space(6);
-            if (GUILayout.Button("Stun 5s")) unit.ApplyDebuff(new DebuffProfile { type = DebuffType.Stun, duration = 5f });
-            if (GUILayout.Button("Silence 5s")) unit.ApplyDebuff(new DebuffProfile { type = DebuffType.Silence, duration = 5f });
-            if (GUILayout.Button("DamageOverTime 5s")) unit.ApplyDebuff(new DebuffProfile { type = DebuffType.DamageOverTime, duration = 5f, magnitude = 1f, tickInterval = 1f });
-
-            GUILayout.Space(6);
-            DrawStatPair(unit, "ATK", EffectStatType.Attack);
-            DrawStatPair(unit, "DEF", EffectStatType.Defense);
-            DrawStatPair(unit, "CRT%", EffectStatType.CriticalChance);
-            DrawStatPair(unit, "CRT.DMG", EffectStatType.CriticalMultiplier);
-            DrawStatPair(unit, "EVA", EffectStatType.DodgeChance);
-            DrawStatPair(unit, "ATK.SPD", EffectStatType.AttackInterval);
-        }
-
-        private static void DrawStatPair(Unit unit, string label, EffectStatType stat)
-        {
             GUILayout.BeginHorizontal();
-            GUILayout.Label(label, GUILayout.Width(70));
-            if (GUILayout.Button("+20%")) unit.ApplyStatEffect(stat, 20f, EffectOperation.Add, 0, true);
-            if (GUILayout.Button("-20%")) unit.ApplyStatEffect(stat, -20f, EffectOperation.Add, 0, true);
+            if (GUILayout.Button("◀", GUILayout.Width(40))) onPrev();
+            GUILayout.Label(unit != null ? $"{unit.DisplayName ?? unit.gameObject.name} ({allyPrefabsLength}종 중)" : "없음",
+                GUILayout.ExpandWidth(true));
+            if (GUILayout.Button("▶", GUILayout.Width(40))) onNext();
             GUILayout.EndHorizontal();
+
+            if (GUILayout.Button("기본공격 사용")) onBasicAttack();
+            if (GUILayout.Button("스킬 사용")) onSkill();
+
+            GUILayout.EndVertical();
         }
     }
 }
