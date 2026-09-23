@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
@@ -54,6 +55,9 @@ namespace OzGameLab01.Combat
         private EnemyHeaderController _enemyHeaderController;
 
         public CombatState State => _state;
+        public bool IsBattleReady { get; private set; }
+
+        public event Action BattleReady;
 
         public void ReportFeedback(CombatFeedback feedback)
         {
@@ -157,6 +161,9 @@ namespace OzGameLab01.Combat
             // 효과를 놓치지 않는다.
             _combatEffectExecutor = new CombatEffectExecutor(CombatManager.Instance.Facade);
             PassiveEventBus.RaiseBattleStart();
+
+            IsBattleReady = true;
+            BattleReady?.Invoke();
         }
 
         private void Update()
@@ -166,6 +173,7 @@ namespace OzGameLab01.Combat
 
         private void OnDestroy()
         {
+            IsBattleReady = false;
             _combatEffectExecutor?.Dispose();
             _allySpawner?.Dispose();
         }

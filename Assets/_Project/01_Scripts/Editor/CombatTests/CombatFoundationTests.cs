@@ -40,6 +40,45 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
+        public void CombatPauseReasonsDoNotReleaseEachOther()
+        {
+            var go = new UnityEngine.GameObject("Combat pause reason test");
+            float previousScale = UnityEngine.Time.timeScale;
+
+            try
+            {
+                var controller =
+                    go.AddComponent<OzGameLab01.Controllers.CombatSceneController>();
+                controller.SetFastForward(true);
+                controller.SetPauseReason(
+                    OzGameLab01.Controllers.CombatSceneController.PauseReason.UserInterface,
+                    true);
+                controller.SetPauseReason(
+                    OzGameLab01.Controllers.CombatSceneController.PauseReason.Tutorial,
+                    true);
+
+                controller.SetPauseReason(
+                    OzGameLab01.Controllers.CombatSceneController.PauseReason.UserInterface,
+                    false);
+
+                Assert.That(controller.IsPaused, Is.True);
+                Assert.That(UnityEngine.Time.timeScale, Is.Zero);
+
+                controller.SetPauseReason(
+                    OzGameLab01.Controllers.CombatSceneController.PauseReason.Tutorial,
+                    false);
+
+                Assert.That(controller.IsPaused, Is.False);
+                Assert.That(UnityEngine.Time.timeScale, Is.EqualTo(2f));
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(go);
+                UnityEngine.Time.timeScale = previousScale;
+            }
+        }
+
+        [Test]
         public void CachedStatsUsePercentGroupsAndKeepDeclarationOrder()
         {
             var cache = new OzGameLab01.Effects.Models.RuntimeEffectCache<EffectInstance>(

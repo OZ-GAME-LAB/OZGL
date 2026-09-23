@@ -1046,6 +1046,8 @@ MonoBehaviour:
   unitInfoView: {fileID: 7655263387132080910}
   synergyView: {fileID: 3232342752029083625}
   artifactView: {fileID: 3747564403627473092}
+  enemyCombatArea: {fileID: 6623132021682597246}
+  enemySkillArea: {fileID: 7182576594301558327}
   formationGrid: {fileID: 1077350155517367006}
 --- !u!114 &8800000000000010001
 MonoBehaviour:
