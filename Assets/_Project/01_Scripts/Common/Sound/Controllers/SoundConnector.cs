@@ -1,5 +1,4 @@
 using System;
-using OzGameLab01.Interfaces;
 using UnityEngine;
 
 namespace OzGameLab01.Managers
@@ -8,7 +7,7 @@ namespace OzGameLab01.Managers
     /// UI와 게임 로직의 사운드 요청을 이벤트로 받아 SoundManager에 전달합니다.
     /// </summary>
     [DisallowMultipleComponent]
-    public sealed class SoundConnector : MonoBehaviour, ISoundConnector
+    public sealed class SoundConnector : MonoBehaviour
     {
         private static SoundConnector _global;
         private SoundManager _soundManager;
@@ -59,6 +58,25 @@ namespace OzGameLab01.Managers
         }
 
         /// <summary>
+        /// Inspector에서 지정한 효과음 클립의 재생 요청
+        /// </summary>
+        public static void RequestSfx(AudioClip clip, float volume = 1f)
+        {
+            if (clip == null)
+            {
+                return;
+            }
+
+            SoundConnector connector = Global;
+            if (connector == null)
+            {
+                return;
+            }
+
+            connector.Publish(new SoundRequest(clip, volume));
+        }
+
+        /// <summary>
         /// 씬 전환과 결과 화면 시점의 BGM 요청
         /// </summary>
         public static void RequestBgm(SoundId id, bool restart = false)
@@ -98,7 +116,12 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void Publish(SoundRequest request)
         {
-            if (request.Id == SoundId.None || !isActiveAndEnabled)
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
+
+            if (request.Id == SoundId.None && request.Clip == null)
             {
                 return;
             }
@@ -129,6 +152,12 @@ namespace OzGameLab01.Managers
         {
             if (_soundManager == null)
             {
+                return;
+            }
+
+            if (request.Clip != null)
+            {
+                _soundManager.PlaySfx(request.Clip, request.Volume);
                 return;
             }
 
