@@ -1,7 +1,9 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI
 {
@@ -17,6 +19,7 @@ namespace OzGameLab01.UI
         [SerializeField] private Image _icon;
 
         private bool _isInteractable = true;
+        private string _currentIconAddress;
 
         #region Properties
 
@@ -42,9 +45,29 @@ namespace OzGameLab01.UI
 
         public void SetIcon(Sprite sprite)
         {
+            _currentIconAddress = null;
             if (_icon != null)
             {
                 _icon.sprite = sprite;
+            }
+        }
+
+        public async Task SetIconAsync(string iconAddress)
+        {
+            if (string.IsNullOrEmpty(iconAddress))
+            {
+                SetIcon(null);
+                return;
+            }
+
+            _currentIconAddress = iconAddress;
+            Sprite sprite = await SpriteManager.GetSpriteAsync(iconAddress);
+
+            // 비동기 완료 후 요청 주소 일치 여부 검증 (레이스 조건 방지)
+            if (_currentIconAddress == iconAddress && _icon != null)
+            {
+                _icon.sprite = sprite;
+                SetIconVisible(sprite != null);
             }
         }
 
