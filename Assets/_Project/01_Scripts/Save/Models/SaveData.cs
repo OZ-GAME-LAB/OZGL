@@ -64,9 +64,15 @@ namespace OzGameLab01.Save
         public int remainingDiceValue; // 저장 시점의 이동 가능한 잔여 주사위 눈금
         public int unusedActionPoints; // 턴 종료시 남은 행동력
         public int turnCount;
+        public int timeCycleStartTurn; // 현재 낮/밤 주기가 시작된 전체 턴
+        public bool isMidBossActive; // 처치 전까지 밤을 유지할 중간 보스가 활성화되었는지 여부
         public int defeatedElitesCount;
+        public bool hasObjective;
+        public int objectivePositionX;
+        public int objectivePositionY;
         public List<BoardPositionSaveEntry> completedBattlePositions = new List<BoardPositionSaveEntry>(); // 전투 완료 진입 불가
         public List<BoardPositionSaveEntry> consumedSpecialTilePositions = new List<BoardPositionSaveEntry>(); // 발동이 끝난 일회성 특수 타일
+        public List<BoardPositionSaveEntry> visitedPositions = new List<BoardPositionSaveEntry>(); // 플레이어가 한 번 이상 지나간 타일
         // 전투 슬롯 순서대로 저장한 유닛 ID 목록 / 빈 슬롯은 -1
         public List<int> battleFormationUnitIds = new List<int>();
 

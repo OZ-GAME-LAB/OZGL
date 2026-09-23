@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.BoardSightEffectController
   boardSightEffectView: {fileID: 535087389}
   boardCamera: {fileID: 1701331399}
+  boardCameraController: {fileID: 0}
   boardPlayerController: {fileID: 778086451}
   boardPlane: {fileID: 1930314712}
   boardSceneController: {fileID: 0}
@@ -437,6 +438,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!224 &795516125 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 7021746841431764545, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
+  m_PrefabInstance: {fileID: 812804806}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &812804806
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -839,7 +845,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7021746841431764545, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
       propertyPath: m_LocalRotation.w
-      value: -0.3420201
+      value: -0.34202015
       objectReference: {fileID: 0}
     - target: {fileID: 7021746841431764545, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
       propertyPath: m_LocalRotation.x
@@ -847,7 +853,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7021746841431764545, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7021746841431764545, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
       propertyPath: m_LocalRotation.z
@@ -1414,9 +1420,9 @@ MonoBehaviour:
   timeOfDayFeedbackDuration: 1.5
   nightMessage: Night Has Come
   dayMessage: Day Has Come
-  clockRotatingVisual: {fileID: 0}
-  dayClockAngle: 45
-  nightClockAngle: 220
+  clockRotatingVisual: {fileID: 795516125}
+  dayClockAngle: 220
+  nightClockAngle: 45
   catchAngleOffset: 15
   catchDuration: 0.1
   catchEase: 15
@@ -1793,6 +1799,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Map.MapRouteDirector
   mapGenerator: {fileID: 1930314713}
   routeProfile: {fileID: 11400000, guid: 1a5c47a0d5934e30b2469d3da8ae58c2, type: 2}
+  boardSceneController: {fileID: 0}
+  boardCameraController: {fileID: 0}
   highlightPrefab: {fileID: 5675414566698002851, guid: 68df69805251f07498868acad49980fc, type: 3}
   objectiveSpawnDelay: 0.5
   highlightHeight: 2
@@ -1987,7 +1995,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 929617678673215978, guid: 5d1444e9244f176409c1266bf42cdfc2, type: 3}
       propertyPath: m_RaycastTarget
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4300044235731964188, guid: 5d1444e9244f176409c1266bf42cdfc2, type: 3}
       propertyPath: m_Name
@@ -2124,6 +2132,10 @@ PrefabInstance:
     - target: {fileID: 7098819682012784835, guid: 5d1444e9244f176409c1266bf42cdfc2, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -190
+      objectReference: {fileID: 0}
+    - target: {fileID: 7845365608725112581, guid: 5d1444e9244f176409c1266bf42cdfc2, type: 3}
+      propertyPath: m_BlocksRaycasts
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

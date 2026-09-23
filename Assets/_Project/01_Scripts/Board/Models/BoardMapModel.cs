@@ -339,6 +339,7 @@ namespace OzGameLab01.Board.Models
                 }
 
                 unitNode.Type = NodeType.UnitAcquisition;
+                unitNode.IsMandatoryStop = true; // [추가됨] 강제 시작 타일은 무조건 멈춤 처리
                 availableNodes.Remove(unitNode);
 
                 foreach (MapNode rockNode in proposedRocks)
@@ -353,6 +354,7 @@ namespace OzGameLab01.Board.Models
             // 모든 방향에서 3면 차단이 맵을 분리한다면 유닛 획득 타일만 보장합니다.
             MapNode fallbackUnitNode = unitCandidates[0];
             fallbackUnitNode.Type = NodeType.UnitAcquisition;
+            fallbackUnitNode.IsMandatoryStop = true; // [추가됨] 강제 시작 타일은 무조건 멈춤 처리
             availableNodes.Remove(fallbackUnitNode);
 
             _warning(

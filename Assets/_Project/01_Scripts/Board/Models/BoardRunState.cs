@@ -8,6 +8,7 @@ namespace OzGameLab01.Board.Models
     {
         private readonly HashSet<Vector2Int> _completedBattlePositions = new();
         private readonly HashSet<Vector2Int> _consumedSpecialTilePositions = new();
+        private readonly HashSet<Vector2Int> _visitedPositions = new();
         public bool HasActiveRun { get; private set; }
         public int MapSeed { get; private set; }
         public Vector2Int PlayerPosition { get; private set; }
@@ -22,11 +23,15 @@ namespace OzGameLab01.Board.Models
         public int RemainingDiceValue { get; private set; }
 
         public int TurnCount { get; private set; }
+        public int TimeCycleStartTurn { get; private set; }
+        public bool IsMidBossActive { get; private set; }
         public int DefeatedElitesCount { get; private set; }
         public bool HasObjective { get; private set; }
         public Vector2Int ObjectivePosition { get; private set; }
         public bool IsEliteBattle { get; private set; }
+        public IReadOnlyCollection<Vector2Int> VisitedPositions => _visitedPositions;
         public event System.Action OnBattleCompleted; // 전투 종료 알림 이벤트
+        public event System.Action OnMidBossDefeated;
 
         public void SetRemainingDiceValue(int value)
         {
@@ -78,7 +83,12 @@ namespace OzGameLab01.Board.Models
 
                 unusedActionPoints = UnusedActionPoints,
                 turnCount = TurnCount,
-                defeatedElitesCount = DefeatedElitesCount
+                timeCycleStartTurn = TimeCycleStartTurn,
+                isMidBossActive = IsMidBossActive,
+                defeatedElitesCount = DefeatedElitesCount,
+                hasObjective = HasObjective,
+                objectivePositionX = ObjectivePosition.x,
+                objectivePositionY = ObjectivePosition.y
             };
 
             foreach (Vector2Int position in _completedBattlePositions)
@@ -93,6 +103,15 @@ namespace OzGameLab01.Board.Models
             foreach (Vector2Int position in _consumedSpecialTilePositions)
             {
                 saveData.consumedSpecialTilePositions.Add(new BoardRunPosition
+                {
+                    x = position.x,
+                    y = position.y
+                });
+            }
+
+            foreach (Vector2Int position in _visitedPositions)
+            {
+                saveData.visitedPositions.Add(new BoardRunPosition
                 {
                     x = position.x,
                     y = position.y
@@ -145,7 +164,13 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = Mathf.Max(0, saveData.unusedActionPoints);
             TurnCount = Mathf.Max(0, saveData.turnCount);
+            TimeCycleStartTurn = Mathf.Clamp(saveData.timeCycleStartTurn, 0, TurnCount);
+            IsMidBossActive = saveData.isMidBossActive;
             DefeatedElitesCount = Mathf.Max(0, saveData.defeatedElitesCount);
+            HasObjective = saveData.hasObjective;
+            ObjectivePosition = HasObjective
+                ? new Vector2Int(saveData.objectivePositionX, saveData.objectivePositionY)
+                : Vector2Int.zero;
 
             if (saveData.completedBattlePositions != null)
             {
@@ -172,6 +197,23 @@ namespace OzGameLab01.Board.Models
                     }
                 }
             }
+
+            if (saveData.visitedPositions != null)
+            {
+                foreach (BoardRunPosition position in saveData.visitedPositions)
+                {
+                    if (position != null)
+                    {
+                        _visitedPositions.Add(new Vector2Int(position.x, position.y));
+                    }
+                }
+            }
+
+            // 방문 기록이 없던 구버전 저장은 현재 위치부터 기록을 이어갑니다.
+            if (_visitedPositions.Count == 0 && HasPlayerPosition)
+            {
+                _visitedPositions.Add(PlayerPosition);
+            }
             return true;
         }
         public void SavePlayerPosition(Vector2Int position)
@@ -179,6 +221,7 @@ namespace OzGameLab01.Board.Models
 
             PlayerPosition = position;
             HasPlayerPosition = true;
+            _visitedPositions.Add(position);
         }
         public void SaveUnusedActionPoints(int actionPoints)
         {
@@ -195,6 +238,10 @@ namespace OzGameLab01.Board.Models
             HasObjective = false;
             ObjectivePosition = Vector2Int.zero;
         }
+        public void ActivateMidBoss()
+        {
+            IsMidBossActive = true;
+        }
         public void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false)
         {
             CurrentBattlePosition = battlePosition;
@@ -207,6 +254,8 @@ namespace OzGameLab01.Board.Models
         {
             if (!HasCurrentBattle) return;
 
+            bool defeatedMidBoss = IsEliteBattle;
+
             ConsumeSpecialTile(CurrentBattlePosition);
 
             if (!IsBossBattle)
@@ -218,7 +267,12 @@ namespace OzGameLab01.Board.Models
                 IsBossDefeated = true; // [추가] 보스 처치 플래그 설정
             }
 
-            if (IsEliteBattle) DefeatedElitesCount++; // 엘리트전 카운트 증가!
+            if (defeatedMidBoss)
+            {
+                DefeatedElitesCount++;
+                IsMidBossActive = false;
+                TimeCycleStartTurn = TurnCount;
+            }
 
             // 일반 전투에서는 목표를 유지하고, 목표 전투가 끝났을 때만 해제합니다.
             if (IsEliteBattle || IsBossBattle ||
@@ -232,6 +286,10 @@ namespace OzGameLab01.Board.Models
             IsEliteBattle = false;
 
             OnBattleCompleted?.Invoke(); // 목표 매니저 알림 이벤트!
+            if (defeatedMidBoss)
+            {
+                OnMidBossDefeated?.Invoke();
+            }
         }
         public bool IsBattleCompleted(Vector2Int position)
         {
@@ -274,15 +332,19 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = 0;
             TurnCount = 0;
+            TimeCycleStartTurn = 0;
+            IsMidBossActive = false;
 
             _completedBattlePositions.Clear();
             _consumedSpecialTilePositions.Clear();
+            _visitedPositions.Clear();
 
             DefeatedElitesCount = 0;
             ClearObjective();
 
             // [추가] 이전 런의 씬 객체가 남긴 전투 완료 구독 정보 초기화
             OnBattleCompleted = null;
+            OnMidBossDefeated = null;
         }
     }
 }

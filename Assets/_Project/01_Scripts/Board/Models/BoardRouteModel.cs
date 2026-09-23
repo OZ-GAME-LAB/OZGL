@@ -11,13 +11,22 @@ namespace OzGameLab01.Board.Models
     {
         private readonly IReadOnlyDictionary<Vector2Int, MapNode> _nodes;
         private readonly HashSet<Vector2Int> _consumed;
+        private readonly HashSet<Vector2Int> _visited;
         private readonly int _defeatedCount;
         private readonly BoardRouteSettings _settings;
 
-        public BoardRouteModel(IReadOnlyDictionary<Vector2Int, MapNode> nodes, IEnumerable<Vector2Int> consumed, int defeatedCount, BoardRouteSettings settings)
+        public BoardRouteModel(
+            IReadOnlyDictionary<Vector2Int, MapNode> nodes,
+            IEnumerable<Vector2Int> consumed,
+            IEnumerable<Vector2Int> visited,
+            int defeatedCount,
+            BoardRouteSettings settings)
         {
             _nodes = nodes;
             _consumed = new HashSet<Vector2Int>(consumed);
+            _visited = visited != null
+                ? new HashSet<Vector2Int>(visited)
+                : new HashSet<Vector2Int>();
             _defeatedCount = defeatedCount;
             _settings = settings;
         }
@@ -233,6 +242,7 @@ namespace OzGameLab01.Board.Models
             float forwardProgress = candidateStartDistance - currentStartDistance;
 
             int nearbyOpportunityCount = CountNearbyOpportunity(candidate, 3);
+            int unvisitedRegionCount = CountUnvisitedRegion(candidate, _settings.unvisitedRegionRadius);
             int branchCount = Mathf.Max(0, CountWalkableNeighbors(candidate) - 1);
 
             Vector2 mainAxis = ((Vector2)bossNode.Position - startNode.Position).normalized;
@@ -248,6 +258,7 @@ namespace OzGameLab01.Board.Models
             return distanceScore +
                    forwardProgress * _settings.forwardProgressWeight +
                    (nearbyOpportunityCount + branchCount) * _settings.explorationOpportunityWeight +
+                   unvisitedRegionCount * _settings.unvisitedRegionWeight +
                    sideScore * _settings.sideAlternationWeight -
                    geometricDetour * 0.25f;
         }
@@ -288,6 +299,22 @@ namespace OzGameLab01.Board.Models
             foreach (KeyValuePair<MapNode, int> pair in distances)
             {
                 if (pair.Key != origin && IsWalkable(pair.Key))
+                {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        private int CountUnvisitedRegion(MapNode origin, int maximumHops)
+        {
+            Dictionary<MapNode, int> distances = BuildDistanceMap(origin, Mathf.Max(1, maximumHops));
+            int count = 0;
+
+            foreach (MapNode node in distances.Keys)
+            {
+                if (IsWalkable(node) && !_visited.Contains(node.Position))
                 {
                     count++;
                 }

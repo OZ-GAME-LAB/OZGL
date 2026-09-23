@@ -489,12 +489,12 @@ namespace OzGameLab01.Controllers
             ShowTimeOfDayFeedback(dayMessage);
         }
 
-        private void PlayClockTransition(float finalTargetAngle)
+        private Sequence PlayClockTransition(float finalTargetAngle)
         {
             RectTransform rotatingVisual = ResolveClockRotatingVisual();
             if (rotatingVisual == null)
             {
-                return;
+                return null;
             }
 
             StopClockRotation();
@@ -532,6 +532,8 @@ namespace OzGameLab01.Controllers
                         RotateMode.FastBeyond360)
                     .SetEase(shootEase))
                 .OnComplete(() => _clockRotationSequence = null);
+
+            return _clockRotationSequence;
         }
 
         private RectTransform ResolveClockRotatingVisual()
@@ -568,28 +570,16 @@ namespace OzGameLab01.Controllers
         }
 
 #if UNITY_EDITOR
-        [ContextMenu("Clock Animation/Play Day Transition")]
-        private void PreviewDayClockTransition()
+        /// <summary>DOTween Editor Preview에서 시계 전환 시퀀스를 재생하기 위한 편집기 전용 진입점입니다.</summary>
+        public Sequence PlayClockTransitionPreview(float finalTargetAngle)
         {
-            if (!Application.isPlaying)
-            {
-                Debug.LogWarning("시계 전환 애니메이션은 플레이 모드에서만 재생할 수 있습니다.", this);
-                return;
-            }
-
-            PlayClockTransition(dayClockAngle);
+            return PlayClockTransition(finalTargetAngle);
         }
 
-        [ContextMenu("Clock Animation/Play Night Transition")]
-        private void PreviewNightClockTransition()
+        /// <summary>편집기에서 실행 중인 시계 전환 시퀀스를 정리합니다.</summary>
+        public void StopClockTransitionPreview()
         {
-            if (!Application.isPlaying)
-            {
-                Debug.LogWarning("시계 전환 애니메이션은 플레이 모드에서만 재생할 수 있습니다.", this);
-                return;
-            }
-
-            PlayClockTransition(nightClockAngle);
+            StopClockRotation();
         }
 #endif
 
@@ -706,6 +696,11 @@ namespace OzGameLab01.Controllers
         private RollViewOpenResult TryOpenRollViewInternal()
         {
             if (_timeOfDayFeedbackRoutine != null)
+            {
+                return RollViewOpenResult.Retry;
+            }
+
+            if (boardCameraController != null && boardCameraController.IsLocating)
             {
                 return RollViewOpenResult.Retry;
             }
