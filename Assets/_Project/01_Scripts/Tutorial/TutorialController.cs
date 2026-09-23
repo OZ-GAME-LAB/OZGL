@@ -19,6 +19,7 @@ namespace OzGameLab01.Controllers
         [SerializeField] private TutorialHintView hintPrefab;
 
         private bool isGuideDismissing;
+        private bool guideDismissEnabled = true;
 
         public TutorialGuideView GuideView => guideView;
         public TutorialHintView HintView => hintView;
@@ -27,6 +28,28 @@ namespace OzGameLab01.Controllers
 
         public event Action GuideShown;
         public event Action GuideDismissed;
+
+        public void ConfigureRuntime(
+            RectTransform runtimeViewRoot,
+            TutorialGuideView runtimeGuidePrefab,
+            TutorialHintView runtimeHintPrefab = null)
+        {
+            UnbindGuideView();
+
+            viewRoot = runtimeViewRoot;
+            guidePrefab = runtimeGuidePrefab;
+            hintPrefab = runtimeHintPrefab;
+
+            CreateViewsIfNeeded();
+
+            if (isActiveAndEnabled)
+                BindGuideView();
+        }
+
+        public void SetGuideDismissEnabled(bool enabled)
+        {
+            guideDismissEnabled = enabled;
+        }
 
         private void Awake()
         {
@@ -129,14 +152,20 @@ namespace OzGameLab01.Controllers
             if (guideView == null)
                 return;
 
-            guideView.DialoguePanelClicked -= DismissGuide;
-            guideView.DialoguePanelClicked += DismissGuide;
+            guideView.DialoguePanelClicked -= HandleDialoguePanelClicked;
+            guideView.DialoguePanelClicked += HandleDialoguePanelClicked;
         }
 
         private void UnbindGuideView()
         {
             if (guideView != null)
-                guideView.DialoguePanelClicked -= DismissGuide;
+                guideView.DialoguePanelClicked -= HandleDialoguePanelClicked;
+        }
+
+        private void HandleDialoguePanelClicked()
+        {
+            if (guideDismissEnabled)
+                DismissGuide();
         }
 
         private void CompleteGuideDismissal()

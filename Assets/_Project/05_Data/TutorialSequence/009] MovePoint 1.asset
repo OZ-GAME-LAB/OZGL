@@ -13,22 +13,22 @@ MonoBehaviour:
   m_Name: 009] MovePoint 1
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.TutorialSequenceStepData
   stepName: MovePoint1
-  trigger: 0
+  trigger: 3
   showDelay: 0
   ignoreShowDelayTimeScale: 1
-  targetReadyView: 0
+  targetReadyView: 1
   triggerButtonKey: 
   manualTriggerKey: 
   openRollView: 0
   showGuide: 1
   characterSprite: {fileID: 0}
   characterName: 
-  dialogue: "[\uD589\uB3D9\uB825]\r\n\uD654\uBA74 \uC544\uB798\uC5D0 \uC22B\uC790
+  dialogue: "[\uD589\uB3D9\uB825]\r\n\uD654\uBA74 \uC6B0\uCE21\uC5D0 \uC22B\uC790
     \uBCF4\uC774\uC9C0? \uC774\uAC8C \uB0A8\uC740 \uD589\uB3D9\uB825\uC774\uC57C."
   showCharacter: 1
-  highlightButton: 0
-  highlightButtonKey: 
-  highlightScale: 1.08
+  highlightButton: 1
+  highlightButtonKey: EndTurnButton
+  highlightScale: 1.1
   highlightHalfDuration: 0.3
   highlightColor: {r: 1, g: 0.8, b: 0.2, a: 1}
   highlightEase: 4
