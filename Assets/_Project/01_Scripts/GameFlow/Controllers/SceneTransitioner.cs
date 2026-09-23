@@ -9,6 +9,12 @@ namespace OzGameLab01.Managers
 {
     public class SceneTransitioner : MonoBehaviour, OzGameLab01.GameFlow.Contracts.IGameFlowNotificationSource
     {
+        public enum CombatEntryMode
+        {
+            Normal,
+            Tutorial
+        }
+
         private readonly OzGameLab01.GameFlow.Controllers.GameFlowNotificationPublisher _notifications = new OzGameLab01.GameFlow.Controllers.GameFlowNotificationPublisher();
         public event System.Action<OzGameLab01.GameFlow.Models.GameFlowNotification> Notification
         {
@@ -47,11 +53,14 @@ namespace OzGameLab01.Managers
         private OzGameLab01.GameFlow.Views.SceneFadeView _fadeView;
         private Coroutine _initialFade;
         private AsyncOperation _activeLoad;
+        private CombatEntryMode _combatEntryMode = CombatEntryMode.Normal;
 
         /// <summary>
         /// 외부에서 현재 씬 전환 여부를 확인할 수 있습니다.
         /// </summary>
         public bool IsTransitioning => _transition.IsTransitioning;
+        public CombatEntryMode CurrentCombatEntryMode => _combatEntryMode;
+        public bool IsTutorialCombat => _combatEntryMode == CombatEntryMode.Tutorial;
 
         private void Awake()
         {
@@ -117,6 +126,7 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadTitleScene()
         {
+            _combatEntryMode = CombatEntryMode.Normal;
             LoadScene(SceneNames.Title);
         }
 
@@ -125,6 +135,7 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadBoardScene()
         {
+            _combatEntryMode = CombatEntryMode.Normal;
             LoadScene(SceneNames.Board);
         }
 
@@ -133,6 +144,10 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadCombatScene()
         {
+            _combatEntryMode = SceneManager.GetActiveScene().name == SceneNames.Tutorial
+                ? CombatEntryMode.Tutorial
+                : CombatEntryMode.Normal;
+
             LoadScene(SceneNames.Combat);
         }
 
@@ -141,6 +156,7 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadTutorialScene()
         {
+            _combatEntryMode = CombatEntryMode.Normal;
             LoadScene(SceneNames.Tutorial);
         }
 

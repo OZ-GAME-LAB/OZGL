@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DG.Tweening;
 using OzGameLab01.Combat;
+using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
 using UnityEngine;
@@ -357,6 +358,10 @@ namespace OzGameLab01.Controllers
 
         private bool CanPlaySequence()
         {
+            SceneTransitioner transitioner = SceneTransitioner.Instance;
+            if (transitioner == null || !transitioner.IsTutorialCombat)
+                return false;
+
             EnsureSequenceState();
             if (!sequenceState.HasConfiguredSteps)
                 return false;
