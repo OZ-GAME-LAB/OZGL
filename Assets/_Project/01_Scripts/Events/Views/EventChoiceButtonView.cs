@@ -26,7 +26,8 @@ namespace OzGameLab01.UI
         [SerializeField, Min(0f)] private float unselectedHoldDuration = 0.1f;
 
         private int _choiceId;
-        private Action<int> _onClick;
+        private Action<int> _onClickAfterBurn;
+        private Action<int> _onClickBeforeBurn;
         private Coroutine _exitRoutine;
         private bool _isExiting;
 
@@ -34,7 +35,7 @@ namespace OzGameLab01.UI
 
         private void OnEnable()
         {
-            if (button == null || _onClick == null)
+            if (button == null || _onClickAfterBurn == null)
             {
                 return;
             }
@@ -62,16 +63,17 @@ namespace OzGameLab01.UI
         /// 모든 UI 연출 상태를 초기 상태로 복구합니다.
         /// </summary>
         /// <param name="data">표시할 Choice 데이터입니다.</param>
-        /// <param name="onClick">
+        /// <param name="onClickAfterBurn">
         /// 버튼 클릭 시 Choice ID와 함께 호출되는 콜백입니다.
         /// </param>
         
-        public void Bind(int choiceId, EventChoice data, Action<int> onClick)
+        public void Bind(int choiceId, EventChoice data, Action<int> onClickAfterBurn, Action<int> onClickBeforeBurn = null)
         {
             ResetVisual();
 
             _choiceId = choiceId;
-            _onClick = onClick;
+            _onClickAfterBurn = onClickAfterBurn;
+            _onClickBeforeBurn = onClickBeforeBurn;
 
             if (labelText != null)
             {
@@ -199,7 +201,8 @@ namespace OzGameLab01.UI
             {
                 return;
             }
-            burnEffect.Play(()=> _onClick?.Invoke(_choiceId));
+            _onClickBeforeBurn?.Invoke(_choiceId);
+            burnEffect.Play(()=> _onClickAfterBurn?.Invoke(_choiceId));
             //_onClick?.Invoke(_choiceId);
         }
 
