@@ -196,7 +196,7 @@ namespace OzGameLab01.Combat
         {
             if (attackEffectPrefab == null) return;
             GameObject fx = UnityEngine.Object.Instantiate(attackEffectPrefab, worldPosition, Quaternion.identity);
-            UnityEngine.Object.Destroy(fx, EffectAutoDestroySeconds);
+            DestroySafely(fx, EffectAutoDestroySeconds);
         }
 
         /// <summary>피격당한 자기 위치에서 재생하는 1회성 VFX. HitFlash(색상 점멸)와 별개로 더해진다.</summary>
@@ -204,7 +204,7 @@ namespace OzGameLab01.Combat
         {
             if (hitEffectPrefab == null) return;
             GameObject fx = UnityEngine.Object.Instantiate(hitEffectPrefab, worldPosition, Quaternion.identity);
-            UnityEngine.Object.Destroy(fx, EffectAutoDestroySeconds);
+            DestroySafely(fx, EffectAutoDestroySeconds);
         }
 
         /// <summary>
@@ -215,7 +215,7 @@ namespace OzGameLab01.Combat
         {
             if (prefab == null) return;
             GameObject fx = UnityEngine.Object.Instantiate(prefab, worldPosition, Quaternion.identity);
-            UnityEngine.Object.Destroy(fx, EffectAutoDestroySeconds);
+            DestroySafely(fx, EffectAutoDestroySeconds);
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace OzGameLab01.Combat
             }
             else if (_activeStatusEffects.TryGetValue(type, out GameObject fx))
             {
-                if (fx != null) UnityEngine.Object.Destroy(fx);
+                DestroySafely(fx);
                 _activeStatusEffects.Remove(type);
             }
         }
@@ -246,9 +246,27 @@ namespace OzGameLab01.Combat
         {
             foreach (KeyValuePair<DebuffType, GameObject> pair in _activeStatusEffects)
             {
-                if (pair.Value != null) UnityEngine.Object.Destroy(pair.Value);
+                DestroySafely(pair.Value);
             }
             _activeStatusEffects.Clear();
+        }
+
+        /// <summary>
+        /// Object.Destroy는 에디트 모드에서 호출하면 에러를 던진다(EditMode 테스트가 Heal/
+        /// ApplyStatEffect/ApplyDebuff를 호출할 때 걸리는 경우). 플레이 중이 아니면 지연 없이
+        /// DestroyImmediate로 정리한다 — 에디트 모드에서는 "잠시 후 사라짐" 자체가 의미 없다.
+        /// </summary>
+        private static void DestroySafely(GameObject fx, float delaySeconds = 0f)
+        {
+            if (fx == null) return;
+            if (Application.isPlaying)
+            {
+                UnityEngine.Object.Destroy(fx, delaySeconds);
+            }
+            else
+            {
+                UnityEngine.Object.DestroyImmediate(fx);
+            }
         }
 
         public void HideCombatImage()
