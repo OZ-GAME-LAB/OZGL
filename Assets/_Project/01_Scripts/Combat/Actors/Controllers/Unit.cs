@@ -22,6 +22,8 @@ namespace OzGameLab01.Combat
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private GameObject projectilePrefab;
+        [Tooltip("투사체에 사용할 유닛별 스프라이트. 비워두면 projectilePrefab의 스프라이트를 그대로 씁니다.")]
+        [SerializeField] private Sprite projectileSprite;
 
         [Tooltip("이 유닛이 공격/스킬을 시전할 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
         [SerializeField] private GameObject attackEffectPrefab;
@@ -91,7 +93,7 @@ namespace OzGameLab01.Combat
             if (_presenter == null)
             {
                 _presenter = new UnitPresenter(
-                    healthBar, spriteRenderer, projectilePrefab,
+                    healthBar, spriteRenderer, projectilePrefab, projectileSprite,
                     attackEffectPrefab, hitEffectPrefab,
                     skillNameLabel, skillNameDisplayDuration, team);
             }

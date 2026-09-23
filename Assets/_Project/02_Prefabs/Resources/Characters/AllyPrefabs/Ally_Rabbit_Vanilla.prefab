@@ -1394,6 +1394,7 @@ MonoBehaviour:
   healthBar: {fileID: 0}
   spriteRenderer: {fileID: 4883215464142727153}
   projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
+  projectileSprite: {fileID: 21300000, guid: 3e319138940f12145852c125dd0b0834, type: 3}
   attackEffectPrefab: {fileID: 0}
   hitEffectPrefab: {fileID: 0}
   skillNameLabel: {fileID: 0}

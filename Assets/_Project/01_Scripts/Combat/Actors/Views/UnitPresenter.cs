@@ -18,6 +18,7 @@ namespace OzGameLab01.Combat
         private readonly HealthBar healthBar;
         private readonly SpriteRenderer spriteRenderer;
         private readonly GameObject projectilePrefab;
+        private readonly Sprite projectileSpriteOverride;
         private readonly GameObject attackEffectPrefab;
         private readonly GameObject hitEffectPrefab;
         private readonly TMPro.TextMeshPro skillNameLabel;
@@ -45,6 +46,7 @@ namespace OzGameLab01.Combat
             HealthBar healthBar,
             SpriteRenderer spriteRenderer,
             GameObject projectilePrefab,
+            Sprite projectileSpriteOverride,
             GameObject attackEffectPrefab,
             GameObject hitEffectPrefab,
             TMPro.TextMeshPro skillNameLabel,
@@ -54,6 +56,7 @@ namespace OzGameLab01.Combat
             this.healthBar = healthBar;
             this.spriteRenderer = spriteRenderer;
             this.projectilePrefab = projectilePrefab;
+            this.projectileSpriteOverride = projectileSpriteOverride;
             this.attackEffectPrefab = attackEffectPrefab;
             this.hitEffectPrefab = hitEffectPrefab;
             this.skillNameLabel = skillNameLabel;
@@ -119,6 +122,12 @@ namespace OzGameLab01.Combat
                     _projectileSprite = projectileRenderer.sprite;
                     _projectileColor = projectileRenderer.color;
                 }
+            }
+
+            // 유닛별 투사체 스프라이트가 지정돼 있으면 공용 프리팹의 스프라이트를 덮어씁니다.
+            if (projectileSpriteOverride != null)
+            {
+                _projectileSprite = projectileSpriteOverride;
             }
 
             // Enemy의 공격은 같은 풀을 사용하되 빨간색으로 표시
