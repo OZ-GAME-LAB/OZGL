@@ -51,6 +51,26 @@
         203
       ],
       "type": "semiboss"
+    },
+    {
+      "id": 4,
+      "name": "Enemy_Melee_FinalBoss",
+      "spriteAddress": "Enemy_Melee",
+      "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla",
+      "healthPoint": 1200,
+      "attackPoint": 75,
+      "defensePoint": 30,
+      "criticalMult": 185,
+      "criticalRate": 50,
+      "dodgeRate": 35,
+      "attackSpeed": 0.5,
+      "skillCooldown": 4,
+      "skillIds": [
+        201,
+        202,
+        203
+      ],
+      "type": "boss"
     }
   ]
 }

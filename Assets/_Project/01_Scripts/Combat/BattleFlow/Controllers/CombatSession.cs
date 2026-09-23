@@ -35,12 +35,13 @@ namespace OzGameLab01.Combat
         [Tooltip("적 유닛 id별 스탯. 비워두면 enemyPrefabResourceName 프리팹의 기본값을 그대로 사용합니다.")]
         [SerializeField] private MonsterRosterData monsterRosterData;
 
-        // EnemyData.json 기준: 1=normal, 2=night, 3=semiboss. 보드의 낮/밤·중간보스/최종보스
-        // 상태로 자동 결정한다(BoardRunData.IsBossBattle/IsEliteBattle/IsNightEncounter).
-        // 최종보스 전용 행은 아직 없어 semiboss로 대신한다 — 스탯 폴백은 아직 미확정이고
-        // 비주얼(Enemy_Witch_Vanilla 확대 스폰)만 확정됨. 상세: Docs/ENEMY_SCALING_DESIGN.md 4-2절.
+        // EnemyData.json 기준: 1=normal, 2=night, 3=semiboss, 4=boss(최종보스, 엑셀
+        // finalbossEnemy 시트의 고정값 — EnemyPreparationCache가 성장 공식을 적용하지 않음).
+        // 보드의 낮/밤·중간보스/최종보스 상태로 자동 결정한다
+        // (BoardRunData.IsBossBattle/IsEliteBattle/IsNightEncounter).
         private const int NightEnemyMonsterId = 2;
         private const int SemibossEnemyMonsterId = 3;
+        private const int FinalBossEnemyMonsterId = 4;
         private const int NormalEnemyMonsterId = 1;
 
         [Header("시너지 UI")]
@@ -73,7 +74,8 @@ namespace OzGameLab01.Combat
 
         private static int ResolveEnemyMonsterId()
         {
-            if (BoardRunData.IsBossBattle || BoardRunData.IsEliteBattle) return SemibossEnemyMonsterId;
+            if (BoardRunData.IsBossBattle) return FinalBossEnemyMonsterId;
+            if (BoardRunData.IsEliteBattle) return SemibossEnemyMonsterId;
             return BoardRunData.IsNightEncounter ? NightEnemyMonsterId : NormalEnemyMonsterId;
         }
 

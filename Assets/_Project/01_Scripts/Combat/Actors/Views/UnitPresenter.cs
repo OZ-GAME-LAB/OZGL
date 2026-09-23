@@ -17,9 +17,15 @@ namespace OzGameLab01.Combat
         private readonly HealthBar healthBar;
         private readonly SpriteRenderer spriteRenderer;
         private readonly GameObject projectilePrefab;
+        private readonly GameObject attackEffectPrefab;
+        private readonly GameObject hitEffectPrefab;
         private readonly TMPro.TextMeshPro skillNameLabel;
         private readonly float skillNameDisplayDuration;
         private readonly Unit.Team team;
+
+        // 파티클 기반 1회성 VFX 재생 길이. 소스 프리팹(12. Enemy 세트)이 전부 lengthInSec 2초
+        // 이내라 여유를 두고 파괴한다 — VFX마다 정확한 길이를 읽어오는 대신 고정값으로 통일.
+        private const float EffectAutoDestroySeconds = 2.5f;
 
         private Color _originalColor;
         private bool _isColorEffectPlaying;
@@ -36,6 +42,8 @@ namespace OzGameLab01.Combat
             HealthBar healthBar,
             SpriteRenderer spriteRenderer,
             GameObject projectilePrefab,
+            GameObject attackEffectPrefab,
+            GameObject hitEffectPrefab,
             TMPro.TextMeshPro skillNameLabel,
             float skillNameDisplayDuration,
             Unit.Team team)
@@ -43,6 +51,8 @@ namespace OzGameLab01.Combat
             this.healthBar = healthBar;
             this.spriteRenderer = spriteRenderer;
             this.projectilePrefab = projectilePrefab;
+            this.attackEffectPrefab = attackEffectPrefab;
+            this.hitEffectPrefab = hitEffectPrefab;
             this.skillNameLabel = skillNameLabel;
             this.skillNameDisplayDuration = skillNameDisplayDuration;
             this.team = team;
@@ -157,11 +167,41 @@ namespace OzGameLab01.Combat
             }
 
             GameObject projectileObj = UnityEngine.Object.Instantiate(projectilePrefab, worldPosition, Quaternion.identity);
+            SpriteRenderer projectileRenderer = projectileObj.GetComponentInChildren<SpriteRenderer>(true);
+            if (projectileRenderer != null)
+            {
+                if (_projectileSprite != null)
+                {
+                    projectileRenderer.sprite = _projectileSprite;
+                }
+
+                projectileRenderer.color = _projectileColor;
+            }
+
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
                 projectile.Init(target, damage, applyDamage, onImpact);
             }
+        }
+
+        /// <summary>
+        /// 이 유닛이 공격/스킬을 시전한 자기 위치에서 재생하는 1회성 VFX. 프리팹이 없으면
+        /// 아무 것도 하지 않습니다(아군은 애니메이터 기반 연출을 쓰므로 보통 비워둡니다).
+        /// </summary>
+        public void PlayAttackEffect(Vector3 worldPosition)
+        {
+            if (attackEffectPrefab == null) return;
+            GameObject fx = UnityEngine.Object.Instantiate(attackEffectPrefab, worldPosition, Quaternion.identity);
+            UnityEngine.Object.Destroy(fx, EffectAutoDestroySeconds);
+        }
+
+        /// <summary>피격당한 자기 위치에서 재생하는 1회성 VFX. HitFlash(색상 점멸)와 별개로 더해진다.</summary>
+        public void PlayHitEffect(Vector3 worldPosition)
+        {
+            if (hitEffectPrefab == null) return;
+            GameObject fx = UnityEngine.Object.Instantiate(hitEffectPrefab, worldPosition, Quaternion.identity);
+            UnityEngine.Object.Destroy(fx, EffectAutoDestroySeconds);
         }
 
         public void HideCombatImage()
