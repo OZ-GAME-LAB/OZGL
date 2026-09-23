@@ -4,8 +4,8 @@
       "id": 51001,
       "unitId": 100,
       "iconAddress": "I_SA_100",
-      "name": "�� ����� ���� ����",
-      "description": "������ ���ݷ��� 150% ������ �ο�.\n������ �����̻� '��Ʈ������' �ο�(5�� ����)",
+      "name": "내 기분은 내가 정해",
+      "description": "적에게 공격력의 150% 데미지 부여.\n적에게 상태이상 '도트데미지' 부여(5초 지속)",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -29,8 +29,8 @@
       "id": 51002,
       "unitId": 100,
       "iconAddress": "I_SP_100",
-      "name": "���� �� ����� '�г�'�� �ҷ�",
-      "description": "��� �Ʊ��� ���� 40% ����.\n��� �Ʊ��� ���ݷ��� �� ���� 2�踸ŭ ����.",
+      "name": "오늘 내 기분은 '분노'로 할래",
+      "description": "모든 아군의 방어력 40% 감소.\n모든 아군의 공격력이 그 값의 2배만큼 증가.",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -62,8 +62,8 @@
       "id": 51011,
       "unitId": 101,
       "iconAddress": "I_SA_101",
-      "name": "�ð��� ����!",
-      "description": "�Ʊ� ��ü�� ��Ÿ�� 1�� ȸ��",
+      "name": "시간이 없어!",
+      "description": "아군 전체의 쿨타임 1초 회복",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -80,8 +80,8 @@
       "id": 51012,
       "unitId": 101,
       "iconAddress": "I_SP_101",
-      "name": "�ʾ���, �ʾ��ٰ�!",
-      "description": "������ �Ʊ� �⹰�� ��ų�� ����ϸ� 25%Ȯ���� ��Ÿ���� 40% ȸ��.",
+      "name": "늦었어, 늦었다고!",
+      "description": "전장의 아군 기물이 스킬을 사용하면 25%확률로 쿨타임을 40% 회복.",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -102,8 +102,8 @@
       "id": 51021,
       "unitId": 102,
       "iconAddress": "I_SA_102",
-      "name": "���� ���� �;�?",
-      "description": "�Ʊ� ��ü�� ü�� 10% ȸ��\n�Ʊ� ��ü���� ���� 'ȸ���� 20% ���' �ο� (4�� ����)",
+      "name": "어디로 가고 싶어?",
+      "description": "아군 전체의 체력 10% 회복\n아군 전체에게 버프 '회피율 20% 상승' 부여 (4초 지속)",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -127,8 +127,8 @@
       "id": 51022,
       "unitId": 102,
       "iconAddress": "I_SP_102",
-      "name": "ȯ����� �Ȱ�",
-      "description": "��� �Ʊ��� ȸ���� 10% ����.",
+      "name": "환상속의 안개",
+      "description": "모든 아군의 회피율 10% 증가.",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -149,8 +149,8 @@
       "id": 51051,
       "unitId": 105,
       "iconAddress": "I_SA_105",
-      "name": "������ �ҿ�(����)",
-      "description": "����� ������ �����ϴ� ���ݷ��� 390% ������.",
+      "name": "세가지 소원(물리)",
+      "description": "대상의 방어력을 무시하는 공격력의 390% 데미지.",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -167,8 +167,8 @@
       "id": 51052,
       "unitId": 105,
       "iconAddress": "I_SP_105",
-      "name": "������ ��",
-      "description": "��� �Ʊ��� ġ��ŸȮ�� 10% ����.",
+      "name": "램프의 힘",
+      "description": "모든 아군의 치명타확률 10% 증가.",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -189,8 +189,8 @@
       "id": 51061,
       "unitId": 106,
       "iconAddress": "I_SA_106",
-      "name": "���� �����̶��!?",
-      "description": "�ڽſ��� �����̻� '����' �ο� (999��)\n�ڽſ��� ��ȣ��( ��ü ü�� * ( ��ü ü�� / ����ü�� ) )��ŭ �ο�. (7�� ����)",
+      "name": "내가 겁쟁이라고!?",
+      "description": "자신에게 상태이상 '도발' 부여 (999초)\n자신에게 보호막( 전체 체력 * ( 전체 체력 / 남은체력 ) )만큼 부여. (7초 지속)",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -214,8 +214,8 @@
       "id": 51062,
       "unitId": 106,
       "iconAddress": "I_SP_106",
-      "name": "����� �Լ�",
-      "description": "��� �Ʊ��� ��� ü���� 50% �̸��� �� ��, ��� �Ʊ��� ���ݷ� 20% ����.",
+      "name": "용기의 함성",
+      "description": "모든 아군의 평균 체력이 50% 미만이 될 때, 모든 아군의 공격력 20% 증가.",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -236,8 +236,8 @@
       "id": 51081,
       "unitId": 108,
       "iconAddress": "I_SA_108",
-      "name": "��¦ �Ű��",
-      "description": "������ �ڽ��� ���ݷ��� 165% ������ �ο�.",
+      "name": "깜짝 놀래키기",
+      "description": "적에게 자신의 공격력의 165% 데미지 부여.",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -254,8 +254,8 @@
       "id": 51082,
       "unitId": 108,
       "iconAddress": "I_SP_108",
-      "name": "���� ��Ż",
-      "description": "������ ��ų�� ����ϸ� ������ �Ʊ� 1ü�� ��Ÿ�� 90% ȸ��",
+      "name": "지식 강탈",
+      "description": "보스가 스킬을 사용하면 전장의 아군 1체의 쿨타임 90% 회복",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -276,8 +276,8 @@
       "id": 51091,
       "unitId": 109,
       "iconAddress": "I_SA_109",
-      "name": "�β������� �˾ƾ���",
-      "description": "������ �����̻� '���ݷ� ���� 20% �ο�' (5�� ����)\n�� ��ġ��ŭ �ڽ��� ���ݷ� ���.",
+      "name": "부끄러운줄 알아야지",
+      "description": "적에게 상태이상 '공격력 감소 20% 부여' (5초 지속)\n그 수치만큼 자신의 공격력 상승.",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -294,8 +294,8 @@
       "id": 51092,
       "unitId": 109,
       "iconAddress": "I_SP_109",
-      "name": "���۽����� ��ǳ",
-      "description": "���� ù��° ��ų�� ��ȿȭ.",
+      "name": "갑작스러운 돌풍",
+      "description": "적의 첫번째 스킬을 무효화.",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -316,8 +316,8 @@
       "id": 51101,
       "unitId": 110,
       "iconAddress": "I_SA_110",
-      "name": "����� �Ƹ���",
-      "description": "�Ʊ� ��ü ü�� ȸ�� (��� ü���� 5%).\n�Ʊ� ��ü �����̻� 1�� ����.\n������ �����̻� 'ħ��' �ο�. (5�� ����)",
+      "name": "물방울 아리아",
+      "description": "아군 전체 체력 회복 (대상 체력의 5%).\n아군 전체 상태이상 1종 제거.\n적에게 상태이상 '침묵' 부여. (5초 지속)",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -348,8 +348,8 @@
       "id": 51102,
       "unitId": 110,
       "iconAddress": "I_SP_110",
-      "name": "�ٴ��� �ູ",
-      "description": "�Ʊ��� ü�� ȸ���� 40% ����.",
+      "name": "바다의 축복",
+      "description": "아군의 체력 회복량 40% 증가.",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -370,8 +370,8 @@
       "id": 51111,
       "unitId": 11,
       "iconAddress": "I_SA_111",
-      "name": "����� ��ó",
-      "description": "������ �ڽ��� ���ݷ��� 125% ������ �ο�.\n������ �����̻� '��Ʈ������' �ο�(5�� ����)",
+      "name": "독사과 런처",
+      "description": "적에게 자신의 공격력의 125% 데미지 부여.\n적에게 상태이상 '도트데미지' 부여(5초 지속)",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -395,8 +395,8 @@
       "id": 51112,
       "unitId": 111,
       "iconAddress": "I_SP_111",
-      "name": "�� ģ������ �ͼ���",
-      "description": "�Ʊ��� ��Ʈ�� �����̻� �鿪",
+      "name": "내 친구들은 익숙해",
+      "description": "아군의 도트뎀 상태이상 면역",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -417,8 +417,8 @@
       "id": 51141,
       "unitId": 114,
       "iconAddress": "I_SA_114",
-      "name": "��� �Ǳ� �Ⱦ���",
-      "description": "�ڽ��� ���ݼӵ� ����(���ݷ�*0.2)\n�ڽ��� ���ݷ� ���� ( (1.0-���ݼӵ�)*50 ) (�ּ�0)",
+      "name": "어른이 되기 싫었어",
+      "description": "자신의 공격속도 감소(공격력*0.2)\n자신의 공격력 증가 ( (1.0-공격속도)*50 ) (최소0)",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -442,8 +442,8 @@
       "id": 51142,
       "unitId": 114,
       "iconAddress": "I_SP_114",
-      "name": "���� ������",
-      "description": "�Ʊ� ��ü�� ���ݼӵ� ����",
+      "name": "빨리 움직여",
+      "description": "아군 전체의 공격속도 증가",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -464,8 +464,8 @@
       "id": 51151,
       "unitId": 115,
       "iconAddress": "I_SA_115",
-      "name": "������ ����",
-      "description": "������ 1���� �����̻� �ο�. (7�� ����)\n�ڽſ��� ���� �����̻� �ο�. (7�� ����)",
+      "name": "광기의 집착",
+      "description": "적에게 1종의 상태이상 부여. (7초 지속)\n자신에게 같은 상태이상 부여. (7초 지속)",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -489,8 +489,8 @@
       "id": 51152,
       "unitId": 115,
       "iconAddress": "I_SP_115",
-      "name": "����� ������ ����",
-      "description": "�Ʊ��� �޴� �����̻��� �ð��� ������ ����.",
+      "name": "사랑과 광기의 눈빛",
+      "description": "아군이 받는 상태이상의 시간을 반으로 줄임.",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
@@ -511,8 +511,8 @@
       "id": 51201,
       "unitId": 120,
       "iconAddress": "I_SA_120",
-      "name": "�ʵ� �����ָ�",
-      "description": "������ �Ʊ����� ���� '���ݷ� 20% ����' �ο� (10�� ����)\n���� ��󿡰� ���� '���ݼӵ� 15% ����' �ο� (10�� ����)",
+      "name": "너도 고쳐주마",
+      "description": "임의의 아군에게 버프 '공격력 20% 증가' 부여 (10초 지속)\n같은 대상에게 버프 '공격속도 15% 증가' 부여 (10초 지속)",
       "cooldown": 0.0,
       "activeEffects": [
         {
@@ -536,8 +536,8 @@
       "id": 51202,
       "unitId": 120,
       "iconAddress": "I_SP_120",
-      "name": "��ȥ���� �¿���ġ",
-      "description": "�Ʊ��� 5ȸ ������ �� ���� ���ݷ��� 3�� ����.",
+      "name": "영혼없는 태엽장치",
+      "description": "아군이 5회 공격할 때 마다 공격력이 3씩 증가.",
       "cooldown": 0.0,
       "activeEffects": null,
       "passiveEffects": [
