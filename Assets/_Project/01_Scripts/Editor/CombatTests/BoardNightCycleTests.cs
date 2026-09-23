@@ -27,7 +27,7 @@ namespace OzGameLab01.Tests.EditMode
             state.BeginNewRun(1234);
             for (int i = 0; i < 10; i++)
             {
-                state.AdvanceTurn();
+                state.AdvanceTurn(false);
             }
 
             Vector2Int objective = new Vector2Int(3, 7);

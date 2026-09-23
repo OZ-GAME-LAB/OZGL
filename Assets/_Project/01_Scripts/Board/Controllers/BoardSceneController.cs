@@ -183,12 +183,17 @@ namespace OzGameLab01.Controllers
             TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
 
             bool wasNightTurn = BoardTurnRules.IsNight(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
-            BoardTimeOfDay previousTimeOfDay = CurrentTimeOfDay;
-
             BoardRunData.AdvanceTurn(wasNightTurn);
 
             RefreshTimeOfDayOverlay();
             Publish(BoardNotificationKind.TurnAdvanced);
+
+            // 낮→밤→낮 한 사이클(웨이브)이 방금 끝났으면 적 성장 오버턴 여부를 갱신한다.
+            // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-3절.
+            if (previousTimeOfDay == BoardTimeOfDay.Night && CurrentTimeOfDay == BoardTimeOfDay.Day)
+            {
+                BoardRunData.RegisterEnemyGrowthCycleBoundary();
+            }
 
             bool hasTimeOfDayChanged = previousTimeOfDay != CurrentTimeOfDay;
             if (hasTimeOfDayChanged)
@@ -209,27 +214,12 @@ namespace OzGameLab01.Controllers
                         break;
                 }
             }
-
-            UpdateTimeStatusHud();
-    // 낮→밤→낮 한 사이클(웨이브)이 방금 끝났으면 적 성장 오버턴 여부를 갱신한다.
-    // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-3절.
-    if (previousTimeOfDay == BoardTimeOfDay.Night && CurrentTimeOfDay == BoardTimeOfDay.Day)
-    {
-        BoardRunData.RegisterEnemyGrowthCycleBoundary();
-    }
-
-    if (hasTimeOfDayChanged)
-    {
-        switch (CurrentTimeOfDay)
-        {
-            case BoardTimeOfDay.Day:
-                DayReached?.Invoke(BoardRunData.TurnCount);
-                break;
-
-            if (!hasTimeOfDayChanged)
+            else
             {
                 PlayerTurnReady?.Invoke();
             }
+
+            UpdateTimeStatusHud();
         }
 
         private void UpdateTimeStatusHud()
