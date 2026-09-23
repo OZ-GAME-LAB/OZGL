@@ -23,6 +23,11 @@ namespace OzGameLab01.Combat
         [SerializeField] private SpriteRenderer spriteRenderer;
         [SerializeField] private GameObject projectilePrefab;
 
+        [Tooltip("이 유닛이 공격/스킬을 시전할 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
+        [SerializeField] private GameObject attackEffectPrefab;
+        [Tooltip("이 유닛이 피격당할 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
+        [SerializeField] private GameObject hitEffectPrefab;
+
         [Header("Skill (0번째 = 기본공격, 침묵 면역. 각자 쿨다운마다 자동 발동)")]
         [SerializeField] private TMPro.TextMeshPro skillNameLabel;
         [SerializeField] private float skillNameDisplayDuration = 0.35f;
@@ -81,6 +86,7 @@ namespace OzGameLab01.Combat
             {
                 _presenter = new UnitPresenter(
                     healthBar, spriteRenderer, projectilePrefab,
+                    attackEffectPrefab, hitEffectPrefab,
                     skillNameLabel, skillNameDisplayDuration, team);
             }
 
@@ -460,6 +466,7 @@ namespace OzGameLab01.Combat
 
             _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, effectiveDamage,
                 applyDamage, onImpact);
+            _presenter.PlayAttackEffect(transform.position);
 
             PassiveEventBus.RaiseAttackLanded(this, target);
             if (applyDamage) TryApplyRandomStatusEffect(target);
@@ -765,6 +772,7 @@ namespace OzGameLab01.Combat
             float previousRatio = maxHP > 0f ? _currentHP / maxHP : 0f;
             _currentHP = Mathf.Max(0f, _currentHP - dmg);
             _presenter.SetHP(_currentHP);
+            _presenter.PlayHitEffect(transform.position);
             PassiveEventBus.RaiseHpChanged(this, previousRatio);
 
             if (_currentHP <= 0f)

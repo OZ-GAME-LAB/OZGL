@@ -148,6 +148,8 @@ MonoBehaviour:
   healthBar: {fileID: 0}
   spriteRenderer: {fileID: 8079667619298508}
   projectilePrefab: {fileID: 0}
+  attackEffectPrefab: {fileID: 1941226523401448535, guid: ff66277dfcbf9084a9087465c7bc2044, type: 3}
+  hitEffectPrefab: {fileID: 6903045325319923393, guid: 94897df442dffe44dafc30e65e54216c, type: 3}
   skillNameLabel: {fileID: 0}
   skillNameDisplayDuration: 0.35
 --- !u!1 &6654231911376705215
