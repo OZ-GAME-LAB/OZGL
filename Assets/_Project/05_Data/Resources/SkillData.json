@@ -6,7 +6,7 @@
       "iconAddress": "I_SA_100",
       "name": "내 기분은 내가 정해",
       "description": "적에게 공격력의 150% 데미지 부여.\n적에게 상태이상 '도트데미지' 부여(5초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 9.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
@@ -64,7 +64,7 @@
       "iconAddress": "I_SA_101",
       "name": "시간이 없어!",
       "description": "아군 전체의 쿨타임 1초 회복",
-      "cooldown": 0.0,
+      "cooldown": 10.0,
       "activeEffects": [
         {
           "targetType": "AllAllies",
@@ -104,7 +104,7 @@
       "iconAddress": "I_SA_102",
       "name": "어디로 가고 싶어?",
       "description": "아군 전체의 체력 10% 회복\n아군 전체에게 버프 '회피율 20% 상승' 부여 (4초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 13.0,
       "activeEffects": [
         {
           "targetType": "AllAllies",
@@ -151,7 +151,7 @@
       "iconAddress": "I_SA_105",
       "name": "세가지 소원(물리)",
       "description": "대상의 방어력을 무시하는 공격력의 390% 데미지.",
-      "cooldown": 0.0,
+      "cooldown": 7.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
@@ -191,7 +191,7 @@
       "iconAddress": "I_SA_106",
       "name": "내가 겁쟁이라고!?",
       "description": "자신에게 상태이상 '도발' 부여 (999초)\n자신에게 보호막( 전체 체력 * ( 전체 체력 / 남은체력 ) )만큼 부여. (7초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 13.0,
       "activeEffects": [
         {
           "targetType": "Self",
@@ -238,7 +238,7 @@
       "iconAddress": "I_SA_108",
       "name": "깜짝 놀래키기",
       "description": "적에게 자신의 공격력의 165% 데미지 부여.",
-      "cooldown": 0.0,
+      "cooldown": 8.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
@@ -278,7 +278,7 @@
       "iconAddress": "I_SA_109",
       "name": "부끄러운줄 알아야지",
       "description": "적에게 상태이상 '공격력 감소 20% 부여' (5초 지속)\n그 수치만큼 자신의 공격력 상승.",
-      "cooldown": 0.0,
+      "cooldown": 9.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
@@ -318,7 +318,7 @@
       "iconAddress": "I_SA_110",
       "name": "물방울 아리아",
       "description": "아군 전체 체력 회복 (대상 체력의 5%).\n아군 전체 상태이상 1종 제거.\n적에게 상태이상 '침묵' 부여. (5초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 14.0,
       "activeEffects": [
         {
           "targetType": "AllAllies",
@@ -372,7 +372,7 @@
       "iconAddress": "I_SA_111",
       "name": "독사과 런처",
       "description": "적에게 자신의 공격력의 125% 데미지 부여.\n적에게 상태이상 '도트데미지' 부여(5초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 7.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
@@ -419,7 +419,7 @@
       "iconAddress": "I_SA_114",
       "name": "어른이 되기 싫었어",
       "description": "자신의 공격속도 감소(공격력*0.2)\n자신의 공격력 증가 ( (1.0-공격속도)*50 ) (최소0)",
-      "cooldown": 0.0,
+      "cooldown": 9.0,
       "activeEffects": [
         {
           "targetType": "Self",
@@ -466,7 +466,7 @@
       "iconAddress": "I_SA_115",
       "name": "광기의 집착",
       "description": "적에게 1종의 상태이상 부여. (7초 지속)\n자신에게 같은 상태이상 부여. (7초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 13.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
@@ -513,7 +513,7 @@
       "iconAddress": "I_SA_120",
       "name": "너도 고쳐주마",
       "description": "임의의 아군에게 버프 '공격력 20% 증가' 부여 (10초 지속)\n같은 대상에게 버프 '공격속도 15% 증가' 부여 (10초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 10.0,
       "activeEffects": [
         {
           "targetType": "RandomAlly",

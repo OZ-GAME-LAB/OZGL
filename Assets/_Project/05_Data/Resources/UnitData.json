@@ -126,7 +126,8 @@
       "jobType": "Assasin",
       "tribeType": "Machine",
       "skillIds": [
-        900
+        900,
+        51081
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
@@ -147,7 +148,8 @@
       "jobType": "Tricster",
       "tribeType": "Human",
       "skillIds": [
-        900
+        900,
+        51091
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
