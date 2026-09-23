@@ -221,6 +221,7 @@ GameObject:
   m_Component:
   - component: {fileID: 404384627}
   - component: {fileID: 404384626}
+  - component: {fileID: 404384628}
   m_Layer: 0
   m_Name: CombatSceneController
   m_TagString: Untagged
@@ -255,6 +256,30 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &404384628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 404384625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c211f11b72df4b98aae5968cd53eb180, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.CombatTutorialSequenceController
+  combatSceneController: {fileID: 404384626}
+  combatSession: {fileID: 0}
+  combatUIView: {fileID: 1624536359}
+  guidePrefab: {fileID: 8249135203274398138, guid: c3aa1f5172aafbe4ebdee8baff93be99, type: 3}
+  overlaySortingOrder: 30000
+  playAutomatically: 1
+  playOnce: 1
+  ignoreCompletedProgress: 0
+  progressKey: Tutorial.CombatIntro.v1
+  steps:
+  - {fileID: 11400000, guid: 0195be87c2b341cb84fd63d76dd87ee9, type: 2}
+  - {fileID: 11400000, guid: 258cbe64bca24964a18bc036d1c954ab, type: 2}
 --- !u!1 &410593570
 GameObject:
   m_ObjectHideFlags: 0

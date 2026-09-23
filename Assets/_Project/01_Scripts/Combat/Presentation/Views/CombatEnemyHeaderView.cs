@@ -21,6 +21,8 @@ namespace OzGameLab01.UI.Battle
         /// 상태이상 UI가 배치될 부모 Transform입니다.
         /// </summary>
         public Transform StatusEffectRoot => statusEffectRoot;
+        public RectTransform HealthHighlightTarget =>
+            healthFill != null ? healthFill.rectTransform : transform as RectTransform;
 
         /// <summary>
         /// 현재 View의 활성 상태입니다.

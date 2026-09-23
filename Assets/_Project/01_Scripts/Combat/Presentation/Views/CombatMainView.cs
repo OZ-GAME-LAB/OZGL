@@ -14,6 +14,10 @@ namespace OzGameLab01.UI.Battle
         [SerializeField] private BattleSynergyView synergyView;
         [SerializeField] private BattleArtifactView artifactView;
 
+        [Header("Tutorial Targets")]
+        [SerializeField] private RectTransform enemyCombatArea;
+        [SerializeField] private RectTransform enemySkillArea;
+
         [Header("Battlefield")]
         [Tooltip("월드 전투에서는 표시하지 않는 기존 UI 편성 그리드입니다.")]
         [SerializeField] private GameObject formationGrid;
@@ -48,6 +52,8 @@ namespace OzGameLab01.UI.Battle
         /// 아티팩트 UI View입니다.
         /// </summary>
         public BattleArtifactView ArtifactView => artifactView;
+        public RectTransform EnemyCombatArea => enemyCombatArea;
+        public RectTransform EnemySkillArea => enemySkillArea;
 
         /// <summary>
         /// 현재 Main View의 활성 상태입니다.

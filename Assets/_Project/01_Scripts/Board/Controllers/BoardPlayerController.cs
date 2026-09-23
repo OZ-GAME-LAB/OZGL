@@ -265,6 +265,12 @@ namespace OzGameLab01.Controllers
                     Model.CompleteStep(node);
                     RefreshActionPowerHud();
                     OnPlayerStepCompleted?.Invoke();
+
+                    if (node.IsMandatoryStop)
+                    {
+                        node.IsMandatoryStop = false;
+                        break;
+                    }
                 }
                 completed = true;
             }

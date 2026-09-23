@@ -23,7 +23,7 @@ MonoBehaviour:
   showGuide: 1
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
-  dialogue: "\uC9C4\uD589 \uBC29\uBC95\uC740 \uC544\uC8FC \uAC04\uB2E8\uD574 "
+  dialogue: "\uC9C4\uD589 \uBC29\uBC95\uC740 \uC544\uC8FC \uAC04\uB2E8\uD574."
   showCharacter: 1
   highlightButton: 0
   highlightButtonKey: 

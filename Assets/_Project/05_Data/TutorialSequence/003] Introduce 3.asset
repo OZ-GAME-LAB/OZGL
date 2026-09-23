@@ -23,7 +23,9 @@ MonoBehaviour:
   showGuide: 1
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
-  dialogue: "\uC9C4\uD589 \uBC29\uBC95\uC740 \uC544\uC8FC \uAC04\uB2E8\uD574 "
+  dialogue: "\u2460 \uC8FC\uC0AC\uC704\uB97C \uAD74\uB9B0\uB2E4.\r\n\u2461 \uB098\uC628
+    \uC218\uB9CC\uD07C \uC790\uC720\uB86D\uAC8C \uD0C0\uC77C \uC704\uB97C \uC774\uB3D9\uD55C\uB2E4.\r\n\u2462
+    \uD0C0\uC77C \uC704\uC758 \uC774\uBCA4\uD2B8\uB97C \uC2E4\uD589\uD55C\uB2E4. "
   showCharacter: 1
   highlightButton: 0
   highlightButtonKey: 

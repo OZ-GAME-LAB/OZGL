@@ -19,15 +19,23 @@ MonoBehaviour:
   targetReadyView: 0
   triggerButtonKey: 
   manualTriggerKey: 
+  targetOwnedUnitId: 0
   openRollView: 0
   showGuide: 1
+  focusBoardTile: 0
+  tileTargetMode: 1
+  tilePosition: {x: 0, y: 0}
+  tileType: 13
+  tileTypeOccurrence: 0
+  showGuideAfterLocate: 1
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
   dialogue: "\uADF8\uC804\uC5D0, \uD65C\uB3D9\uB825\uC744 \uB2E4 \uC18C\uBAA8\uD588\uC73C\uB2C8\uAE4C
     \uD134\uC744 \uC885\uB8CC\uD558\uC790."
   showCharacter: 1
-  highlightButton: 0
-  highlightButtonKey: 
+  highlightButton: 1
+  highlightButtonKey: EndTurnButton
+  keepButtonHighlightUntilClicked: 0
   highlightScale: 1.08
   highlightHalfDuration: 0.3
   highlightColor: {r: 1, g: 0.8, b: 0.2, a: 1}
@@ -35,6 +43,9 @@ MonoBehaviour:
   ignoreTimeScale: 1
   outlineHighlight: 0
   outlineTargetKey: 
+  formationSlotHighlightGroup: 0
+  keepFormationSlotHighlightUntilReadyViewHidden: 1
+  formationSlotHighlightReleaseView: 2
   outlineColor: {r: 1, g: 0.8, b: 0.2, a: 1}
   outlineMinDistance: {x: 2, y: 2}
   outlineMaxDistance: {x: 8, y: 8}

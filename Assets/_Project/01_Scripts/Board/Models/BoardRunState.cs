@@ -8,6 +8,7 @@ namespace OzGameLab01.Board.Models
     {
         private readonly HashSet<Vector2Int> _completedBattlePositions = new();
         private readonly HashSet<Vector2Int> _consumedSpecialTilePositions = new();
+        private readonly HashSet<Vector2Int> _visitedPositions = new();
         public bool HasActiveRun { get; private set; }
         public int MapSeed { get; private set; }
         public Vector2Int PlayerPosition { get; private set; }
@@ -23,11 +24,15 @@ namespace OzGameLab01.Board.Models
         public int RemainingDiceValue { get; private set; }
 
         public int TurnCount { get; private set; }
+        public int TimeCycleStartTurn { get; private set; }
+        public bool IsMidBossActive { get; private set; }
         public int DefeatedElitesCount { get; private set; }
         public bool HasObjective { get; private set; }
         public Vector2Int ObjectivePosition { get; private set; }
         public bool IsEliteBattle { get; private set; }
+        public IReadOnlyCollection<Vector2Int> VisitedPositions => _visitedPositions;
         public event System.Action OnBattleCompleted; // 전투 종료 알림 이벤트
+        public event System.Action OnMidBossDefeated;
 
         // 적 성장(HP/공격력/방어력에 곱하는 value) — 매 턴 종료 시점의 보드 낮/밤 상태로 누적.
         // 웨이브 마감(낮→밤→낮 한 사이클)까지 중간보스를 못 잡으면 오버턴으로 넘어가 성장이
@@ -92,8 +97,12 @@ namespace OzGameLab01.Board.Models
 
                 unusedActionPoints = UnusedActionPoints,
                 turnCount = TurnCount,
+   timeCycleStartTurn = TimeCycleStartTurn,
+                isMidBossActive = IsMidBossActive,
                 defeatedElitesCount = DefeatedElitesCount,
-
+                hasObjective = HasObjective,
+                objectivePositionX = ObjectivePosition.x,
+                objectivePositionY = ObjectivePosition.y,
                 enemyGrowthValue = EnemyGrowthValue,
                 enemyOverturnValue = EnemyOverturnValue,
                 isInEnemyOverturn = IsInEnemyOverturn,
@@ -112,6 +121,15 @@ namespace OzGameLab01.Board.Models
             foreach (Vector2Int position in _consumedSpecialTilePositions)
             {
                 saveData.consumedSpecialTilePositions.Add(new BoardRunPosition
+                {
+                    x = position.x,
+                    y = position.y
+                });
+            }
+
+            foreach (Vector2Int position in _visitedPositions)
+            {
+                saveData.visitedPositions.Add(new BoardRunPosition
                 {
                     x = position.x,
                     y = position.y
@@ -165,7 +183,13 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = Mathf.Max(0, saveData.unusedActionPoints);
             TurnCount = Mathf.Max(0, saveData.turnCount);
+            TimeCycleStartTurn = Mathf.Clamp(saveData.timeCycleStartTurn, 0, TurnCount);
+            IsMidBossActive = saveData.isMidBossActive;
             DefeatedElitesCount = Mathf.Max(0, saveData.defeatedElitesCount);
+            HasObjective = saveData.hasObjective;
+            ObjectivePosition = HasObjective
+                ? new Vector2Int(saveData.objectivePositionX, saveData.objectivePositionY)
+                : Vector2Int.zero;
 
             // 구버전 세이브(이 필드가 생기기 전)에는 enemyGrowthValue가 항상 기본값 0이다.
             // 실제 진행 중에는 이 값이 절대 0 이하로 내려가지 않으므로 0을 "필드 없음" 신호로 쓴다.
@@ -209,6 +233,23 @@ namespace OzGameLab01.Board.Models
                     }
                 }
             }
+
+            if (saveData.visitedPositions != null)
+            {
+                foreach (BoardRunPosition position in saveData.visitedPositions)
+                {
+                    if (position != null)
+                    {
+                        _visitedPositions.Add(new Vector2Int(position.x, position.y));
+                    }
+                }
+            }
+
+            // 방문 기록이 없던 구버전 저장은 현재 위치부터 기록을 이어갑니다.
+            if (_visitedPositions.Count == 0 && HasPlayerPosition)
+            {
+                _visitedPositions.Add(PlayerPosition);
+            }
             return true;
         }
         public void SavePlayerPosition(Vector2Int position)
@@ -216,6 +257,7 @@ namespace OzGameLab01.Board.Models
 
             PlayerPosition = position;
             HasPlayerPosition = true;
+            _visitedPositions.Add(position);
         }
         public void SaveUnusedActionPoints(int actionPoints)
         {
@@ -232,6 +274,10 @@ namespace OzGameLab01.Board.Models
             HasObjective = false;
             ObjectivePosition = Vector2Int.zero;
         }
+ public void ActivateMidBoss()
+        {
+            IsMidBossActive = true;
+        }
         public void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false, bool isNightEncounter = false)
         {
             CurrentBattlePosition = battlePosition;
@@ -245,6 +291,8 @@ namespace OzGameLab01.Board.Models
         {
             if (!HasCurrentBattle) return;
 
+            bool defeatedMidBoss = IsEliteBattle;
+
             ConsumeSpecialTile(CurrentBattlePosition);
 
             if (!IsBossBattle)
@@ -256,9 +304,11 @@ namespace OzGameLab01.Board.Models
                 IsBossDefeated = true; // [추가] 보스 처치 플래그 설정
             }
 
-            if (IsEliteBattle)
+  if (defeatedMidBoss) // fix 브랜치의 새로운 조건문을 사용 (기존: IsEliteBattle)
             {
                 DefeatedElitesCount++; // 엘리트전 카운트 증가!
+                IsMidBossActive = false;
+                TimeCycleStartTurn = TurnCount;
                 // 중간보스 처치 시 오버턴 값은 사라지고, 성장값에 +1을 더한 뒤
                 // 다음 턴부터 정상 낮/밤 성장으로 복귀한다.
                 _eliteDefeatedThisCycle = true;
@@ -280,6 +330,10 @@ namespace OzGameLab01.Board.Models
             IsNightEncounter = false;
 
             OnBattleCompleted?.Invoke(); // 목표 매니저 알림 이벤트!
+            if (defeatedMidBoss)
+            {
+                OnMidBossDefeated?.Invoke();
+            }
         }
         public bool IsBattleCompleted(Vector2Int position)
         {
@@ -347,9 +401,12 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = 0;
             TurnCount = 0;
+            TimeCycleStartTurn = 0;
+            IsMidBossActive = false;
 
             _completedBattlePositions.Clear();
             _consumedSpecialTilePositions.Clear();
+            _visitedPositions.Clear();
 
             DefeatedElitesCount = 0;
             ClearObjective();
@@ -361,6 +418,7 @@ namespace OzGameLab01.Board.Models
 
             // [추가] 이전 런의 씬 객체가 남긴 전투 완료 구독 정보 초기화
             OnBattleCompleted = null;
+            OnMidBossDefeated = null;
         }
     }
 }
