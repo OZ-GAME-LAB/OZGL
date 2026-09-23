@@ -13,7 +13,7 @@ namespace OzGameLab01.Data
             MonsterRosterData enemies = Resources.Load<MonsterRosterData>("MonsterRosterData");
             if (units == null || enemies == null) throw new InvalidOperationException("Missing unit/enemy roster.");
             // Parse JSON again on each reload. OnEnable alone does not reload already-loaded assets.
-            TextAsset unitJson = Resources.Load<TextAsset>("TempUnitData");
+            TextAsset unitJson = Resources.Load<TextAsset>("UnitData");
             TextAsset enemyJson = Resources.Load<TextAsset>("EnemyData");
             if (unitJson == null || enemyJson == null) throw new InvalidOperationException("Missing unit/enemy JSON.");
             var skillDefinitions = new Dictionary<int, SkillData>();
