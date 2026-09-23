@@ -124,7 +124,8 @@ namespace OzGameLab01.Combat
             // 도트 데미지는 기절 중에도 계속 진행되어야 하므로 가장 먼저 처리합니다.
             if (_stats != null && _stats.Tick(Time.deltaTime)) RefreshStats();
             _shields.Tick(Time.deltaTime);
-            _status.Tick(Time.deltaTime, dmg => TakeDamage(dmg));
+            _status.Tick(Time.deltaTime, dmg => TakeDamage(dmg),
+                type => _presenter.SetStatusEffectActive(type, false, transform));
             _presenter.SetDebuffTint(_status.IndicatorColor);
             bool hasCooldown = TryGetActiveSkillCooldown(out float cdRemaining, out float cdDuration);
             _presenter.UpdateHud(_currentHP, maxHP, hasCooldown, cdRemaining, cdDuration);
@@ -357,11 +358,13 @@ namespace OzGameLab01.Combat
                 if (_skills.Count == 0 || !untilBattleEnd) return false;
                 _skills[0].cooldownOverride = Mathf.Max(0.01f, GetSkillCooldown(_skills[0]) * (1 - percentValue / 100f));
                 PassiveEventBus.RaiseBuffed(this);
+                _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform.position);
                 return true;
             }
             if (!_stats.Add(statType, percentValue, operation, durationSeconds, untilBattleEnd)) return false;
             RefreshStats();
             PassiveEventBus.RaiseBuffed(this);
+            _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform.position);
             return true;
         }
 
@@ -489,7 +492,7 @@ namespace OzGameLab01.Combat
                     else
                     {
                         FireProjectile(target, skill.data.damage * skill.damageMultiplier);
-                        target._status.Apply(skill.data.debuff);
+                        target.ApplyDebuff(skill.data.debuff);
                     }
 
                     // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
@@ -611,6 +614,7 @@ namespace OzGameLab01.Combat
             _currentHP = Mathf.Min(maxHP, _currentHP + amount * Mathf.Max(0f, recoveryMultiplier));
             if (_currentHP <= previous) return false;
             _presenter.SetHP(_currentHP);
+            _presenter.PlayEffect(CombatVfxLibrary.Instance?.HealEffect, transform.position);
             PassiveEventBus.RaiseHealed(this);
             return true;
         }
@@ -731,7 +735,13 @@ namespace OzGameLab01.Combat
             target.ApplyDebuff(profile);
         }
 
-        public void ApplyDebuff(DebuffProfile profile) => _status.Apply(profile);
+        public void ApplyDebuff(DebuffProfile profile)
+        {
+            if (_status.Apply(profile))
+            {
+                _presenter.SetStatusEffectActive(profile.type, true, transform);
+            }
+        }
 
         public bool Revive(float healthPercent)
         {
@@ -740,6 +750,7 @@ namespace OzGameLab01.Combat
             _currentHP = Mathf.Clamp(maxHP * Mathf.Clamp(healthPercent, 0f, 100f) / 100f, 1f, maxHP);
             _shields.Clear();
             _status.Clear();
+            _presenter.ClearAllStatusEffects();
             gameObject.SetActive(true);
             CombatUnitRegistry.Register(this);
             _presenter.SetVisualsVisible(true, gameObject);
@@ -748,7 +759,11 @@ namespace OzGameLab01.Combat
             return true;
         }
 
-        public void CleanseDebuffs() => _status.Clear();
+        public void CleanseDebuffs()
+        {
+            _status.Clear();
+            _presenter.ClearAllStatusEffects();
+        }
 
         public void TakeDamage(float dmg)
         {

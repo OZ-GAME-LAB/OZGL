@@ -42,7 +42,16 @@ namespace OzGameLab01.Combat
         }
 
         private readonly List<ActiveDebuff> _active = new List<ActiveDebuff>();
-        public void Clear() => _active.Clear();
+
+        /// <summary>onExpired가 있으면 지우기 전에 남아있던 각 디버프 타입마다 호출한다(연출 정리용).</summary>
+        public void Clear(Action<DebuffType> onExpired = null)
+        {
+            if (onExpired != null)
+            {
+                foreach (ActiveDebuff debuff in _active) onExpired(debuff.type);
+            }
+            _active.Clear();
+        }
 
         public bool IsStunned => HasType(DebuffType.Stun);
         public bool IsSilenced => HasType(DebuffType.Silence);
@@ -83,11 +92,12 @@ namespace OzGameLab01.Combat
             }
         }
 
-        public void Apply(DebuffProfile profile)
+        /// <summary>새로 적용된 디버프면 true(연출 트리거용), 기존 디버프의 지속시간만 갱신했으면 false.</summary>
+        public bool Apply(DebuffProfile profile)
         {
             if (profile.type == DebuffType.None || profile.duration <= 0f)
             {
-                return;
+                return false;
             }
 
             foreach (ActiveDebuff debuff in _active)
@@ -98,7 +108,7 @@ namespace OzGameLab01.Combat
                     debuff.duration = profile.duration;
                     debuff.magnitude = profile.magnitude;
                     debuff.tickInterval = profile.tickInterval;
-                    return;
+                    return false;
                 }
             }
 
@@ -111,6 +121,7 @@ namespace OzGameLab01.Combat
                 tickInterval = profile.tickInterval,
                 tickTimer = profile.tickInterval
             });
+            return true;
         }
 
         /// <summary>
@@ -146,8 +157,9 @@ namespace OzGameLab01.Combat
         /// <summary>
         /// 지속시간을 감소시키고 도트 데미지 틱을 처리한 뒤, 만료된 디버프를 제거한다.
         /// 기절 여부와 무관하게 매 프레임 호출되어야 한다(도트는 기절 중에도 진행).
+        /// onExpired는 방금 만료되어 제거된 디버프 타입마다 호출된다(연출 정리용).
         /// </summary>
-        public void Tick(float deltaTime, Action<float> onDamageOverTime)
+        public void Tick(float deltaTime, Action<float> onDamageOverTime, Action<DebuffType> onExpired = null)
         {
             for (int i = _active.Count - 1; i >= 0; i--)
             {
@@ -167,6 +179,7 @@ namespace OzGameLab01.Combat
                 if (debuff.remaining <= 0f)
                 {
                     _active.RemoveAt(i);
+                    onExpired?.Invoke(debuff.type);
                 }
             }
         }

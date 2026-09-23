@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
@@ -35,6 +36,8 @@ namespace OzGameLab01.Combat
         private Sprite _projectileSprite;
         private Color _projectileColor = Color.white;
         private AllyUnitCombatHUDView _hud;
+        // 상태이상(기절/침묵/도트)별 지속 재생 중인 VFX 인스턴스. 적용 시 생성, 해제 시 파괴.
+        private readonly Dictionary<DebuffType, GameObject> _activeStatusEffects = new Dictionary<DebuffType, GameObject>();
 
         public RectTransform CombatAnchor => _combatAnchor;
 
@@ -202,6 +205,50 @@ namespace OzGameLab01.Combat
             if (hitEffectPrefab == null) return;
             GameObject fx = UnityEngine.Object.Instantiate(hitEffectPrefab, worldPosition, Quaternion.identity);
             UnityEngine.Object.Destroy(fx, EffectAutoDestroySeconds);
+        }
+
+        /// <summary>
+        /// CombatVfxLibrary에서 가져온 힐/스탯 버프·디버프 1회성 VFX 재생. prefab이 null이면
+        /// (라이브러리 미배치, 해당 스탯에 대응하는 VFX 없음 등) 조용히 무시한다.
+        /// </summary>
+        public void PlayEffect(GameObject prefab, Vector3 worldPosition)
+        {
+            if (prefab == null) return;
+            GameObject fx = UnityEngine.Object.Instantiate(prefab, worldPosition, Quaternion.identity);
+            UnityEngine.Object.Destroy(fx, EffectAutoDestroySeconds);
+        }
+
+        /// <summary>
+        /// 상태이상 VFX를 켜거나 끈다. active=true면 CombatVfxLibrary에서 대응하는 프리팹을 찾아
+        /// parent 아래에 생성해 유닛을 따라다니게 하고, active=false면 앞서 생성한 인스턴스를
+        /// 파괴한다. 같은 타입이 이미 재생 중이면 중복 생성하지 않는다.
+        /// </summary>
+        public void SetStatusEffectActive(DebuffType type, bool active, Transform parent)
+        {
+            if (active)
+            {
+                if (_activeStatusEffects.ContainsKey(type)) return;
+                GameObject prefab = CombatVfxLibrary.Instance?.GetDebuffEffect(type);
+                if (prefab == null) return;
+                GameObject fx = UnityEngine.Object.Instantiate(prefab, parent);
+                fx.transform.localPosition = Vector3.zero;
+                _activeStatusEffects[type] = fx;
+            }
+            else if (_activeStatusEffects.TryGetValue(type, out GameObject fx))
+            {
+                if (fx != null) UnityEngine.Object.Destroy(fx);
+                _activeStatusEffects.Remove(type);
+            }
+        }
+
+        /// <summary>현재 재생 중인 모든 상태이상 VFX를 즉시 정리한다(CleanseDebuffs 등 전체 해제 시).</summary>
+        public void ClearAllStatusEffects()
+        {
+            foreach (KeyValuePair<DebuffType, GameObject> pair in _activeStatusEffects)
+            {
+                if (pair.Value != null) UnityEngine.Object.Destroy(pair.Value);
+            }
+            _activeStatusEffects.Clear();
         }
 
         public void HideCombatImage()
