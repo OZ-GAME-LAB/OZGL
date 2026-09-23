@@ -58,6 +58,7 @@ namespace OzGameLab01.Save
         public int currentBattlePositionY; // 현재 전투가 발생한 보드 Y 좌표
         public bool isBossBattle;
         public bool isEliteBattle;
+        public bool isNightEncounter;
         public bool isBossDefeated;
         public bool hasRolledThisTurn;
         public int rolledDiceValue;
@@ -70,6 +71,10 @@ namespace OzGameLab01.Save
         public bool hasObjective;
         public int objectivePositionX;
         public int objectivePositionY;
+        public float enemyGrowthValue; // 적 HP/공격력/방어력에 곱하는 값 — 0이면 구버전 세이브(마이그레이션 대상)
+        public float enemyOverturnValue;
+        public bool isInEnemyOverturn;
+        public bool eliteDefeatedThisCycle;
         public List<BoardPositionSaveEntry> completedBattlePositions = new List<BoardPositionSaveEntry>(); // 전투 완료 진입 불가
         public List<BoardPositionSaveEntry> consumedSpecialTilePositions = new List<BoardPositionSaveEntry>(); // 발동이 끝난 일회성 특수 타일
         public List<BoardPositionSaveEntry> visitedPositions = new List<BoardPositionSaveEntry>(); // 플레이어가 한 번 이상 지나간 타일

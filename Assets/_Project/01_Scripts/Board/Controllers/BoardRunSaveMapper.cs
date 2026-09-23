@@ -21,6 +21,7 @@ namespace OzGameLab01.Board.Controllers
                 currentBattlePositionY = source.currentBattlePositionY,
                 isBossBattle = source.isBossBattle,
                 isEliteBattle = source.isEliteBattle,
+                isNightEncounter = source.isNightEncounter,
                 isBossDefeated = source.isBossDefeated,
                 hasRolledThisTurn = source.hasRolledThisTurn,
                 rolledDiceValue = source.rolledDiceValue,
@@ -34,6 +35,10 @@ namespace OzGameLab01.Board.Controllers
                 objectivePositionX = source.objectivePositionX,
                 objectivePositionY = source.objectivePositionY,
 
+                enemyGrowthValue = source.enemyGrowthValue,
+                enemyOverturnValue = source.enemyOverturnValue,
+                isInEnemyOverturn = source.isInEnemyOverturn,
+                eliteDefeatedThisCycle = source.eliteDefeatedThisCycle,
             };
             if (source.completedBattlePositions != null)
             {
@@ -73,6 +78,7 @@ namespace OzGameLab01.Board.Controllers
                 currentBattlePositionY = source.currentBattlePositionY,
                 isBossBattle = source.isBossBattle,
                 isEliteBattle = source.isEliteBattle,
+                isNightEncounter = source.isNightEncounter,
                 isBossDefeated = source.isBossDefeated,
                 hasRolledThisTurn = source.hasRolledThisTurn,
                 rolledDiceValue = source.rolledDiceValue,
@@ -85,6 +91,10 @@ namespace OzGameLab01.Board.Controllers
                 hasObjective = source.hasObjective,
                 objectivePositionX = source.objectivePositionX,
                 objectivePositionY = source.objectivePositionY,
+                enemyGrowthValue = source.enemyGrowthValue,
+                enemyOverturnValue = source.enemyOverturnValue,
+                isInEnemyOverturn = source.isInEnemyOverturn,
+                eliteDefeatedThisCycle = source.eliteDefeatedThisCycle,
             };
             if (source.completedBattlePositions != null)
             {

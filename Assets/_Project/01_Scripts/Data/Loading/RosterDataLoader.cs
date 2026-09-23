@@ -20,10 +20,10 @@ namespace OzGameLab01.Data
             }
 
             // 기존 유닛 리소스 경로와 실패 시 저장값 유지 정책
-            TextAsset jsonFile = Resources.Load<TextAsset>("TempUnitData");
+            TextAsset jsonFile = Resources.Load<TextAsset>("UnitData");
             if (jsonFile == null)
             {
-                Debug.LogWarning("[UnitRosterData] 05_Data/Resources/TempUnitData.json을 찾을 수 없어 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다.", context);
+                Debug.LogWarning("[UnitRosterData] 05_Data/Resources/UnitData.json을 찾을 수 없어 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다.", context);
                 return;
             }
 
@@ -34,13 +34,13 @@ namespace OzGameLab01.Data
             }
             catch (Newtonsoft.Json.JsonException e)
             {
-                Debug.LogWarning($"[UnitRosterData] TempUnitData.json 파싱에 실패해 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다. ({e.Message})", context);
+                Debug.LogWarning($"[UnitRosterData] UnitData.json 파싱에 실패해 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다. ({e.Message})", context);
                 return;
             }
 
             if (parsed == null)
             {
-                Debug.LogWarning("[UnitRosterData] TempUnitData.json에 unitList가 없어 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다.", context);
+                Debug.LogWarning("[UnitRosterData] UnitData.json에 unitList가 없어 UnitStats가 마지막으로 저장된 값 그대로 유지됩니다.", context);
                 return;
             }
 

@@ -2,7 +2,7 @@
   "unitList": [
     {
       "id": 100,
-      "name": "¾Ù¸®½º",
+      "name": "ï¿½Ù¸ï¿½ï¿½ï¿½",
       "spriteAddress": "001_100",
       "iconAddress": "I_Un_100",
       "prefabAddress": "Units/Ally/Alice/Vanilla",
@@ -17,14 +17,14 @@
       "tribeType": "Human",
       "skillIds": [
         900,
-        920
+        51001
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 101,
-      "name": "ÈòÅä³¢",
+      "name": "ï¿½ï¿½ï¿½ä³¢",
       "spriteAddress": "001_101",
       "iconAddress": "I_Un_101",
       "prefabAddress": "Units/Ally/Rabbit/Vanilla",
@@ -39,14 +39,14 @@
       "tribeType": "Beast",
       "skillIds": [
         900,
-        921
+        51011
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 102,
-      "name": "Ã¼¼ÅÄ¹",
+      "name": "Ã¼ï¿½ï¿½Ä¹",
       "spriteAddress": "001_102",
       "iconAddress": "I_Un_102",
       "prefabAddress": "Units/Ally/CheshireCat/Vanilla",
@@ -61,14 +61,14 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        922
+        51021
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 105,
-      "name": "Áö´Ï",
+      "name": "ï¿½ï¿½ï¿½ï¿½",
       "spriteAddress": "001_105",
       "iconAddress": "I_Un_105",
       "prefabAddress": "Units/Ally/Genie/Vanilla",
@@ -83,14 +83,14 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        925
+        51051
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 106,
-      "name": "»çÀÚ",
+      "name": "ï¿½ï¿½ï¿½ï¿½",
       "spriteAddress": "001_106",
       "iconAddress": "I_Un_106",
       "prefabAddress": "Units/Ally/Lion/Vanilla",
@@ -105,14 +105,14 @@
       "tribeType": "Beast",
       "skillIds": [
         900,
-        926
+        51061
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 108,
-      "name": "Çã¼ö¾Æºñ",
+      "name": "ï¿½ï¿½ï¿½ï¿½Æºï¿½",
       "spriteAddress": "001_108",
       "iconAddress": "I_Un_108",
       "prefabAddress": "Units/Ally/Scarecrow/Vanilla",
@@ -126,15 +126,14 @@
       "jobType": "Assasin",
       "tribeType": "Machine",
       "skillIds": [
-        900,
-        928
+        900
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 109,
-      "name": "µµ·Î½Ã",
+      "name": "ï¿½ï¿½ï¿½Î½ï¿½",
       "spriteAddress": "001_109",
       "iconAddress": "I_Un_109",
       "prefabAddress": "Units/Ally/Dorothy/Vanilla",
@@ -148,15 +147,14 @@
       "jobType": "Tricster",
       "tribeType": "Human",
       "skillIds": [
-        900,
-        929
+        900
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 110,
-      "name": "ÀÎ¾î°øÁÖ",
+      "name": "ï¿½Î¾ï¿½ï¿½ï¿½ï¿½",
       "spriteAddress": "001_110",
       "iconAddress": "I_Un_110",
       "prefabAddress": "Units/Ally/Mermaid/Vanilla",
@@ -171,14 +169,14 @@
       "tribeType": "Princess",
       "skillIds": [
         900,
-        930
+        51101
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 111,
-      "name": "¹é¼³°øÁÖ",
+      "name": "ï¿½é¼³ï¿½ï¿½ï¿½ï¿½",
       "spriteAddress": "001_111",
       "iconAddress": "I_Un_111",
       "prefabAddress": "Units/Ally/Snowwhite/Vanilla",
@@ -193,14 +191,14 @@
       "tribeType": "Princess",
       "skillIds": [
         900,
-        931
+        51111
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 114,
-      "name": "ÇÇÅÍÆÒ",
+      "name": "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½",
       "spriteAddress": "001_114",
       "iconAddress": "I_Un_114",
       "prefabAddress": "Units/Ally/PeterPan/Vanilla",
@@ -215,14 +213,14 @@
       "tribeType": "Human",
       "skillIds": [
         900,
-        934
+        51141
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 115,
-      "name": "ÆÃÄ¿º§",
+      "name": "ï¿½ï¿½Ä¿ï¿½ï¿½",
       "spriteAddress": "001_115",
       "iconAddress": "I_Un_115",
       "prefabAddress": "Units/Ally/Tinkerbell/Vanilla",
@@ -237,14 +235,14 @@
       "tribeType": "Fairy",
       "skillIds": [
         900,
-        935
+        51151
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0
     },
     {
       "id": 120,
-      "name": "Á¦ÆäÅä",
+      "name": "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½",
       "spriteAddress": "001_120",
       "iconAddress": "I_Un_120",
       "prefabAddress": "Units/Ally/Zepeto/Vanilla",
@@ -259,7 +257,7 @@
       "tribeType": "Machine",
       "skillIds": [
         900,
-        940
+        51201
       ],
       "recoveryAmount": 1.0,
       "statusDuration": 1.0

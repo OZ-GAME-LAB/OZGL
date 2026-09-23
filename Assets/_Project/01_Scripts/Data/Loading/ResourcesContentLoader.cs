@@ -13,27 +13,29 @@ namespace OzGameLab01.Data
             MonsterRosterData enemies = Resources.Load<MonsterRosterData>("MonsterRosterData");
             if (units == null || enemies == null) throw new InvalidOperationException("Missing unit/enemy roster.");
             // Parse JSON again on each reload. OnEnable alone does not reload already-loaded assets.
-            TextAsset unitJson = Resources.Load<TextAsset>("TempUnitData");
+            TextAsset unitJson = Resources.Load<TextAsset>("UnitData");
             TextAsset enemyJson = Resources.Load<TextAsset>("EnemyData");
             if (unitJson == null || enemyJson == null) throw new InvalidOperationException("Missing unit/enemy JSON.");
             var skillDefinitions = new Dictionary<int, SkillData>();
-            foreach (SkillData skill in units.SkillDefinitions) skillDefinitions.Add(skill.id, skill);
+            // 통합 스킬 정의(SkillData.json)를 우선 채운다 — 유닛별/적별 스킬은 이 기반 위에 덮어쓴다.
+            List<SkillData> commonSkills = GameDataLoader.LoadSkills();
+            if (commonSkills != null)
+            {
+                foreach (SkillData skill in commonSkills) skillDefinitions[skill.id] = skill;
+            }
+            foreach (SkillData skill in units.SkillDefinitions) skillDefinitions[skill.id] = skill;
+            // UnitSkillData.json은 삭제된 상태로도 유효하다(유닛별 스킬 오버라이드가 없다는 뜻) —
+            // GameDataLoader.LoadUnitSkills()가 이미 없음을 경고로 남기므로 여기서 다시 막지 않는다.
             var overrides = GameDataLoader.LoadUnitSkills();
-            if (overrides == null) throw new InvalidOperationException("Missing unit skill JSON.");
-            foreach (SkillData skill in overrides) skillDefinitions[skill.id] = skill;
+            if (overrides != null)
+            {
+                foreach (SkillData skill in overrides) skillDefinitions[skill.id] = skill;
+            }
             // Preserve the existing enemy-first skill resolver when legacy IDs overlap.
             foreach (SkillData skill in enemies.SkillDefinitions) skillDefinitions[skill.id] = skill;
             return new ContentCatalog(UnitRosterData.ParseUnitList(unitJson.text),
                 MonsterRosterData.ParseMonsterList(enemyJson.text), skillDefinitions.Values,
-                GameDataLoader.LoadSynergies(), GameDataLoader.LoadRelics(), LoadGrowth(), LoadEvents(eventDatabase));
-        }
-
-        private static IEnumerable<EnemyGrowthRow> LoadGrowth()
-        {
-            TextAsset asset = Resources.Load<TextAsset>("EnemyGrowthData");
-            if (asset == null) throw new InvalidOperationException("Missing EnemyGrowthData JSON.");
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<List<EnemyGrowthRow>>(asset.text)
-                ?? throw new InvalidOperationException("Empty enemy growth document.");
+                GameDataLoader.LoadSynergies(), GameDataLoader.LoadRelics(), LoadEvents(eventDatabase));
         }
 
         internal static IEnumerable<EventContent> LoadEvents(OzGameLab01.Events.EventDB database)

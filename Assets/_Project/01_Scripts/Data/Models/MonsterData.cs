@@ -16,6 +16,10 @@ namespace OzGameLab01.Data
         public int id;
         public string name;
         public string spriteAddress;
+        // Resources 경로(UnitPrefabProvider.GetEnemyPrefab 인자). normal/night는 이 필드를
+        // 쓰지 않고 6종 몹 풀에서 랜덤으로 고른다(AllySpawner) — semiboss/boss(중간·최종보스)만
+        // 이 값을 그대로 스폰한다. 상세: Docs/ENEMY_SCALING_DESIGN.md 4-1절.
+        public string prefabAddress;
 
         public int healthPoint;
         public int attackPoint;
