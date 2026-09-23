@@ -15,7 +15,7 @@ MonoBehaviour:
   m_DefaultGroup: 517b0716e18e03246bf2db9080b7d88b
   m_currentHash:
     serializedVersion: 2
-    Hash: 00000000000000000000000000000000
+    Hash: 1771bd8934c54a56644b2c5c5788d6db
   m_OptimizeCatalogSize: 0
   m_BuildRemoteCatalog: 0
   m_CatalogRequestsTimeout: 0
@@ -64,6 +64,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e13c6ea2c3870b546bc8d5ea7033b70a, type: 2}
   - {fileID: 11400000, guid: 1a976dd2013ec874b89e4cdca3c0d1b2, type: 2}
   - {fileID: 11400000, guid: 21bef65c2d12b4f45b39af9fdf6affba, type: 2}
+  - {fileID: 11400000, guid: 627794058eb2b744e9ada0ae71e060bf, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
@@ -105,6 +106,7 @@ MonoBehaviour:
     - default
     - JSON
     - AllyPrefab
+    - relic
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 83b39a09d10a7fd4d98444d52cb376d9, type: 2}
