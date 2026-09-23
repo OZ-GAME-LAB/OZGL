@@ -19,8 +19,9 @@ namespace OzGameLab01.Combat
         {
             var ownedUnits = SystemBus.Get<PlayerFacade>()?.OwnedUnits;
             RuntimeContentService content = RuntimeContent.Service;
+            float enemyGrowthValue = BoardRunData.EnemyGrowthValue + BoardRunData.EnemyOverturnValue;
             return _cache.Prepare(content.Revision, baseData,
-                BoardRunData.TurnCount, BoardRunData.DefeatedElitesCount,
+                BoardRunData.TurnCount, enemyGrowthValue,
                 BoardRunData.MapSeed, ownedUnits);
         }
 

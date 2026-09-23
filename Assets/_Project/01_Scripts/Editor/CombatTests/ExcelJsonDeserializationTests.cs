@@ -9,10 +9,10 @@ namespace OzGameLab01.Tests.EditMode
     public class ExcelJsonDeserializationTests
     {
         [Test]
-        public void TempUnitData_ExcelFixture_DeserializesAllRows()
+        public void UnitData_ExcelFixture_DeserializesAllRows()
         {
-            TextAsset jsonFile = Resources.Load<TextAsset>("TempUnitData");
-            Assert.IsNotNull(jsonFile, "TempUnitData.json을 Resources에서 찾을 수 없습니다.");
+            TextAsset jsonFile = Resources.Load<TextAsset>("UnitData");
+            Assert.IsNotNull(jsonFile, "UnitData.json을 Resources에서 찾을 수 없습니다.");
 
             UnitDataList data = JsonConvert.DeserializeObject<UnitDataList>(jsonFile.text);
 
@@ -28,9 +28,9 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
-        public void TempUnitData_ExcelFixture_HasRuntimeDefaultsForOptionalFields()
+        public void UnitData_ExcelFixture_HasRuntimeDefaultsForOptionalFields()
         {
-            TextAsset jsonFile = Resources.Load<TextAsset>("TempUnitData");
+            TextAsset jsonFile = Resources.Load<TextAsset>("UnitData");
             Assert.IsNotNull(jsonFile);
 
             List<UnitData> units = JsonConvert.DeserializeObject<UnitDataList>(jsonFile.text).unitList;

@@ -32,7 +32,7 @@ namespace OzGameLab01.Managers
                 Monsters.LoadAsync("JSON/MonsterJSON"),
                 Relics.LoadAsync("JSON/RelicJSON"),
                 Synergies.LoadAsync("JSON/SynergyJSON"),
-                Skills.LoadAsync("JSON/SkillJSON")
+                Skills.LoadAsync("JSON/SkillDesignJSON")
             };
 
             bool[] loaded = await Task.WhenAll(tasks);

@@ -159,12 +159,22 @@ namespace OzGameLab01.Controllers
 
     TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
 
-    BoardRunData.AdvanceTurn();
+    bool wasNightTurn = BoardTurnRules.IsNight(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
+    BoardTimeOfDay previousTimeOfDay = CurrentTimeOfDay;
+
+    BoardRunData.AdvanceTurn(wasNightTurn);
 
     RefreshTimeOfDayOverlay();
     Publish(BoardNotificationKind.TurnAdvanced);
 
     bool hasTimeOfDayChanged = BoardTurnRules.ChangesPhase(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
+
+    // 낮→밤→낮 한 사이클(웨이브)이 방금 끝났으면 적 성장 오버턴 여부를 갱신한다.
+    // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-3절.
+    if (previousTimeOfDay == BoardTimeOfDay.Night && CurrentTimeOfDay == BoardTimeOfDay.Day)
+    {
+        BoardRunData.RegisterEnemyGrowthCycleBoundary();
+    }
 
     if (hasTimeOfDayChanged)
     {
@@ -279,7 +289,7 @@ namespace OzGameLab01.Controllers
                 return false;
             }
 
-            BoardRunData.BeginBattle(battleNode.Position, isBoss, isElite);
+            BoardRunData.BeginBattle(battleNode.Position, isBoss, isElite, CurrentTimeOfDay == BoardTimeOfDay.Night);
             Publish(BoardNotificationKind.BattleRequested, battleNode);
             transitioner.LoadCombatScene();
             return true;

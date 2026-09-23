@@ -11,19 +11,11 @@ namespace OzGameLab01.Combat
     /// </summary>
     public sealed class EnemyPreparationCache
     {
-        // 매 턴 value가 누적 성장한다: 낮 턴 +0.07, 밤 턴 +0.12 (엑셀 normal/nightEnemy 시트의
-        // value 열 수식 그대로: previous turn 기준 mod(turn,15)<=10이면 낮, 아니면 밤).
-        // 웨이브(15턴) 마감까지 중간보스를 못 잡으면 오버턴 진입 — value 성장은 그 시점에서
-        // 멈추고, 별도의 오버턴 값이 턴당 +0.3씩 쌓인다. 중간보스를 잡으면 오버턴 값은 사라지고
-        // value에 +1이 더해진 뒤 다시 평소처럼 성장한다. (2026-09-22, 사용자 확인)
-        private const int WaveLength = 15;
-        private const float ValueBase = 0.7f;
-        private const float DayValueIncrement = 0.07f;
-        private const float NightValueIncrement = 0.12f;
-        private const float OverturnValueIncrement = 0.3f;
-        private const int DayResidueCutoff = 10;
+        // HP/공격력/방어력에 곱할 value는 더 이상 여기서 계산하지 않는다 — BoardRunState가
+        // 매 턴 종료 시점의 낮/밤 상태로 직접 누적한 값을 그대로 받아서 곱하기만 한다.
+        // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-3절.
 
-        // 공격속도/치명확률/회피율은 웨이브·중간보스와 무관하게 누적 턴 수에만 비례해서
+        // 공격속도/치명확률/회피율은 오버턴·중간보스와 무관하게 누적 턴 수에만 비례해서
         // 성장한다(엑셀 주석의 "3턴마다" 계단식 성장을 사용자 확인을 받아 턴당 선형으로 단순화).
         private const float AttackSpeedDecayPerTurn = 0.01f;
         private const float MinAttackSpeed = 0.01f;
@@ -36,7 +28,7 @@ namespace OzGameLab01.Combat
         public int Count => _prepared.Count;
 
         public MonsterData Prepare(long contentRevision, MonsterData baseData,
-            int turnCount, int defeatedElites, int mapSeed, IReadOnlyList<UnitData> ownedUnits)
+            int turnCount, float enemyGrowthValue, int mapSeed, IReadOnlyList<UnitData> ownedUnits)
         {
             if (baseData == null) return null;
             if (_contentRevision != contentRevision)
@@ -46,14 +38,13 @@ namespace OzGameLab01.Combat
             }
 
             int ownershipSignature = GetOwnershipSignature(ownedUnits);
-            Key key = new Key(baseData.id, baseData.type, turnCount, defeatedElites, mapSeed, ownershipSignature);
+            Key key = new Key(baseData.id, baseData.type, turnCount, enemyGrowthValue, mapSeed, ownershipSignature);
             if (_prepared.TryGetValue(key, out MonsterData cached)) return Clone(cached);
 
             MonsterData prepared = Clone(baseData);
-            float value = ComputeValue(turnCount, defeatedElites);
-            prepared.healthPoint = Mathf.Max(1, Mathf.RoundToInt(baseData.healthPoint * value));
-            prepared.attackPoint = Mathf.Max(0, Mathf.RoundToInt(baseData.attackPoint * value));
-            prepared.defensePoint = Mathf.Max(0, baseData.defensePoint * value);
+            prepared.healthPoint = Mathf.Max(1, Mathf.RoundToInt(baseData.healthPoint * enemyGrowthValue));
+            prepared.attackPoint = Mathf.Max(0, Mathf.RoundToInt(baseData.attackPoint * enemyGrowthValue));
+            prepared.defensePoint = Mathf.Max(0, baseData.defensePoint * enemyGrowthValue);
             prepared.attackSpeed = Mathf.Max(MinAttackSpeed, baseData.attackSpeed - AttackSpeedDecayPerTurn * turnCount);
             prepared.criticalMult = Mathf.Max(0, baseData.criticalMult);
             prepared.criticalRate = Mathf.Max(0, Mathf.RoundToInt(baseData.criticalRate + CriticalRateGrowthPerTurn * turnCount));
@@ -68,39 +59,6 @@ namespace OzGameLab01.Combat
         {
             _prepared.Clear();
             _contentRevision = -1;
-        }
-
-        /// <summary>
-        /// 현재 턴/중간보스 처치 수로부터 HP/공격력/방어력에 곱할 value를 계산합니다.
-        /// 웨이브(15턴) 마감을 처치 수가 못 따라잡았으면 오버턴 상태로 간주해 value를
-        /// 마감 시점 값에 얼리고, 그 위에 오버턴 증가분만 얹습니다.
-        /// </summary>
-        private static float ComputeValue(int turnCount, int defeatedElites)
-        {
-            int wavesOnTime = Mathf.Min(defeatedElites, turnCount / WaveLength);
-            int deadlineTurnCount = (wavesOnTime + 1) * WaveLength;
-            int frozenTurnCount = Mathf.Min(turnCount, deadlineTurnCount - 1);
-            float value = ComputeGrowthValue(frozenTurnCount);
-            if (turnCount < deadlineTurnCount) return value;
-            int overturnTurns = turnCount - deadlineTurnCount;
-            return value + OverturnValueIncrement * overturnTurns;
-        }
-
-        /// <summary>
-        /// 중간보스 처치가 웨이브 마감을 앞서거나 맞춰온, 정상 성장 구간의 value.
-        /// turnCount는 0턴이 표시상 첫 턴(엑셀 시트의 1턴)이라 시트 턴 번호는 turnCount+1.
-        /// </summary>
-        private static float ComputeGrowthValue(int turnCount)
-        {
-            float value = ValueBase;
-            int sheetTurn = turnCount + 1;
-            for (int previousSheetTurn = 1; previousSheetTurn < sheetTurn; previousSheetTurn++)
-            {
-                int residue = previousSheetTurn % WaveLength;
-                value += residue <= DayResidueCutoff ? DayValueIncrement : NightValueIncrement;
-                if (residue == 0) value += 1f;
-            }
-            return value;
         }
 
         private static List<int> BuildSkillIds(IReadOnlyList<int> baseSkillIds,
@@ -143,7 +101,7 @@ namespace OzGameLab01.Combat
 
         private static int MakeSeed(int mapSeed, Key key)
         {
-            unchecked { return mapSeed * 397 ^ key.EnemyId * 31 ^ key.Turn ^ key.Elites * 17 ^ key.OwnershipSignature; }
+            unchecked { return mapSeed * 397 ^ key.EnemyId * 31 ^ key.Turn ^ key.EnemyGrowthValue.GetHashCode() * 17 ^ key.OwnershipSignature; }
         }
 
         private static MonsterData Clone(MonsterData source)
@@ -151,6 +109,7 @@ namespace OzGameLab01.Combat
             return new MonsterData
             {
                 id = source.id, name = source.name, spriteAddress = source.spriteAddress,
+                prefabAddress = source.prefabAddress,
                 healthPoint = source.healthPoint, attackPoint = source.attackPoint,
                 defensePoint = source.defensePoint, criticalRate = source.criticalRate,
                 criticalMult = source.criticalMult, dodgeRate = source.dodgeRate,
@@ -161,12 +120,13 @@ namespace OzGameLab01.Combat
 
         private readonly struct Key : IEquatable<Key>
         {
-            public readonly int EnemyId, Turn, Elites, MapSeed, OwnershipSignature;
+            public readonly int EnemyId, Turn, MapSeed, OwnershipSignature;
+            public readonly float EnemyGrowthValue;
             public readonly MonsterType Type;
-            public Key(int enemyId, MonsterType type, int turn, int elites, int mapSeed, int ownershipSignature)
-            { EnemyId = enemyId; Type = type; Turn = turn; Elites = elites; MapSeed = mapSeed; OwnershipSignature = ownershipSignature; }
+            public Key(int enemyId, MonsterType type, int turn, float enemyGrowthValue, int mapSeed, int ownershipSignature)
+            { EnemyId = enemyId; Type = type; Turn = turn; EnemyGrowthValue = enemyGrowthValue; MapSeed = mapSeed; OwnershipSignature = ownershipSignature; }
             public bool Equals(Key other) => EnemyId == other.EnemyId && Type == other.Type && Turn == other.Turn &&
-                Elites == other.Elites && MapSeed == other.MapSeed && OwnershipSignature == other.OwnershipSignature;
+                EnemyGrowthValue.Equals(other.EnemyGrowthValue) && MapSeed == other.MapSeed && OwnershipSignature == other.OwnershipSignature;
             public override bool Equals(object obj) => obj is Key other && Equals(other);
             public override int GetHashCode()
             {
@@ -175,7 +135,7 @@ namespace OzGameLab01.Combat
                     int hash = EnemyId;
                     hash = hash * 31 + (int)Type;
                     hash = hash * 31 + Turn;
-                    hash = hash * 31 + Elites;
+                    hash = hash * 31 + EnemyGrowthValue.GetHashCode();
                     hash = hash * 31 + MapSeed;
                     return hash * 31 + OwnershipSignature;
                 }

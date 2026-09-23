@@ -15,6 +15,7 @@ namespace OzGameLab01.Data
         public static Vector2Int CurrentBattlePosition => _state.CurrentBattlePosition;
         public static bool HasCurrentBattle => _state.HasCurrentBattle;
         public static bool IsBossBattle => _state.IsBossBattle;
+        public static bool IsNightEncounter => _state.IsNightEncounter;
         public static bool IsBossDefeated => _state.IsBossDefeated;
         public static int UnusedActionPoints => _state.UnusedActionPoints;
         public static bool HasRolledThisTurn => _state.HasRolledThisTurn;
@@ -22,6 +23,9 @@ namespace OzGameLab01.Data
         public static int RemainingDiceValue => _state.RemainingDiceValue;
         public static int TurnCount => _state.TurnCount;
         public static int DefeatedElitesCount => _state.DefeatedElitesCount;
+        public static float EnemyGrowthValue => _state.EnemyGrowthValue;
+        public static float EnemyOverturnValue => _state.EnemyOverturnValue;
+        public static bool IsInEnemyOverturn => _state.IsInEnemyOverturn;
         public static bool HasObjective => _state.HasObjective;
         public static Vector2Int ObjectivePosition => _state.ObjectivePosition;
         public static bool IsEliteBattle => _state.IsEliteBattle;
@@ -37,12 +41,13 @@ namespace OzGameLab01.Data
         public static void SaveUnusedActionPoints(int actionPoints) { EnsureActiveRun(); _state.SaveUnusedActionPoints(actionPoints); }
         public static void SaveObjectivePosition(Vector2Int position) { EnsureActiveRun(); _state.SaveObjectivePosition(position); }
         public static void ClearObjective() { _state.ClearObjective(); }
-        public static void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false) { EnsureActiveRun(); _state.BeginBattle(battlePosition, isBossBattle, isEliteBattle); }
+        public static void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false, bool isNightEncounter = false) { EnsureActiveRun(); _state.BeginBattle(battlePosition, isBossBattle, isEliteBattle, isNightEncounter); }
         public static void CompleteCurrentBattle() { _state.CompleteCurrentBattle(); }
         public static bool IsBattleCompleted(Vector2Int position) { return _state.IsBattleCompleted(position); }
         public static void ConsumeSpecialTile(Vector2Int position) { EnsureActiveRun(); _state.ConsumeSpecialTile(position); }
         public static bool IsSpecialTileConsumed(Vector2Int position) { return _state.IsSpecialTileConsumed(position); }
-        public static void AdvanceTurn() { EnsureActiveRun(); _state.AdvanceTurn(); }
+        public static void AdvanceTurn(bool wasNightTurn) { EnsureActiveRun(); _state.AdvanceTurn(wasNightTurn); }
+        public static void RegisterEnemyGrowthCycleBoundary() { EnsureActiveRun(); _state.RegisterEnemyGrowthCycleBoundary(); }
         public static void Clear() { _state.Clear(); }
         public static BoardRunSaveData CreateSaveData() { return BoardRunSaveMapper.ToSave(_state.Capture()); }
         public static bool RestoreFromSaveData(BoardRunSaveData saveData) { return _state.Restore(BoardRunSaveMapper.FromSave(saveData)); }

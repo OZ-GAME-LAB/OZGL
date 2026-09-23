@@ -19,6 +19,11 @@ namespace OzGameLab01.Data
             return LoadList<SkillData, SkillDataList>("UnitSkillData");
         }
 
+        public static List<SkillData> LoadSkills()
+        {
+            return LoadList<SkillData, SkillDataList>("SkillData");
+        }
+
         public static List<RelicData> LoadRelics()
         {
             return LoadList<RelicData, RelicDataList>("RelicData");

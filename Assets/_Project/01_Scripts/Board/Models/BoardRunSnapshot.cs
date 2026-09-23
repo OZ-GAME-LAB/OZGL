@@ -14,6 +14,7 @@ namespace OzGameLab01.Board.Models
         public int currentBattlePositionY;
         public bool isBossBattle;
         public bool isEliteBattle;
+        public bool isNightEncounter;
         public bool isBossDefeated;
         public bool hasRolledThisTurn;
         public int rolledDiceValue;
@@ -21,6 +22,10 @@ namespace OzGameLab01.Board.Models
         public int unusedActionPoints;
         public int turnCount;
         public int defeatedElitesCount;
+        public float enemyGrowthValue;
+        public float enemyOverturnValue;
+        public bool isInEnemyOverturn;
+        public bool eliteDefeatedThisCycle;
         public List<BoardRunPosition> completedBattlePositions = new List<BoardRunPosition>();
         public List<BoardRunPosition> consumedSpecialTilePositions = new List<BoardRunPosition>();
     }

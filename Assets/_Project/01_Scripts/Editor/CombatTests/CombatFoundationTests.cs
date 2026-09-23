@@ -296,10 +296,11 @@ namespace OzGameLab01.Tests.EditMode
                 Array.Empty<SynergyData>(), Array.Empty<RelicData>());
             var cache = new EnemyPreparationCache();
             var owned = new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } } };
-            var first = cache.Prepare(1, catalog.GetEnemy(1), 0, 0, 42, owned);
+            var first = cache.Prepare(1, catalog.GetEnemy(1), 0, 0.7f, 42, owned);
             first.healthPoint = 1;
-            // 0턴(표시상 1턴)의 value는 0.7 — base 100/5에 곱해 70/4(3.5 반올림)가 나와야 한다.
-            var second = cache.Prepare(1, catalog.GetEnemy(1), 0, 0, 42, owned);
+            // enemyGrowthValue=0.7을 base 100/5에 곱해 70/4(3.5 반올림)가 나와야 한다.
+            // value는 이제 BoardRunState가 관리하므로 여기서는 그냥 전달값을 곱하기만 하는지만 검증한다.
+            var second = cache.Prepare(1, catalog.GetEnemy(1), 0, 0.7f, 42, owned);
             Assert.That(second.healthPoint, Is.EqualTo(70));
             Assert.That(second.attackPoint, Is.EqualTo(4));
             Assert.That(second.skillIds, Does.Contain(10));
@@ -315,49 +316,13 @@ namespace OzGameLab01.Tests.EditMode
                 new[] { new SkillData { id = 1 }, new SkillData { id = 10 }, new SkillData { id = 11 } },
                 Array.Empty<SynergyData>(), Array.Empty<RelicData>());
             var cache = new EnemyPreparationCache();
-            var first = cache.Prepare(1, catalog.GetEnemy(1), 0, 0, 42,
+            var first = cache.Prepare(1, catalog.GetEnemy(1), 0, 1f, 42,
                 new[] { new UnitData { id = 1, skillIds = new List<int> { 1, 10 } } });
-            var second = cache.Prepare(1, catalog.GetEnemy(1), 0, 0, 42,
+            var second = cache.Prepare(1, catalog.GetEnemy(1), 0, 1f, 42,
                 new[] { new UnitData { id = 2, skillIds = new List<int> { 1, 11 } } });
             Assert.That(first.skillIds, Does.Contain(10));
             Assert.That(second.skillIds, Does.Contain(11));
             Assert.That(cache.Count, Is.EqualTo(2));
-        }
-
-        [Test]
-        public void EnemyPreparationFreezesValueDuringOverturnAndAccumulatesOverturnGrowth()
-        {
-            var cache = new EnemyPreparationCache();
-            var normal = new MonsterData { id = 1, type = MonsterType.normal, healthPoint = 100 };
-
-            // 0턴(표시상 1턴): value=0.7 그대로.
-            MonsterData turn0 = cache.Prepare(1, normal, 0, 0, 1, Array.Empty<UnitData>());
-            Assert.That(turn0.healthPoint, Is.EqualTo(70));
-
-            // 15턴째(0-index)까지 중간보스를 못 잡으면 오버턴 진입 — value가 1.88에서 멈춘다.
-            MonsterData atDeadline = cache.Prepare(1, normal, 15, 0, 1, Array.Empty<UnitData>());
-            Assert.That(atDeadline.healthPoint, Is.EqualTo(188));
-
-            // 오버턴 1턴 경과 — value는 그대로에 0.3만 얹힌다(1.88 → 2.18).
-            MonsterData oneOverturnTurn = cache.Prepare(1, normal, 16, 0, 1, Array.Empty<UnitData>());
-            Assert.That(oneOverturnTurn.healthPoint, Is.EqualTo(218));
-        }
-
-        [Test]
-        public void EnemyPreparationNeverWeakensAndResolvesOverturnOnEliteKill()
-        {
-            var cache = new EnemyPreparationCache();
-            var normal = new MonsterData { id = 1, type = MonsterType.normal, healthPoint = 100 };
-
-            // 중간보스를 한 마리도 못 잡은 채 오버턴이 길어져도 value는 계속 증가해야 한다
-            // (턴만 흘렀다고 최약체로 되돌아가면 안 된다). 1.88 + 0.3 × 15턴 = 6.38.
-            MonsterData longOverturn = cache.Prepare(1, normal, 30, 0, 1, Array.Empty<UnitData>());
-            Assert.That(longOverturn.healthPoint, Is.EqualTo(638));
-
-            // 처치가 늦게라도(20턴째, 5턴 지연) 일어나면 오버턴 값은 사라지고 +1 점프 후
-            // 정상 성장(웨이브2, 표시상 21턴 value=3.3)으로 복귀한다.
-            MonsterData caughtUp = cache.Prepare(1, normal, 20, 1, 1, Array.Empty<UnitData>());
-            Assert.That(caughtUp.healthPoint, Is.EqualTo(330));
         }
 
         [Test]
