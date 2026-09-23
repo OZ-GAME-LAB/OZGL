@@ -92,6 +92,25 @@ namespace OzGameLab01.Controllers
             Notification?.Invoke(new BoardNotification(kind, node != null ? node.Position : BoardRunData.PlayerPosition, tileType ?? (node != null ? node.Type : NodeType.Normal), BoardRunData.TurnCount, BoardRunData.RemainingDiceValue, unitId, BoardRunData.UnusedActionPoints, isEvening));
         }
 
+        /// <summary>
+        /// 현재 보드 시간대에 맞는 BGM을 재생합니다.
+        /// 낮과 정오는 낮 BGM을 사용합니다.
+        /// </summary>
+        private void ApplyBoardBgm(BoardTimeOfDay timeOfDay)
+        {
+            switch (timeOfDay)
+            {
+                case BoardTimeOfDay.Day:
+                case BoardTimeOfDay.Noon:
+                    SoundConnector.RequestBgm(SoundId.BgmBoardDay);
+                    break;
+
+                case BoardTimeOfDay.Night:
+                    SoundConnector.RequestBgm(SoundId.BgmBoardNight);
+                    break;
+            }
+        }
+
         private void Awake()
         {
             _feedback = new BoardSceneFeedbackView(_nightEventPopup, _timeStatusHud);
@@ -132,6 +151,8 @@ namespace OzGameLab01.Controllers
         private void Start()
         {
             UpdateTimeStatusHud();
+
+            ApplyBoardBgm(CurrentTimeOfDay);
 
             if (_mapGenerator != null && _mapGenerator.IsPresentationComplete)
             {
@@ -258,6 +279,8 @@ namespace OzGameLab01.Controllers
                     _timeOfDayOverlayPadding,
                     _timeOfDayPalette.GetTint(timeOfDay));
             }
+
+            ApplyBoardBgm(timeOfDay);
 
             TimeOfDayChanged?.Invoke(timeOfDay);
         }

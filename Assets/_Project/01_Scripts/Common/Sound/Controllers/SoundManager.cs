@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OzGameLab01.Interfaces;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace OzGameLab01.Managers
 {
@@ -10,7 +11,8 @@ namespace OzGameLab01.Managers
         None = 0, // 사운드 없음
 
         BgmTitle, // 타이틀 씬 BGM
-        BgmBoard, // 보드 씬 BGM
+        BgmBoardDay, // 보드 씬 낮 BGM
+        BgmBoardNight, // 보드 씬 밤 BGM
         BgmCombat, // 일반 전투 씬 BGM
         BgmVictory, // 승리 화면 BGM
         BgmDefeat, // 패배 화면 BGM
@@ -75,6 +77,8 @@ namespace OzGameLab01.Managers
         private const string BGM_VOLUME_KEY = "Audio.BgmVolume";
         private const string SFX_VOLUME_KEY = "Audio.SfxVolume";
         private const string MUTE_ALL_KEY = "Audio.MuteAll";
+        private const string TITLE_SCENE_NAME = "01_Title";
+        private const string COMBAT_SCENE_NAME = "03_Combat";
 
         private const float DEFAULT_VOLUME = 1f;
         private const float SAVE_DELAY_SECONDS = 0.5f;
@@ -160,6 +164,7 @@ namespace OzGameLab01.Managers
 
         private void OnDestroy()
         {
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
             SaveVolumeSettings();
         }
 
@@ -176,11 +181,18 @@ namespace OzGameLab01.Managers
             ApplySourceVolumes();
 
             IsInitialized = true;
+
+            SceneManager.sceneLoaded += HandleSceneLoaded; // 기본 BGM 확인 
+
+            PlaySceneBgm(SceneManager.GetActiveScene()); // 씬이 이미 로드된 경우에도 BGM을 재생
+
             Debug.Log($"[SoundManager] 초기화 완료 | 등록 사운드: {_soundLookup.Count}", this);
         }
 
         public void Shutdown()
         {
+            SceneManager.sceneLoaded -= HandleSceneLoaded;
+
             SaveVolumeSettings();
             if (!IsInitialized)
             {
@@ -200,6 +212,32 @@ namespace OzGameLab01.Managers
             _soundLookup.Clear();
             _missingSoundWarnings.Clear();
             IsInitialized = false;
+        }
+
+        /// <summary>
+        /// 씬이 로드되면 해당 씬의 기본 BGM을 재생합니다.
+        /// 보드 씬 BGM은 낮/밤 상태에 따라 별도로 처리합니다.
+        /// </summary>
+        private void HandleSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            PlaySceneBgm(scene);
+        }
+
+        /// <summary>
+        /// 타이틀과 전투 씬의 기본 BGM을 재생합니다.
+        /// </summary>
+        private void PlaySceneBgm(Scene scene)
+        {
+            switch (scene.name)
+            {
+                case TITLE_SCENE_NAME:
+                    PlayBgm(SoundId.BgmTitle);
+                    break;
+
+                case COMBAT_SCENE_NAME:
+                    PlayBgm(SoundId.BgmCombat);
+                    break;
+            }
         }
 
         public void PlayBgm(SoundId id, bool restart = false)
