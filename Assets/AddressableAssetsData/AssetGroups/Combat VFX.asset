@@ -50,6 +50,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 20ffb6ba42ccf804ba2132b739097947
+    m_Address: VFX/Skill/Cast/Genie_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2f95cfbfd77286749813446cf220b2b4
     m_Address: VFX/Sprites/Projectiles/Effect_Battle_Magicmissile
     m_ReadOnly: 0
@@ -75,6 +80,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3e5068367cbc1fa4bb9b7bca11bac0a9
+    m_Address: VFX/Skill/Cast/Scarecrow_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4880c452e5418bf49afcdc4dc350e548
     m_Address: VFX/BasicAttack/Impact/Dorothy_Attack_Hit_EF
     m_ReadOnly: 0
@@ -95,6 +105,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 54fe39d5d3fa1b842985404459929d67
+    m_Address: VFX/Skill/Cast/Lion_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5cf5c7d2a75e8824aa911d26291d61db
     m_Address: VFX/Projectiles/Ally_Mermaid
     m_ReadOnly: 0
@@ -105,6 +120,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5fdd73e15212883458b2238c3179a9f3
+    m_Address: VFX/Skill/Cast/Tinker_Bell_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 617d16afd9859354db68583b57d45605
     m_Address: VFX/BasicAttack/Impact/Tinker_Bell_Attack_Hit_EF
     m_ReadOnly: 0
@@ -112,6 +132,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 642b8d23a158ce447a7152f62509360a
     m_Address: VFX/BasicAttack/Impact/Zepeto_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6502e16ea11099d4bb10b31970d95326
+    m_Address: VFX/Skill/Cast/Little_Mermaid_Activate_Skill_EF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -305,6 +330,31 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e3ecbe8871f7edf438a53fe83e54e898
+    m_Address: VFX/Skill/Cast/Dorothy_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ebfe162697adbfc42b73780afecf1e6c
+    m_Address: VFX/Skill/Cast/White_Rabbit_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ec369cfed26126a45b3b04361579cb6c
+    m_Address: VFX/Skill/Cast/Alice_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ee35edc65bcb4d14bb9e1bbb419d5f87
+    m_Address: VFX/Skill/Cast/Zepeto_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ee5641381e771454b879eed786eb2745
+    m_Address: VFX/Skill/Cast/Snow White_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: eeed3361b6d45ea4683101f64ea9ae13
     m_Address: VFX/Sprites/Projectiles/Effect_Battle_Cookie
     m_ReadOnly: 0
@@ -320,8 +370,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f374034f7fc114e43831a10939cf46a9
+    m_Address: VFX/Skill/Cast/Peter_Pan_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f4555ce3eb00e804a9c688f28bca9841
     m_Address: VFX/Sprites/Projectiles/Effect_Battle_Claw
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f77849a3160ba404592b63ac11e54e24
+    m_Address: VFX/Skill/Cast/Cheshire_Cat_Activate_Skill_EF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

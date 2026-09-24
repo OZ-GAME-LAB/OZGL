@@ -10,12 +10,14 @@ namespace OzGameLab01.Combat
     /// <summary>
     /// Addressable Sprite를 직접 소유하는 기본 공격 투사체입니다.
     /// 월드 전투와 Screen Space UI 전투가 같은 프리팹/이동 로직을 사용합니다.
+    /// instant가 켜지면 날아가지 않고 대상 위치에서 공격/피격 VFX만 재생한 뒤 즉시 명중합니다(즉발형 기본공격).
     /// </summary>
     public sealed class Projectile : MonoBehaviour
     {
         [SerializeField] private AssetReferenceSprite spriteReference;
         [SerializeField] private AssetReferenceGameObject travelEffectReference;
         [SerializeField] private AssetReferenceGameObject impactEffectReference;
+        [SerializeField] private bool instant;
         [SerializeField] private SpriteRenderer worldRenderer;
         [SerializeField] private Image uiRenderer;
         [SerializeField] private float worldSpeed = 8f;
@@ -46,6 +48,7 @@ namespace OzGameLab01.Combat
         public AssetReferenceSprite SpriteReference => spriteReference;
         public AssetReferenceGameObject TravelEffectReference => travelEffectReference;
         public AssetReferenceGameObject ImpactEffectReference => impactEffectReference;
+        public bool IsInstant => instant;
         public bool IsVisualReady => _launched;
 
         private void Awake()
@@ -103,6 +106,12 @@ namespace OzGameLab01.Combat
 
         private IEnumerator LoadVisualAndLaunch()
         {
+            if (instant)
+            {
+                ResolveInstant();
+                yield break;
+            }
+
             if (spriteReference == null || !spriteReference.RuntimeKeyIsValid())
             {
                 Debug.LogError("[Projectile] Addressable Sprite 주소가 비어 있습니다.", this);
@@ -210,16 +219,38 @@ namespace OzGameLab01.Combat
             };
         }
 
+        /// <summary>
+        /// 즉발형: 투사체를 대상 위치로 옮겨 공격 VFX(travel 슬롯)와 피격 VFX를 1회성으로 재생하고 즉시 명중 처리합니다.
+        /// </summary>
+        private void ResolveInstant()
+        {
+            if (_target == null || _target.IsDead || (_isUiProjectile && _targetAnchor == null))
+            {
+                _onImpact = null;
+                ReleaseSelf();
+                return;
+            }
+
+            transform.position = _isUiProjectile ? GetAnchorCenter(_targetAnchor) : _target.transform.position;
+            SpawnOneShotEffect(travelEffectReference, _isUiProjectile ? uiTravelEffectScale : worldTravelEffectScale);
+            InstantiateImpactEffect();
+            ResolveImpact();
+            ReleaseSelf();
+        }
+
         private void InstantiateImpactEffect()
         {
-            if (impactEffectReference == null || !impactEffectReference.RuntimeKeyIsValid()) return;
+            SpawnOneShotEffect(impactEffectReference, _isUiProjectile ? uiImpactEffectScale : worldImpactEffectScale);
+        }
+
+        private void SpawnOneShotEffect(AssetReferenceGameObject reference, float scale)
+        {
+            if (reference == null || !reference.RuntimeKeyIsValid()) return;
 
             bool isUiEffect = _isUiProjectile;
             Transform parent = isUiEffect ? transform.parent : null;
             Vector3 position = transform.position;
-            float scale = isUiEffect ? uiImpactEffectScale : worldImpactEffectScale;
             float lifetime = impactEffectLifetime;
-            AssetReferenceGameObject reference = impactEffectReference;
             AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(
                 reference, position, Quaternion.identity, parent);
             handle.Completed += operation =>
@@ -227,7 +258,7 @@ namespace OzGameLab01.Combat
                 if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
                 {
                     if (operation.IsValid()) Addressables.Release(operation);
-                    Debug.LogWarning($"[Projectile] Impact VFX load failed: {reference.RuntimeKey}");
+                    Debug.LogWarning($"[Projectile] One-shot VFX load failed: {reference.RuntimeKey}");
                     return;
                 }
 

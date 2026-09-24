@@ -20,6 +20,8 @@ namespace OzGameLab01.Combat
         private float criticalRate;
         private float criticalMult = 150f;
         private float dodgeRate;
+        // 기본공격 발사(즉발형은 명중) 시점: Attack 모션 길이 대비 비율.
+        private const float AttackReleaseRatio = 0.5f;
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private SpriteRenderer spriteRenderer;
         [Tooltip("기본 공격에 사용할 Addressable 투사체 프리팹")]
@@ -30,9 +32,7 @@ namespace OzGameLab01.Combat
         [SerializeField] private GameObject attackEffectPrefab;
         [Tooltip("기본공격에 맞았을 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
         [SerializeField] private GameObject hitEffectPrefab;
-        [Tooltip("액티브 스킬을 시전할 때 자신의 위치에서 재생되는 VFX. 비워두면 attackEffectPrefab을 그대로 씁니다.")]
-        [SerializeField] private GameObject skillCastEffectPrefab;
-        [Tooltip("액티브 스킬에 맞았을 때 자신의 위치에서 재생되는 VFX. 비워두면 hitEffectPrefab을 그대로 씁니다.")]
+        [Tooltip("이 유닛의 액티브 스킬이 적중한 대상 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
         [SerializeField] private GameObject skillHitEffectPrefab;
 
         [Header("Skill (0번째 = 기본공격, 침묵 면역. 각자 쿨다운마다 자동 발동)")]
@@ -100,7 +100,7 @@ namespace OzGameLab01.Combat
             {
                 _presenter = new UnitPresenter(
                     healthBar, spriteRenderer, projectilePrefabReference, activeSkillIcon,
-                    attackEffectPrefab, hitEffectPrefab, skillCastEffectPrefab, skillHitEffectPrefab,
+                    skillHitEffectPrefab,
                     skillIconDisplayDuration, skillIconHeightOffset, skillIconWorldScale);
             }
 
@@ -399,13 +399,11 @@ namespace OzGameLab01.Combat
                 if (_skills.Count == 0 || !untilBattleEnd) return false;
                 _skills[0].cooldownOverride = Mathf.Max(0.01f, GetSkillCooldown(_skills[0]) * (1 - percentValue / 100f));
                 PassiveEventBus.RaiseBuffed(this);
-                _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform.position);
                 return true;
             }
             if (!_stats.Add(statType, percentValue, operation, durationSeconds, untilBattleEnd)) return false;
             RefreshStats();
             PassiveEventBus.RaiseBuffed(this);
-            _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform.position);
             return true;
         }
 
@@ -522,8 +520,15 @@ namespace OzGameLab01.Combat
             {
                 if (!isBasicAttack)
                 {
-                    yield return _presenter.ShowActiveSkillIcon(transform);
+                    // 스킬은 발동 즉시 아이콘과 시전 VFX를 띄웁니다.
+                    StartCoroutine(_presenter.ShowActiveSkillIcon(transform));
+                    _presenter.PlaySkillCastEffect(skill.data.castVfxAddress, transform.position);
                 }
+
+                // Attack 모션 진행 중간 지점에서 발사(즉발형·스킬은 적용)합니다. 대기 중 시전자가 죽으면 취소합니다.
+                float attackDuration = _animationController != null ? _animationController.GetAttackDuration() : 0f;
+                if (attackDuration > 0f) yield return new WaitForSeconds(attackDuration * AttackReleaseRatio);
+                if (_isDead) yield break;
 
                 if (target != null && !target.IsDead)
                 {
@@ -543,8 +548,6 @@ namespace OzGameLab01.Combat
                     }
                     else
                     {
-                        _presenter.PlayAttackEffect(transform.position, isBasicAttack: false);
-
                         if (skill.data.effects != null && skill.data.effects.Count > 0)
                         {
                             ExecuteSkillEffects(skill.data.effects, target, skill.damageMultiplier);
@@ -662,6 +665,7 @@ namespace OzGameLab01.Combat
             if (_random.NextDouble() < criticalRate / 100f) effectiveDamage *= criticalMult / 100f;
             effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
             target.TakeDamage(Mathf.Round(effectiveDamage * 100f) / 100f, isBasicAttack: false);
+            _presenter.PlaySkillHitEffect(target.transform.position);
             PassiveEventBus.RaiseAttackLanded(this, target);
             TryApplyRandomStatusEffect(target);
         }
@@ -675,7 +679,6 @@ namespace OzGameLab01.Combat
             _currentHP = Mathf.Min(maxHP, _currentHP + amount * Mathf.Max(0f, recoveryMultiplier));
             if (_currentHP <= previous) return false;
             _presenter.SetHP(_currentHP);
-            _presenter.PlayEffect(CombatVfxLibrary.Instance?.HealEffect, transform.position);
             PassiveEventBus.RaiseHealed(this);
             return true;
         }
@@ -798,10 +801,7 @@ namespace OzGameLab01.Combat
 
         public void ApplyDebuff(DebuffProfile profile)
         {
-            if (_status.Apply(profile))
-            {
-                _presenter.SetStatusEffectActive(profile.type, true, transform);
-            }
+            _status.Apply(profile);
         }
 
         public bool Revive(float healthPercent)
@@ -848,7 +848,6 @@ namespace OzGameLab01.Combat
             float previousRatio = maxHP > 0f ? _currentHP / maxHP : 0f;
             _currentHP = Mathf.Max(0f, _currentHP - dmg);
             _presenter.SetHP(_currentHP);
-            _presenter.PlayHitEffect(transform.position, isBasicAttack);
             PassiveEventBus.RaiseHpChanged(this, previousRatio);
 
             if (_currentHP <= 0f)

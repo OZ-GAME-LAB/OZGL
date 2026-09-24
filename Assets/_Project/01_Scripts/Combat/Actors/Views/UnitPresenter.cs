@@ -21,9 +21,6 @@ namespace OzGameLab01.Combat
         private readonly SpriteRenderer spriteRenderer;
         private readonly AssetReferenceGameObject projectilePrefabReference;
         private readonly Sprite activeSkillIcon;
-        private readonly GameObject attackEffectPrefab;
-        private readonly GameObject hitEffectPrefab;
-        private readonly GameObject skillCastEffectPrefab;
         private readonly GameObject skillHitEffectPrefab;
         private readonly float skillIconDisplayDuration;
         private readonly float skillIconHeightOffset;
@@ -50,9 +47,6 @@ namespace OzGameLab01.Combat
             SpriteRenderer spriteRenderer,
             AssetReferenceGameObject projectilePrefabReference,
             Sprite activeSkillIcon,
-            GameObject attackEffectPrefab,
-            GameObject hitEffectPrefab,
-            GameObject skillCastEffectPrefab,
             GameObject skillHitEffectPrefab,
             float skillIconDisplayDuration,
             float skillIconHeightOffset,
@@ -62,9 +56,6 @@ namespace OzGameLab01.Combat
             this.spriteRenderer = spriteRenderer;
             this.projectilePrefabReference = projectilePrefabReference;
             this.activeSkillIcon = activeSkillIcon;
-            this.attackEffectPrefab = attackEffectPrefab;
-            this.hitEffectPrefab = hitEffectPrefab;
-            this.skillCastEffectPrefab = skillCastEffectPrefab;
             this.skillHitEffectPrefab = skillHitEffectPrefab;
             this.skillIconDisplayDuration = skillIconDisplayDuration;
             this.skillIconHeightOffset = skillIconHeightOffset;
@@ -202,36 +193,32 @@ namespace OzGameLab01.Combat
         }
 
         /// <summary>
-        /// isBasicAttack이 false이고 스킬 전용 프리팹이 있으면 그걸 쓰고, 아니면 기본공격용
-        /// 프리팹으로 되돌아간다(캐릭터가 스킬 전용 VFX를 안 갖고 있어도 이전처럼 동작).
+        /// 스킬 발동 시 시전자 위치에서 재생하는 1회성 VFX. 주소는 SkillData.castVfxAddress(Addressables)이며
+        /// 비어 있으면 아무 것도 하지 않습니다.
         /// </summary>
-        private static GameObject PickEffect(bool isBasicAttack, GameObject basicEffect, GameObject skillEffect)
+        public void PlaySkillCastEffect(string address, Vector3 worldPosition)
         {
-            return (!isBasicAttack && skillEffect != null) ? skillEffect : basicEffect;
+            if (string.IsNullOrEmpty(address)) return;
+            Addressables.InstantiateAsync(address, worldPosition, Quaternion.identity).Completed += operation =>
+            {
+                if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
+                {
+                    if (operation.IsValid()) Addressables.Release(operation);
+                    Debug.LogWarning($"[UnitPresenter] 스킬 시전 VFX 로드 실패: {address}");
+                    return;
+                }
+
+                operation.Result.AddComponent<AddressableVfxLifetime>().Initialize(EffectAutoDestroySeconds);
+            };
         }
 
         /// <summary>
-        /// 이 유닛이 공격/스킬을 시전한 자기 위치에서 재생하는 1회성 VFX. 프리팹이 없으면
-        /// 아무 것도 하지 않습니다(아군은 애니메이터 기반 연출을 쓰므로 보통 비워둡니다).
+        /// 이 유닛의 스킬이 적중한 대상 위치에서 재생하는 1회성 VFX. 전용 프리팹이 없으면 재생하지 않습니다.
         /// </summary>
-        public void PlayAttackEffect(Vector3 worldPosition, bool isBasicAttack)
+        public void PlaySkillHitEffect(Vector3 worldPosition)
         {
-            // 기본 공격은 Addressable 투사체 스프라이트만 표시합니다.
-            if (isBasicAttack) return;
-            GameObject prefab = PickEffect(isBasicAttack, attackEffectPrefab, skillCastEffectPrefab);
-            if (prefab == null) return;
-            GameObject fx = UnityEngine.Object.Instantiate(prefab, worldPosition, Quaternion.identity);
-            DestroySafely(fx, EffectAutoDestroySeconds);
-        }
-
-        /// <summary>피격당한 자기 위치에서 재생하는 1회성 VFX. HitFlash(색상 점멸)와 별개로 더해진다.</summary>
-        public void PlayHitEffect(Vector3 worldPosition, bool isBasicAttack)
-        {
-            // 투사체 아키텍처를 먼저 고정하는 단계에서는 기본 공격에 별도 명중 VFX를 섞지 않습니다.
-            if (isBasicAttack) return;
-            GameObject prefab = PickEffect(isBasicAttack, hitEffectPrefab, skillHitEffectPrefab);
-            if (prefab == null) return;
-            GameObject fx = UnityEngine.Object.Instantiate(prefab, worldPosition, Quaternion.identity);
+            if (skillHitEffectPrefab == null) return;
+            GameObject fx = UnityEngine.Object.Instantiate(skillHitEffectPrefab, worldPosition, Quaternion.identity);
             DestroySafely(fx, EffectAutoDestroySeconds);
         }
 

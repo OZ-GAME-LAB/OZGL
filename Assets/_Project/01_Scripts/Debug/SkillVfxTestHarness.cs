@@ -232,6 +232,9 @@ namespace OzGameLab01.DebugTools
             if (GUILayout.Button("▶", GUILayout.Width(40))) onNext();
             GUILayout.EndHorizontal();
 
+            // 테스트 씬엔 전투 HUD가 없어 데미지가 안 보이므로 HP를 직접 표시합니다.
+            GUILayout.Label(unit != null ? $"HP {unit.CurrentHp:0.##} / {unit.MaxHp:0.##}" : "");
+
             if (GUILayout.Button("기본공격 사용")) onBasicAttack();
             if (GUILayout.Button("스킬 사용")) onSkill();
 

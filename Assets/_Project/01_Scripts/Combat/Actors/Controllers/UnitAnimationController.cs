@@ -32,6 +32,24 @@ namespace OzGameLab01.Combat
         public void PlayUltimate() => PlayState("_Ult", true);
 
         /// <summary>
+        /// Attack 클립 1회의 실제 재생 시간(클립 길이 ÷ Animator 속도)을 반환합니다. Attack 클립이 없으면 0입니다.
+        /// </summary>
+        public float GetAttackDuration()
+        {
+            if (_animator == null || _animator.runtimeAnimatorController == null) return 0f;
+
+            foreach (AnimationClip clip in _animator.runtimeAnimatorController.animationClips)
+            {
+                if (clip != null && clip.name.EndsWith("_Attack"))
+                {
+                    return clip.length / Mathf.Max(0.01f, _animator.speed);
+                }
+            }
+
+            return 0f;
+        }
+
+        /// <summary>
         /// 사망 애니메이션을 재생하고 종료 후 전달받은 작업을 실행합니다.
         /// </summary>
         public void PlayDead(Action onComplete)

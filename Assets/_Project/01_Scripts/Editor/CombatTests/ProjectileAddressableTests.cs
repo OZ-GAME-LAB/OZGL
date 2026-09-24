@@ -27,9 +27,13 @@ namespace OzGameLab01.Tests.EditMode
                 Projectile projectile = prefab.GetComponent<Projectile>();
 
                 Assert.That(projectile, Is.Not.Null, path);
-                Assert.That(projectile.SpriteReference, Is.Not.Null, path);
-                Assert.That(projectile.SpriteReference.RuntimeKeyIsValid(), Is.True, path);
-                Assert.That(settings.FindAssetEntry(projectile.SpriteReference.AssetGUID), Is.Not.Null, path);
+                // 즉발형은 날아가는 스프라이트가 없으므로 스프라이트 검증을 건너뜁니다.
+                if (!projectile.IsInstant)
+                {
+                    Assert.That(projectile.SpriteReference, Is.Not.Null, path);
+                    Assert.That(projectile.SpriteReference.RuntimeKeyIsValid(), Is.True, path);
+                    Assert.That(settings.FindAssetEntry(projectile.SpriteReference.AssetGUID), Is.Not.Null, path);
+                }
                 AssertAddressableReferenceRegistered(projectile.TravelEffectReference, settings, path);
                 AssertAddressableReferenceRegistered(projectile.ImpactEffectReference, settings, path);
                 Assert.That(prefab.GetComponentsInChildren<ParticleSystem>(true), Is.Empty, path);
@@ -109,21 +113,28 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
-        public void BasicAttackPresentationDoesNotInstantiateExtraEffectPrefabs()
+        public void DocumentationBackedInstantAttackersAreInstant()
         {
-            var effect = new GameObject("BasicExtraEffect");
-            try
+            // UnitData.xlsx 일반공격 명세: 앨리스/지니/허수아비는 즉발, 나머지 아군은 투사체.
+            string[] instantProjectiles = { "Projectile_Ally_Alice", "Projectile_Ally_Genie", "Projectile_Ally_Scarecrow" };
+            string[] guids = AssetDatabase.FindAssets("t:Prefab", new[] { ProjectileFolder });
+            foreach (string guid in guids)
             {
-                var presenter = new UnitPresenter(null, null, null, null,
-                    effect, effect, null, null, 0.35f, 0.5f, 0.75f);
-                presenter.PlayAttackEffect(Vector3.zero, isBasicAttack: true);
-                presenter.PlayHitEffect(Vector3.zero, isBasicAttack: true);
-                Assert.That(GameObject.Find("BasicExtraEffect(Clone)"), Is.Null);
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                Projectile projectile = AssetDatabase.LoadAssetAtPath<GameObject>(path).GetComponent<Projectile>();
+                bool expectedInstant = instantProjectiles.Contains(System.IO.Path.GetFileNameWithoutExtension(path));
+                Assert.That(projectile.IsInstant, Is.EqualTo(expectedInstant), path);
             }
-            finally
-            {
-                Object.DestroyImmediate(effect);
-            }
+        }
+
+        [Test]
+        public void SkillHitEffectWithoutOwnPrefabPlaysNothing()
+        {
+            // 스킬 피격 VFX는 시전자 전용 프리팹만 쓰고, 기본공격 피격 VFX로 대체하지 않습니다.
+            int before = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length;
+            new UnitPresenter(null, null, null, null, null, 0.35f, 0.5f, 0.75f)
+                .PlaySkillHitEffect(Vector3.zero);
+            Assert.That(Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length, Is.EqualTo(before));
         }
 
         private static void AssertAddressableReferenceRegistered(
