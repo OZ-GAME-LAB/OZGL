@@ -149,14 +149,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.Projectile
   spriteReference:
-    m_AssetGUID: 7e5364a48ce161b43a581072586cd3cb
+    m_AssetGUID: 914a1ee5914e4ea4c92c0246799afef4
     m_SubObjectName: 
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 1
+  travelEffectReference:
+    m_AssetGUID: a1ae21aedca4649489ab3191f1d1489a
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  impactEffectReference:
+    m_AssetGUID: 617d16afd9859354db68583b57d45605
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
   worldRenderer: {fileID: 561014385261906657}
   uiRenderer: {fileID: 1875918103414121031}
   worldSpeed: 8
   uiSpeed: 900
   worldScale: 0.25
   uiSize: {x: 36, y: 36}
+  worldTravelEffectScale: 1
+  uiTravelEffectScale: 12
+  worldImpactEffectScale: 0.25
+  uiImpactEffectScale: 12
+  impactEffectLifetime: 2.5

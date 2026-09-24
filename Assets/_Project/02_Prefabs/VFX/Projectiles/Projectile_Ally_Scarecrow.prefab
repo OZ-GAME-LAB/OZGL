@@ -154,9 +154,26 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 1
+  travelEffectReference:
+    m_AssetGUID: 
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
+  impactEffectReference:
+    m_AssetGUID: 1888c010747789c4fad4f4f80d36b1cf
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 0
   worldRenderer: {fileID: 4559102256694916076}
   uiRenderer: {fileID: 6437994444723387824}
   worldSpeed: 8
   uiSpeed: 900
   worldScale: 0.25
   uiSize: {x: 36, y: 36}
+  worldTravelEffectScale: 1
+  uiTravelEffectScale: 12
+  worldImpactEffectScale: 0.25
+  uiImpactEffectScale: 12
+  impactEffectLifetime: 2.5

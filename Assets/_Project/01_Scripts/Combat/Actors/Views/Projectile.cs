@@ -14,12 +14,19 @@ namespace OzGameLab01.Combat
     public sealed class Projectile : MonoBehaviour
     {
         [SerializeField] private AssetReferenceSprite spriteReference;
+        [SerializeField] private AssetReferenceGameObject travelEffectReference;
+        [SerializeField] private AssetReferenceGameObject impactEffectReference;
         [SerializeField] private SpriteRenderer worldRenderer;
         [SerializeField] private Image uiRenderer;
         [SerializeField] private float worldSpeed = 8f;
         [SerializeField] private float uiSpeed = 900f;
         [SerializeField] private float worldScale = 0.25f;
         [SerializeField] private Vector2 uiSize = new Vector2(36f, 36f);
+        [SerializeField] private float worldTravelEffectScale = 1f;
+        [SerializeField] private float uiTravelEffectScale = 12f;
+        [SerializeField] private float worldImpactEffectScale = 0.25f;
+        [SerializeField] private float uiImpactEffectScale = 12f;
+        [SerializeField] private float impactEffectLifetime = 2.5f;
 
         private Unit _target;
         private RectTransform _targetAnchor;
@@ -34,8 +41,11 @@ namespace OzGameLab01.Combat
         private bool _releasing;
         private AsyncOperationHandle<Sprite> _spriteHandle;
         private bool _ownsSpriteHandle;
+        private GameObject _travelEffectInstance;
 
         public AssetReferenceSprite SpriteReference => spriteReference;
+        public AssetReferenceGameObject TravelEffectReference => travelEffectReference;
+        public AssetReferenceGameObject ImpactEffectReference => impactEffectReference;
         public bool IsVisualReady => _launched;
 
         private void Awake()
@@ -139,6 +149,7 @@ namespace OzGameLab01.Combat
             }
 
             SetVisualEnabled(true);
+            InstantiateTravelEffect();
             _launched = true;
         }
 
@@ -161,9 +172,70 @@ namespace OzGameLab01.Combat
             float threshold = _isUiProjectile ? 8f : 0.1f;
             if (Vector3.Distance(transform.position, targetPosition) <= threshold)
             {
+                InstantiateImpactEffect();
                 ResolveImpact();
                 ReleaseSelf();
             }
+        }
+
+        private void InstantiateTravelEffect()
+        {
+            if (travelEffectReference == null || !travelEffectReference.RuntimeKeyIsValid()) return;
+
+            AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(
+                travelEffectReference, transform.position, Quaternion.identity, transform);
+            handle.Completed += operation =>
+            {
+                if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
+                {
+                    if (operation.IsValid()) Addressables.Release(operation);
+                    Debug.LogWarning($"[Projectile] Travel VFX load failed: {travelEffectReference.RuntimeKey}", this);
+                    return;
+                }
+
+                if (_releasing || this == null)
+                {
+                    Addressables.ReleaseInstance(operation.Result);
+                    return;
+                }
+
+                _travelEffectInstance = operation.Result;
+                Transform effectTransform = _travelEffectInstance.transform;
+                effectTransform.SetParent(transform, false);
+                effectTransform.localPosition = Vector3.zero;
+                effectTransform.localRotation = Quaternion.identity;
+                effectTransform.localScale = Vector3.one * (_isUiProjectile
+                    ? uiTravelEffectScale
+                    : worldTravelEffectScale);
+            };
+        }
+
+        private void InstantiateImpactEffect()
+        {
+            if (impactEffectReference == null || !impactEffectReference.RuntimeKeyIsValid()) return;
+
+            bool isUiEffect = _isUiProjectile;
+            Transform parent = isUiEffect ? transform.parent : null;
+            Vector3 position = transform.position;
+            float scale = isUiEffect ? uiImpactEffectScale : worldImpactEffectScale;
+            float lifetime = impactEffectLifetime;
+            AssetReferenceGameObject reference = impactEffectReference;
+            AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(
+                reference, position, Quaternion.identity, parent);
+            handle.Completed += operation =>
+            {
+                if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
+                {
+                    if (operation.IsValid()) Addressables.Release(operation);
+                    Debug.LogWarning($"[Projectile] Impact VFX load failed: {reference.RuntimeKey}");
+                    return;
+                }
+
+                GameObject effect = operation.Result;
+                effect.transform.position = position;
+                effect.transform.localScale = Vector3.one * scale;
+                effect.AddComponent<AddressableVfxLifetime>().Initialize(lifetime);
+            };
         }
 
         private void ResolveWithoutVisual()
@@ -196,6 +268,7 @@ namespace OzGameLab01.Combat
 
         private void OnDestroy()
         {
+            if (_travelEffectInstance != null) Addressables.ReleaseInstance(_travelEffectInstance);
             if (_ownsSpriteHandle && _spriteHandle.IsValid()) Addressables.Release(_spriteHandle);
         }
 
