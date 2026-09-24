@@ -136,19 +136,23 @@ namespace OzGameLab01.DebugTools
         /// UnitData.prefabAddress는 "Units/Ally/Alice/Vanilla" 형식(끝에서 두번째 구간이 이름),
         /// MonsterData.prefabAddress는 "Characters/EnemyPrefabs/Enemy_Witch_Vanilla" 형식(끝
         /// 구간이 프리팹명 그대로)이라 두 관례를 모두 느슨하게 매칭한다.
+        /// 버그였던 부분: 끝 구간("Vanilla")을 먼저/무조건 체크하면 모든 아군 변형 이름이
+        /// "_Vanilla"로 끝나서 아무 캐릭터한테나 다 매칭돼버린다(전부 Alice 스킬을 쓰는 것처럼
+        /// 보였던 원인) — 끝에서 두번째 구간(진짜 이름)을 먼저 확인하고, 끝 구간은 "Vanilla"
+        /// 처럼 모든 프리팹에 공통인 변형명이면 매칭 신호로 쓰지 않는다.
         /// </summary>
         private static bool MatchesPrefabName(string prefabAddress, string prefabName)
         {
             if (string.IsNullOrEmpty(prefabAddress)) return false;
             string[] parts = prefabAddress.Split('/');
-            string last = parts[parts.Length - 1];
-            if (!string.IsNullOrEmpty(last) && prefabName.Contains(last)) return true;
             if (parts.Length >= 2)
             {
                 string mid = parts[parts.Length - 2];
                 if (!string.IsNullOrEmpty(mid) && prefabName.Contains(mid)) return true;
             }
-            return false;
+            string last = parts[parts.Length - 1];
+            if (string.IsNullOrEmpty(last) || last == "Vanilla") return false;
+            return prefabName.Contains(last);
         }
 
         private UnitData SyntheticUnitData() => new UnitData

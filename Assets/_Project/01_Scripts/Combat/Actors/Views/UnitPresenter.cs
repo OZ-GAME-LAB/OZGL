@@ -19,10 +19,14 @@ namespace OzGameLab01.Combat
         private readonly SpriteRenderer spriteRenderer;
         private readonly GameObject projectilePrefab;
         private readonly Sprite projectileSpriteOverride;
+        private readonly Sprite activeSkillIcon;
         private readonly GameObject attackEffectPrefab;
         private readonly GameObject hitEffectPrefab;
-        private readonly TMPro.TextMeshPro skillNameLabel;
-        private readonly float skillNameDisplayDuration;
+        private readonly GameObject skillCastEffectPrefab;
+        private readonly GameObject skillHitEffectPrefab;
+        private readonly float skillIconDisplayDuration;
+        private readonly float skillIconHeightOffset;
+        private readonly float skillIconWorldScale;
         private readonly Unit.Team team;
 
         // 파티클 기반 1회성 VFX 재생 길이. 소스 프리팹(12. Enemy 세트)이 전부 lengthInSec 2초
@@ -36,6 +40,7 @@ namespace OzGameLab01.Combat
         private UIProjectilePool _uiProjectilePool;
         private Sprite _projectileSprite;
         private Color _projectileColor = Color.white;
+        private GameObject _activeSkillIconObject;
         private AllyUnitCombatHUDView _hud;
         // 상태이상(기절/침묵/도트)별 지속 재생 중인 VFX 인스턴스. 적용 시 생성, 해제 시 파괴.
         private readonly Dictionary<DebuffType, GameObject> _activeStatusEffects = new Dictionary<DebuffType, GameObject>();
@@ -47,20 +52,28 @@ namespace OzGameLab01.Combat
             SpriteRenderer spriteRenderer,
             GameObject projectilePrefab,
             Sprite projectileSpriteOverride,
+            Sprite activeSkillIcon,
             GameObject attackEffectPrefab,
             GameObject hitEffectPrefab,
-            TMPro.TextMeshPro skillNameLabel,
-            float skillNameDisplayDuration,
+            GameObject skillCastEffectPrefab,
+            GameObject skillHitEffectPrefab,
+            float skillIconDisplayDuration,
+            float skillIconHeightOffset,
+            float skillIconWorldScale,
             Unit.Team team)
         {
             this.healthBar = healthBar;
             this.spriteRenderer = spriteRenderer;
             this.projectilePrefab = projectilePrefab;
             this.projectileSpriteOverride = projectileSpriteOverride;
+            this.activeSkillIcon = activeSkillIcon;
             this.attackEffectPrefab = attackEffectPrefab;
             this.hitEffectPrefab = hitEffectPrefab;
-            this.skillNameLabel = skillNameLabel;
-            this.skillNameDisplayDuration = skillNameDisplayDuration;
+            this.skillCastEffectPrefab = skillCastEffectPrefab;
+            this.skillHitEffectPrefab = skillHitEffectPrefab;
+            this.skillIconDisplayDuration = skillIconDisplayDuration;
+            this.skillIconHeightOffset = skillIconHeightOffset;
+            this.skillIconWorldScale = skillIconWorldScale;
             this.team = team;
         }
 
@@ -124,7 +137,8 @@ namespace OzGameLab01.Combat
                 }
             }
 
-            // 유닛별 투사체 스프라이트가 지정돼 있으면 공용 프리팹의 스프라이트를 덮어씁니다.
+            // 유닛별 투사체 스프라이트가 지정돼 있으면 공용 프리팹의 스프라이트를 덮어씁니다
+            // (기본공격 전용 — 액티브 스킬은 투사체를 생성하지 않습니다).
             if (projectileSpriteOverride != null)
             {
                 _projectileSprite = projectileSpriteOverride;
@@ -164,77 +178,72 @@ namespace OzGameLab01.Combat
         }
 
         public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, float damage,
-            bool applyDamage = true, Action onImpact = null)
+            bool applyDamage, Action onImpact)
         {
             // UI에 배치된 유닛은 자신의 UnitAnchor에서 대상 UnitAnchor로 풀링 투사체를 발사합니다.
             // 종족별 발사 이펙트는 UI Image로 표현할 수 없어 캐스터 위치의 캐스트 플래시로만 남긴다.
             if (_uiProjectilePool != null && _combatAnchor != null && targetPresenter != null && targetPresenter._combatAnchor != null)
             {
-                _uiProjectilePool.Fire(_combatAnchor, targetPresenter._combatAnchor, target, damage, _projectileSprite, _projectileColor, applyDamage, onImpact);
-                PlayAttackEffect(worldPosition);
+                _uiProjectilePool.Fire(_combatAnchor, targetPresenter._combatAnchor, target, damage,
+                    _projectileSprite, _projectileColor, applyDamage, onImpact, isBasicAttack: true);
+                PlayAttackEffect(worldPosition, isBasicAttack: true);
                 return;
             }
 
             if (projectilePrefab == null)
             {
-                PlayAttackEffect(worldPosition);
+                PlayAttackEffect(worldPosition, isBasicAttack: true);
                 return;
             }
 
             GameObject projectileObj = UnityEngine.Object.Instantiate(projectilePrefab, worldPosition, Quaternion.identity);
-
-            if (attackEffectPrefab != null)
+            SpriteRenderer projectileRenderer = projectileObj.GetComponentInChildren<SpriteRenderer>(true);
+            if (projectileRenderer != null)
             {
-                // 종족별 발사 이펙트(화살/총알/쿠키 등)는 트레일이 달린 "날아가는 물체" 아트라
-                // 캐스터 위치에 고정해서 재생하면 트레일이 그려지지 않고 그냥 멈춰있는 것처럼
-                // 보인다(리포트: 쿠키 이펙트가 적 발밑에 멈춰있고 공용 원형 스프라이트만 날아감).
-                // 실제 이동을 담당하는 투사체 오브젝트의 자식으로 붙여 함께 이동시키고,
-                // 겹쳐 보이지 않도록 공용 원형 스프라이트는 숨긴다.
-                GameObject flightFx = UnityEngine.Object.Instantiate(attackEffectPrefab, projectileObj.transform);
-                flightFx.transform.localPosition = Vector3.zero;
-                SpriteRenderer genericRenderer = projectileObj.GetComponentInChildren<SpriteRenderer>(true);
-                if (genericRenderer != null)
+                if (_projectileSprite != null)
                 {
-                    genericRenderer.enabled = false;
+                    projectileRenderer.sprite = _projectileSprite;
                 }
-            }
-            else
-            {
-                SpriteRenderer projectileRenderer = projectileObj.GetComponentInChildren<SpriteRenderer>(true);
-                if (projectileRenderer != null)
-                {
-                    if (_projectileSprite != null)
-                    {
-                        projectileRenderer.sprite = _projectileSprite;
-                    }
 
-                    projectileRenderer.color = _projectileColor;
-                }
+                projectileRenderer.color = _projectileColor;
             }
+
+            PlayAttackEffect(worldPosition, isBasicAttack: true);
 
             Projectile projectile = projectileObj.GetComponent<Projectile>();
             if (projectile != null)
             {
-                projectile.Init(target, damage, applyDamage, onImpact);
+                projectile.Init(target, damage, applyDamage, onImpact, isBasicAttack: true);
             }
+        }
+
+        /// <summary>
+        /// isBasicAttack이 false이고 스킬 전용 프리팹이 있으면 그걸 쓰고, 아니면 기본공격용
+        /// 프리팹으로 되돌아간다(캐릭터가 스킬 전용 VFX를 안 갖고 있어도 이전처럼 동작).
+        /// </summary>
+        private static GameObject PickEffect(bool isBasicAttack, GameObject basicEffect, GameObject skillEffect)
+        {
+            return (!isBasicAttack && skillEffect != null) ? skillEffect : basicEffect;
         }
 
         /// <summary>
         /// 이 유닛이 공격/스킬을 시전한 자기 위치에서 재생하는 1회성 VFX. 프리팹이 없으면
         /// 아무 것도 하지 않습니다(아군은 애니메이터 기반 연출을 쓰므로 보통 비워둡니다).
         /// </summary>
-        public void PlayAttackEffect(Vector3 worldPosition)
+        public void PlayAttackEffect(Vector3 worldPosition, bool isBasicAttack)
         {
-            if (attackEffectPrefab == null) return;
-            GameObject fx = UnityEngine.Object.Instantiate(attackEffectPrefab, worldPosition, Quaternion.identity);
+            GameObject prefab = PickEffect(isBasicAttack, attackEffectPrefab, skillCastEffectPrefab);
+            if (prefab == null) return;
+            GameObject fx = UnityEngine.Object.Instantiate(prefab, worldPosition, Quaternion.identity);
             DestroySafely(fx, EffectAutoDestroySeconds);
         }
 
         /// <summary>피격당한 자기 위치에서 재생하는 1회성 VFX. HitFlash(색상 점멸)와 별개로 더해진다.</summary>
-        public void PlayHitEffect(Vector3 worldPosition)
+        public void PlayHitEffect(Vector3 worldPosition, bool isBasicAttack)
         {
-            if (hitEffectPrefab == null) return;
-            GameObject fx = UnityEngine.Object.Instantiate(hitEffectPrefab, worldPosition, Quaternion.identity);
+            GameObject prefab = PickEffect(isBasicAttack, hitEffectPrefab, skillHitEffectPrefab);
+            if (prefab == null) return;
+            GameObject fx = UnityEngine.Object.Instantiate(prefab, worldPosition, Quaternion.identity);
             DestroySafely(fx, EffectAutoDestroySeconds);
         }
 
@@ -308,20 +317,42 @@ namespace OzGameLab01.Combat
             }
         }
 
-        /// <summary>
-        /// 시전자 머리 위 라벨에 스킬 이름을 잠깐 띄웁니다. 스킬 발동을 화면에 알리는 연출로,
-        /// 예전엔 스프라이트 색을 깜빡이는 방식(SkillGlow)이었으나 텍스트 표시로 대체되었습니다.
-        /// </summary>
-        public IEnumerator ShowSkillCastText(string skillName)
+        /// <summary>액티브 스킬 사용 애니메이션 동안 시전자 위에 스킬 아이콘을 잠깐 표시합니다.</summary>
+        public IEnumerator ShowActiveSkillIcon(Transform caster)
         {
-            if (skillNameLabel == null)
+            if (activeSkillIcon == null || caster == null)
             {
                 yield break;
             }
 
-            skillNameLabel.text = skillName;
-            yield return new WaitForSeconds(skillNameDisplayDuration);
-            skillNameLabel.text = string.Empty;
+            DestroySafely(_activeSkillIconObject);
+
+            _activeSkillIconObject = new GameObject("ActiveSkillIcon", typeof(SpriteRenderer));
+            SpriteRenderer iconRenderer = _activeSkillIconObject.GetComponent<SpriteRenderer>();
+            iconRenderer.sprite = activeSkillIcon;
+            iconRenderer.color = Color.white;
+            if (spriteRenderer != null)
+            {
+                iconRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
+                iconRenderer.sortingOrder = spriteRenderer.sortingOrder + 10;
+            }
+
+            Vector3 iconPosition = spriteRenderer != null
+                ? new Vector3(spriteRenderer.bounds.center.x,
+                    spriteRenderer.bounds.max.y + skillIconHeightOffset,
+                    spriteRenderer.bounds.center.z)
+                : caster.position + Vector3.up * skillIconHeightOffset;
+            _activeSkillIconObject.transform.position = iconPosition;
+            _activeSkillIconObject.transform.localScale = Vector3.one * skillIconWorldScale;
+            _activeSkillIconObject.transform.SetParent(caster, true);
+
+            GameObject shownIcon = _activeSkillIconObject;
+            yield return new WaitForSeconds(skillIconDisplayDuration);
+            if (_activeSkillIconObject == shownIcon)
+            {
+                DestroySafely(shownIcon);
+                _activeSkillIconObject = null;
+            }
         }
 
         public IEnumerator HitFlash()

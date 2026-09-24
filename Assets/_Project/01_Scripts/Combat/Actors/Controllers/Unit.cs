@@ -21,18 +21,26 @@ namespace OzGameLab01.Combat
         private float dodgeRate;
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private SpriteRenderer spriteRenderer;
+        [Tooltip("기본공격이 발사하는 투사체 프리팹.")]
         [SerializeField] private GameObject projectilePrefab;
+        [Tooltip("액티브 스킬 사용 중 시전자 위에 잠깐 표시할 아이콘. 패시브 스킬에는 사용하지 않습니다.")]
+        [SerializeField] private Sprite activeSkillIcon;
         [Tooltip("투사체에 사용할 유닛별 스프라이트. 비워두면 projectilePrefab의 스프라이트를 그대로 씁니다.")]
         [SerializeField] private Sprite projectileSprite;
 
-        [Tooltip("이 유닛이 공격/스킬을 시전할 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
+        [Tooltip("기본공격을 시전할 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
         [SerializeField] private GameObject attackEffectPrefab;
-        [Tooltip("이 유닛이 피격당할 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
+        [Tooltip("기본공격에 맞았을 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
         [SerializeField] private GameObject hitEffectPrefab;
+        [Tooltip("액티브 스킬을 시전할 때 자신의 위치에서 재생되는 VFX. 비워두면 attackEffectPrefab을 그대로 씁니다.")]
+        [SerializeField] private GameObject skillCastEffectPrefab;
+        [Tooltip("액티브 스킬에 맞았을 때 자신의 위치에서 재생되는 VFX. 비워두면 hitEffectPrefab을 그대로 씁니다.")]
+        [SerializeField] private GameObject skillHitEffectPrefab;
 
         [Header("Skill (0번째 = 기본공격, 침묵 면역. 각자 쿨다운마다 자동 발동)")]
-        [SerializeField] private TMPro.TextMeshPro skillNameLabel;
-        [SerializeField] private float skillNameDisplayDuration = 0.35f;
+        [SerializeField] private float skillIconDisplayDuration = 0.35f;
+        [SerializeField] private float skillIconHeightOffset = 0.5f;
+        [SerializeField] private float skillIconWorldScale = 0.75f;
 
         private readonly List<UnitSkillRuntime> _skills = new List<UnitSkillRuntime>();
         private UnitAnimationController _animationController;
@@ -93,9 +101,9 @@ namespace OzGameLab01.Combat
             if (_presenter == null)
             {
                 _presenter = new UnitPresenter(
-                    healthBar, spriteRenderer, projectilePrefab, projectileSprite,
-                    attackEffectPrefab, hitEffectPrefab,
-                    skillNameLabel, skillNameDisplayDuration, team);
+                    healthBar, spriteRenderer, projectilePrefab, projectileSprite, activeSkillIcon,
+                    attackEffectPrefab, hitEffectPrefab, skillCastEffectPrefab, skillHitEffectPrefab,
+                    skillIconDisplayDuration, skillIconHeightOffset, skillIconWorldScale, team);
             }
 
             if (_status == null)
@@ -521,19 +529,40 @@ namespace OzGameLab01.Combat
             int useCount = !isBasicAttack && _useSkillTwice ? 2 : 1;
             for (int useIndex = 0; useIndex < useCount; useIndex++)
             {
-                yield return _presenter.ShowSkillCastText(skill.data.name);
+                if (!isBasicAttack)
+                {
+                    yield return _presenter.ShowActiveSkillIcon(transform);
+                }
 
                 if (target != null && !target.IsDead)
                 {
-                    if (skill.data.effects != null && skill.data.effects.Count > 0)
+                    if (isBasicAttack)
                     {
-                        FireProjectile(target, 0f,
-                            () => ExecuteSkillEffects(skill.data.effects, target, skill.damageMultiplier), false);
+                        if (skill.data.effects != null && skill.data.effects.Count > 0)
+                        {
+                            FireProjectile(target, 0f,
+                                () => ExecuteSkillEffects(skill.data.effects, target, skill.damageMultiplier),
+                                applyDamage: false);
+                        }
+                        else
+                        {
+                            FireProjectile(target, skill.data.damage * skill.damageMultiplier);
+                            target.ApplyDebuff(skill.data.debuff);
+                        }
                     }
                     else
                     {
-                        FireProjectile(target, skill.data.damage * skill.damageMultiplier);
-                        target.ApplyDebuff(skill.data.debuff);
+                        _presenter.PlayAttackEffect(transform.position, isBasicAttack: false);
+
+                        if (skill.data.effects != null && skill.data.effects.Count > 0)
+                        {
+                            ExecuteSkillEffects(skill.data.effects, target, skill.damageMultiplier);
+                        }
+                        else
+                        {
+                            ApplySkillDamage(target, skill.data.damage * skill.damageMultiplier);
+                            target.ApplyDebuff(skill.data.debuff);
+                        }
                     }
 
                     // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
@@ -641,7 +670,7 @@ namespace OzGameLab01.Combat
             if (_random.NextDouble() < Mathf.Min(target.dodgeRate, 60f) / 100f) return;
             if (_random.NextDouble() < criticalRate / 100f) effectiveDamage *= criticalMult / 100f;
             effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
-            target.TakeDamage(Mathf.Round(effectiveDamage * 100f) / 100f);
+            target.TakeDamage(Mathf.Round(effectiveDamage * 100f) / 100f, isBasicAttack: false);
             PassiveEventBus.RaiseAttackLanded(this, target);
             TryApplyRandomStatusEffect(target);
         }
@@ -806,7 +835,7 @@ namespace OzGameLab01.Combat
             _presenter.ClearAllStatusEffects();
         }
 
-        public void TakeDamage(float dmg)
+        public void TakeDamage(float dmg, bool isBasicAttack = true)
         {
             if (_isDead)
             {
@@ -828,7 +857,7 @@ namespace OzGameLab01.Combat
             float previousRatio = maxHP > 0f ? _currentHP / maxHP : 0f;
             _currentHP = Mathf.Max(0f, _currentHP - dmg);
             _presenter.SetHP(_currentHP);
-            _presenter.PlayHitEffect(transform.position);
+            _presenter.PlayHitEffect(transform.position, isBasicAttack);
             PassiveEventBus.RaiseHpChanged(this, previousRatio);
 
             if (_currentHP <= 0f)

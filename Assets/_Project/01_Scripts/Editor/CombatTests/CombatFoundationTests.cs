@@ -635,6 +635,57 @@ namespace OzGameLab01.Tests.EditMode
             return unit;
         }
 
+        [Test]
+        public void ActiveSkillIconAppearsAboveCasterAndIsRemovedAfterDuration()
+        {
+            var caster = new UnityEngine.GameObject("Skill icon caster");
+            var renderer = caster.AddComponent<UnityEngine.SpriteRenderer>();
+            var texture = new UnityEngine.Texture2D(2, 2);
+            var icon = UnityEngine.Sprite.Create(texture, new UnityEngine.Rect(0, 0, 2, 2),
+                new UnityEngine.Vector2(0.5f, 0.5f));
+
+            try
+            {
+                var presenter = new UnitPresenter(null, renderer, null, null, icon,
+                    null, null, null, null, 0f, 0.5f, 0.75f, Unit.Team.Ally);
+                System.Collections.IEnumerator routine = presenter.ShowActiveSkillIcon(caster.transform);
+
+                Assert.That(routine.MoveNext(), Is.True);
+                UnityEngine.Transform shownIcon = caster.transform.Find("ActiveSkillIcon");
+                Assert.That(shownIcon, Is.Not.Null);
+                Assert.That(shownIcon.GetComponent<UnityEngine.SpriteRenderer>().sprite, Is.SameAs(icon));
+                Assert.That(shownIcon.position.y, Is.GreaterThan(renderer.bounds.max.y));
+
+                Assert.That(routine.MoveNext(), Is.False);
+                Assert.That(caster.transform.Find("ActiveSkillIcon"), Is.Null);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(icon);
+                UnityEngine.Object.DestroyImmediate(texture);
+                UnityEngine.Object.DestroyImmediate(caster);
+            }
+        }
+
+        [Test]
+        public void MissingActiveSkillIconCreatesNoCombatVisual()
+        {
+            var caster = new UnityEngine.GameObject("Skill icon caster");
+            try
+            {
+                var presenter = new UnitPresenter(null, null, null, null, null,
+                    null, null, null, null, 0.35f, 0.5f, 0.75f, Unit.Team.Ally);
+                System.Collections.IEnumerator routine = presenter.ShowActiveSkillIcon(caster.transform);
+
+                Assert.That(routine.MoveNext(), Is.False);
+                Assert.That(caster.transform.Find("ActiveSkillIcon"), Is.Null);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(caster);
+            }
+        }
+
         private static CombatEffectCatalog BuildThresholdCatalog(EffectTarget target)
         {
             var catalog = new CombatEffectCatalog();

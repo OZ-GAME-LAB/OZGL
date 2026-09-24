@@ -13,7 +13,7 @@ namespace OzGameLab01.Combat
         private readonly Queue<UIProjectile> _available = new Queue<UIProjectile>();
 
         public void Fire(RectTransform origin, RectTransform target, Unit targetUnit, float damage, Sprite sprite, Color color,
-            bool applyDamage = true, Action onImpact = null)
+            bool applyDamage, Action onImpact, bool isBasicAttack)
         {
             if (origin == null || target == null || targetUnit == null)
             {
@@ -21,7 +21,7 @@ namespace OzGameLab01.Combat
             }
 
             UIProjectile projectile = _available.Count > 0 ? _available.Dequeue() : CreateProjectile();
-            projectile.Launch(this, origin, target, targetUnit, damage, sprite, color, applyDamage, onImpact);
+            projectile.Launch(this, origin, target, targetUnit, damage, sprite, color, applyDamage, onImpact, isBasicAttack);
         }
 
         internal void Release(UIProjectile projectile)
@@ -57,10 +57,11 @@ namespace OzGameLab01.Combat
         private float _damage;
         private bool _applyDamage;
         private Action _onImpact;
+        private bool _isBasicAttack;
         private RectTransform _rectTransform;
 
         public void Launch(UIProjectilePool pool, RectTransform origin, RectTransform target, Unit targetUnit, float damage, Sprite sprite, Color color,
-            bool applyDamage, Action onImpact)
+            bool applyDamage, Action onImpact, bool isBasicAttack)
         {
             _pool = pool;
             _targetAnchor = target;
@@ -68,6 +69,7 @@ namespace OzGameLab01.Combat
             _damage = damage;
             _applyDamage = applyDamage;
             _onImpact = onImpact;
+            _isBasicAttack = isBasicAttack;
             _rectTransform = (RectTransform)transform;
 
             transform.SetParent(pool.transform, false);
@@ -100,7 +102,7 @@ namespace OzGameLab01.Combat
 
             if (Vector3.Distance(_rectTransform.position, targetPosition) <= 8f)
             {
-                if (_applyDamage) _targetUnit.TakeDamage(_damage);
+                if (_applyDamage) _targetUnit.TakeDamage(_damage, _isBasicAttack);
                 Action onImpact = _onImpact;
                 _onImpact = null;
                 onImpact?.Invoke();

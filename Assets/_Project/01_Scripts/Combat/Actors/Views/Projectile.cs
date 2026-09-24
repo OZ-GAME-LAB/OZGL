@@ -13,14 +13,17 @@ namespace OzGameLab01.Combat
         private float _speed;
         private bool _applyDamage;
         private Action _onImpact;
+        private bool _isBasicAttack = true;
 
-        public void Init(Unit target, float damage, bool applyDamage = true, Action onImpact = null, float speed = 8f)
+        public void Init(Unit target, float damage, bool applyDamage = true, Action onImpact = null, float speed = 8f,
+            bool isBasicAttack = true)
         {
             _target = target;
             _damage = damage;
             _applyDamage = applyDamage;
             _onImpact = onImpact;
             _speed = speed;
+            _isBasicAttack = isBasicAttack;
         }
 
         private void Update()
@@ -38,7 +41,7 @@ namespace OzGameLab01.Combat
             float distance = Vector3.Distance(transform.position, _target.transform.position);
             if (distance <= 0.1f)
             {
-                if (_applyDamage) _target.TakeDamage(_damage);
+                if (_applyDamage) _target.TakeDamage(_damage, _isBasicAttack);
                 Action onImpact = _onImpact;
                 _onImpact = null;
                 onImpact?.Invoke();
