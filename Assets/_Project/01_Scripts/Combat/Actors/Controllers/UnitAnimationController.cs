@@ -29,7 +29,6 @@ namespace OzGameLab01.Combat
 
         public void PlayIdle() => PlayState("_Idle", false);
         public void PlayAttack() => PlayState("_Attack", true);
-        public void PlaySkill() => PlayState("_CC", true);
         public void PlayUltimate() => PlayState("_Ult", true);
 
         /// <summary>

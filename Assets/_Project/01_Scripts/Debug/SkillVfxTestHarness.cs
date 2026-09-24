@@ -31,6 +31,7 @@ namespace OzGameLab01.DebugTools
         private int _enemyIndex;
         private Unit _ally;
         private Unit _enemy;
+        private bool _animationNormalSpeed;
 
         private void Start()
         {
@@ -171,7 +172,7 @@ namespace OzGameLab01.DebugTools
 
         private void OnGUI()
         {
-            GUILayout.BeginArea(new Rect(10, 10, 700, 160));
+            GUILayout.BeginArea(new Rect(10, 10, 700, 420));
             GUILayout.BeginHorizontal();
 
             DrawUnitPanel(
@@ -187,7 +188,36 @@ namespace OzGameLab01.DebugTools
                 onBasicAttack: () => _enemy?.ForceUseSkill(0), onSkill: () => _enemy?.ForceUseSkill(1));
 
             GUILayout.EndHorizontal();
+
+            DrawAnimationPanel(_ally);
             GUILayout.EndArea();
+        }
+
+        /// <summary>
+        /// 아군 Animator 컨트롤러의 클립을 전부 버튼으로 나열해 전투 로직 없이 모션만 재생한다.
+        /// 전투 코드는 3배속(UnitAnimationController, 임시)으로 재생하므로 1배속 토글을 둔다.
+        /// </summary>
+        private void DrawAnimationPanel(Unit unit)
+        {
+            GUILayout.Space(10);
+            Animator animator = unit != null ? unit.GetComponentInChildren<Animator>(true) : null;
+            if (animator == null || animator.runtimeAnimatorController == null)
+            {
+                GUILayout.Label("애니메이션: Animator 없음");
+                return;
+            }
+
+            _animationNormalSpeed = GUILayout.Toggle(_animationNormalSpeed, "1배속으로 보기 (끄면 전투와 같은 3배속)");
+            animator.speed = _animationNormalSpeed ? 1f : 3f;
+
+            AnimatorStateInfo current = animator.GetCurrentAnimatorStateInfo(0);
+            foreach (AnimationClip clip in animator.runtimeAnimatorController.animationClips)
+            {
+                if (clip == null) continue;
+                bool playing = current.shortNameHash == Animator.StringToHash(clip.name);
+                string label = $"{(playing ? "▶ " : "")}{clip.name}  ({clip.length:0.00}초{(clip.isLooping ? ", 루프" : "")})";
+                if (GUILayout.Button(label, GUILayout.Width(320))) animator.Play(clip.name, 0, 0f);
+            }
         }
 
         private static void DrawUnitPanel(Unit unit, int allyPrefabsLength,

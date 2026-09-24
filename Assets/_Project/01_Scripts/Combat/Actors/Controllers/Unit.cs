@@ -173,14 +173,8 @@ namespace OzGameLab01.Combat
                 skill.timer -= Time.deltaTime;
                 if (skill.timer <= 0f && (isBasicAttack || (!_activeSkillsDisabled && !_status.IsSilenced)))
                 {
-                    if (isBasicAttack)
-                    {
-                        _animationController?.PlayAttack();
-                    }
-                    else
-                    {
-                        _animationController?.PlaySkill();
-                    }
+                    // 기본공격과 스킬 모두 Attack 모션을 사용합니다(_CC는 상태이상 피격 모션).
+                    _animationController?.PlayAttack();
 
                     StartCoroutine(CastSkill(target, skill, isBasicAttack));
                     skill.timer = GetSkillCooldown(skill);
@@ -370,8 +364,7 @@ namespace OzGameLab01.Combat
             if (!isBasicAttack && (_activeSkillsDisabled || _status.IsSilenced)) return;
 
             UnitSkillRuntime skill = _skills[index];
-            if (isBasicAttack) _animationController?.PlayAttack();
-            else _animationController?.PlaySkill();
+            _animationController?.PlayAttack();
 
             StartCoroutine(CastSkill(target, skill, isBasicAttack));
             skill.timer = GetSkillCooldown(skill);
