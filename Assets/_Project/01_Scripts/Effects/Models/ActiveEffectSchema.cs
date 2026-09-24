@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OzGameLab01.Data;
 
 namespace OzGameLab01.Combat
@@ -50,5 +51,20 @@ namespace OzGameLab01.Combat
 
         public float value;                         // 기본 계수
         public float extraParam;                    // 보조 수치
+
+        public List<SkillVfxCue> vfx = new();       // 이 효과의 연출 VFX (효과 대상마다 재생)
+    }
+
+    /// <summary>
+    /// 액티브 스킬 효과 하나에 붙는 연출 VFX 정의. 효과 실행과 별개로 연출만 담당합니다.
+    /// </summary>
+    [System.Serializable]
+    public class SkillVfxCue
+    {
+        public string address;                      // Addressables 주소
+        public bool onCaster;                       // true면 효과 대상 대신 시전자 위치에 1회 재생
+        public float delay;                         // 효과 적용 시점 기준 지연(초)
+        public float scale;                         // 월드 스케일 (0이면 기본값)
+        public float attachSeconds;                 // 0보다 크면 대상에 붙여 해당 시간 동안 유지(루프 VFX용)
     }
 }

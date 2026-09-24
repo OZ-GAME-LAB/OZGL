@@ -20,11 +20,6 @@ namespace OzGameLab01.Combat
         private readonly HealthBar healthBar;
         private readonly SpriteRenderer spriteRenderer;
         private readonly AssetReferenceGameObject projectilePrefabReference;
-        private readonly Sprite activeSkillIcon;
-        private readonly GameObject skillHitEffectPrefab;
-        private readonly float skillIconDisplayDuration;
-        private readonly float skillIconHeightOffset;
-        private readonly float skillIconWorldScale;
 
         // 파티클 기반 1회성 VFX 재생 길이. 소스 프리팹(12. Enemy 세트)이 전부 lengthInSec 2초
         // 이내라 여유를 두고 파괴한다 — VFX마다 정확한 길이를 읽어오는 대신 고정값으로 통일.
@@ -35,7 +30,6 @@ namespace OzGameLab01.Combat
         private RectTransform _combatAnchor;
         private Image _combatImage;
         private UIProjectilePool _uiProjectilePool;
-        private GameObject _activeSkillIconObject;
         private AllyUnitCombatHUDView _hud;
         // 상태이상(기절/침묵/도트)별 지속 재생 중인 VFX 인스턴스. 적용 시 생성, 해제 시 파괴.
         private readonly Dictionary<DebuffType, GameObject> _activeStatusEffects = new Dictionary<DebuffType, GameObject>();
@@ -45,21 +39,11 @@ namespace OzGameLab01.Combat
         public UnitPresenter(
             HealthBar healthBar,
             SpriteRenderer spriteRenderer,
-            AssetReferenceGameObject projectilePrefabReference,
-            Sprite activeSkillIcon,
-            GameObject skillHitEffectPrefab,
-            float skillIconDisplayDuration,
-            float skillIconHeightOffset,
-            float skillIconWorldScale)
+            AssetReferenceGameObject projectilePrefabReference)
         {
             this.healthBar = healthBar;
             this.spriteRenderer = spriteRenderer;
             this.projectilePrefabReference = projectilePrefabReference;
-            this.activeSkillIcon = activeSkillIcon;
-            this.skillHitEffectPrefab = skillHitEffectPrefab;
-            this.skillIconDisplayDuration = skillIconDisplayDuration;
-            this.skillIconHeightOffset = skillIconHeightOffset;
-            this.skillIconWorldScale = skillIconWorldScale;
         }
 
         public void InitHealthBar(float maxHP)
@@ -212,14 +196,31 @@ namespace OzGameLab01.Combat
             };
         }
 
+        // 스킬 연출 VFX의 기본 월드 스케일(기본공격 피격 VFX와 같은 기준).
+        private const float DefaultSkillVfxScale = 0.25f;
+
         /// <summary>
-        /// 이 유닛의 스킬이 적중한 대상 위치에서 재생하는 1회성 VFX. 전용 프리팹이 없으면 재생하지 않습니다.
+        /// 스킬 효과 연출 VFX를 target 위치에 재생합니다. attachSeconds가 0보다 크면 target에 붙여
+        /// 그 시간 동안 유지하고(루프 VFX), 아니면 그 자리에 1회성으로 재생합니다.
         /// </summary>
-        public void PlaySkillHitEffect(Vector3 worldPosition)
+        public void PlaySkillVfx(string address, Transform target, float scale, float attachSeconds)
         {
-            if (skillHitEffectPrefab == null) return;
-            GameObject fx = UnityEngine.Object.Instantiate(skillHitEffectPrefab, worldPosition, Quaternion.identity);
-            DestroySafely(fx, EffectAutoDestroySeconds);
+            if (string.IsNullOrEmpty(address) || target == null) return;
+            bool attach = attachSeconds > 0f;
+            Addressables.InstantiateAsync(address, target.position, Quaternion.identity, attach ? target : null).Completed += operation =>
+            {
+                if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
+                {
+                    if (operation.IsValid()) Addressables.Release(operation);
+                    Debug.LogWarning($"[UnitPresenter] 스킬 VFX 로드 실패: {address}");
+                    return;
+                }
+
+                GameObject fx = operation.Result;
+                if (target != null) fx.transform.position = target.position;
+                fx.transform.localScale = Vector3.one * (scale > 0f ? scale : DefaultSkillVfxScale);
+                fx.AddComponent<AddressableVfxLifetime>().Initialize(attach ? attachSeconds : EffectAutoDestroySeconds);
+            };
         }
 
         /// <summary>
@@ -289,44 +290,6 @@ namespace OzGameLab01.Combat
             if (_combatImage != null)
             {
                 _combatImage.enabled = false;
-            }
-        }
-
-        /// <summary>액티브 스킬 사용 애니메이션 동안 시전자 위에 스킬 아이콘을 잠깐 표시합니다.</summary>
-        public IEnumerator ShowActiveSkillIcon(Transform caster)
-        {
-            if (activeSkillIcon == null || caster == null)
-            {
-                yield break;
-            }
-
-            DestroySafely(_activeSkillIconObject);
-
-            _activeSkillIconObject = new GameObject("ActiveSkillIcon", typeof(SpriteRenderer));
-            SpriteRenderer iconRenderer = _activeSkillIconObject.GetComponent<SpriteRenderer>();
-            iconRenderer.sprite = activeSkillIcon;
-            iconRenderer.color = Color.white;
-            if (spriteRenderer != null)
-            {
-                iconRenderer.sortingLayerID = spriteRenderer.sortingLayerID;
-                iconRenderer.sortingOrder = spriteRenderer.sortingOrder + 10;
-            }
-
-            Vector3 iconPosition = spriteRenderer != null
-                ? new Vector3(spriteRenderer.bounds.center.x,
-                    spriteRenderer.bounds.max.y + skillIconHeightOffset,
-                    spriteRenderer.bounds.center.z)
-                : caster.position + Vector3.up * skillIconHeightOffset;
-            _activeSkillIconObject.transform.position = iconPosition;
-            _activeSkillIconObject.transform.localScale = Vector3.one * skillIconWorldScale;
-            _activeSkillIconObject.transform.SetParent(caster, true);
-
-            GameObject shownIcon = _activeSkillIconObject;
-            yield return new WaitForSeconds(skillIconDisplayDuration);
-            if (_activeSkillIconObject == shownIcon)
-            {
-                DestroySafely(shownIcon);
-                _activeSkillIconObject = null;
             }
         }
 

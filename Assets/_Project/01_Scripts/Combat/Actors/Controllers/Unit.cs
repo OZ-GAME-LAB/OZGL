@@ -26,19 +26,10 @@ namespace OzGameLab01.Combat
         [SerializeField] private SpriteRenderer spriteRenderer;
         [Tooltip("기본 공격에 사용할 Addressable 투사체 프리팹")]
         [SerializeField] private AssetReferenceGameObject projectilePrefabReference;
-        [Tooltip("액티브 스킬 사용 중 시전자 위에 잠깐 표시할 아이콘. 패시브 스킬에는 사용하지 않습니다.")]
-        [SerializeField] private Sprite activeSkillIcon;
         [Tooltip("추가 기본 공격 발사 VFX. 현재 투사체 단독 단계에서는 재생하지 않습니다.")]
         [SerializeField] private GameObject attackEffectPrefab;
         [Tooltip("기본공격에 맞았을 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
         [SerializeField] private GameObject hitEffectPrefab;
-        [Tooltip("이 유닛의 액티브 스킬이 적중한 대상 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
-        [SerializeField] private GameObject skillHitEffectPrefab;
-
-        [Header("Skill (0번째 = 기본공격, 침묵 면역. 각자 쿨다운마다 자동 발동)")]
-        [SerializeField] private float skillIconDisplayDuration = 0.35f;
-        [SerializeField] private float skillIconHeightOffset = 0.5f;
-        [SerializeField] private float skillIconWorldScale = 0.75f;
 
         private readonly List<UnitSkillRuntime> _skills = new List<UnitSkillRuntime>();
         private UnitAnimationController _animationController;
@@ -99,9 +90,7 @@ namespace OzGameLab01.Combat
             if (_presenter == null)
             {
                 _presenter = new UnitPresenter(
-                    healthBar, spriteRenderer, projectilePrefabReference, activeSkillIcon,
-                    skillHitEffectPrefab,
-                    skillIconDisplayDuration, skillIconHeightOffset, skillIconWorldScale);
+                    healthBar, spriteRenderer, projectilePrefabReference);
             }
 
             if (_status == null)
@@ -520,8 +509,7 @@ namespace OzGameLab01.Combat
             {
                 if (!isBasicAttack)
                 {
-                    // 스킬은 발동 즉시 아이콘과 시전 VFX를 띄웁니다.
-                    StartCoroutine(_presenter.ShowActiveSkillIcon(transform));
+                    // 스킬은 발동 즉시 시전 VFX를 띄웁니다(유닛 아이콘은 시전 VFX에 포함).
                     _presenter.PlaySkillCastEffect(skill.data.castVfxAddress, transform.position);
                 }
 
@@ -548,6 +536,8 @@ namespace OzGameLab01.Combat
                     }
                     else
                     {
+                        PlaySkillEffectVfx(skill.data, target);
+
                         if (skill.data.effects != null && skill.data.effects.Count > 0)
                         {
                             ExecuteSkillEffects(skill.data.effects, target, skill.damageMultiplier);
@@ -640,6 +630,62 @@ namespace OzGameLab01.Combat
             }
         }
 
+        /// <summary>
+        /// activeEffects 각 효과의 연출 VFX를 효과 대상(또는 시전자) 위치에 재생합니다.
+        /// 효과 실행과 분리된 연출 전용 경로입니다(activeEffects 실행기 미구현 상태).
+        /// </summary>
+        private void PlaySkillEffectVfx(SkillData data, Unit target)
+        {
+            if (data.activeEffects == null) return;
+            foreach (ActiveSkillEffectNode node in data.activeEffects)
+            {
+                if (node?.vfx == null || node.vfx.Count == 0) continue;
+                List<Unit> targets = ResolveVfxTargets(node.targetType, target);
+                foreach (SkillVfxCue cue in node.vfx)
+                {
+                    if (cue.onCaster)
+                    {
+                        StartCoroutine(PlaySkillVfxCue(cue, this));
+                        continue;
+                    }
+
+                    foreach (Unit vfxTarget in targets) StartCoroutine(PlaySkillVfxCue(cue, vfxTarget));
+                }
+            }
+        }
+
+        private IEnumerator PlaySkillVfxCue(SkillVfxCue cue, Unit vfxTarget)
+        {
+            if (cue.delay > 0f) yield return new WaitForSeconds(cue.delay);
+            if (vfxTarget == null || vfxTarget.IsDead) yield break;
+            _presenter.PlaySkillVfx(cue.address, vfxTarget.transform, cue.scale, cue.attachSeconds);
+        }
+
+        private List<Unit> ResolveVfxTargets(ActiveEffectTarget targetType, Unit currentTarget)
+        {
+            var result = new List<Unit>();
+            switch (targetType)
+            {
+                case ActiveEffectTarget.Self:
+                    result.Add(this);
+                    break;
+                case ActiveEffectTarget.AllAllies:
+                case ActiveEffectTarget.WorstHpAlly:
+                case ActiveEffectTarget.WorstHpAllies:
+                case ActiveEffectTarget.RandomAlly:
+                    // 전투 세션이 없는 테스트 씬에서는 시전자만 아군으로 취급합니다.
+                    List<Unit> allies = CombatManager.Instance != null ? GetAliveAlliesForSkill() : new List<Unit> { this };
+                    if (targetType == ActiveEffectTarget.AllAllies) result.AddRange(allies);
+                    else if (targetType == ActiveEffectTarget.RandomAlly) result.AddRange(CombatTargetSelector.SelectRandom(allies, 1, _random));
+                    else result.AddRange(CombatTargetSelector.SelectWorstHp(allies, targetType == ActiveEffectTarget.WorstHpAlly ? 1 : 2));
+                    break;
+                default:
+                    if (currentTarget != null && !currentTarget.IsDead) result.Add(currentTarget);
+                    break;
+            }
+            return result;
+        }
+
         private List<Unit> GetAliveAlliesForSkill()
         {
             var result = new List<Unit>();
@@ -665,7 +711,6 @@ namespace OzGameLab01.Combat
             if (_random.NextDouble() < criticalRate / 100f) effectiveDamage *= criticalMult / 100f;
             effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
             target.TakeDamage(Mathf.Round(effectiveDamage * 100f) / 100f, isBasicAttack: false);
-            _presenter.PlaySkillHitEffect(target.transform.position);
             PassiveEventBus.RaiseAttackLanded(this, target);
             TryApplyRandomStatusEffect(target);
         }

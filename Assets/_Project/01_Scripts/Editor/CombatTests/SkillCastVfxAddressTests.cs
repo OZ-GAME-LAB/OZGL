@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using UnityEditor.AddressableAssets;
 using UnityEngine;
+using OzGameLab01.Combat;
 using OzGameLab01.Data;
 
 namespace OzGameLab01.Tests.EditMode
@@ -21,14 +22,7 @@ namespace OzGameLab01.Tests.EditMode
         {
             List<SkillData> skills = GameDataLoader.LoadSkills();
             Assert.That(skills, Is.Not.Null);
-
-            var settings = AddressableAssetSettingsDefaultObject.Settings;
-            var addresses = new HashSet<string>();
-            foreach (var group in settings.groups)
-            {
-                if (group == null) continue;
-                foreach (var entry in group.entries) addresses.Add(entry.address);
-            }
+            HashSet<string> addresses = CollectAddresses();
 
             foreach (KeyValuePair<int, string> expected in ExpectedCastVfx)
             {
@@ -38,6 +32,43 @@ namespace OzGameLab01.Tests.EditMode
                     Is.EqualTo($"VFX/Skill/Cast/{expected.Value}_Activate_Skill_EF"), expected.Key.ToString());
                 Assert.That(addresses.Contains(skill.castVfxAddress), Is.True, skill.castVfxAddress);
             }
+        }
+
+        [Test]
+        public void ActiveSkillEffectVfxCuesAreRegistered()
+        {
+            List<SkillData> skills = GameDataLoader.LoadSkills();
+            Assert.That(skills, Is.Not.Null);
+            HashSet<string> addresses = CollectAddresses();
+
+            int cueCount = 0;
+            foreach (SkillData skill in skills)
+            {
+                if (skill.activeEffects == null) continue;
+                foreach (ActiveSkillEffectNode node in skill.activeEffects)
+                {
+                    if (node?.vfx == null) continue;
+                    foreach (SkillVfxCue cue in node.vfx)
+                    {
+                        cueCount++;
+                        Assert.That(addresses.Contains(cue.address), Is.True, $"{skill.id}: {cue.address}");
+                    }
+                }
+            }
+
+            // 아군 12종 매핑(Docs/VFX_ANIMATION_INVENTORY.md 7장) 기준 연출 VFX 개수.
+            Assert.That(cueCount, Is.EqualTo(18));
+        }
+
+        private static HashSet<string> CollectAddresses()
+        {
+            var addresses = new HashSet<string>();
+            foreach (var group in AddressableAssetSettingsDefaultObject.Settings.groups)
+            {
+                if (group == null) continue;
+                foreach (var entry in group.entries) addresses.Add(entry.address);
+            }
+            return addresses;
         }
     }
 }

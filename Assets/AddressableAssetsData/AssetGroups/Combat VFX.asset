@@ -25,8 +25,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0479d1b3042904349be800f5a0c5fb71
+    m_Address: VFX/Skill/Effect/Lion_Skill_Provocation_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 0572e8e36488a814e86838764178a8b3
     m_Address: VFX/Projectiles/Enemy_CandyMonster
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 091d3f4a57cceab4e8477e775ff7980c
+    m_Address: VFX/Skill/Effect/Public_Heal_EF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -50,8 +60,18 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1b6513b80bdb488478a289456a3ecf6d
+    m_Address: VFX/Skill/Effect/Public_Stat_Down_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 20ffb6ba42ccf804ba2132b739097947
     m_Address: VFX/Skill/Cast/Genie_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 21666ca98e703b9479c229d6ea2ffb37
+    m_Address: VFX/Skill/Effect/White_Rabbit_Skill_BuffEF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -70,6 +90,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 39cdf0e4ca01def48a2f2ba4621e3874
+    m_Address: VFX/Skill/Effect/Public_Stat_Up_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 3b568324150ef964894837cde7f7fd2c
     m_Address: VFX/Projectiles/Ally_Snowwhite
     m_ReadOnly: 0
@@ -85,8 +110,23 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 413b70984828fa0459d3ee0156fc1511
+    m_Address: VFX/Skill/Effect/Cheshire_Cat_SKillBuff_Area
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 45b5ad18bda6ccb48a3283a7c7112007
+    m_Address: VFX/Skill/Effect/Alice_SkillMark_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 4880c452e5418bf49afcdc4dc350e548
     m_Address: VFX/BasicAttack/Impact/Dorothy_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4eddbe9211f65fd44af38621b1b56d22
+    m_Address: VFX/Skill/Effect/Scarecrow_SKill_Hit_EF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -122,6 +162,16 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5fdd73e15212883458b2238c3179a9f3
     m_Address: VFX/Skill/Cast/Tinker_Bell_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 60911409026ecd04891e894773ba0dbf
+    m_Address: VFX/Skill/Effect/Genie_Skill_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 61644aaa2b13018458074959ed50457e
+    m_Address: VFX/Skill/Effect/Dorothy_Skill_Hit_EF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -172,6 +222,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 85e79f6676e3d8f41977f35eaf184fd8
     m_Address: VFX/Sprites/Projectiles/Effect_Battle_Hammer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 89cda5dc40c69cf478387b1badcdd7ab
+    m_Address: VFX/Skill/Effect/Lion_SKill_Shield_EF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -257,6 +312,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: af29e2a604dbdb84291fb3e83b8c7d6c
     m_Address: VFX/Projectiles/Ally_PeterPan
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b1d17bff0ad81b74294e11f4dd4355dd
+    m_Address: VFX/Skill/Effect/Alice_Skill_Hit_EF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -360,6 +420,11 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ef569189689cb6f4a816199c09c8d0ed
+    m_Address: VFX/Skill/Effect/Snow White_SKill_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: eff53a1605405a04cb14334dcba0061f
     m_Address: VFX/Projectiles/Enemy_Witch
     m_ReadOnly: 0
@@ -377,6 +442,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f4555ce3eb00e804a9c688f28bca9841
     m_Address: VFX/Sprites/Projectiles/Effect_Battle_Claw
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5dc2909f7b61e345b2ba0a0225f2e5c
+    m_Address: VFX/Skill/Effect/Cheshire_Cat_SkillBuff_Single
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

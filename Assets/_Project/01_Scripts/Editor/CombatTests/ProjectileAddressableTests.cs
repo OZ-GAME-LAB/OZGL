@@ -127,16 +127,6 @@ namespace OzGameLab01.Tests.EditMode
             }
         }
 
-        [Test]
-        public void SkillHitEffectWithoutOwnPrefabPlaysNothing()
-        {
-            // 스킬 피격 VFX는 시전자 전용 프리팹만 쓰고, 기본공격 피격 VFX로 대체하지 않습니다.
-            int before = Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length;
-            new UnitPresenter(null, null, null, null, null, 0.35f, 0.5f, 0.75f)
-                .PlaySkillHitEffect(Vector3.zero);
-            Assert.That(Object.FindObjectsByType<GameObject>(FindObjectsSortMode.None).Length, Is.EqualTo(before));
-        }
-
         private static void AssertAddressableReferenceRegistered(
             AssetReferenceGameObject reference,
             AddressableAssetSettings settings,

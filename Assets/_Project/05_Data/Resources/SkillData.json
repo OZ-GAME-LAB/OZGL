@@ -14,14 +14,20 @@
           "effectType": "Damage",
           "statType": "Attack",
           "value": 1.5,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Alice_Skill_Hit_EF", "delay": 0.3}
+          ]
         },
         {
           "targetType": "CurrentTarget",
           "effectType": "DotDamage",
           "statType": "Attack",
           "value": 0.3,
-          "extraParam": 5.0
+          "extraParam": 5.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Alice_SkillMark_EF"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -73,7 +79,10 @@
           "effectType": "CooldownRecovery",
           "statType": "TurnRecovery",
           "value": 1.0,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/White_Rabbit_Skill_BuffEF"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -114,14 +123,20 @@
           "effectType": "Heal",
           "statType": "MaxHealth",
           "value": 0.1,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Cheshire_Cat_SkillBuff_Single"}
+          ]
         },
         {
           "targetType": "AllAllies",
           "effectType": "StatModifier",
           "statType": "DodgeChance",
           "value": 0.2,
-          "extraParam": 4.0
+          "extraParam": 4.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Cheshire_Cat_SKillBuff_Area", "onCaster": true}
+          ]
         }
       ],
       "passiveEffects": null
@@ -162,7 +177,10 @@
           "effectType": "TrueDamage",
           "statType": "Attack",
           "value": 3.9,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Genie_Skill_Hit_EF", "scale": 0.5}
+          ]
         }
       ],
       "passiveEffects": null
@@ -203,14 +221,20 @@
           "effectType": "Taunt",
           "statType": "Unknown",
           "value": 1.0,
-          "extraParam": 999.0
+          "extraParam": 999.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Lion_Skill_Provocation_EF", "attachSeconds": 999.0}
+          ]
         },
         {
           "targetType": "Self",
           "effectType": "GrantShield",
           "statType": "MaxHealth",
           "value": 1.0,
-          "extraParam": 7.0
+          "extraParam": 7.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Lion_SKill_Shield_EF", "attachSeconds": 7.0}
+          ]
         }
       ],
       "passiveEffects": null
@@ -251,7 +275,10 @@
           "effectType": "Damage",
           "statType": "Attack",
           "value": 1.65,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Scarecrow_SKill_Hit_EF"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -292,7 +319,11 @@
           "effectType": "StealStat",
           "statType": "Attack",
           "value": 0.2,
-          "extraParam": 5.0
+          "extraParam": 5.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Dorothy_Skill_Hit_EF"},
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -333,7 +364,10 @@
           "effectType": "Heal",
           "statType": "MaxHealth",
           "value": 0.05,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Heal_EF"}
+          ]
         },
         {
           "targetType": "AllAllies",
@@ -388,7 +422,10 @@
           "effectType": "Damage",
           "statType": "Attack",
           "value": 1.25,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Snow White_SKill_Hit_EF"}
+          ]
         },
         {
           "targetType": "CurrentTarget",
@@ -436,14 +473,20 @@
           "effectType": "StatModifier",
           "statType": "AttackInterval",
           "value": -0.2,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF"}
+          ]
         },
         {
           "targetType": "Self",
           "effectType": "StatModifier",
           "statType": "Attack",
           "value": 50.0,
-          "extraParam": 1.0
+          "extraParam": 1.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -484,14 +527,20 @@
           "effectType": "StatModifier",
           "statType": "Unknown",
           "value": 1.0,
-          "extraParam": 7.0
+          "extraParam": 7.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF"}
+          ]
         },
         {
           "targetType": "Self",
           "effectType": "StatModifier",
           "statType": "Unknown",
           "value": 1.0,
-          "extraParam": 7.0
+          "extraParam": 7.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -532,7 +581,10 @@
           "effectType": "StatModifier",
           "statType": "Attack",
           "value": 0.2,
-          "extraParam": 10.0
+          "extraParam": 10.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF"}
+          ]
         },
         {
           "targetType": "RandomAlly",
