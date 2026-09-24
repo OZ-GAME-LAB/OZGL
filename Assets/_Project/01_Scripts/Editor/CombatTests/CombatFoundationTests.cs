@@ -646,8 +646,8 @@ namespace OzGameLab01.Tests.EditMode
 
             try
             {
-                var presenter = new UnitPresenter(null, renderer, null, null, icon,
-                    null, null, null, null, 0f, 0.5f, 0.75f, Unit.Team.Ally);
+                var presenter = new UnitPresenter(null, renderer, null, icon,
+                    null, null, null, null, 0f, 0.5f, 0.75f);
                 System.Collections.IEnumerator routine = presenter.ShowActiveSkillIcon(caster.transform);
 
                 Assert.That(routine.MoveNext(), Is.True);
@@ -673,8 +673,8 @@ namespace OzGameLab01.Tests.EditMode
             var caster = new UnityEngine.GameObject("Skill icon caster");
             try
             {
-                var presenter = new UnitPresenter(null, null, null, null, null,
-                    null, null, null, null, 0.35f, 0.5f, 0.75f, Unit.Team.Ally);
+                var presenter = new UnitPresenter(null, null, null, null,
+                    null, null, null, null, 0.35f, 0.5f, 0.75f);
                 System.Collections.IEnumerator routine = presenter.ShowActiveSkillIcon(caster.transform);
 
                 Assert.That(routine.MoveNext(), Is.False);

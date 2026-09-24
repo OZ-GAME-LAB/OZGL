@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
+using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Combat
@@ -17,8 +19,7 @@ namespace OzGameLab01.Combat
     {
         private readonly HealthBar healthBar;
         private readonly SpriteRenderer spriteRenderer;
-        private readonly GameObject projectilePrefab;
-        private readonly Sprite projectileSpriteOverride;
+        private readonly AssetReferenceGameObject projectilePrefabReference;
         private readonly Sprite activeSkillIcon;
         private readonly GameObject attackEffectPrefab;
         private readonly GameObject hitEffectPrefab;
@@ -27,7 +28,6 @@ namespace OzGameLab01.Combat
         private readonly float skillIconDisplayDuration;
         private readonly float skillIconHeightOffset;
         private readonly float skillIconWorldScale;
-        private readonly Unit.Team team;
 
         // 파티클 기반 1회성 VFX 재생 길이. 소스 프리팹(12. Enemy 세트)이 전부 lengthInSec 2초
         // 이내라 여유를 두고 파괴한다 — VFX마다 정확한 길이를 읽어오는 대신 고정값으로 통일.
@@ -38,8 +38,6 @@ namespace OzGameLab01.Combat
         private RectTransform _combatAnchor;
         private Image _combatImage;
         private UIProjectilePool _uiProjectilePool;
-        private Sprite _projectileSprite;
-        private Color _projectileColor = Color.white;
         private GameObject _activeSkillIconObject;
         private AllyUnitCombatHUDView _hud;
         // 상태이상(기절/침묵/도트)별 지속 재생 중인 VFX 인스턴스. 적용 시 생성, 해제 시 파괴.
@@ -50,8 +48,7 @@ namespace OzGameLab01.Combat
         public UnitPresenter(
             HealthBar healthBar,
             SpriteRenderer spriteRenderer,
-            GameObject projectilePrefab,
-            Sprite projectileSpriteOverride,
+            AssetReferenceGameObject projectilePrefabReference,
             Sprite activeSkillIcon,
             GameObject attackEffectPrefab,
             GameObject hitEffectPrefab,
@@ -59,13 +56,11 @@ namespace OzGameLab01.Combat
             GameObject skillHitEffectPrefab,
             float skillIconDisplayDuration,
             float skillIconHeightOffset,
-            float skillIconWorldScale,
-            Unit.Team team)
+            float skillIconWorldScale)
         {
             this.healthBar = healthBar;
             this.spriteRenderer = spriteRenderer;
-            this.projectilePrefab = projectilePrefab;
-            this.projectileSpriteOverride = projectileSpriteOverride;
+            this.projectilePrefabReference = projectilePrefabReference;
             this.activeSkillIcon = activeSkillIcon;
             this.attackEffectPrefab = attackEffectPrefab;
             this.hitEffectPrefab = hitEffectPrefab;
@@ -74,7 +69,6 @@ namespace OzGameLab01.Combat
             this.skillIconDisplayDuration = skillIconDisplayDuration;
             this.skillIconHeightOffset = skillIconHeightOffset;
             this.skillIconWorldScale = skillIconWorldScale;
-            this.team = team;
         }
 
         public void InitHealthBar(float maxHP)
@@ -126,29 +120,6 @@ namespace OzGameLab01.Combat
             _combatAnchor = combatAnchor;
             _combatImage = combatImage;
             _uiProjectilePool = projectilePool;
-
-            if (projectilePrefab != null)
-            {
-                SpriteRenderer projectileRenderer = projectilePrefab.GetComponentInChildren<SpriteRenderer>(true);
-                if (projectileRenderer != null)
-                {
-                    _projectileSprite = projectileRenderer.sprite;
-                    _projectileColor = projectileRenderer.color;
-                }
-            }
-
-            // 유닛별 투사체 스프라이트가 지정돼 있으면 공용 프리팹의 스프라이트를 덮어씁니다
-            // (기본공격 전용 — 액티브 스킬은 투사체를 생성하지 않습니다).
-            if (projectileSpriteOverride != null)
-            {
-                _projectileSprite = projectileSpriteOverride;
-            }
-
-            // Enemy의 공격은 같은 풀을 사용하되 빨간색으로 표시
-            if (team == Unit.Team.Enemy)
-            {
-                _projectileColor = Color.red;
-            }
         }
 
         /// <summary>
@@ -180,41 +151,54 @@ namespace OzGameLab01.Combat
         public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, float damage,
             bool applyDamage, Action onImpact)
         {
-            // UI에 배치된 유닛은 자신의 UnitAnchor에서 대상 UnitAnchor로 풀링 투사체를 발사합니다.
-            // 종족별 발사 이펙트는 UI Image로 표현할 수 없어 캐스터 위치의 캐스트 플래시로만 남긴다.
-            if (_uiProjectilePool != null && _combatAnchor != null && targetPresenter != null && targetPresenter._combatAnchor != null)
+            // 월드와 UI 모두 동일한 Addressable 프리팹을 생성하고 표시 방식만 Projectile이 선택합니다.
+            if (projectilePrefabReference == null || !projectilePrefabReference.RuntimeKeyIsValid())
             {
-                _uiProjectilePool.Fire(_combatAnchor, targetPresenter._combatAnchor, target, damage,
-                    _projectileSprite, _projectileColor, applyDamage, onImpact, isBasicAttack: true);
-                PlayAttackEffect(worldPosition, isBasicAttack: true);
+                Debug.LogError("[UnitPresenter] Addressable 투사체 프리팹 주소가 비어 있습니다.");
+                ResolveProjectileFailure(target, damage, applyDamage, onImpact);
                 return;
             }
 
-            if (projectilePrefab == null)
+            AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(
+                projectilePrefabReference, worldPosition, Quaternion.identity);
+            handle.Completed += operation =>
             {
-                PlayAttackEffect(worldPosition, isBasicAttack: true);
-                return;
-            }
-
-            GameObject projectileObj = UnityEngine.Object.Instantiate(projectilePrefab, worldPosition, Quaternion.identity);
-            SpriteRenderer projectileRenderer = projectileObj.GetComponentInChildren<SpriteRenderer>(true);
-            if (projectileRenderer != null)
-            {
-                if (_projectileSprite != null)
+                if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
                 {
-                    projectileRenderer.sprite = _projectileSprite;
+                    Debug.LogError($"[UnitPresenter] Addressable 투사체 생성 실패: {projectilePrefabReference.RuntimeKey}");
+                    if (operation.IsValid()) Addressables.Release(operation);
+                    ResolveProjectileFailure(target, damage, applyDamage, onImpact);
+                    return;
                 }
 
-                projectileRenderer.color = _projectileColor;
-            }
+                GameObject projectileObject = operation.Result;
+                Projectile projectile = projectileObject.GetComponent<Projectile>();
+                if (projectile == null)
+                {
+                    Debug.LogError("[UnitPresenter] 투사체 프리팹에 Projectile 컴포넌트가 없습니다.", projectileObject);
+                    Addressables.ReleaseInstance(projectileObject);
+                    ResolveProjectileFailure(target, damage, applyDamage, onImpact);
+                    return;
+                }
 
-            PlayAttackEffect(worldPosition, isBasicAttack: true);
+                projectile.MarkAddressableInstance();
+                if (_uiProjectilePool != null && _combatAnchor != null && targetPresenter?._combatAnchor != null)
+                {
+                    projectile.InitUi(_uiProjectilePool.transform, _combatAnchor, targetPresenter._combatAnchor,
+                        target, damage, applyDamage, onImpact, isBasicAttack: true);
+                }
+                else
+                {
+                    projectile.Init(target, damage, applyDamage, onImpact, isBasicAttack: true);
+                }
+            };
+        }
 
-            Projectile projectile = projectileObj.GetComponent<Projectile>();
-            if (projectile != null)
-            {
-                projectile.Init(target, damage, applyDamage, onImpact, isBasicAttack: true);
-            }
+        private static void ResolveProjectileFailure(Unit target, float damage, bool applyDamage, Action onImpact)
+        {
+            if (target == null || target.IsDead) return;
+            if (applyDamage) target.TakeDamage(damage, isBasicAttack: true);
+            onImpact?.Invoke();
         }
 
         /// <summary>
@@ -232,6 +216,8 @@ namespace OzGameLab01.Combat
         /// </summary>
         public void PlayAttackEffect(Vector3 worldPosition, bool isBasicAttack)
         {
+            // 기본 공격은 Addressable 투사체 스프라이트만 표시합니다.
+            if (isBasicAttack) return;
             GameObject prefab = PickEffect(isBasicAttack, attackEffectPrefab, skillCastEffectPrefab);
             if (prefab == null) return;
             GameObject fx = UnityEngine.Object.Instantiate(prefab, worldPosition, Quaternion.identity);
@@ -241,6 +227,8 @@ namespace OzGameLab01.Combat
         /// <summary>피격당한 자기 위치에서 재생하는 1회성 VFX. HitFlash(색상 점멸)와 별개로 더해진다.</summary>
         public void PlayHitEffect(Vector3 worldPosition, bool isBasicAttack)
         {
+            // 투사체 아키텍처를 먼저 고정하는 단계에서는 기본 공격에 별도 명중 VFX를 섞지 않습니다.
+            if (isBasicAttack) return;
             GameObject prefab = PickEffect(isBasicAttack, hitEffectPrefab, skillHitEffectPrefab);
             if (prefab == null) return;
             GameObject fx = UnityEngine.Object.Instantiate(prefab, worldPosition, Quaternion.identity);

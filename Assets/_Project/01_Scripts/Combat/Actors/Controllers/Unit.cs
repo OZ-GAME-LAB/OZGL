@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.AddressableAssets;
 using OzGameLab01.Managers;
 using OzGameLab01.Data;
 using OzGameLab01.UI.Battle;
@@ -21,14 +22,11 @@ namespace OzGameLab01.Combat
         private float dodgeRate;
         [SerializeField] private HealthBar healthBar;
         [SerializeField] private SpriteRenderer spriteRenderer;
-        [Tooltip("기본공격이 발사하는 투사체 프리팹.")]
-        [SerializeField] private GameObject projectilePrefab;
+        [Tooltip("기본 공격에 사용할 Addressable 투사체 프리팹")]
+        [SerializeField] private AssetReferenceGameObject projectilePrefabReference;
         [Tooltip("액티브 스킬 사용 중 시전자 위에 잠깐 표시할 아이콘. 패시브 스킬에는 사용하지 않습니다.")]
         [SerializeField] private Sprite activeSkillIcon;
-        [Tooltip("투사체에 사용할 유닛별 스프라이트. 비워두면 projectilePrefab의 스프라이트를 그대로 씁니다.")]
-        [SerializeField] private Sprite projectileSprite;
-
-        [Tooltip("기본공격을 시전할 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
+        [Tooltip("추가 기본 공격 발사 VFX. 현재 투사체 단독 단계에서는 재생하지 않습니다.")]
         [SerializeField] private GameObject attackEffectPrefab;
         [Tooltip("기본공격에 맞았을 때 자신의 위치에서 재생되는 VFX. 비워두면 재생하지 않습니다.")]
         [SerializeField] private GameObject hitEffectPrefab;
@@ -101,9 +99,9 @@ namespace OzGameLab01.Combat
             if (_presenter == null)
             {
                 _presenter = new UnitPresenter(
-                    healthBar, spriteRenderer, projectilePrefab, projectileSprite, activeSkillIcon,
+                    healthBar, spriteRenderer, projectilePrefabReference, activeSkillIcon,
                     attackEffectPrefab, hitEffectPrefab, skillCastEffectPrefab, skillHitEffectPrefab,
-                    skillIconDisplayDuration, skillIconHeightOffset, skillIconWorldScale, team);
+                    skillIconDisplayDuration, skillIconHeightOffset, skillIconWorldScale);
             }
 
             if (_status == null)

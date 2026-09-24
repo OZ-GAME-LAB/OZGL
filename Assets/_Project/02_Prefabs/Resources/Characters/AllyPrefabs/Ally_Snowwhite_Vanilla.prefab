@@ -606,9 +606,13 @@ MonoBehaviour:
   maxHP: 100
   healthBar: {fileID: 0}
   spriteRenderer: {fileID: 7598035646266439839}
-  projectilePrefab: {fileID: 234508093652376620, guid: 6db72c95a9ba6924eacd10390cdd2f7b, type: 3}
+  projectilePrefabReference:
+    m_AssetGUID: 3b568324150ef964894837cde7f7fd2c
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 1
   activeSkillIcon: {fileID: 21300000, guid: 98106092b56d9dc48aa034b7c529ce40, type: 3}
-  projectileSprite: {fileID: 21300000, guid: dbda697c9d797ef41acb01d9c8e48632, type: 3}
   attackEffectPrefab: {fileID: 5579294690110463380, guid: 5467c56530b25384d9f559c0b9699d92, type: 3}
   hitEffectPrefab: {fileID: 6750108211637369354, guid: cfa7dc0dd63b2544ebf07a60afebf17c, type: 3}
   skillCastEffectPrefab: {fileID: 8934828572044419785, guid: ee5641381e771454b879eed786eb2745, type: 3}

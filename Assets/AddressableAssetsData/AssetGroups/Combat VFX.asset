@@ -1,0 +1,203 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Combat VFX
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Combat VFX
+  m_GUID: 2cfef055779d74546bd0d479da598682
+  m_SerializeEntries:
+  - m_GUID: 017a13f5494eb3e42854deae657e43cc
+    m_Address: VFX/Projectiles/Enemy_Crow
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0572e8e36488a814e86838764178a8b3
+    m_Address: VFX/Projectiles/Enemy_CandyMonster
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 19592b7f48f966e49a1795ffceba1321
+    m_Address: VFX/Projectiles/Ally_Zepeto
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1aee781aff25cf542a5d2c4767a7f029
+    m_Address: VFX/Projectiles/Ally_CheshireCat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2f95cfbfd77286749813446cf220b2b4
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Magicmissile
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 30b4c8cdbba6e2c4c99ddf6cf6de3a96
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Meat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 36789463e000dbe47bd312218ad142e4
+    m_Address: VFX/Projectiles/Default
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3b568324150ef964894837cde7f7fd2c
+    m_Address: VFX/Projectiles/Ally_Snowwhite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3e319138940f12145852c125dd0b0834
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Stamp
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 507c71c26fdb5404ea3187f46c64d975
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Brick
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 51932a09f3441a44c81777a9bf92a9f9
+    m_Address: VFX/Projectiles/Enemy_Hunter
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5cf5c7d2a75e8824aa911d26291d61db
+    m_Address: VFX/Projectiles/Ally_Mermaid
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 699cabe7c0c805f4baeacea4a9765e59
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Cloack
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6c2beaf0363969c408baed4e8f359df6
+    m_Address: VFX/Projectiles/Enemy_Wolf
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f92952e3aa22c648849a4655ad12468
+    m_Address: VFX/Projectiles/Enemy_Book
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7e5364a48ce161b43a581072586cd3cb
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Halfmoon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 85e79f6676e3d8f41977f35eaf184fd8
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Hammer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8a6aed646919a0147a07409432b7ddbd
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Talisman
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 900572ce80774a94b92a2b86505b7e01
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Feather
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 914a1ee5914e4ea4c92c0246799afef4
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Heart
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 92c4b7cae02d75e4e8772ded5d0e6747
+    m_Address: VFX/Projectiles/Ally_Alice
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 94b6457d9ce253a4d914e9e042c465f5
+    m_Address: VFX/Projectiles/Ally_Scarecrow
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9e915fbbf9899514ba4af72192bd146a
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Soundnote
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a3eb5475d7768c14a8d4aef12f2738cd
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Bullet
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ae7b67b1960b4ee4fb16e3048a73b5ef
+    m_Address: VFX/Projectiles/Ally_Rabbit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: af29e2a604dbdb84291fb3e83b8c7d6c
+    m_Address: VFX/Projectiles/Ally_PeterPan
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b990d67da829f4b4ba149db9a0146865
+    m_Address: VFX/Projectiles/Ally_Tinkerbell
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c4b3ca91b3513824b92723ea2bc83e5f
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Arrow
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c748f940633993c46b31471a943dbef6
+    m_Address: VFX/Projectiles/Ally_Lion
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d24599ebdb7ba6c47a0b743ed32c661b
+    m_Address: VFX/Projectiles/Enemy_ToySoldier
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dbda697c9d797ef41acb01d9c8e48632
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Badapple
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eeed3361b6d45ea4683101f64ea9ae13
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Cookie
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eff53a1605405a04cb14334dcba0061f
+    m_Address: VFX/Projectiles/Enemy_Witch
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f10d986631743b54a994b03a6e1751f0
+    m_Address: VFX/Projectiles/Ally_Dorothy
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4555ce3eb00e804a9c688f28bca9841
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Claw
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ff080d9c3a998784fb06df5fe9d849a9
+    m_Address: VFX/Projectiles/Ally_Genie
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: ce5f67fb151836b46b2008baa3abfb8c, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 3bfc427a309c1584c835f21451ee5cf8, type: 2}
+    - {fileID: 11400000, guid: d15c4dfeb1555fd41950e4868dbfe21a, type: 2}
