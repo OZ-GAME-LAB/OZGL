@@ -499,7 +499,8 @@ namespace OzGameLab01.Combat
                 }
             }
 
-            _presenter.FireProjectile(target, target != null ? target._presenter : null, transform.position, effectiveDamage,
+            // 발사 위치는 시전자 스프라이트 중심(적은 원점이 발밑이라 원점에서 쏘면 바닥에서 출발).
+            _presenter.FireProjectile(target, target != null ? target._presenter : null, UnitPresenter.GetVisualCenter(transform), effectiveDamage,
                 applyDamage, onImpact);
 
             PassiveEventBus.RaiseAttackLanded(this, target);

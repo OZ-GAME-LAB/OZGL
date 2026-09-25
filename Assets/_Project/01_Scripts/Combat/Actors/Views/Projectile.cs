@@ -31,6 +31,9 @@ namespace OzGameLab01.Combat
         [SerializeField] private float impactEffectLifetime = 2.5f;
 
         private Unit _target;
+        // 월드 전투 타격 지점: 대상 스프라이트 중심에서 상하좌우 이 범위 안 무작위(피격 VFX가 한 점에 겹치지 않게).
+        private const float HitOffsetRange = 0.5f;
+        private Vector3 _hitOffset;
         private RectTransform _targetAnchor;
         private RectTransform _rectTransform;
         private float _damage;
@@ -68,6 +71,8 @@ namespace OzGameLab01.Combat
         {
             Configure(target, damage, applyDamage, onImpact, isBasicAttack);
             _isUiProjectile = false;
+            _hitOffset = new Vector3(UnityEngine.Random.Range(-HitOffsetRange, HitOffsetRange),
+                UnityEngine.Random.Range(-HitOffsetRange, HitOffsetRange), 0f);
             _targetAnchor = null;
             if (speed > 0f) worldSpeed = speed;
             transform.localScale = Vector3.one * worldScale;
@@ -174,7 +179,7 @@ namespace OzGameLab01.Combat
 
             Vector3 targetPosition = _isUiProjectile
                 ? GetAnchorCenter(_targetAnchor)
-                : UnitPresenter.GetVisualCenter(_target.transform); // 맞는 유닛의 시각적 중심(적은 원점이 발밑)
+                : UnitPresenter.GetVisualCenter(_target.transform) + _hitOffset; // 맞는 유닛 중심 + 무작위 타격 지점
             float speed = _isUiProjectile ? uiSpeed : worldSpeed;
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
@@ -231,7 +236,7 @@ namespace OzGameLab01.Combat
                 return;
             }
 
-            transform.position = _isUiProjectile ? GetAnchorCenter(_targetAnchor) : UnitPresenter.GetVisualCenter(_target.transform);
+            transform.position = _isUiProjectile ? GetAnchorCenter(_targetAnchor) : UnitPresenter.GetVisualCenter(_target.transform) + _hitOffset;
             SpawnOneShotEffect(travelEffectReference, _isUiProjectile ? uiTravelEffectScale : worldTravelEffectScale);
             InstantiateImpactEffect();
             ResolveImpact();
