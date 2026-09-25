@@ -125,8 +125,10 @@ namespace OzGameLab01.Combat
 
         /// <summary>
         /// 기본공격 투사체를 발사합니다. resolveHit은 명중 시점(도착/즉발)에 호출되어 회피·데미지를 판정합니다.
+        /// scaleMultiplier는 월드 투사체 크기 배율입니다(스킬 투사체, SkillData.projectileScale).
         /// </summary>
-        public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, Func<bool> resolveHit)
+        public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, Func<bool> resolveHit,
+            float scaleMultiplier = 1f)
         {
             // 월드와 UI 모두 동일한 Addressable 프리팹을 생성하고 표시 방식만 Projectile이 선택합니다.
             if (projectilePrefabReference == null || !projectilePrefabReference.RuntimeKeyIsValid())
@@ -166,7 +168,7 @@ namespace OzGameLab01.Combat
                 }
                 else
                 {
-                    projectile.Init(target, resolveHit);
+                    projectile.Init(target, resolveHit, scaleMultiplier: scaleMultiplier);
                 }
             };
         }

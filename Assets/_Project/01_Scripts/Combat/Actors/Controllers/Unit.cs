@@ -595,7 +595,22 @@ namespace OzGameLab01.Combat
                     }
                     else if (skill.data.activeEffects != null && skill.data.activeEffects.Count > 0)
                     {
-                        ExecuteActiveEffects(skill.data, target);
+                        if (skill.data.projectileScale > 0f)
+                        {
+                            // 투사체형 스킬: 기본공격 투사체를 키워 쏘고 도착 시 효과 적용(피격 연출은 스킬 cue만 재생).
+                            SkillData data = skill.data;
+                            Unit skillTarget = target;
+                            _presenter.FireProjectile(skillTarget, skillTarget._presenter, UnitPresenter.GetVisualCenter(transform),
+                                () =>
+                                {
+                                    if (!_isDead) ExecuteActiveEffects(data, skillTarget);
+                                    return false;
+                                }, data.projectileScale);
+                        }
+                        else
+                        {
+                            ExecuteActiveEffects(skill.data, target);
+                        }
                     }
                     else
                     {

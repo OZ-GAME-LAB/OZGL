@@ -64,7 +64,7 @@ namespace OzGameLab01.Combat
             _addressableInstance = true;
         }
 
-        public void Init(Unit target, Func<bool> resolveHit, float speed = -1f)
+        public void Init(Unit target, Func<bool> resolveHit, float speed = -1f, float scaleMultiplier = 1f)
         {
             Configure(target, resolveHit);
             _isUiProjectile = false;
@@ -72,7 +72,7 @@ namespace OzGameLab01.Combat
                 UnityEngine.Random.Range(-HitOffsetRange, HitOffsetRange), 0f);
             _targetAnchor = null;
             if (speed > 0f) worldSpeed = speed;
-            transform.localScale = Vector3.one * worldScale;
+            transform.localScale = Vector3.one * worldScale * scaleMultiplier;
             StartCoroutine(LoadVisualAndLaunch());
         }
 
