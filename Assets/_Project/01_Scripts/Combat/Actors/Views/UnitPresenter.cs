@@ -272,17 +272,25 @@ namespace OzGameLab01.Combat
         /// </summary>
         private static Vector3 GetHeadLocalPosition(Transform parent)
         {
+            Transform head = parent.Find(HeadAnchorPath);
+            if (head != null) return parent.InverseTransformPoint(head.position);
             return TryGetSpriteBounds(parent, out Bounds bounds)
                 ? parent.InverseTransformPoint(new Vector3(bounds.center.x, bounds.max.y, bounds.center.z))
                 : Vector3.zero;
         }
 
+        // 유닛 프리팹 공통 기준점(루트 = 발밑). 프리팹별로 옮겨 유닛마다 연출 위치를 조정할 수 있습니다.
+        public const string HeadAnchorPath = "Anchors/Head";
+        public const string BodyAnchorPath = "Anchors/Body";
+        public const string GroundAnchorPath = "Anchors/Ground";
+
         /// <summary>
-        /// 유닛 스프라이트들을 합친 영역의 중심(월드 좌표). 아군은 몸 중앙, 적은 발밑이 원점이라
-        /// 이펙트를 원점 대신 이 위치에 띄워 기준을 맞춥니다. 스프라이트가 없으면 원점을 씁니다.
+        /// 이펙트·투사체 기준 위치(월드). 프리팹의 Anchors/Body를 우선 쓰고, 없으면 스프라이트 영역 중심을 씁니다.
         /// </summary>
         public static Vector3 GetVisualCenter(Transform unit)
         {
+            Transform body = unit.Find(BodyAnchorPath);
+            if (body != null) return body.position;
             return TryGetSpriteBounds(unit, out Bounds bounds) ? bounds.center : unit.position;
         }
 

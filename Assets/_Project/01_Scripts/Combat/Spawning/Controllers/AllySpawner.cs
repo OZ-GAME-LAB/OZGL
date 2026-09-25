@@ -114,6 +114,7 @@ namespace OzGameLab01.Combat
                     continue;
                 }
 
+                CombatUnitFactory.AlignGroundToSlot(unit, request.SpawnPoint);
                 CombatUnitViewBinder.BindCombatPresentation(unit, _allyHudPrefab);
                 unit.gameObject.SetActive(true);
 
@@ -211,6 +212,7 @@ namespace OzGameLab01.Combat
             {
                 float scale = _enemyScale * (isBossTier ? BossEnemyScaleMultiplier : 1f);
                 enemyUnit.transform.localScale = prefab.transform.localScale * scale;
+                CombatUnitFactory.AlignGroundToSlot(enemyUnit, spawnPoint);
                 CombatUnitViewBinder.BindCombatPresentation(enemyUnit);
                 enemyUnit.gameObject.SetActive(true);
             }

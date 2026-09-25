@@ -342,14 +342,8 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 1
-  activeSkillIcon: {fileID: 21300000, guid: 6be3b3f7bd2c88d41af9a018beff09d4, type: 3}
   attackEffectPrefab: {fileID: 8070263597490960309, guid: 6f1cf972d9b130044a2ea8ffeb7198f6, type: 3}
   hitEffectPrefab: {fileID: 1375331172768754605, guid: dd0cffdcbd3af5e4fbb0fd18dfd344ad, type: 3}
-  skillCastEffectPrefab: {fileID: 8934828572044419785, guid: 54fe39d5d3fa1b842985404459929d67, type: 3}
-  skillHitEffectPrefab: {fileID: 0}
-  skillIconDisplayDuration: 0.35
-  skillIconHeightOffset: 0.5
-  skillIconWorldScale: 0.75
 --- !u!1 &4025276939421757105
 GameObject:
   m_ObjectHideFlags: 0
@@ -1080,7 +1074,7 @@ Transform:
   m_GameObject: {fileID: 7772527190708699431}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
