@@ -14,6 +14,7 @@ namespace OzGameLab01.Managers
     {
         public static GameDB<UnitData, UnitDataList> Units { get; } = new();
         public static GameDB<MonsterData, MonsterDataList> Monsters { get; } = new();
+        public static GameDB<EnemySpeciesData, EnemySpeciesDataList> EnemySpecies { get; } = new();
         public static GameDB<RelicData, RelicDataList> Relics { get; } = new();
         public static GameDB<SynergyData, SynergyDataList> Synergies { get; } = new();
         public static GameDB<SkillData, SkillDataList> Skills { get; } = new();
@@ -30,6 +31,7 @@ namespace OzGameLab01.Managers
             {
                 Units.LoadAsync("JSON/UnitJSON"),
                 Monsters.LoadAsync("JSON/MonsterJSON"),
+                EnemySpecies.LoadAsync("JSON/EnemySpeciesJSON"),
                 Relics.LoadAsync("JSON/RelicJSON"),
                 Synergies.LoadAsync("JSON/SynergyJSON"),
                 Skills.LoadAsync("JSON/SkillDesignJSON")
@@ -39,7 +41,7 @@ namespace OzGameLab01.Managers
             if (System.Array.Exists(loaded, success => !success))
                 throw new System.InvalidOperationException("One or more gameplay databases failed to load.");
             IsInitialized = true;
-            Debug.Log($"[DataManager] Gameplay databases ready: units={Units.Count}, monsters={Monsters.Count}, " +
+            Debug.Log($"[DataManager] Gameplay databases ready: units={Units.Count}, monsters={Monsters.Count}, enemySpecies={EnemySpecies.Count}, " +
                       $"skills={Skills.Count}, synergies={Synergies.Count}, relics={Relics.Count}.");
         }
 
@@ -56,6 +58,7 @@ namespace OzGameLab01.Managers
             IsInitialized = false;
             Units.Clear();
             Monsters.Clear();
+            EnemySpecies.Clear();
             Relics.Clear();
             Synergies.Clear();
             Skills.Clear();

@@ -40,6 +40,8 @@ namespace OzGameLab01.Combat
         public float MaxHp => maxHP;
         public RectTransform CombatAnchor => _presenter?.CombatAnchor;
         public string DisplayName { get; private set; }
+        /// <summary>표시 이름만 바꿉니다(적: 계층 스탯 행 대신 스폰된 종 이름, EnemySpeciesData).</summary>
+        public void SetDisplayName(string displayName) => DisplayName = displayName;
 
         private float _currentHP;
         private bool _isDead;
