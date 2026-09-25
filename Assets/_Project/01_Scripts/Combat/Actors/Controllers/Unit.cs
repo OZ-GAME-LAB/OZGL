@@ -388,11 +388,15 @@ namespace OzGameLab01.Combat
                 if (_skills.Count == 0 || !untilBattleEnd) return false;
                 _skills[0].cooldownOverride = Mathf.Max(0.01f, GetSkillCooldown(_skills[0]) * (1 - percentValue / 100f));
                 PassiveEventBus.RaiseBuffed(this);
+                _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform,
+                    CombatVfxLibrary.Instance?.StatEffectScale ?? 1f);
                 return true;
             }
             if (!_stats.Add(statType, percentValue, operation, durationSeconds, untilBattleEnd)) return false;
             RefreshStats();
             PassiveEventBus.RaiseBuffed(this);
+            _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform,
+                CombatVfxLibrary.Instance?.StatEffectScale ?? 1f);
             return true;
         }
 
@@ -510,7 +514,7 @@ namespace OzGameLab01.Combat
                 if (!isBasicAttack)
                 {
                     // 스킬은 발동 즉시 시전 VFX를 띄웁니다(유닛 아이콘은 시전 VFX에 포함).
-                    _presenter.PlaySkillCastEffect(skill.data.castVfxAddress, transform.position);
+                    _presenter.PlaySkillCastEffect(skill.data.castVfxAddress, transform.position, skill.data.castVfxScale);
                 }
 
                 // Attack 모션 진행 중간 지점에서 발사(즉발형·스킬은 적용)합니다. 대기 중 시전자가 죽으면 취소합니다.
@@ -724,6 +728,8 @@ namespace OzGameLab01.Combat
             _currentHP = Mathf.Min(maxHP, _currentHP + amount * Mathf.Max(0f, recoveryMultiplier));
             if (_currentHP <= previous) return false;
             _presenter.SetHP(_currentHP);
+            _presenter.PlayEffect(CombatVfxLibrary.Instance?.HealEffect, transform,
+                CombatVfxLibrary.Instance?.HealEffectScale ?? 1f);
             PassiveEventBus.RaiseHealed(this);
             return true;
         }
@@ -846,7 +852,10 @@ namespace OzGameLab01.Combat
 
         public void ApplyDebuff(DebuffProfile profile)
         {
-            _status.Apply(profile);
+            if (_status.Apply(profile))
+            {
+                _presenter.SetStatusEffectActive(profile.type, true, transform);
+            }
         }
 
         public bool Revive(float healthPercent)

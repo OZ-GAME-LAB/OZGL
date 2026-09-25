@@ -37,6 +37,12 @@ namespace OzGameLab01.Combat
         [SerializeField] private GameObject dodgeDownEffect;
         [SerializeField] private GameObject attackSpeedDownEffect;
 
+        [Header("월드 스케일 (프리팹 루트 스케일을 덮어씀)")]
+        [SerializeField] private float healEffectScale = 1f;
+        [SerializeField] private float statEffectScale = 1f;
+        [Tooltip("상태이상 VFX는 유닛의 자식으로 붙으므로 유닛 스케일 기준 로컬 스케일입니다.")]
+        [SerializeField] private float statusEffectScale = 1f;
+
         private const string ResourcePath = "CombatVfxLibrary";
         private static CombatVfxLibrary _instance;
         private static bool _loaded;
@@ -55,6 +61,9 @@ namespace OzGameLab01.Combat
         }
 
         public GameObject HealEffect => healEffect;
+        public float HealEffectScale => healEffectScale;
+        public float StatEffectScale => statEffectScale;
+        public float StatusEffectScale => statusEffectScale;
 
         public GameObject GetDebuffEffect(DebuffType type)
         {

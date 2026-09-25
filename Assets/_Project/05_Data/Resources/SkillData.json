@@ -16,7 +16,7 @@
           "value": 1.5,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Alice_Skill_Hit_EF", "delay": 0.3}
+            {"address": "VFX/Skill/Effect/Alice_Skill_Hit_EF", "delay": 0.3, "scale": 0.5}
           ]
         },
         {
@@ -26,7 +26,7 @@
           "value": 0.3,
           "extraParam": 5.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Alice_SkillMark_EF"}
+            {"address": "VFX/Skill/Effect/Alice_SkillMark_EF", "scale": 1.0}
           ]
         }
       ],
@@ -81,7 +81,7 @@
           "value": 1.0,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/White_Rabbit_Skill_BuffEF"}
+            {"address": "VFX/Skill/Effect/White_Rabbit_Skill_BuffEF", "scale": 0.3}
           ]
         }
       ],
@@ -125,7 +125,7 @@
           "value": 0.1,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Cheshire_Cat_SkillBuff_Single"}
+            {"address": "VFX/Skill/Effect/Cheshire_Cat_SkillBuff_Single", "scale": 0.28}
           ]
         },
         {
@@ -135,7 +135,7 @@
           "value": 0.2,
           "extraParam": 4.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Cheshire_Cat_SKillBuff_Area", "onCaster": true}
+            {"address": "VFX/Skill/Effect/Cheshire_Cat_SKillBuff_Area", "onCaster": true, "scale": 0.5}
           ]
         }
       ],
@@ -179,7 +179,7 @@
           "value": 3.9,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Genie_Skill_Hit_EF", "scale": 0.5}
+            {"address": "VFX/Skill/Effect/Genie_Skill_Hit_EF", "scale": 1.0}
           ]
         }
       ],
@@ -223,7 +223,7 @@
           "value": 1.0,
           "extraParam": 999.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Lion_Skill_Provocation_EF", "attachSeconds": 999.0}
+            {"address": "VFX/Skill/Effect/Lion_Skill_Provocation_EF", "attachSeconds": 999.0, "scale": 0.7}
           ]
         },
         {
@@ -233,7 +233,7 @@
           "value": 1.0,
           "extraParam": 7.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Lion_SKill_Shield_EF", "attachSeconds": 7.0}
+            {"address": "VFX/Skill/Effect/Lion_SKill_Shield_EF", "attachSeconds": 7.0, "scale": 0.5}
           ]
         }
       ],
@@ -277,7 +277,7 @@
           "value": 1.65,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Scarecrow_SKill_Hit_EF"}
+            {"address": "VFX/Skill/Effect/Scarecrow_SKill_Hit_EF", "scale": 0.8}
           ]
         }
       ],
@@ -321,8 +321,8 @@
           "value": 0.2,
           "extraParam": 5.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Dorothy_Skill_Hit_EF"},
-            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF"}
+            {"address": "VFX/Skill/Effect/Dorothy_Skill_Hit_EF", "scale": 0.6},
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45}
           ]
         }
       ],
@@ -366,7 +366,7 @@
           "value": 0.05,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Heal_EF"}
+            {"address": "VFX/Skill/Effect/Public_Heal_EF", "scale": 0.28}
           ]
         },
         {
@@ -424,7 +424,7 @@
           "value": 1.25,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Snow White_SKill_Hit_EF"}
+            {"address": "VFX/Skill/Effect/Snow White_SKill_Hit_EF", "scale": 0.5}
           ]
         },
         {
@@ -475,7 +475,7 @@
           "value": -0.2,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF"}
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45}
           ]
         },
         {
@@ -485,7 +485,7 @@
           "value": 50.0,
           "extraParam": 1.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF"}
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45}
           ]
         }
       ],
@@ -529,7 +529,7 @@
           "value": 1.0,
           "extraParam": 7.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF"}
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45}
           ]
         },
         {
@@ -539,7 +539,7 @@
           "value": 1.0,
           "extraParam": 7.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF"}
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45}
           ]
         }
       ],
@@ -583,7 +583,7 @@
           "value": 0.2,
           "extraParam": 10.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF"}
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45}
           ]
         },
         {

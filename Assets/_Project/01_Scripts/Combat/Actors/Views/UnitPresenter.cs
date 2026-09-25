@@ -180,7 +180,7 @@ namespace OzGameLab01.Combat
         /// 스킬 발동 시 시전자 위치에서 재생하는 1회성 VFX. 주소는 SkillData.castVfxAddress(Addressables)이며
         /// 비어 있으면 아무 것도 하지 않습니다.
         /// </summary>
-        public void PlaySkillCastEffect(string address, Vector3 worldPosition)
+        public void PlaySkillCastEffect(string address, Vector3 worldPosition, float scale)
         {
             if (string.IsNullOrEmpty(address)) return;
             Addressables.InstantiateAsync(address, worldPosition, Quaternion.identity).Completed += operation =>
@@ -192,6 +192,7 @@ namespace OzGameLab01.Combat
                     return;
                 }
 
+                if (scale > 0f) operation.Result.transform.localScale = Vector3.one * scale;
                 operation.Result.AddComponent<AddressableVfxLifetime>().Initialize(EffectAutoDestroySeconds);
             };
         }
@@ -207,7 +208,8 @@ namespace OzGameLab01.Combat
         {
             if (string.IsNullOrEmpty(address) || target == null) return;
             bool attach = attachSeconds > 0f;
-            Addressables.InstantiateAsync(address, target.position, Quaternion.identity, attach ? target : null).Completed += operation =>
+            Vector3 center = GetVisualCenter(target);
+            Addressables.InstantiateAsync(address, center, Quaternion.identity, attach ? target : null).Completed += operation =>
             {
                 if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
                 {
@@ -217,7 +219,8 @@ namespace OzGameLab01.Combat
                 }
 
                 GameObject fx = operation.Result;
-                if (target != null) fx.transform.position = target.position;
+                fx.transform.position = target != null ? GetVisualCenter(target) : center;
+                if (target != null) RenderAboveUnit(fx, target);
                 fx.transform.localScale = Vector3.one * (scale > 0f ? scale : DefaultSkillVfxScale);
                 fx.AddComponent<AddressableVfxLifetime>().Initialize(attach ? attachSeconds : EffectAutoDestroySeconds);
             };
@@ -227,10 +230,12 @@ namespace OzGameLab01.Combat
         /// CombatVfxLibrary에서 가져온 힐/스탯 버프·디버프 1회성 VFX 재생. prefab이 null이면
         /// (라이브러리 미배치, 해당 스탯에 대응하는 VFX 없음 등) 조용히 무시한다.
         /// </summary>
-        public void PlayEffect(GameObject prefab, Vector3 worldPosition)
+        public void PlayEffect(GameObject prefab, Transform unit, float scale)
         {
             if (prefab == null) return;
-            GameObject fx = UnityEngine.Object.Instantiate(prefab, worldPosition, Quaternion.identity);
+            GameObject fx = UnityEngine.Object.Instantiate(prefab, GetVisualCenter(unit), Quaternion.identity);
+            fx.transform.localScale = Vector3.one * scale;
+            RenderAboveUnit(fx, unit);
             DestroySafely(fx, EffectAutoDestroySeconds);
         }
 
@@ -247,7 +252,10 @@ namespace OzGameLab01.Combat
                 GameObject prefab = CombatVfxLibrary.Instance?.GetDebuffEffect(type);
                 if (prefab == null) return;
                 GameObject fx = UnityEngine.Object.Instantiate(prefab, parent);
-                fx.transform.localPosition = Vector3.zero;
+                // 기획서: 상태이상 이펙트는 유닛의 머리 위치에 생성.
+                fx.transform.localPosition = GetHeadLocalPosition(parent);
+                fx.transform.localScale = Vector3.one * CombatVfxLibrary.Instance.StatusEffectScale;
+                RenderAboveUnit(fx, parent);
                 _activeStatusEffects[type] = fx;
             }
             else if (_activeStatusEffects.TryGetValue(type, out GameObject fx))
@@ -255,6 +263,58 @@ namespace OzGameLab01.Combat
                 DestroySafely(fx);
                 _activeStatusEffects.Remove(type);
             }
+        }
+
+        /// <summary>
+        /// 유닛 스프라이트들을 합친 영역의 머리 꼭대기(상단 중앙)를 parent 로컬 좌표로 반환합니다.
+        /// 스프라이트가 없으면 원점을 씁니다.
+        /// </summary>
+        private static Vector3 GetHeadLocalPosition(Transform parent)
+        {
+            return TryGetSpriteBounds(parent, out Bounds bounds)
+                ? parent.InverseTransformPoint(new Vector3(bounds.center.x, bounds.max.y, bounds.center.z))
+                : Vector3.zero;
+        }
+
+        /// <summary>
+        /// 유닛 스프라이트들을 합친 영역의 중심(월드 좌표). 아군은 몸 중앙, 적은 발밑이 원점이라
+        /// 이펙트를 원점 대신 이 위치에 띄워 기준을 맞춥니다. 스프라이트가 없으면 원점을 씁니다.
+        /// </summary>
+        public static Vector3 GetVisualCenter(Transform unit)
+        {
+            return TryGetSpriteBounds(unit, out Bounds bounds) ? bounds.center : unit.position;
+        }
+
+        /// <summary>
+        /// 임포트 VFX는 sortingOrder가 0이라 유닛 스프라이트 뒤에 가려집니다. 이펙트 내부의 상대 순서는
+        /// 유지한 채 유닛 스프라이트의 최대 sortingOrder보다 앞에 그려지도록 올립니다.
+        /// </summary>
+        private static void RenderAboveUnit(GameObject fx, Transform unit)
+        {
+            int unitTop = int.MinValue;
+            foreach (SpriteRenderer sprite in unit.GetComponentsInChildren<SpriteRenderer>())
+            {
+                if (sprite.sprite != null) unitTop = Mathf.Max(unitTop, sprite.sortingOrder);
+            }
+            if (unitTop == int.MinValue) return;
+
+            foreach (ParticleSystemRenderer renderer in fx.GetComponentsInChildren<ParticleSystemRenderer>(true))
+            {
+                renderer.sortingOrder += unitTop + 1;
+            }
+        }
+
+        private static bool TryGetSpriteBounds(Transform unit, out Bounds bounds)
+        {
+            bool found = false;
+            bounds = default;
+            foreach (SpriteRenderer renderer in unit.GetComponentsInChildren<SpriteRenderer>())
+            {
+                if (renderer.sprite == null || !renderer.enabled) continue;
+                if (!found) { bounds = renderer.bounds; found = true; }
+                else bounds.Encapsulate(renderer.bounds);
+            }
+            return found;
         }
 
         /// <summary>현재 재생 중인 모든 상태이상 VFX를 즉시 정리한다(CleanseDebuffs 등 전체 해제 시).</summary>

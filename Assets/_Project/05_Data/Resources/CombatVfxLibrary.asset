@@ -15,7 +15,7 @@ MonoBehaviour:
   healEffect: {fileID: 5023353015567381922, guid: 091d3f4a57cceab4e8477e775ff7980c, type: 3}
   stunEffect: {fileID: 5539438732264354742, guid: 0a194521a8e5c1743b204558e7eb1bed, type: 3}
   silenceEffect: {fileID: 7153383227937534157, guid: 50281b1a0c07c394382b0b2494d18915, type: 3}
-  damageOverTimeEffect: {fileID: 489590452226743202, guid: 82f2d9e1600145a4e9d2fe166faeac08, type: 3}
+  damageOverTimeEffect: {fileID: 0}
   attackUpEffect: {fileID: 3871730096559169797, guid: 82da814259710414ba381b9ea102afb9, type: 3}
   defenseUpEffect: {fileID: 3871730096559169797, guid: 6f7439fd7aa0eec43a6439df89521d56, type: 3}
   criticalChanceUpEffect: {fileID: 3871730096559169797, guid: ff3ec111e897bea4786522269dda064a, type: 3}
@@ -28,3 +28,6 @@ MonoBehaviour:
   criticalDamageDownEffect: {fileID: 6690736211316310120, guid: 0f5934a9e2b86b34caa2eb8cc4f080d1, type: 3}
   dodgeDownEffect: {fileID: 6690736211316310120, guid: 4932736902a855a4dad377e4b04f9122, type: 3}
   attackSpeedDownEffect: {fileID: 6690736211316310120, guid: c34c62335e60c4c45be6ad0a85286537, type: 3}
+  healEffectScale: 0.28
+  statEffectScale: 0.45
+  statusEffectScale: 0.4
