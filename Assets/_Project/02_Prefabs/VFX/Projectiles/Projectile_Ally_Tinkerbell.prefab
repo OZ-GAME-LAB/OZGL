@@ -166,6 +166,7 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
+  instant: 0
   worldRenderer: {fileID: 561014385261906657}
   uiRenderer: {fileID: 1875918103414121031}
   worldSpeed: 8
@@ -174,6 +175,6 @@ MonoBehaviour:
   uiSize: {x: 36, y: 36}
   worldTravelEffectScale: 1
   uiTravelEffectScale: 12
-  worldImpactEffectScale: 0.25
-  uiImpactEffectScale: 12
+  worldImpactEffectScale: 0.3
+  uiImpactEffectScale: 14.400001
   impactEffectLifetime: 2.5

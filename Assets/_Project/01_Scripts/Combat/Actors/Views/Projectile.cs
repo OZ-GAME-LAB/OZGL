@@ -174,7 +174,7 @@ namespace OzGameLab01.Combat
 
             Vector3 targetPosition = _isUiProjectile
                 ? GetAnchorCenter(_targetAnchor)
-                : _target.transform.position;
+                : UnitPresenter.GetVisualCenter(_target.transform); // 맞는 유닛의 시각적 중심(적은 원점이 발밑)
             float speed = _isUiProjectile ? uiSpeed : worldSpeed;
             transform.position = Vector3.MoveTowards(transform.position, targetPosition, speed * Time.deltaTime);
 
@@ -231,7 +231,7 @@ namespace OzGameLab01.Combat
                 return;
             }
 
-            transform.position = _isUiProjectile ? GetAnchorCenter(_targetAnchor) : _target.transform.position;
+            transform.position = _isUiProjectile ? GetAnchorCenter(_targetAnchor) : UnitPresenter.GetVisualCenter(_target.transform);
             SpawnOneShotEffect(travelEffectReference, _isUiProjectile ? uiTravelEffectScale : worldTravelEffectScale);
             InstantiateImpactEffect();
             ResolveImpact();
@@ -251,6 +251,7 @@ namespace OzGameLab01.Combat
             Transform parent = isUiEffect ? transform.parent : null;
             Vector3 position = transform.position;
             float lifetime = impactEffectLifetime;
+            Transform targetUnit = _target != null ? _target.transform : null;
             AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(
                 reference, position, Quaternion.identity, parent);
             handle.Completed += operation =>
@@ -265,6 +266,8 @@ namespace OzGameLab01.Combat
                 GameObject effect = operation.Result;
                 effect.transform.position = position;
                 effect.transform.localScale = Vector3.one * scale;
+                // 월드 전투에서는 맞은 유닛 스프라이트보다 앞에 그려야 가려지지 않습니다.
+                if (!isUiEffect && targetUnit != null) UnitPresenter.RenderAboveUnit(effect, targetUnit);
                 effect.AddComponent<AddressableVfxLifetime>().Initialize(lifetime);
             };
         }

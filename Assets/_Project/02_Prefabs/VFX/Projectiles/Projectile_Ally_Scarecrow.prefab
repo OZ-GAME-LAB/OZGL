@@ -175,6 +175,6 @@ MonoBehaviour:
   uiSize: {x: 36, y: 36}
   worldTravelEffectScale: 1
   uiTravelEffectScale: 12
-  worldImpactEffectScale: 2.5
-  uiImpactEffectScale: 30
+  worldImpactEffectScale: 0.75
+  uiImpactEffectScale: 9
   impactEffectLifetime: 2.5

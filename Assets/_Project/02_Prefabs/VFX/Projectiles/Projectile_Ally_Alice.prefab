@@ -173,8 +173,8 @@ MonoBehaviour:
   uiSpeed: 900
   worldScale: 0.25
   uiSize: {x: 36, y: 36}
-  worldTravelEffectScale: 1
-  uiTravelEffectScale: 12
-  worldImpactEffectScale: 0.125
-  uiImpactEffectScale: 6
+  worldTravelEffectScale: 0.3
+  uiTravelEffectScale: 3.6000001
+  worldImpactEffectScale: 0.2
+  uiImpactEffectScale: 9.6
   impactEffectLifetime: 2.5

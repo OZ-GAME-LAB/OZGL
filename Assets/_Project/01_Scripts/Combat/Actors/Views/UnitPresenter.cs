@@ -289,7 +289,7 @@ namespace OzGameLab01.Combat
         /// 임포트 VFX는 sortingOrder가 0이라 유닛 스프라이트 뒤에 가려집니다. 이펙트 내부의 상대 순서는
         /// 유지한 채 유닛 스프라이트의 최대 sortingOrder보다 앞에 그려지도록 올립니다.
         /// </summary>
-        private static void RenderAboveUnit(GameObject fx, Transform unit)
+        public static void RenderAboveUnit(GameObject fx, Transform unit)
         {
             int unitTop = int.MinValue;
             foreach (SpriteRenderer sprite in unit.GetComponentsInChildren<SpriteRenderer>())
