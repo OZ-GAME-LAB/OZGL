@@ -36,10 +36,8 @@ namespace OzGameLab01.Combat
         private Vector3 _hitOffset;
         private RectTransform _targetAnchor;
         private RectTransform _rectTransform;
-        private float _damage;
-        private bool _applyDamage;
-        private Action _onImpact;
-        private bool _isBasicAttack = true;
+        // 명중 시점에 호출하는 판정(회피·데미지·적중 이벤트). true면 명중이라 피격 VFX를 재생합니다.
+        private Func<bool> _resolveHit;
         private bool _isUiProjectile;
         private bool _launched;
         private bool _addressableInstance;
@@ -66,10 +64,9 @@ namespace OzGameLab01.Combat
             _addressableInstance = true;
         }
 
-        public void Init(Unit target, float damage, bool applyDamage = true, Action onImpact = null,
-            float speed = -1f, bool isBasicAttack = true)
+        public void Init(Unit target, Func<bool> resolveHit, float speed = -1f)
         {
-            Configure(target, damage, applyDamage, onImpact, isBasicAttack);
+            Configure(target, resolveHit);
             _isUiProjectile = false;
             _hitOffset = new Vector3(UnityEngine.Random.Range(-HitOffsetRange, HitOffsetRange),
                 UnityEngine.Random.Range(-HitOffsetRange, HitOffsetRange), 0f);
@@ -80,9 +77,9 @@ namespace OzGameLab01.Combat
         }
 
         public void InitUi(Transform parent, RectTransform origin, RectTransform targetAnchor, Unit target,
-            float damage, bool applyDamage = true, Action onImpact = null, bool isBasicAttack = true)
+            Func<bool> resolveHit)
         {
-            Configure(target, damage, applyDamage, onImpact, isBasicAttack);
+            Configure(target, resolveHit);
             _isUiProjectile = true;
             _targetAnchor = targetAnchor;
             transform.SetParent(parent, false);
@@ -100,13 +97,10 @@ namespace OzGameLab01.Combat
             StartCoroutine(LoadVisualAndLaunch());
         }
 
-        private void Configure(Unit target, float damage, bool applyDamage, Action onImpact, bool isBasicAttack)
+        private void Configure(Unit target, Func<bool> resolveHit)
         {
             _target = target;
-            _damage = damage;
-            _applyDamage = applyDamage;
-            _onImpact = onImpact;
-            _isBasicAttack = isBasicAttack;
+            _resolveHit = resolveHit;
         }
 
         private IEnumerator LoadVisualAndLaunch()
@@ -172,7 +166,7 @@ namespace OzGameLab01.Combat
             if (!_launched) return;
             if (_target == null || _target.IsDead || (_isUiProjectile && _targetAnchor == null))
             {
-                _onImpact = null;
+                _resolveHit = null;
                 ReleaseSelf();
                 return;
             }
@@ -186,8 +180,8 @@ namespace OzGameLab01.Combat
             float threshold = _isUiProjectile ? 8f : 0.1f;
             if (Vector3.Distance(transform.position, targetPosition) <= threshold)
             {
-                InstantiateImpactEffect();
-                ResolveImpact();
+                // 회피하면 피격 VFX 없이 사라집니다.
+                if (ResolveImpact()) InstantiateImpactEffect();
                 ReleaseSelf();
             }
         }
@@ -231,15 +225,15 @@ namespace OzGameLab01.Combat
         {
             if (_target == null || _target.IsDead || (_isUiProjectile && _targetAnchor == null))
             {
-                _onImpact = null;
+                _resolveHit = null;
                 ReleaseSelf();
                 return;
             }
 
             transform.position = _isUiProjectile ? GetAnchorCenter(_targetAnchor) : UnitPresenter.GetVisualCenter(_target.transform) + _hitOffset;
+            // 공격 동작 VFX는 항상, 피격 VFX는 명중했을 때만 재생합니다.
             SpawnOneShotEffect(travelEffectReference, _isUiProjectile ? uiTravelEffectScale : worldTravelEffectScale);
-            InstantiateImpactEffect();
-            ResolveImpact();
+            if (ResolveImpact()) InstantiateImpactEffect();
             ReleaseSelf();
         }
 
@@ -283,12 +277,11 @@ namespace OzGameLab01.Combat
             ReleaseSelf();
         }
 
-        private void ResolveImpact()
+        private bool ResolveImpact()
         {
-            if (_applyDamage) _target.TakeDamage(_damage, _isBasicAttack);
-            Action onImpact = _onImpact;
-            _onImpact = null;
-            onImpact?.Invoke();
+            Func<bool> resolveHit = _resolveHit;
+            _resolveHit = null;
+            return resolveHit == null || resolveHit();
         }
 
         private void SetVisualEnabled(bool enabled)

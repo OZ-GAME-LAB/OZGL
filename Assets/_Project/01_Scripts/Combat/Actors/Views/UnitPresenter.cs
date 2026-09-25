@@ -123,14 +123,16 @@ namespace OzGameLab01.Combat
             }
         }
 
-        public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, float damage,
-            bool applyDamage, Action onImpact)
+        /// <summary>
+        /// 기본공격 투사체를 발사합니다. resolveHit은 명중 시점(도착/즉발)에 호출되어 회피·데미지를 판정합니다.
+        /// </summary>
+        public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, Func<bool> resolveHit)
         {
             // 월드와 UI 모두 동일한 Addressable 프리팹을 생성하고 표시 방식만 Projectile이 선택합니다.
             if (projectilePrefabReference == null || !projectilePrefabReference.RuntimeKeyIsValid())
             {
                 Debug.LogError("[UnitPresenter] Addressable 투사체 프리팹 주소가 비어 있습니다.");
-                ResolveProjectileFailure(target, damage, applyDamage, onImpact);
+                ResolveProjectileFailure(target, resolveHit);
                 return;
             }
 
@@ -142,7 +144,7 @@ namespace OzGameLab01.Combat
                 {
                     Debug.LogError($"[UnitPresenter] Addressable 투사체 생성 실패: {projectilePrefabReference.RuntimeKey}");
                     if (operation.IsValid()) Addressables.Release(operation);
-                    ResolveProjectileFailure(target, damage, applyDamage, onImpact);
+                    ResolveProjectileFailure(target, resolveHit);
                     return;
                 }
 
@@ -152,7 +154,7 @@ namespace OzGameLab01.Combat
                 {
                     Debug.LogError("[UnitPresenter] 투사체 프리팹에 Projectile 컴포넌트가 없습니다.", projectileObject);
                     Addressables.ReleaseInstance(projectileObject);
-                    ResolveProjectileFailure(target, damage, applyDamage, onImpact);
+                    ResolveProjectileFailure(target, resolveHit);
                     return;
                 }
 
@@ -160,20 +162,19 @@ namespace OzGameLab01.Combat
                 if (_uiProjectilePool != null && _combatAnchor != null && targetPresenter?._combatAnchor != null)
                 {
                     projectile.InitUi(_uiProjectilePool.transform, _combatAnchor, targetPresenter._combatAnchor,
-                        target, damage, applyDamage, onImpact, isBasicAttack: true);
+                        target, resolveHit);
                 }
                 else
                 {
-                    projectile.Init(target, damage, applyDamage, onImpact, isBasicAttack: true);
+                    projectile.Init(target, resolveHit);
                 }
             };
         }
 
-        private static void ResolveProjectileFailure(Unit target, float damage, bool applyDamage, Action onImpact)
+        private static void ResolveProjectileFailure(Unit target, Func<bool> resolveHit)
         {
             if (target == null || target.IsDead) return;
-            if (applyDamage) target.TakeDamage(damage, isBasicAttack: true);
-            onImpact?.Invoke();
+            resolveHit?.Invoke();
         }
 
         /// <summary>

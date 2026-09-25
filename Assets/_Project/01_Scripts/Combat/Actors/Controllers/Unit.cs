@@ -466,25 +466,39 @@ namespace OzGameLab01.Combat
 
         private void FireProjectile(Unit target, float damage, System.Action onImpact = null, bool applyDamage = true)
         {
-            // 그을림(공격력 감소) 디버프는 데미지 계산 시점에 반영한다.
-            float baseDamage = _fixedDamage >= 0f ? _fixedDamage : damage;
-            if (target != null && target.HasAnyDebuff)
-            {
-                baseDamage *= 1f + _extraDamageOnStatusPercent / 100f;
-            }
-            float effectiveDamage = baseDamage * _status.AttackMultiplier;
-            if (Shield > 0f)
-            {
-                effectiveDamage *= 1f + defensePoint * _shieldBonusDamagePerDefensePercent / 100f;
-            }
+            // 발사 위치는 시전자 스프라이트 중심(적은 원점이 발밑이라 원점에서 쏘면 바닥에서 출발).
+            _presenter.FireProjectile(target, target != null ? target._presenter : null, UnitPresenter.GetVisualCenter(transform),
+                () => ResolveBasicAttackHit(target, damage, onImpact, applyDamage));
+        }
 
-            if (target != null && applyDamage)
+        /// <summary>
+        /// 기본공격 명중 시점(투사체 도착/즉발)에 회피·치명타·데미지·상태이상·적중 이벤트를 처리합니다.
+        /// 회피하면 false를 반환해 피격 VFX를 생략합니다.
+        /// </summary>
+        private bool ResolveBasicAttackHit(Unit target, float damage, System.Action onImpact, bool applyDamage)
+        {
+            if (target == null || target.IsDead) return false;
+
+            bool landed = true;
+            if (applyDamage)
             {
+                // 그을림(공격력 감소) 디버프는 데미지 계산 시점에 반영한다.
+                float baseDamage = _fixedDamage >= 0f ? _fixedDamage : damage;
+                if (target.HasAnyDebuff)
+                {
+                    baseDamage *= 1f + _extraDamageOnStatusPercent / 100f;
+                }
+                float effectiveDamage = baseDamage * _status.AttackMultiplier;
+                if (Shield > 0f)
+                {
+                    effectiveDamage *= 1f + defensePoint * _shieldBonusDamagePerDefensePercent / 100f;
+                }
+
                 // 회피율은 최대 60%까지만 적용됨(UnitData.xlsx 규칙).
                 float dodgeChance = Mathf.Min(target.dodgeRate, 60f) / 100f;
                 if (_random.NextDouble() < dodgeChance)
                 {
-                    effectiveDamage = 0f;
+                    landed = false;
                 }
                 else
                 {
@@ -496,15 +510,17 @@ namespace OzGameLab01.Combat
                     // 최종 데미지 = 공격력 - 방어력, 소수 둘째자리 반올림, 최소 1.0(UnitData.xlsx 규칙).
                     effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
                     effectiveDamage = Mathf.Round(effectiveDamage * 100f) / 100f;
+                    target.TakeDamage(effectiveDamage, isBasicAttack: true);
                 }
             }
 
-            // 발사 위치는 시전자 스프라이트 중심(적은 원점이 발밑이라 원점에서 쏘면 바닥에서 출발).
-            _presenter.FireProjectile(target, target != null ? target._presenter : null, UnitPresenter.GetVisualCenter(transform), effectiveDamage,
-                applyDamage, onImpact);
-
+            // 적중 이벤트는 기존처럼 회피 여부와 관계없이 공격 1회로 발생시킨다(공격 횟수 패시브 기준 유지).
             PassiveEventBus.RaiseAttackLanded(this, target);
+            if (!landed) return false;
+
             if (applyDamage) TryApplyRandomStatusEffect(target);
+            onImpact?.Invoke();
+            return true;
         }
 
         private IEnumerator CastSkill(Unit target, UnitSkillRuntime skill, bool isBasicAttack)
@@ -522,6 +538,10 @@ namespace OzGameLab01.Combat
                 float attackDuration = _animationController != null ? _animationController.GetAttackDuration() : 0f;
                 if (attackDuration > 0f) yield return new WaitForSeconds(attackDuration * AttackReleaseRatio);
                 if (_isDead) yield break;
+                // 대기 중 기절(모든 공격)·침묵/스킬 봉인(스킬)에 걸리면 이번 공격은 취소합니다.
+                if (_status.IsStunned || (!isBasicAttack && (_activeSkillsDisabled || _status.IsSilenced))) yield break;
+                // 대기 중 대상이 쓰러졌으면 새 대상을 찾습니다.
+                if (target == null || target.IsDead) target = ResolveTarget();
 
                 if (target != null && !target.IsDead)
                 {
