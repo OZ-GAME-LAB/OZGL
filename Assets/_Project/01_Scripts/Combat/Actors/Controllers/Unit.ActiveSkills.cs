@@ -19,6 +19,9 @@ namespace OzGameLab01.Combat
         private const int PeterPanSkillId = 51141;    // 어른이 되기 싫었어: 시전 전 공격력·공격 간격 기준 상호 증가
         private const int TinkerBellSkillId = 51151;  // 광기의 집착: 무작위 상태이상 1종을 적과 자신에게
         private const int GenieWishStacksToFire = 3;
+        // 지니 "머리 위 램프"(스택 표시). 전용 에셋이 오기 전까지 공용 스탯 상승 VFX(전 파트 루프)를 임시로 씁니다.
+        private const string GenieLampVfxAddress = "VFX/Skill/Effect/Public_Stat_Up_EF";
+        private const float GenieLampVfxScale = 0.35f;
 
         private int _genieWishStacks;
 
@@ -32,7 +35,13 @@ namespace OzGameLab01.Combat
             // 제페토: "임의의 아군"과 "같은 대상"이 이어지도록 무작위 아군은 한 번만 뽑는다.
             Unit sharedRandomAlly = null;
 
-            if (data.id == GenieWishSkillId) _genieWishStacks++;
+            if (data.id == GenieWishSkillId)
+            {
+                _genieWishStacks++;
+                // 스택을 쌓는 동안(1~2회)만 램프를 띄우고, 데미지가 나가기 시작하면 내립니다.
+                _presenter.SetStackMarkerActive(GenieLampVfxAddress, transform, GenieLampVfxScale,
+                    _genieWishStacks < GenieWishStacksToFire);
+            }
 
             foreach (ActiveSkillEffectNode node in data.activeEffects)
             {

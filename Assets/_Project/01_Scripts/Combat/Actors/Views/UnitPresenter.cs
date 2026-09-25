@@ -275,6 +275,50 @@ namespace OzGameLab01.Combat
             }
         }
 
+        private GameObject _stackMarker;
+        private bool _stackMarkerWanted;
+        private bool _stackMarkerLoading;
+
+        /// <summary>
+        /// 머리 위(Head 앵커) 스택 표시 VFX를 켜거나 끈다(지니 "램프"). 켜져 있으면 중복 생성하지 않고,
+        /// 끌 때까지 유닛에 붙여 루프 재생한다.
+        /// </summary>
+        public void SetStackMarkerActive(string address, Transform unit, float scale, bool active)
+        {
+            _stackMarkerWanted = active;
+            if (!active)
+            {
+                if (_stackMarker != null) Addressables.ReleaseInstance(_stackMarker);
+                _stackMarker = null;
+                return;
+            }
+
+            if (_stackMarker != null || _stackMarkerLoading || string.IsNullOrEmpty(address) || unit == null) return;
+            _stackMarkerLoading = true;
+            Addressables.InstantiateAsync(address, GetAnchorPosition(unit, HeadAnchorName), Quaternion.identity, unit).Completed += operation =>
+            {
+                _stackMarkerLoading = false;
+                if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
+                {
+                    if (operation.IsValid()) Addressables.Release(operation);
+                    Debug.LogWarning($"[UnitPresenter] 스택 표시 VFX 로드 실패: {address}");
+                    return;
+                }
+
+                // 로딩 중 꺼졌거나 유닛이 사라졌으면 바로 반납합니다.
+                if (!_stackMarkerWanted || unit == null)
+                {
+                    Addressables.ReleaseInstance(operation.Result);
+                    return;
+                }
+
+                _stackMarker = operation.Result;
+                _stackMarker.transform.position = GetAnchorPosition(unit, HeadAnchorName);
+                _stackMarker.transform.localScale = Vector3.one * scale;
+                RenderAboveUnit(_stackMarker, unit);
+            };
+        }
+
         /// <summary>
         /// 유닛 스프라이트들을 합친 영역의 머리 꼭대기(상단 중앙)를 parent 로컬 좌표로 반환합니다.
         /// 스프라이트가 없으면 원점을 씁니다.
