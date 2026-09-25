@@ -155,6 +155,16 @@ namespace OzGameLab01.Combat
         }
 
         /// <summary>
+        /// 대표 디버프(TryGetPrimaryDebuff 우선순위) 하나만 제거한다. 제거했으면 그 타입을 반환하고, 없으면 None.
+        /// </summary>
+        public DebuffType RemovePrimary()
+        {
+            if (!TryGetPrimaryDebuff(out DebuffType type, out _, out _)) return DebuffType.None;
+            _active.RemoveAll(debuff => debuff.type == type);
+            return type;
+        }
+
+        /// <summary>
         /// 지속시간을 감소시키고 도트 데미지 틱을 처리한 뒤, 만료된 디버프를 제거한다.
         /// 기절 여부와 무관하게 매 프레임 호출되어야 한다(도트는 기절 중에도 진행).
         /// onExpired는 방금 만료되어 제거된 디버프 타입마다 호출된다(연출 정리용).

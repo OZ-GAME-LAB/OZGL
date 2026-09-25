@@ -9,7 +9,7 @@ using OzGameLab01.UI.Battle;
 
 namespace OzGameLab01.Combat
 {
-    public class Unit : MonoBehaviour
+    public partial class Unit : MonoBehaviour
     {
         public enum Team { Ally, Enemy }
 
@@ -62,6 +62,9 @@ namespace OzGameLab01.Combat
         private bool _useSkillTwice;
         private bool _activeSkillsDisabled;
         private bool _noSkillStatBuffApplied;
+        // 도발 남은 시간(초). 상태이상(디버프) 목록과 분리해 정화/상태이상 개수 계산에 섞이지 않게 합니다.
+        private float _tauntRemaining;
+        public bool IsTaunting => _tauntRemaining > 0f && !_isDead;
         private float _damageReductionDefenseStep;
         private float _damageReductionPercent;
         private float _shieldBonusDamagePerDefensePercent;
@@ -127,6 +130,7 @@ namespace OzGameLab01.Combat
             // 도트 데미지는 기절 중에도 계속 진행되어야 하므로 가장 먼저 처리합니다.
             if (_stats != null && _stats.Tick(Time.deltaTime)) RefreshStats();
             _shields.Tick(Time.deltaTime);
+            if (_tauntRemaining > 0f) _tauntRemaining -= Time.deltaTime;
             _status.Tick(Time.deltaTime, dmg => TakeDamage(dmg),
                 type => _presenter.SetStatusEffectActive(type, false, transform));
             _presenter.SetDebuffTint(_status.IndicatorColor);
@@ -166,7 +170,7 @@ namespace OzGameLab01.Combat
                     _animationController?.PlayAttack();
 
                     StartCoroutine(CastSkill(target, skill, isBasicAttack));
-                    skill.timer = GetSkillCooldown(skill);
+                    skill.timer = GetEffectiveCooldown(skill);
                 }
             }
         }
@@ -284,6 +288,8 @@ namespace OzGameLab01.Combat
             _damageReductionPercent = 0f;
             _shieldBonusDamagePerDefensePercent = 0f;
             _shieldDamageReductionPerDefensePercent = 0f;
+            _tauntRemaining = 0f;
+            _genieWishStacks = 0;
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
             _presenter.CaptureOriginalColor();
@@ -310,6 +316,19 @@ namespace OzGameLab01.Combat
         private static float GetSkillCooldown(UnitSkillRuntime skill)
         {
             return skill.cooldownOverride ?? skill.data.cooldown;
+        }
+
+        /// <summary>
+        /// 다음 발동까지의 쿨다운. 기본공격(0번째)에는 시간제 공격속도 버프 배율(AttackInterval 스탯, 기본 1)을 곱합니다.
+        /// </summary>
+        private float GetEffectiveCooldown(UnitSkillRuntime skill)
+        {
+            float cooldown = GetSkillCooldown(skill);
+            if (_skills.Count > 0 && skill == _skills[0] && _stats != null)
+            {
+                cooldown *= Mathf.Max(0.1f, _stats.Get(EffectStatType.AttackInterval));
+            }
+            return cooldown;
         }
 
         /// <summary>
@@ -356,7 +375,7 @@ namespace OzGameLab01.Combat
             _animationController?.PlayAttack();
 
             StartCoroutine(CastSkill(target, skill, isBasicAttack));
-            skill.timer = GetSkillCooldown(skill);
+            skill.timer = GetEffectiveCooldown(skill);
         }
 
         /// <summary>
@@ -378,25 +397,38 @@ namespace OzGameLab01.Combat
             => ApplyStatEffect(statType, percentValue, EffectOperation.Add, 0, true);
 
         public bool ApplyStatEffect(EffectStatType statType, float percentValue, EffectOperation operation,
-            float durationSeconds, bool untilBattleEnd)
+            float durationSeconds, bool untilBattleEnd, bool playVfx = true)
         {
             if (_stats == null) CaptureBaseStats();
-            // 확정 기획(2026-09-21): 공격속도는 기본공격 쿨다운에만 적용하고,
-            // untilBattleEnd가 아닌 시간제 효과는 지원하지 않는다.
+            // 확정 기획(2026-09-21): 공격속도는 기본공격 쿨다운에만 적용한다.
+            // 전투 끝까지 효과는 쿨다운 자체를 줄이고, 시간제 효과(2026-09-25 추가)는 AttackInterval 배율로 두어 만료 시 복구된다.
             if (statType == EffectStatType.AttackInterval)
             {
-                if (_skills.Count == 0 || !untilBattleEnd) return false;
-                _skills[0].cooldownOverride = Mathf.Max(0.01f, GetSkillCooldown(_skills[0]) * (1 - percentValue / 100f));
+                if (_skills.Count == 0) return false;
+                if (untilBattleEnd)
+                {
+                    _skills[0].cooldownOverride = Mathf.Max(0.01f, GetSkillCooldown(_skills[0]) * (1 - percentValue / 100f));
+                }
+                else if (!_stats.Add(EffectStatType.AttackInterval, -percentValue, EffectOperation.Add, durationSeconds, false))
+                {
+                    return false;
+                }
                 PassiveEventBus.RaiseBuffed(this);
-                _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform,
-                    CombatVfxLibrary.Instance?.StatEffectScale ?? 1f);
+                if (playVfx)
+                {
+                    _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform,
+                        CombatVfxLibrary.Instance?.StatEffectScale ?? 1f);
+                }
                 return true;
             }
             if (!_stats.Add(statType, percentValue, operation, durationSeconds, untilBattleEnd)) return false;
             RefreshStats();
             PassiveEventBus.RaiseBuffed(this);
-            _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform,
-                CombatVfxLibrary.Instance?.StatEffectScale ?? 1f);
+            if (playVfx)
+            {
+                _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform,
+                    CombatVfxLibrary.Instance?.StatEffectScale ?? 1f);
+            }
             return true;
         }
 
@@ -411,6 +443,8 @@ namespace OzGameLab01.Combat
             _stats.SetBase(EffectStatType.DodgeChance, dodgeRate);
             // RecoveryAmount is a percentage scale: base 100 means normal healing.
             _stats.SetBase(EffectStatType.RecoveryAmount, 100f);
+            // 기본공격 쿨다운 배율(시간제 공격속도 버프용). 1 = 변화 없음.
+            _stats.SetBase(EffectStatType.AttackInterval, 1f);
         }
 
         private void RefreshStats()
@@ -559,10 +593,12 @@ namespace OzGameLab01.Combat
                             target.ApplyDebuff(skill.data.debuff);
                         }
                     }
+                    else if (skill.data.activeEffects != null && skill.data.activeEffects.Count > 0)
+                    {
+                        ExecuteActiveEffects(skill.data, target);
+                    }
                     else
                     {
-                        PlaySkillEffectVfx(skill.data, target);
-
                         if (skill.data.effects != null && skill.data.effects.Count > 0)
                         {
                             ExecuteSkillEffects(skill.data.effects, target, skill.damageMultiplier);
@@ -655,62 +691,6 @@ namespace OzGameLab01.Combat
             }
         }
 
-        /// <summary>
-        /// activeEffects 각 효과의 연출 VFX를 효과 대상(또는 시전자) 위치에 재생합니다.
-        /// 효과 실행과 분리된 연출 전용 경로입니다(activeEffects 실행기 미구현 상태).
-        /// </summary>
-        private void PlaySkillEffectVfx(SkillData data, Unit target)
-        {
-            if (data.activeEffects == null) return;
-            foreach (ActiveSkillEffectNode node in data.activeEffects)
-            {
-                if (node?.vfx == null || node.vfx.Count == 0) continue;
-                List<Unit> targets = ResolveVfxTargets(node.targetType, target);
-                foreach (SkillVfxCue cue in node.vfx)
-                {
-                    if (cue.onCaster)
-                    {
-                        StartCoroutine(PlaySkillVfxCue(cue, this));
-                        continue;
-                    }
-
-                    foreach (Unit vfxTarget in targets) StartCoroutine(PlaySkillVfxCue(cue, vfxTarget));
-                }
-            }
-        }
-
-        private IEnumerator PlaySkillVfxCue(SkillVfxCue cue, Unit vfxTarget)
-        {
-            if (cue.delay > 0f) yield return new WaitForSeconds(cue.delay);
-            if (vfxTarget == null || vfxTarget.IsDead) yield break;
-            _presenter.PlaySkillVfx(cue.address, vfxTarget.transform, cue.scale, cue.attachSeconds);
-        }
-
-        private List<Unit> ResolveVfxTargets(ActiveEffectTarget targetType, Unit currentTarget)
-        {
-            var result = new List<Unit>();
-            switch (targetType)
-            {
-                case ActiveEffectTarget.Self:
-                    result.Add(this);
-                    break;
-                case ActiveEffectTarget.AllAllies:
-                case ActiveEffectTarget.WorstHpAlly:
-                case ActiveEffectTarget.WorstHpAllies:
-                case ActiveEffectTarget.RandomAlly:
-                    // 전투 세션이 없는 테스트 씬에서는 시전자만 아군으로 취급합니다.
-                    List<Unit> allies = CombatManager.Instance != null ? GetAliveAlliesForSkill() : new List<Unit> { this };
-                    if (targetType == ActiveEffectTarget.AllAllies) result.AddRange(allies);
-                    else if (targetType == ActiveEffectTarget.RandomAlly) result.AddRange(CombatTargetSelector.SelectRandom(allies, 1, _random));
-                    else result.AddRange(CombatTargetSelector.SelectWorstHp(allies, targetType == ActiveEffectTarget.WorstHpAlly ? 1 : 2));
-                    break;
-                default:
-                    if (currentTarget != null && !currentTarget.IsDead) result.Add(currentTarget);
-                    break;
-            }
-            return result;
-        }
-
         private List<Unit> GetAliveAlliesForSkill()
         {
             var result = new List<Unit>();
@@ -719,9 +699,10 @@ namespace OzGameLab01.Combat
             return result;
         }
 
-        private void ApplySkillDamage(Unit target, float damage)
+        /// <summary>스킬 데미지를 적용합니다. 회피되거나 대상이 없으면 false.</summary>
+        private bool ApplySkillDamage(Unit target, float damage, bool ignoreDefense = false)
         {
-            if (target == null || target.IsDead) return;
+            if (target == null || target.IsDead) return false;
             float baseDamage = _fixedDamage >= 0f ? _fixedDamage : damage;
             if (target.HasAnyDebuff)
             {
@@ -732,15 +713,16 @@ namespace OzGameLab01.Combat
             {
                 effectiveDamage *= 1f + defensePoint * _shieldBonusDamagePerDefensePercent / 100f;
             }
-            if (_random.NextDouble() < Mathf.Min(target.dodgeRate, 60f) / 100f) return;
+            if (_random.NextDouble() < Mathf.Min(target.dodgeRate, 60f) / 100f) return false;
             if (_random.NextDouble() < criticalRate / 100f) effectiveDamage *= criticalMult / 100f;
-            effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
+            effectiveDamage = Mathf.Max(1f, effectiveDamage - (ignoreDefense ? 0f : target.defensePoint));
             target.TakeDamage(Mathf.Round(effectiveDamage * 100f) / 100f, isBasicAttack: false);
             PassiveEventBus.RaiseAttackLanded(this, target);
             TryApplyRandomStatusEffect(target);
+            return true;
         }
 
-        public bool Heal(float amount)
+        public bool Heal(float amount, bool playVfx = true)
         {
             if (_isDead || amount <= 0 || float.IsNaN(amount) || float.IsInfinity(amount)) return false;
             if (_stats == null) CaptureBaseStats();
@@ -749,8 +731,11 @@ namespace OzGameLab01.Combat
             _currentHP = Mathf.Min(maxHP, _currentHP + amount * Mathf.Max(0f, recoveryMultiplier));
             if (_currentHP <= previous) return false;
             _presenter.SetHP(_currentHP);
-            _presenter.PlayEffect(CombatVfxLibrary.Instance?.HealEffect, transform,
-                CombatVfxLibrary.Instance?.HealEffectScale ?? 1f);
+            if (playVfx)
+            {
+                _presenter.PlayEffect(CombatVfxLibrary.Instance?.HealEffect, transform,
+                    CombatVfxLibrary.Instance?.HealEffectScale ?? 1f);
+            }
             PassiveEventBus.RaiseHealed(this);
             return true;
         }
@@ -850,6 +835,12 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            target.ApplyDebuff(CreateRandomDebuffProfile());
+        }
+
+        /// <summary>도트/기절/그을림/침묵 중 하나를 무작위로 골라 기본 지속시간·수치의 프로필을 만듭니다.</summary>
+        private DebuffProfile CreateRandomDebuffProfile()
+        {
             DebuffType type = (DebuffType)(_random.Next(4) + 1);
             DebuffProfile profile;
             switch (type)
@@ -868,7 +859,7 @@ namespace OzGameLab01.Combat
                     break;
             }
 
-            target.ApplyDebuff(profile);
+            return profile;
         }
 
         public void ApplyDebuff(DebuffProfile profile)
@@ -899,6 +890,31 @@ namespace OzGameLab01.Combat
         {
             _status.Clear();
             _presenter.ClearAllStatusEffects();
+        }
+
+        /// <summary>대표 상태이상 1종만 제거합니다. 제거했으면 true.</summary>
+        public bool CleanseOneDebuff()
+        {
+            DebuffType removed = _status.RemovePrimary();
+            if (removed == DebuffType.None) return false;
+            _presenter.SetStatusEffectActive(removed, false, transform);
+            return true;
+        }
+
+        /// <summary>도발 상태를 부여합니다. 적의 대상 선택이 이 유닛으로 고정됩니다(CombatState.ResolveAllyTarget).</summary>
+        public bool ApplyTaunt(float seconds)
+        {
+            if (_isDead || seconds <= 0f) return false;
+            _tauntRemaining = Mathf.Max(_tauntRemaining, seconds);
+            return true;
+        }
+
+        /// <summary>액티브 스킬(1번째 이후)의 남은 쿨다운을 seconds만큼 줄입니다.</summary>
+        public bool RecoverSkillCooldown(float seconds)
+        {
+            if (_isDead || seconds <= 0f || _skills.Count < 2) return false;
+            for (int i = 1; i < _skills.Count; i++) _skills[i].timer = Mathf.Max(0f, _skills[i].timer - seconds);
+            return true;
         }
 
         public void TakeDamage(float dmg, bool isBasicAttack = true)
