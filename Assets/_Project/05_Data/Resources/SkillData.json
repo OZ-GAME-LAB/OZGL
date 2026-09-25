@@ -413,6 +413,7 @@
       "unitId": 11,
       "iconAddress": "I_SA_111",
       "castVfxAddress": "VFX/Skill/Cast/Snow White_Activate_Skill_EF",
+      "projectileScale": 2.0,
       "name": "독사과 런처",
       "description": "적에게 자신의 공격력의 125% 데미지 부여.\n적에게 상태이상 '도트데미지' 부여(5초 지속)",
       "cooldown": 7.0,
