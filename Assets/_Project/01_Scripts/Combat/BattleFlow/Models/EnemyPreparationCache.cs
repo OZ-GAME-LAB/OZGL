@@ -116,14 +116,26 @@ namespace OzGameLab01.Combat
         {
             return new MonsterData
             {
-                id = source.id, name = source.name, spriteAddress = source.spriteAddress,
+                id = source.id, name = source.name,
                 prefabAddress = source.prefabAddress,
                 healthPoint = source.healthPoint, attackPoint = source.attackPoint,
                 defensePoint = source.defensePoint, criticalRate = source.criticalRate,
                 criticalMult = source.criticalMult, dodgeRate = source.dodgeRate,
                 attackSpeed = source.attackSpeed, skillCooldown = source.skillCooldown,
-                type = source.type, skillIds = source.skillIds == null ? new List<int>() : new List<int>(source.skillIds)
+                type = source.type, skillIds = source.skillIds == null ? new List<int>() : new List<int>(source.skillIds),
+                species = CloneSpecies(source.species)
             };
+        }
+
+        private static List<MonsterSpecies> CloneSpecies(List<MonsterSpecies> source)
+        {
+            var result = new List<MonsterSpecies>();
+            if (source == null) return result;
+            foreach (MonsterSpecies entry in source)
+            {
+                if (entry != null) result.Add(new MonsterSpecies { name = entry.name, prefabAddress = entry.prefabAddress });
+            }
+            return result;
         }
 
         private readonly struct Key : IEquatable<Key>

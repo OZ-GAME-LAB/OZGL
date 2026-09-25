@@ -16,8 +16,8 @@ namespace OzGameLab01.Combat
     /// </summary>
     public class AllySpawner : IDisposable
     {
-        // 적 종류(프리팹·표시 이름)는 EnemySpeciesData 중 전투 계층(MonsterData.type)이 맞는 종에서
-        // 매번 랜덤으로 고른다. 맞는 종이 없으면 semiboss/boss는 MonsterData.prefabAddress, 그 외는
+        // 적 종류(프리팹·표시 이름)는 전투 계층 행(MonsterData)의 species 목록에서 매번 랜덤으로
+        // 고른다. 목록이 비어 있으면 semiboss/boss는 MonsterData.prefabAddress, 그 외는
         // enemyPrefabResourceName으로 폴백한다. semiboss/boss(중간·최종보스)는 크게 스케일업한다.
         // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-2절.
         private const float BossEnemyScaleMultiplier = 2.5f;
@@ -190,7 +190,7 @@ namespace OzGameLab01.Combat
 
             bool isBossTier = _enemyMonsterData != null &&
                 (_enemyMonsterData.type == MonsterType.semiboss || _enemyMonsterData.type == MonsterType.boss);
-            EnemySpeciesData species = PickEnemySpecies();
+            MonsterSpecies species = PickEnemySpecies();
             string resourceName = species != null ? species.prefabAddress : ResolveEnemyPrefabResourceName(isBossTier);
 
             GameObject prefab = UnitPrefabProvider.GetEnemyPrefab(resourceName);
@@ -214,15 +214,11 @@ namespace OzGameLab01.Combat
             return enemyUnit;
         }
 
-        private EnemySpeciesData PickEnemySpecies()
+        private MonsterSpecies PickEnemySpecies()
         {
-            if (_enemyMonsterData == null) return null;
-            var candidates = new List<EnemySpeciesData>();
-            foreach (EnemySpeciesData species in DataManager.EnemySpecies.GetAll().Values)
-            {
-                if (species?.tiers != null && species.tiers.Contains(_enemyMonsterData.type)) candidates.Add(species);
-            }
-            return candidates.Count > 0 ? candidates[UnityEngine.Random.Range(0, candidates.Count)] : null;
+            List<MonsterSpecies> candidates = _enemyMonsterData?.species;
+            if (candidates == null || candidates.Count == 0) return null;
+            return candidates[UnityEngine.Random.Range(0, candidates.Count)];
         }
 
         private string ResolveEnemyPrefabResourceName(bool isBossTier)
