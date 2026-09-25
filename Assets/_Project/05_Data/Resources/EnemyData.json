@@ -2,7 +2,7 @@
   "monsterList": [
     {
       "id": 1,
-      "name": "Enemy_Melee",
+      "name": "일반",
       "spriteAddress": "Enemy_Melee",
       "healthPoint": 100,
       "attackPoint": 5,
@@ -19,7 +19,7 @@
     },
     {
       "id": 2,
-      "name": "Enemy_Melee_Night",
+      "name": "밤",
       "spriteAddress": "Enemy_Melee",
       "healthPoint": 160,
       "attackPoint": 8,
@@ -36,7 +36,7 @@
     },
     {
       "id": 3,
-      "name": "Enemy_Melee_Semiboss",
+      "name": "중간 보스",
       "spriteAddress": "Enemy_Melee",
       "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla",
       "healthPoint": 350,
@@ -54,7 +54,7 @@
     },
     {
       "id": 4,
-      "name": "Enemy_Melee_FinalBoss",
+      "name": "최종 보스",
       "spriteAddress": "Enemy_Melee",
       "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla",
       "healthPoint": 1200,
