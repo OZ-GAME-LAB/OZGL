@@ -154,7 +154,7 @@ namespace OzGameLab01.Combat
         {
             if (cue.delay > 0f) yield return new WaitForSeconds(cue.delay);
             if (vfxTarget == null || vfxTarget.IsDead) yield break;
-            _presenter.PlaySkillVfx(cue.address, vfxTarget.transform, cue.scale, cue.attachSeconds);
+            _presenter.PlaySkillVfx(cue.address, vfxTarget.transform, cue.scale, cue.attachSeconds, cue.anchor);
         }
 
         private List<Unit> ResolveEffectTargets(ActiveEffectTarget targetType, Unit currentTarget, ref Unit sharedRandomAlly)

@@ -265,6 +265,7 @@ namespace OzGameLab01.Combat
                 GameObject effect = operation.Result;
                 effect.transform.position = position;
                 effect.transform.localScale = Vector3.one * scale;
+                UnitPresenter.DisableLooping(effect);
                 // 월드 전투에서는 맞은 유닛 스프라이트보다 앞에 그려야 가려지지 않습니다.
                 if (!isUiEffect && targetUnit != null) UnitPresenter.RenderAboveUnit(effect, targetUnit);
                 effect.AddComponent<AddressableVfxLifetime>().Initialize(lifetime);

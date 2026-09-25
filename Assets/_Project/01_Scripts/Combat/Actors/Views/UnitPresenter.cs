@@ -181,9 +181,11 @@ namespace OzGameLab01.Combat
         /// 스킬 발동 시 시전자 위치에서 재생하는 1회성 VFX. 주소는 SkillData.castVfxAddress(Addressables)이며
         /// 비어 있으면 아무 것도 하지 않습니다.
         /// </summary>
-        public void PlaySkillCastEffect(string address, Vector3 worldPosition, float scale)
+        public void PlaySkillCastEffect(string address, Transform caster, float scale)
         {
-            if (string.IsNullOrEmpty(address)) return;
+            if (string.IsNullOrEmpty(address) || caster == null) return;
+            // 발동 이펙트(빛기둥 + 원점 위 3에 유닛 아이콘)는 몸 중앙(Body 앵커)에 두어야 아이콘이 머리와 겹치지 않습니다.
+            Vector3 worldPosition = GetVisualCenter(caster);
             Addressables.InstantiateAsync(address, worldPosition, Quaternion.identity).Completed += operation =>
             {
                 if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
@@ -194,6 +196,7 @@ namespace OzGameLab01.Combat
                 }
 
                 if (scale > 0f) operation.Result.transform.localScale = Vector3.one * scale;
+                DisableLooping(operation.Result);
                 operation.Result.AddComponent<AddressableVfxLifetime>().Initialize(EffectAutoDestroySeconds);
             };
         }
@@ -205,11 +208,11 @@ namespace OzGameLab01.Combat
         /// 스킬 효과 연출 VFX를 target 위치에 재생합니다. attachSeconds가 0보다 크면 target에 붙여
         /// 그 시간 동안 유지하고(루프 VFX), 아니면 그 자리에 1회성으로 재생합니다.
         /// </summary>
-        public void PlaySkillVfx(string address, Transform target, float scale, float attachSeconds)
+        public void PlaySkillVfx(string address, Transform target, float scale, float attachSeconds, string anchor = null)
         {
             if (string.IsNullOrEmpty(address) || target == null) return;
             bool attach = attachSeconds > 0f;
-            Vector3 center = GetVisualCenter(target);
+            Vector3 center = GetAnchorPosition(target, anchor);
             Addressables.InstantiateAsync(address, center, Quaternion.identity, attach ? target : null).Completed += operation =>
             {
                 if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
@@ -220,9 +223,11 @@ namespace OzGameLab01.Combat
                 }
 
                 GameObject fx = operation.Result;
-                fx.transform.position = target != null ? GetVisualCenter(target) : center;
+                fx.transform.position = target != null ? GetAnchorPosition(target, anchor) : center;
                 if (target != null) RenderAboveUnit(fx, target);
                 fx.transform.localScale = Vector3.one * (scale > 0f ? scale : DefaultSkillVfxScale);
+                // 붙여두는 루프 VFX(도발·보호막)는 유지 시간 동안 반복하고, 1회성은 한 번만 재생합니다.
+                if (!attach) DisableLooping(fx);
                 fx.AddComponent<AddressableVfxLifetime>().Initialize(attach ? attachSeconds : EffectAutoDestroySeconds);
             };
         }
@@ -234,8 +239,10 @@ namespace OzGameLab01.Combat
         public void PlayEffect(GameObject prefab, Transform unit, float scale)
         {
             if (prefab == null) return;
-            GameObject fx = UnityEngine.Object.Instantiate(prefab, GetVisualCenter(unit), Quaternion.identity);
+            // 스탯 증감·회복 이펙트는 바닥에서 올라오는 구조라 발밑(Ground 앵커)에 둡니다.
+            GameObject fx = UnityEngine.Object.Instantiate(prefab, GetAnchorPosition(unit, GroundAnchorName), Quaternion.identity);
             fx.transform.localScale = Vector3.one * scale;
+            DisableLooping(fx);
             RenderAboveUnit(fx, unit);
             DestroySafely(fx, EffectAutoDestroySeconds);
         }
@@ -283,6 +290,34 @@ namespace OzGameLab01.Combat
         public const string HeadAnchorPath = "Anchors/Head";
         public const string BodyAnchorPath = "Anchors/Body";
         public const string GroundAnchorPath = "Anchors/Ground";
+
+        public const string GroundAnchorName = "Ground";
+        public const string HeadAnchorName = "Head";
+
+        /// <summary>
+        /// 앵커 이름("Ground"/"Head", 그 외·빈 값은 Body)에 해당하는 월드 위치. 앵커가 없으면 스프라이트 영역으로 대신합니다.
+        /// </summary>
+        public static Vector3 GetAnchorPosition(Transform unit, string anchor)
+        {
+            if (anchor == GroundAnchorName)
+            {
+                Transform ground = unit.Find(GroundAnchorPath);
+                if (ground != null) return ground.position;
+                return TryGetSpriteBounds(unit, out Bounds bounds) ? new Vector3(bounds.center.x, bounds.min.y, bounds.center.z) : unit.position;
+            }
+            if (anchor == HeadAnchorName) return unit.TransformPoint(GetHeadLocalPosition(unit));
+            return GetVisualCenter(unit);
+        }
+
+        /// <summary>1회성으로 재생할 VFX의 파티클 반복을 끕니다(임포트 에셋 다수가 loop=true).</summary>
+        public static void DisableLooping(GameObject fx)
+        {
+            foreach (ParticleSystem system in fx.GetComponentsInChildren<ParticleSystem>(true))
+            {
+                ParticleSystem.MainModule main = system.main;
+                main.loop = false;
+            }
+        }
 
         /// <summary>
         /// 이펙트·투사체 기준 위치(월드). 프리팹의 Anchors/Body를 우선 쓰고, 없으면 스프라이트 영역 중심을 씁니다.

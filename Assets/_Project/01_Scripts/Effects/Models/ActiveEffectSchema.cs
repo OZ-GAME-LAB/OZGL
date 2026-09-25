@@ -66,5 +66,6 @@ namespace OzGameLab01.Combat
         public float delay;                         // 효과 적용 시점 기준 지연(초)
         public float scale;                         // 월드 스케일 (0이면 기본값)
         public float attachSeconds;                 // 0보다 크면 대상에 붙여 해당 시간 동안 유지(루프 VFX용)
+        public string anchor;                       // 기준 앵커: "Ground"(발밑)/"Head"(머리), 비우면 Body(몸 중앙)
     }
 }

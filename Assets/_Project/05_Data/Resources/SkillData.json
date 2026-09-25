@@ -81,7 +81,7 @@
           "value": 1.0,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/White_Rabbit_Skill_BuffEF", "scale": 0.3}
+            {"address": "VFX/Skill/Effect/White_Rabbit_Skill_BuffEF", "scale": 0.3, "anchor": "Ground"}
           ]
         }
       ],
@@ -125,7 +125,7 @@
           "value": 0.1,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Cheshire_Cat_SkillBuff_Single", "scale": 0.28}
+            {"address": "VFX/Skill/Effect/Cheshire_Cat_SkillBuff_Single", "scale": 0.28, "anchor": "Ground"}
           ]
         },
         {
@@ -135,7 +135,7 @@
           "value": 0.2,
           "extraParam": 4.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Cheshire_Cat_SKillBuff_Area", "onCaster": true, "scale": 0.5}
+            {"address": "VFX/Skill/Effect/Cheshire_Cat_SKillBuff_Area", "onCaster": true, "scale": 0.5, "anchor": "Ground"}
           ]
         }
       ],
@@ -179,7 +179,7 @@
           "value": 3.9,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Genie_Skill_Hit_EF", "scale": 1.0}
+            {"address": "VFX/Skill/Effect/Genie_Skill_Hit_EF", "scale": 2.5}
           ]
         }
       ],
@@ -223,7 +223,7 @@
           "value": 1.0,
           "extraParam": 999.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Lion_Skill_Provocation_EF", "attachSeconds": 999.0, "scale": 0.7}
+            {"address": "VFX/Skill/Effect/Lion_Skill_Provocation_EF", "attachSeconds": 999.0, "scale": 1.5}
           ]
         },
         {
@@ -233,7 +233,7 @@
           "value": 1.0,
           "extraParam": 7.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Lion_SKill_Shield_EF", "attachSeconds": 7.0, "scale": 0.5}
+            {"address": "VFX/Skill/Effect/Lion_SKill_Shield_EF", "attachSeconds": 7.0, "scale": 0.8, "anchor": "Ground"}
           ]
         }
       ],
@@ -322,7 +322,7 @@
           "extraParam": 5.0,
           "vfx": [
             {"address": "VFX/Skill/Effect/Dorothy_Skill_Hit_EF", "scale": 0.6},
-            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45}
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45, "anchor": "Ground"}
           ]
         }
       ],
@@ -366,7 +366,7 @@
           "value": 0.05,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Heal_EF", "scale": 0.28}
+            {"address": "VFX/Skill/Effect/Public_Heal_EF", "scale": 0.28, "anchor": "Ground"}
           ]
         },
         {
@@ -475,7 +475,7 @@
           "value": -0.2,
           "extraParam": 0.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45}
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45, "anchor": "Ground"}
           ]
         },
         {
@@ -485,7 +485,7 @@
           "value": 50.0,
           "extraParam": 1.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45}
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45, "anchor": "Ground"}
           ]
         }
       ],
@@ -529,7 +529,7 @@
           "value": 1.0,
           "extraParam": 7.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45}
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45, "anchor": "Ground"}
           ]
         },
         {
@@ -539,7 +539,7 @@
           "value": 1.0,
           "extraParam": 7.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45}
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45, "anchor": "Ground"}
           ]
         }
       ],
@@ -583,7 +583,7 @@
           "value": 0.2,
           "extraParam": 10.0,
           "vfx": [
-            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45}
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45, "anchor": "Ground"}
           ]
         },
         {

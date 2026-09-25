@@ -565,7 +565,7 @@ namespace OzGameLab01.Combat
                 if (!isBasicAttack)
                 {
                     // 스킬은 발동 즉시 시전 VFX를 띄웁니다(유닛 아이콘은 시전 VFX에 포함).
-                    _presenter.PlaySkillCastEffect(skill.data.castVfxAddress, transform.position, skill.data.castVfxScale);
+                    _presenter.PlaySkillCastEffect(skill.data.castVfxAddress, transform, skill.data.castVfxScale);
                 }
 
                 // Attack 모션 진행 중간 지점에서 발사(즉발형·스킬은 적용)합니다. 대기 중 시전자가 죽으면 취소합니다.
