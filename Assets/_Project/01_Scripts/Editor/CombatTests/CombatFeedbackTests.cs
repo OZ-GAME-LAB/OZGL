@@ -4,6 +4,8 @@ using NUnit.Framework;
 using OzGameLab01.Combat;
 using OzGameLab01.Data;
 using OzGameLab01.UI.Battle;
+using TMPro;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -72,6 +74,25 @@ namespace OzGameLab01.Tests.EditMode
                 Object.DestroyImmediate(first);
                 Object.DestroyImmediate(second);
             }
+        }
+
+        [Test]
+        public void BattleUi_EnemyNameFontSupportsKoreanSpeciesNames()
+        {
+            const string battleUiPath = "Assets/_Project/02_Prefabs/UI/BattleUi/BattleUI.prefab";
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(battleUiPath);
+
+            Assert.That(prefab, Is.Not.Null);
+            TextMeshProUGUI enemyName = System.Array.Find(
+                prefab.GetComponentsInChildren<TextMeshProUGUI>(true),
+                text => text.name == "EnemyNameText");
+
+            Assert.That(enemyName, Is.Not.Null);
+            Assert.That(enemyName.font, Is.Not.Null);
+            Assert.That(enemyName.font.name, Does.Contain("NotoSansKR"));
+            Assert.That(enemyName.font.atlasPopulationMode, Is.EqualTo(AtlasPopulationMode.Dynamic));
+            Assert.That(enemyName.font.sourceFontFile, Is.Not.Null,
+                "The dynamic Korean font needs its source TTF to add missing Hangul glyphs at runtime.");
         }
     }
 }
