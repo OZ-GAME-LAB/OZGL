@@ -19,8 +19,12 @@ namespace OzGameLab01.UI
         [SerializeField] private Button _locateButton;
         [UnityEngine.Serialization.FormerlySerializedAs("synergyContentRoot")]
         [SerializeField] private Transform _synergyContentRoot;
+        [SerializeField] private SynergyItemView _synergyItemPrefab;
+        [SerializeField] private Color _synergyActiveColor = Color.white;
+        [SerializeField] private Color _synergyInactiveColor = new Color(1f, 1f, 1f, 0.4f);
         [UnityEngine.Serialization.FormerlySerializedAs("artifactContentRoot")]
         [SerializeField] private Transform _artifactContentRoot;
+        [SerializeField] private ArtifactInfoItemView _artifactItemPrefab;
 
         [UnityEngine.Serialization.FormerlySerializedAs("endTurnButton")]
         [SerializeField] private Button _endTurnButton;
@@ -46,7 +50,11 @@ namespace OzGameLab01.UI
         public Button LocateButton => _locateButton;
 
         public Transform SynergyContentRoot => _synergyContentRoot;
+        public SynergyItemView SynergyItemPrefab => _synergyItemPrefab;
+        public Color SynergyActiveColor => _synergyActiveColor;
+        public Color SynergyInactiveColor => _synergyInactiveColor;
         public Transform ArtifactContentRoot => _artifactContentRoot;
+        public ArtifactInfoItemView ArtifactItemPrefab => _artifactItemPrefab;
 
         public IReadOnlyList<SynergyItemView> SynergyItems => _synergyItems;
         public IReadOnlyList<ArtifactInfoItemView> ArtifactItems => _artifactItems;

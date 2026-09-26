@@ -190,6 +190,8 @@ namespace OzGameLab01.Controllers
         /// </summary>
         public IReadOnlyList<UnitData> SupportUnitData => supportUnitData;
 
+        public UnitRosterData RosterData => rosterData;
+
         /// <summary>
         /// 현재 전투 슬롯에 배치된 유닛 수를 반환합니다.
         /// </summary>

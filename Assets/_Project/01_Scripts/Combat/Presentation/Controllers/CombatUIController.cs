@@ -243,6 +243,7 @@ namespace OzGameLab01.Controllers
                             battleUIView.ResultView.SetResultText("Victory");
                             battleUIView.ResultView.SetOptionalMessage(string.Empty);
                             battleUIView.ResultView.SetEndBattleButtonText("Return To Title");
+                            battleUIView.ResultView.SetRewardIcon(null);
                         }
 
                         battleUIView.ShowResultView();
@@ -264,6 +265,7 @@ namespace OzGameLab01.Controllers
                         battleUIView.ResultView.SetOptionalMessage(
                             grantedRelic != null ? $"유물 획득: {grantedRelic.name}" : string.Empty);
                         battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
+                        _ = battleUIView.ResultView.SetRewardIconAsync(grantedRelic?.iconAddress);
                     }
 
                     battleUIView.ShowResultView();
@@ -276,6 +278,7 @@ namespace OzGameLab01.Controllers
                         battleUIView.ResultView.SetResultText("Defeat...");
                         battleUIView.ResultView.SetOptionalMessage("Better luck next time...");
                         battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
+                        battleUIView.ResultView.SetRewardIcon(null);
                     }
                     battleUIView.ShowResultView();
                 }
