@@ -459,7 +459,7 @@ namespace OzGameLab01.Tests.EditMode
                 InitializeUnit(target);
                 caster.SetFixedDamage(30f);
                 typeof(Unit).GetMethod("ApplySkillDamage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                    .Invoke(caster, new object[] { target, 999f });
+                    .Invoke(caster, new object[] { target, 999f, false });
                 Assert.That(target.CurrentHp, Is.EqualTo(70f).Within(0.001f));
             }
             finally
@@ -483,7 +483,7 @@ namespace OzGameLab01.Tests.EditMode
                 caster.SetExtraDamageOnStatus(20f);
                 target.ApplyDebuff(new DebuffProfile { type = DebuffType.Stun, duration = 5f });
                 typeof(Unit).GetMethod("ApplySkillDamage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                    .Invoke(caster, new object[] { target, 10f });
+                    .Invoke(caster, new object[] { target, 10f, false });
                 Assert.That(target.CurrentHp, Is.EqualTo(88f).Within(0.001f));
             }
             finally
@@ -506,7 +506,7 @@ namespace OzGameLab01.Tests.EditMode
                 InitializeUnit(target);
                 caster.SetStatusEffectChance(100f);
                 typeof(Unit).GetMethod("ApplySkillDamage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                    .Invoke(caster, new object[] { target, 1f });
+                    .Invoke(caster, new object[] { target, 1f, false });
                 Assert.That(target.HasAnyDebuff, Is.True);
             }
             finally
@@ -588,7 +588,7 @@ namespace OzGameLab01.Tests.EditMode
                 caster.GrantShield(10f, 0f, true);
                 Assert.That(caster.SetShieldBonusDamage(0.4f, 0.2f), Is.True);
                 typeof(Unit).GetMethod("ApplySkillDamage", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
-                    .Invoke(caster, new object[] { target, 50f });
+                    .Invoke(caster, new object[] { target, 50f, false });
                 Assert.That(target.CurrentHp, Is.EqualTo(46f).Within(0.001f));
             }
             finally

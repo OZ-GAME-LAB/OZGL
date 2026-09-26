@@ -1,0 +1,478 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Combat VFX
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Combat VFX
+  m_GUID: 2cfef055779d74546bd0d479da598682
+  m_SerializeEntries:
+  - m_GUID: 010f6fbb1560bc14fb263f552805ec98
+    m_Address: VFX/BasicAttack/Travel/Cheshire_Cat_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 017a13f5494eb3e42854deae657e43cc
+    m_Address: VFX/Projectiles/Enemy_Crow
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0479d1b3042904349be800f5a0c5fb71
+    m_Address: VFX/Skill/Effect/Lion_Skill_Provocation_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 0572e8e36488a814e86838764178a8b3
+    m_Address: VFX/Projectiles/Enemy_CandyMonster
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 091d3f4a57cceab4e8477e775ff7980c
+    m_Address: VFX/Skill/Effect/Public_Heal_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1888c010747789c4fad4f4f80d36b1cf
+    m_Address: VFX/BasicAttack/Impact/Scarecrow_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 19592b7f48f966e49a1795ffceba1321
+    m_Address: VFX/Projectiles/Ally_Zepeto
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1aac2ab08ba3f044ca8753caefb0bacf
+    m_Address: VFX/BasicAttack/Travel/Alice_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1aee781aff25cf542a5d2c4767a7f029
+    m_Address: VFX/Projectiles/Ally_CheshireCat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1b6513b80bdb488478a289456a3ecf6d
+    m_Address: VFX/Skill/Effect/Public_Stat_Down_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 20ffb6ba42ccf804ba2132b739097947
+    m_Address: VFX/Skill/Cast/Genie_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 21666ca98e703b9479c229d6ea2ffb37
+    m_Address: VFX/Skill/Effect/White_Rabbit_Skill_BuffEF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2f95cfbfd77286749813446cf220b2b4
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Magicmissile
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 30b4c8cdbba6e2c4c99ddf6cf6de3a96
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Meat
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 36789463e000dbe47bd312218ad142e4
+    m_Address: VFX/Projectiles/Default
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 39cdf0e4ca01def48a2f2ba4621e3874
+    m_Address: VFX/Skill/Effect/Public_Stat_Up_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3b568324150ef964894837cde7f7fd2c
+    m_Address: VFX/Projectiles/Ally_Snowwhite
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3e319138940f12145852c125dd0b0834
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Stamp
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3e5068367cbc1fa4bb9b7bca11bac0a9
+    m_Address: VFX/Skill/Cast/Scarecrow_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 413b70984828fa0459d3ee0156fc1511
+    m_Address: VFX/Skill/Effect/Cheshire_Cat_SKillBuff_Area
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 45b5ad18bda6ccb48a3283a7c7112007
+    m_Address: VFX/Skill/Effect/Alice_SkillMark_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4880c452e5418bf49afcdc4dc350e548
+    m_Address: VFX/BasicAttack/Impact/Dorothy_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4eddbe9211f65fd44af38621b1b56d22
+    m_Address: VFX/Skill/Effect/Scarecrow_SKill_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 507c71c26fdb5404ea3187f46c64d975
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Brick
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 51932a09f3441a44c81777a9bf92a9f9
+    m_Address: VFX/Projectiles/Enemy_Hunter
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5467c56530b25384d9f559c0b9699d92
+    m_Address: VFX/BasicAttack/Travel/Snow White_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 54fe39d5d3fa1b842985404459929d67
+    m_Address: VFX/Skill/Cast/Lion_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5cf5c7d2a75e8824aa911d26291d61db
+    m_Address: VFX/Projectiles/Ally_Mermaid
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5dce1e3da56578d458d817bd498678f3
+    m_Address: VFX/BasicAttack/Travel/Genie_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5fdd73e15212883458b2238c3179a9f3
+    m_Address: VFX/Skill/Cast/Tinker_Bell_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 60911409026ecd04891e894773ba0dbf
+    m_Address: VFX/Skill/Effect/Genie_Skill_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 61644aaa2b13018458074959ed50457e
+    m_Address: VFX/Skill/Effect/Dorothy_Skill_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 617d16afd9859354db68583b57d45605
+    m_Address: VFX/BasicAttack/Impact/Tinker_Bell_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 642b8d23a158ce447a7152f62509360a
+    m_Address: VFX/BasicAttack/Impact/Zepeto_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6502e16ea11099d4bb10b31970d95326
+    m_Address: VFX/Skill/Cast/Little_Mermaid_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 699cabe7c0c805f4baeacea4a9765e59
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Cloack
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6c2beaf0363969c408baed4e8f359df6
+    m_Address: VFX/Projectiles/Enemy_Wolf
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6ebfabaf05c83a44d913c9dd64af0b70
+    m_Address: VFX/BasicAttack/Impact/Cheshire_Cat_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f1cf972d9b130044a2ea8ffeb7198f6
+    m_Address: VFX/BasicAttack/Travel/Lion_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f92952e3aa22c648849a4655ad12468
+    m_Address: VFX/Projectiles/Enemy_Book
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7e5364a48ce161b43a581072586cd3cb
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Halfmoon
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 85e79f6676e3d8f41977f35eaf184fd8
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Hammer
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 89cda5dc40c69cf478387b1badcdd7ab
+    m_Address: VFX/Skill/Effect/Lion_SKill_Shield_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8a6aed646919a0147a07409432b7ddbd
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Talisman
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 900572ce80774a94b92a2b86505b7e01
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Feather
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 914a1ee5914e4ea4c92c0246799afef4
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Heart
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 92c4b7cae02d75e4e8772ded5d0e6747
+    m_Address: VFX/Projectiles/Ally_Alice
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9454d50cbec0a18479fae94eeaecb7aa
+    m_Address: VFX/BasicAttack/Travel/White_Rabbit_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 94897df442dffe44dafc30e65e54216c
+    m_Address: VFX/BasicAttack/Impact/Enemy_AttackHit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 94b6457d9ce253a4d914e9e042c465f5
+    m_Address: VFX/Projectiles/Ally_Scarecrow
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 97163ee2940ddb24aab2dc49c48e76a5
+    m_Address: VFX/BasicAttack/Travel/Scratch_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 977774bfc536b534e8254f1e9d41c846
+    m_Address: VFX/BasicAttack/Impact/Peter_Pan_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 99ce97d99ba8bac4cbfeec1f19713d0d
+    m_Address: VFX/BasicAttack/Impact/Little_Mermaid_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9e915fbbf9899514ba4af72192bd146a
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Soundnote
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9ec33752e107d7749b9215661b1d4517
+    m_Address: VFX/BasicAttack/Travel/Dorothy_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a1ae21aedca4649489ab3191f1d1489a
+    m_Address: VFX/BasicAttack/Travel/Tinker_Bell_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a3eb5475d7768c14a8d4aef12f2738cd
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Bullet
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ac1389000aa544d439ed777cba31f348
+    m_Address: VFX/BasicAttack/Travel/Little_Mermaid_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ae7b67b1960b4ee4fb16e3048a73b5ef
+    m_Address: VFX/Projectiles/Ally_Rabbit
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: af29e2a604dbdb84291fb3e83b8c7d6c
+    m_Address: VFX/Projectiles/Ally_PeterPan
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b1d17bff0ad81b74294e11f4dd4355dd
+    m_Address: VFX/Skill/Effect/Alice_Skill_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b5e21fb86ca0bed4f8970ce96e939668
+    m_Address: VFX/BasicAttack/Travel/Zepeto_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b990d67da829f4b4ba149db9a0146865
+    m_Address: VFX/Projectiles/Ally_Tinkerbell
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b991283409977c04f8ba04f9b5f76804
+    m_Address: VFX/BasicAttack/Impact/Alice_AttackHit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c4b3ca91b3513824b92723ea2bc83e5f
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Arrow
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c4f21be29f15d52428df9960df44c599
+    m_Address: VFX/BasicAttack/Travel/Cookie_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c748f940633993c46b31471a943dbef6
+    m_Address: VFX/Projectiles/Ally_Lion
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c86d58fd0c6f36848b38ec25f9d2b30e
+    m_Address: VFX/BasicAttack/Impact/White_Rabbit_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cfa7dc0dd63b2544ebf07a60afebf17c
+    m_Address: VFX/BasicAttack/Impact/Snow White_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d24599ebdb7ba6c47a0b743ed32c661b
+    m_Address: VFX/Projectiles/Enemy_ToySoldier
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d4671e664d2fb344f8f9cf1fb47be2c0
+    m_Address: VFX/BasicAttack/Travel/Peter_Pan_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d6c15b89b770f9d45a1bd594393737c9
+    m_Address: VFX/BasicAttack/Travel/Arrow_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: da62e445c088383478fdca9983a53d93
+    m_Address: VFX/BasicAttack/Travel/Crow_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dbda697c9d797ef41acb01d9c8e48632
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Badapple
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dd0cffdcbd3af5e4fbb0fd18dfd344ad
+    m_Address: VFX/BasicAttack/Impact/Lion_Attack_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e3ecbe8871f7edf438a53fe83e54e898
+    m_Address: VFX/Skill/Cast/Dorothy_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ebfe162697adbfc42b73780afecf1e6c
+    m_Address: VFX/Skill/Cast/White_Rabbit_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ec369cfed26126a45b3b04361579cb6c
+    m_Address: VFX/Skill/Cast/Alice_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ee35edc65bcb4d14bb9e1bbb419d5f87
+    m_Address: VFX/Skill/Cast/Zepeto_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ee5641381e771454b879eed786eb2745
+    m_Address: VFX/Skill/Cast/Snow White_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eeed3361b6d45ea4683101f64ea9ae13
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Cookie
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ef569189689cb6f4a816199c09c8d0ed
+    m_Address: VFX/Skill/Effect/Snow White_SKill_Hit_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: eff53a1605405a04cb14334dcba0061f
+    m_Address: VFX/Projectiles/Enemy_Witch
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f10d986631743b54a994b03a6e1751f0
+    m_Address: VFX/Projectiles/Ally_Dorothy
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f374034f7fc114e43831a10939cf46a9
+    m_Address: VFX/Skill/Cast/Peter_Pan_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4555ce3eb00e804a9c688f28bca9841
+    m_Address: VFX/Sprites/Projectiles/Effect_Battle_Claw
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f5dc2909f7b61e345b2ba0a0225f2e5c
+    m_Address: VFX/Skill/Effect/Cheshire_Cat_SkillBuff_Single
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f77849a3160ba404592b63ac11e54e24
+    m_Address: VFX/Skill/Cast/Cheshire_Cat_Activate_Skill_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ff05c5ba6a9a0a04ea35011d289ec933
+    m_Address: VFX/BasicAttack/Travel/Bullet_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ff080d9c3a998784fb06df5fe9d849a9
+    m_Address: VFX/Projectiles/Ally_Genie
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ff66277dfcbf9084a9087465c7bc2044
+    m_Address: VFX/BasicAttack/Travel/Talisman_Attack_EF
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: ce5f67fb151836b46b2008baa3abfb8c, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 3bfc427a309c1584c835f21451ee5cf8, type: 2}
+    - {fileID: 11400000, guid: d15c4dfeb1555fd41950e4868dbfe21a, type: 2}

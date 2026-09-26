@@ -89,7 +89,7 @@ namespace OzGameLab01.Events
 
             if (choiceEvent.eventCategory == EventCategory.Action)
             {
-                ApplyRelicChoiceRewards(choiceEvent.choices);
+                PrepareRelicChoices(choiceEvent.choices);
             }
 
             if (!session.ShowEvent(choiceEvent, ChoiceResult , AnotherButtonDisable))
@@ -102,10 +102,10 @@ namespace OzGameLab01.Events
         }
 
         /// <summary>
-        /// 유물 획득 선택지는 열리는 시점에 실제로 유물 하나를 뽑아 획득시키고,
-        /// 표시용 이름/타겟 ID를 그 결과로 채웁니다(dev 원본 ChoiceEventManager 동작).
+        /// 유물 획득 선택지는 열리는 시점에 선택지마다 서로 다른 유물을 뽑아 표시용 이름/타겟 ID만
+        /// 채웁니다. 실제 지급은 플레이어가 고른 선택지 하나에 대해서만 ExecuteChoice에서 합니다.
         /// </summary>
-        private void ApplyRelicChoiceRewards(List<EventChoice> choices)
+        private void PrepareRelicChoices(List<EventChoice> choices)
         {
             RelicFacade relicFacade = SystemBus.Get<RelicFacade>();
             if (relicFacade == null)
@@ -113,6 +113,7 @@ namespace OzGameLab01.Events
                 return;
             }
 
+            var pickedIds = new List<int>();
             for (int i = 0; i < choices.Count; i++)
             {
                 if (choices[i].ChoiceCategory != EventChoiceCategory.Relic)
@@ -120,12 +121,13 @@ namespace OzGameLab01.Events
                     continue;
                 }
 
-                RelicData relic = relicFacade.AcquireRandomRelic();
+                RelicData relic = relicFacade.PickRandomRelic(pickedIds);
                 if (relic == null)
                 {
                     continue;
                 }
 
+                pickedIds.Add(relic.id);
                 choices[i].SetEventChoice(relic.name, relic.id.ToString(), null);
             }
         }
@@ -155,6 +157,10 @@ namespace OzGameLab01.Events
             switch (selectedChoice.ChoiceCategory)
             {
                 case EventChoiceCategory.Relic:
+                    if (int.TryParse(selectedChoice.ResultTargetID, out int relicId))
+                    {
+                        SystemBus.Get<RelicFacade>()?.AcquireRelic(relicId);
+                    }
                     Debug.Log($"Get [{selectedChoice.ResultTargetID}] Relic");
                     CloseCanvas();
                     break;

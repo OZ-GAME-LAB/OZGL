@@ -2,8 +2,7 @@
   "monsterList": [
     {
       "id": 1,
-      "name": "Enemy_Melee",
-      "spriteAddress": "Enemy_Melee",
+      "name": "일반",
       "healthPoint": 100,
       "attackPoint": 5,
       "criticalRate": 150,
@@ -15,12 +14,19 @@
         202,
         203
       ],
-      "type": "normal"
+      "type": "normal",
+      "species": [
+        {"name": "까마귀", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Crow_Vanilla"},
+        {"name": "장난감 병정", "prefabAddress": "Characters/EnemyPrefabs/Enemy_ToySoldier_Vanilla"},
+        {"name": "과자 괴물", "prefabAddress": "Characters/EnemyPrefabs/Enemy_CandyMonster_Vanilla"},
+        {"name": "늑대", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Wolf_Vanilla"},
+        {"name": "책", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Book_Vanilla"},
+        {"name": "사냥꾼", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Hunter_Vanilla"}
+      ]
     },
     {
       "id": 2,
-      "name": "Enemy_Melee_Night",
-      "spriteAddress": "Enemy_Melee",
+      "name": "밤",
       "healthPoint": 160,
       "attackPoint": 8,
       "criticalRate": 150,
@@ -32,12 +38,19 @@
         202,
         203
       ],
-      "type": "night"
+      "type": "night",
+      "species": [
+        {"name": "까마귀", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Crow_Vanilla"},
+        {"name": "장난감 병정", "prefabAddress": "Characters/EnemyPrefabs/Enemy_ToySoldier_Vanilla"},
+        {"name": "과자 괴물", "prefabAddress": "Characters/EnemyPrefabs/Enemy_CandyMonster_Vanilla"},
+        {"name": "늑대", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Wolf_Vanilla"},
+        {"name": "책", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Book_Vanilla"},
+        {"name": "사냥꾼", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Hunter_Vanilla"}
+      ]
     },
     {
       "id": 3,
-      "name": "Enemy_Melee_Semiboss",
-      "spriteAddress": "Enemy_Melee",
+      "name": "중간 보스",
       "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla",
       "healthPoint": 350,
       "attackPoint": 20,
@@ -50,12 +63,14 @@
         202,
         203
       ],
-      "type": "semiboss"
+      "type": "semiboss",
+      "species": [
+        {"name": "마녀", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla"}
+      ]
     },
     {
       "id": 4,
-      "name": "Enemy_Melee_FinalBoss",
-      "spriteAddress": "Enemy_Melee",
+      "name": "최종 보스",
       "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla",
       "healthPoint": 1200,
       "attackPoint": 75,
@@ -70,7 +85,10 @@
         202,
         203
       ],
-      "type": "boss"
+      "type": "boss",
+      "species": [
+        {"name": "마녀", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla"}
+      ]
     }
   ]
 }

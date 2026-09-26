@@ -29,8 +29,25 @@ namespace OzGameLab01.Combat
 
         public void PlayIdle() => PlayState("_Idle", false);
         public void PlayAttack() => PlayState("_Attack", true);
-        public void PlaySkill() => PlayState("_CC", true);
         public void PlayUltimate() => PlayState("_Ult", true);
+
+        /// <summary>
+        /// Attack 클립 1회의 실제 재생 시간(클립 길이 ÷ Animator 속도)을 반환합니다. Attack 클립이 없으면 0입니다.
+        /// </summary>
+        public float GetAttackDuration()
+        {
+            if (_animator == null || _animator.runtimeAnimatorController == null) return 0f;
+
+            foreach (AnimationClip clip in _animator.runtimeAnimatorController.animationClips)
+            {
+                if (clip != null && clip.name.EndsWith("_Attack"))
+                {
+                    return clip.length / Mathf.Max(0.01f, _animator.speed);
+                }
+            }
+
+            return 0f;
+        }
 
         /// <summary>
         /// 사망 애니메이션을 재생하고 종료 후 전달받은 작업을 실행합니다.
@@ -129,8 +146,9 @@ namespace OzGameLab01.Combat
             AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
             float duration = stateInfo.length > 0f ? stateInfo.length : 0.1f;
 
-            yield return new WaitForSeconds(
-                duration / Mathf.Max(0.01f, stateInfo.speed));
+            // AnimatorStateInfo.length는 Animator.speed가 이미 반영된 실제 재생 시간이라
+            // 여기서 다시 animator.speed로 나누면 안 됩니다(3배속이면 1/3 지점에서 끊겨버림).
+            yield return new WaitForSeconds(duration / Mathf.Max(0.01f, stateInfo.speed));
 
             if (_animator != null &&
                 _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == stateHash)
@@ -152,8 +170,8 @@ namespace OzGameLab01.Combat
             AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
             float duration = stateInfo.length > 0f ? stateInfo.length : 0.1f;
 
-            yield return new WaitForSeconds(
-                duration / Mathf.Max(0.01f, stateInfo.speed));
+            // AnimatorStateInfo.length는 Animator.speed가 이미 반영된 실제 재생 시간입니다.
+            yield return new WaitForSeconds(duration / Mathf.Max(0.01f, stateInfo.speed));
 
             if (_animator != null &&
                 _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == stateHash)
