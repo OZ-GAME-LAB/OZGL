@@ -16,18 +16,10 @@ namespace OzGameLab01.Combat
     /// </summary>
     public class AllySpawner : IDisposable
     {
-        // 일반 몹(normal/night)은 이 6종 풀에서 매번 랜덤으로 하나 고른다 — 어느 종이
-        // 나올지 고정 매핑은 없다. semiboss/boss(중간·최종보스)는 MonsterData.prefabAddress를
-        // 그대로 쓰고 크게 스케일업한다. 상세: Docs/ENEMY_SCALING_DESIGN.md 4-1절.
-        private static readonly string[] NormalEnemySpeciesPool =
-        {
-            "Characters/EnemyPrefabs/Enemy_Crow_Vanilla",
-            "Characters/EnemyPrefabs/Enemy_ToySoldier_Vanilla",
-            "Characters/EnemyPrefabs/Enemy_CandyMonster_Vanilla",
-            "Characters/EnemyPrefabs/Enemy_Wolf_Vanilla",
-            "Characters/EnemyPrefabs/Enemy_Book_Vanilla",
-            "Characters/EnemyPrefabs/Enemy_Hunter_Vanilla",
-        };
+        // 적 종류(프리팹·표시 이름)는 전투 계층 행(MonsterData)의 species 목록에서 매번 랜덤으로
+        // 고른다. 목록이 비어 있으면 semiboss/boss는 MonsterData.prefabAddress, 그 외는
+        // enemyPrefabResourceName으로 폴백한다. semiboss/boss(중간·최종보스)는 크게 스케일업한다.
+        // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-2절.
         private const float BossEnemyScaleMultiplier = 2.5f;
 
         private readonly CombatMapView _battleMapView;
@@ -114,6 +106,7 @@ namespace OzGameLab01.Combat
                     continue;
                 }
 
+                CombatUnitFactory.AlignGroundToSlot(unit, request.SpawnPoint);
                 CombatUnitViewBinder.BindCombatPresentation(unit, _allyHudPrefab);
                 unit.gameObject.SetActive(true);
 
@@ -197,7 +190,8 @@ namespace OzGameLab01.Combat
 
             bool isBossTier = _enemyMonsterData != null &&
                 (_enemyMonsterData.type == MonsterType.semiboss || _enemyMonsterData.type == MonsterType.boss);
-            string resourceName = ResolveEnemyPrefabResourceName(isBossTier);
+            MonsterSpecies species = PickEnemySpecies();
+            string resourceName = species != null ? species.prefabAddress : ResolveEnemyPrefabResourceName(isBossTier);
 
             GameObject prefab = UnitPrefabProvider.GetEnemyPrefab(resourceName);
             if (prefab == null)
@@ -209,8 +203,10 @@ namespace OzGameLab01.Combat
             Unit enemyUnit = CombatUnitFactory.CreateEnemy(prefab, spawnPoint, _enemyMonsterData);
             if (enemyUnit != null)
             {
+                if (species != null) enemyUnit.SetDisplayName(species.name);
                 float scale = _enemyScale * (isBossTier ? BossEnemyScaleMultiplier : 1f);
                 enemyUnit.transform.localScale = prefab.transform.localScale * scale;
+                CombatUnitFactory.AlignGroundToSlot(enemyUnit, spawnPoint);
                 CombatUnitViewBinder.BindCombatPresentation(enemyUnit);
                 enemyUnit.gameObject.SetActive(true);
             }
@@ -218,17 +214,21 @@ namespace OzGameLab01.Combat
             return enemyUnit;
         }
 
+        private MonsterSpecies PickEnemySpecies()
+        {
+            List<MonsterSpecies> candidates = _enemyMonsterData?.species;
+            if (candidates == null || candidates.Count == 0) return null;
+            return candidates[UnityEngine.Random.Range(0, candidates.Count)];
+        }
+
         private string ResolveEnemyPrefabResourceName(bool isBossTier)
         {
-            if (isBossTier)
+            if (isBossTier && !string.IsNullOrWhiteSpace(_enemyMonsterData.prefabAddress))
             {
-                return string.IsNullOrWhiteSpace(_enemyMonsterData.prefabAddress)
-                    ? _enemyPrefabResourceName
-                    : _enemyMonsterData.prefabAddress;
+                return _enemyMonsterData.prefabAddress;
             }
 
-            int index = UnityEngine.Random.Range(0, NormalEnemySpeciesPool.Length);
-            return NormalEnemySpeciesPool[index];
+            return _enemyPrefabResourceName;
         }
 
         private readonly struct AllySpawnRequest

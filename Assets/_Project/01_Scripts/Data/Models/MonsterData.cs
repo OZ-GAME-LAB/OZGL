@@ -15,10 +15,9 @@ namespace OzGameLab01.Data
     {
         public int id;
         public string name;
-        public string spriteAddress;
-        // Resources 경로(UnitPrefabProvider.GetEnemyPrefab 인자). normal/night는 이 필드를
-        // 쓰지 않고 6종 몹 풀에서 랜덤으로 고른다(AllySpawner) — semiboss/boss(중간·최종보스)만
-        // 이 값을 그대로 스폰한다. 상세: Docs/ENEMY_SCALING_DESIGN.md 4-1절.
+        // Resources 경로(UnitPrefabProvider.GetEnemyPrefab 인자). 스폰은 species 목록을 우선 쓰고,
+        // species가 비어 있을 때만 semiboss/boss(중간·최종보스)가 이 값으로 폴백한다(AllySpawner).
+        // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-2절.
         public string prefabAddress;
 
         public int healthPoint;
@@ -35,7 +34,18 @@ namespace OzGameLab01.Data
 
         public MonsterType type;
 
+        // 이 계층 전투에 나올 적 종(프리팹·표시 이름). 스폰 시 무작위로 하나 고른다(AllySpawner).
+        // 원본: Docs/Database/EnemyData (1).xlsx normalEnemy 시트 하단 "적 목록".
+        public List<MonsterSpecies> species = new List<MonsterSpecies>();
+
         public int Id => id;        // GameDB 식별자
+    }
+
+    [System.Serializable]
+    public class MonsterSpecies
+    {
+        public string name;             // 전투 화면 표시 이름
+        public string prefabAddress;    // Resources 경로(UnitPrefabProvider.GetEnemyPrefab 인자)
     }
 
     public enum MonsterType

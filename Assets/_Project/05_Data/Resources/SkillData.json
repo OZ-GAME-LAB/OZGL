@@ -4,23 +4,30 @@
       "id": 51001,
       "unitId": 100,
       "iconAddress": "I_SA_100",
+      "castVfxAddress": "VFX/Skill/Cast/Alice_Activate_Skill_EF",
       "name": "내 기분은 내가 정해",
       "description": "적에게 공격력의 150% 데미지 부여.\n적에게 상태이상 '도트데미지' 부여(5초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 9.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
           "effectType": "Damage",
           "statType": "Attack",
           "value": 1.5,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Alice_Skill_Hit_EF", "delay": 0.3, "scale": 0.5}
+          ]
         },
         {
           "targetType": "CurrentTarget",
           "effectType": "DotDamage",
           "statType": "Attack",
           "value": 0.3,
-          "extraParam": 5.0
+          "extraParam": 5.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Alice_SkillMark_EF", "scale": 1.0}
+          ]
         }
       ],
       "passiveEffects": null
@@ -62,16 +69,20 @@
       "id": 51011,
       "unitId": 101,
       "iconAddress": "I_SA_101",
+      "castVfxAddress": "VFX/Skill/Cast/White_Rabbit_Activate_Skill_EF",
       "name": "시간이 없어!",
       "description": "아군 전체의 쿨타임 1초 회복",
-      "cooldown": 0.0,
+      "cooldown": 10.0,
       "activeEffects": [
         {
           "targetType": "AllAllies",
           "effectType": "CooldownRecovery",
           "statType": "TurnRecovery",
           "value": 1.0,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/White_Rabbit_Skill_BuffEF", "scale": 0.3, "anchor": "Ground"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -102,23 +113,30 @@
       "id": 51021,
       "unitId": 102,
       "iconAddress": "I_SA_102",
+      "castVfxAddress": "VFX/Skill/Cast/Cheshire_Cat_Activate_Skill_EF",
       "name": "어디로 가고 싶어?",
       "description": "아군 전체의 체력 10% 회복\n아군 전체에게 버프 '회피율 20% 상승' 부여 (4초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 13.0,
       "activeEffects": [
         {
           "targetType": "AllAllies",
           "effectType": "Heal",
           "statType": "MaxHealth",
           "value": 0.1,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Cheshire_Cat_SkillBuff_Single", "scale": 0.28, "anchor": "Ground"}
+          ]
         },
         {
           "targetType": "AllAllies",
           "effectType": "StatModifier",
           "statType": "DodgeChance",
           "value": 0.2,
-          "extraParam": 4.0
+          "extraParam": 4.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Cheshire_Cat_SKillBuff_Area", "onCaster": true, "scale": 0.5, "anchor": "Ground"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -149,16 +167,20 @@
       "id": 51051,
       "unitId": 105,
       "iconAddress": "I_SA_105",
+      "castVfxAddress": "VFX/Skill/Cast/Genie_Activate_Skill_EF",
       "name": "세가지 소원(물리)",
       "description": "대상의 방어력을 무시하는 공격력의 390% 데미지.",
-      "cooldown": 0.0,
+      "cooldown": 7.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
           "effectType": "TrueDamage",
           "statType": "Attack",
           "value": 3.9,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Genie_Skill_Hit_EF", "scale": 2.5}
+          ]
         }
       ],
       "passiveEffects": null
@@ -189,23 +211,30 @@
       "id": 51061,
       "unitId": 106,
       "iconAddress": "I_SA_106",
+      "castVfxAddress": "VFX/Skill/Cast/Lion_Activate_Skill_EF",
       "name": "내가 겁쟁이라고!?",
       "description": "자신에게 상태이상 '도발' 부여 (999초)\n자신에게 보호막( 전체 체력 * ( 전체 체력 / 남은체력 ) )만큼 부여. (7초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 13.0,
       "activeEffects": [
         {
           "targetType": "Self",
           "effectType": "Taunt",
           "statType": "Unknown",
           "value": 1.0,
-          "extraParam": 999.0
+          "extraParam": 999.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Lion_Skill_Provocation_EF", "attachSeconds": 999.0, "scale": 1.5}
+          ]
         },
         {
           "targetType": "Self",
           "effectType": "GrantShield",
           "statType": "MaxHealth",
           "value": 1.0,
-          "extraParam": 7.0
+          "extraParam": 7.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Lion_SKill_Shield_EF", "attachSeconds": 7.0, "scale": 0.65, "anchor": "Ground"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -236,16 +265,20 @@
       "id": 51081,
       "unitId": 108,
       "iconAddress": "I_SA_108",
+      "castVfxAddress": "VFX/Skill/Cast/Scarecrow_Activate_Skill_EF",
       "name": "깜짝 놀래키기",
       "description": "적에게 자신의 공격력의 165% 데미지 부여.",
-      "cooldown": 0.0,
+      "cooldown": 8.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
           "effectType": "Damage",
           "statType": "Attack",
           "value": 1.65,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Scarecrow_SKill_Hit_EF", "scale": 0.8}
+          ]
         }
       ],
       "passiveEffects": null
@@ -276,16 +309,21 @@
       "id": 51091,
       "unitId": 109,
       "iconAddress": "I_SA_109",
+      "castVfxAddress": "VFX/Skill/Cast/Dorothy_Activate_Skill_EF",
       "name": "부끄러운줄 알아야지",
       "description": "적에게 상태이상 '공격력 감소 20% 부여' (5초 지속)\n그 수치만큼 자신의 공격력 상승.",
-      "cooldown": 0.0,
+      "cooldown": 9.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
           "effectType": "StealStat",
           "statType": "Attack",
           "value": 0.2,
-          "extraParam": 5.0
+          "extraParam": 5.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Dorothy_Skill_Hit_EF", "scale": 0.6},
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45, "anchor": "Ground"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -316,16 +354,20 @@
       "id": 51101,
       "unitId": 110,
       "iconAddress": "I_SA_110",
+      "castVfxAddress": "VFX/Skill/Cast/Little_Mermaid_Activate_Skill_EF",
       "name": "물방울 아리아",
       "description": "아군 전체 체력 회복 (대상 체력의 5%).\n아군 전체 상태이상 1종 제거.\n적에게 상태이상 '침묵' 부여. (5초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 14.0,
       "activeEffects": [
         {
           "targetType": "AllAllies",
           "effectType": "Heal",
           "statType": "MaxHealth",
           "value": 0.05,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Heal_EF", "scale": 0.28, "anchor": "Ground"}
+          ]
         },
         {
           "targetType": "AllAllies",
@@ -370,16 +412,21 @@
       "id": 51111,
       "unitId": 11,
       "iconAddress": "I_SA_111",
+      "castVfxAddress": "VFX/Skill/Cast/Snow White_Activate_Skill_EF",
+      "projectileScale": 2.0,
       "name": "독사과 런처",
       "description": "적에게 자신의 공격력의 125% 데미지 부여.\n적에게 상태이상 '도트데미지' 부여(5초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 7.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
           "effectType": "Damage",
           "statType": "Attack",
           "value": 1.25,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Snow White_SKill_Hit_EF", "scale": 0.5}
+          ]
         },
         {
           "targetType": "CurrentTarget",
@@ -417,23 +464,30 @@
       "id": 51141,
       "unitId": 114,
       "iconAddress": "I_SA_114",
+      "castVfxAddress": "VFX/Skill/Cast/Peter_Pan_Activate_Skill_EF",
       "name": "어른이 되기 싫었어",
       "description": "자신의 공격속도 감소(공격력*0.2)\n자신의 공격력 증가 ( (1.0-공격속도)*50 ) (최소0)",
-      "cooldown": 0.0,
+      "cooldown": 9.0,
       "activeEffects": [
         {
           "targetType": "Self",
           "effectType": "StatModifier",
           "statType": "AttackInterval",
           "value": -0.2,
-          "extraParam": 0.0
+          "extraParam": 0.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45, "anchor": "Ground"}
+          ]
         },
         {
           "targetType": "Self",
           "effectType": "StatModifier",
           "statType": "Attack",
           "value": 50.0,
-          "extraParam": 1.0
+          "extraParam": 1.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45, "anchor": "Ground"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -464,23 +518,30 @@
       "id": 51151,
       "unitId": 115,
       "iconAddress": "I_SA_115",
+      "castVfxAddress": "VFX/Skill/Cast/Tinker_Bell_Activate_Skill_EF",
       "name": "광기의 집착",
       "description": "적에게 1종의 상태이상 부여. (7초 지속)\n자신에게 같은 상태이상 부여. (7초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 13.0,
       "activeEffects": [
         {
           "targetType": "CurrentTarget",
           "effectType": "StatModifier",
           "statType": "Unknown",
           "value": 1.0,
-          "extraParam": 7.0
+          "extraParam": 7.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Down_EF", "scale": 0.45, "anchor": "Ground"}
+          ]
         },
         {
           "targetType": "Self",
           "effectType": "StatModifier",
           "statType": "Unknown",
           "value": 1.0,
-          "extraParam": 7.0
+          "extraParam": 7.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45, "anchor": "Ground"}
+          ]
         }
       ],
       "passiveEffects": null
@@ -511,16 +572,20 @@
       "id": 51201,
       "unitId": 120,
       "iconAddress": "I_SA_120",
+      "castVfxAddress": "VFX/Skill/Cast/Zepeto_Activate_Skill_EF",
       "name": "너도 고쳐주마",
       "description": "임의의 아군에게 버프 '공격력 20% 증가' 부여 (10초 지속)\n같은 대상에게 버프 '공격속도 15% 증가' 부여 (10초 지속)",
-      "cooldown": 0.0,
+      "cooldown": 10.0,
       "activeEffects": [
         {
           "targetType": "RandomAlly",
           "effectType": "StatModifier",
           "statType": "Attack",
           "value": 0.2,
-          "extraParam": 10.0
+          "extraParam": 10.0,
+          "vfx": [
+            {"address": "VFX/Skill/Effect/Public_Stat_Up_EF", "scale": 0.45, "anchor": "Ground"}
+          ]
         },
         {
           "targetType": "RandomAlly",

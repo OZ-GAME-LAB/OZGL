@@ -1018,7 +1018,7 @@ Transform:
   m_GameObject: {fileID: 6383354768666320415}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -1393,8 +1393,11 @@ MonoBehaviour:
   maxHP: 100
   healthBar: {fileID: 0}
   spriteRenderer: {fileID: 4883215464142727153}
-  projectilePrefab: {fileID: 171105061545673154, guid: 4a6dbc57069becf4d8afa797f4ddc905, type: 3}
-  attackEffectPrefab: {fileID: 0}
-  hitEffectPrefab: {fileID: 0}
-  skillNameLabel: {fileID: 0}
-  skillNameDisplayDuration: 0.35
+  projectilePrefabReference:
+    m_AssetGUID: ae7b67b1960b4ee4fb16e3048a73b5ef
+    m_SubObjectName: 
+    m_SubObjectType: 
+    m_SubObjectGUID: 
+    m_EditorAssetChanged: 1
+  attackEffectPrefab: {fileID: 5579294690110463380, guid: 9454d50cbec0a18479fae94eeaecb7aa, type: 3}
+  hitEffectPrefab: {fileID: 1955271242224640361, guid: c86d58fd0c6f36848b38ec25f9d2b30e, type: 3}

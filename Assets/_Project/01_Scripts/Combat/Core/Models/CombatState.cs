@@ -22,6 +22,17 @@ namespace OzGameLab01.Combat
 
         public Unit ResolveAllyTarget()
         {
+            // 도발 중인 아군이 살아 있으면 전열 규칙보다 우선해 그 유닛을 노립니다.
+            List<Unit> taunting = new List<Unit>();
+            foreach (Unit unit in SlotUnits)
+            {
+                if (unit != null && !unit.IsDead && unit.IsTaunting) taunting.Add(unit);
+            }
+            if (taunting.Count > 0)
+            {
+                return taunting[Random.Range(0, taunting.Count)];
+            }
+
             List<Unit> exposed = new List<Unit>();
 
             for (int column = 0; column < SlotColumns; column++)
