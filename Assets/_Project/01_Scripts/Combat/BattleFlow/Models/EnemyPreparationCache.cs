@@ -44,7 +44,7 @@ namespace OzGameLab01.Combat
             MonsterData prepared = Clone(baseData);
             if (baseData.type == MonsterType.boss)
             {
-                // 최종 보스는 finalbossEnemy 시트의 고정 스탯을 그대로 사용하고
+                // 최종 보스와 튜토리얼 보스는 데이터에 지정된 고정 스탯을 그대로 사용하고
                 // 턴 진행에 따른 성장 공식은 적용하지 않습니다.
             }
             else

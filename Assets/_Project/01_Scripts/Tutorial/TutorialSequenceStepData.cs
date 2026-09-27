@@ -69,6 +69,8 @@ namespace OzGameLab01.Controllers
         [Header("Boss Tile Spawn")]
         [Tooltip("이 Step이 실행될 때 플레이어 주변의 Normal 타일 하나를 Boss 타일로 전환합니다. 타일 생성이 완료된 뒤 나머지 Step 동작과 Guide 표시를 진행합니다.")]
         [SerializeField] private bool spawnBossTileNearPlayer;
+        [Tooltip("생성한 보스 타일 전투에서 사용할 MonsterData ID입니다. 기본값 5는 튜토리얼 전용 보스입니다.")]
+        [SerializeField, Min(1)] private int bossMonsterId = 5;
         [Tooltip("플레이어 위치에서 보스 타일 후보까지의 최소 최단거리입니다.")]
         [SerializeField, Min(1)] private int bossSpawnMinDistance = 1;
         [Tooltip("플레이어 위치에서 보스 타일 후보까지의 최대 최단거리입니다. 범위 안에서 가장 먼 후보를 우선 사용합니다.")]
@@ -172,6 +174,7 @@ namespace OzGameLab01.Controllers
         public bool SetNextDiceRoll => setNextDiceRoll;
         public int NextDiceRollValue => nextDiceRollValue;
         public bool SpawnBossTileNearPlayer => spawnBossTileNearPlayer;
+        public int BossMonsterId => bossMonsterId > 0 ? bossMonsterId : 5;
         public int BossSpawnMinDistance => bossSpawnMinDistance;
         public int BossSpawnMaxDistance => bossSpawnMaxDistance;
         public bool FocusBoardTile => focusBoardTile;

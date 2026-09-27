@@ -33,7 +33,7 @@ namespace OzGameLab01.UI
             int requestVersion = ++_requestVersion;
 
             _view.Clear();
-            _view.SetEnemy(enemy.name, null);
+            _view.SetEnemy(enemy.name, ResolveEnemySprite(enemy));
             PopulateStats(enemy);
             _view.SetBattleInteractable(false);
             _view.SetBattleAction(() => HandleBattleRequested(requestVersion, battleRequested));
@@ -43,7 +43,6 @@ namespace OzGameLab01.UI
 
             try
             {
-                Task<Sprite> enemySpriteTask = SpriteManager.GetSpriteAsync(enemy.spriteAddress);
                 Task<Sprite>[] skillSpriteTasks = new Task<Sprite>[skills.Count];
 
                 for (int i = 0; i < skills.Count; i++)
@@ -51,15 +50,12 @@ namespace OzGameLab01.UI
                     skillSpriteTasks[i] = SpriteManager.GetSpriteAsync(skills[i].iconAddress);
                 }
 
-                Sprite enemySprite = await enemySpriteTask;
                 Sprite[] skillSprites = await Task.WhenAll(skillSpriteTasks);
 
                 if (!IsCurrentRequest(requestVersion))
                 {
                     return;
                 }
-
-                _view.SetEnemy(enemy.name, enemySprite);
 
                 for (int i = 0; i < skills.Count; i++)
                 {
@@ -149,6 +145,43 @@ namespace OzGameLab01.UI
         {
             // 전용 스탯 아이콘 데이터가 아직 없으므로 값과 Hover 설명을 우선 표시합니다.
             _view.AddStat(null, value, title, description);
+        }
+
+        private static Sprite ResolveEnemySprite(MonsterData enemy)
+        {
+            if (enemy == null)
+            {
+                return null;
+            }
+
+            string prefabAddress = enemy.prefabAddress;
+            if (enemy.species != null)
+            {
+                for (int i = 0; i < enemy.species.Count; i++)
+                {
+                    MonsterSpecies species = enemy.species[i];
+                    if (species != null &&
+                        !string.IsNullOrWhiteSpace(species.prefabAddress))
+                    {
+                        prefabAddress = species.prefabAddress;
+                        break;
+                    }
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(prefabAddress))
+            {
+                return null;
+            }
+
+            GameObject enemyPrefab =
+                OzGameLab01.Combat.UnitPrefabProvider.GetEnemyPrefab(
+                    prefabAddress);
+            SpriteRenderer spriteRenderer = enemyPrefab != null
+                ? enemyPrefab.GetComponentInChildren<SpriteRenderer>(true)
+                : null;
+
+            return spriteRenderer != null ? spriteRenderer.sprite : null;
         }
 
         private static List<SkillData> ResolveSkills(IReadOnlyList<int> skillIds)

@@ -23,7 +23,8 @@ namespace OzGameLab01.Combat
             return ResolvePreparedEnemy(
                 BoardRunData.IsBossBattle,
                 BoardRunData.IsEliteBattle,
-                BoardRunData.IsNightEncounter);
+                BoardRunData.IsNightEncounter,
+                BoardRunData.CurrentBattleMonsterId);
         }
 
         /// <summary>
@@ -33,9 +34,14 @@ namespace OzGameLab01.Combat
         public static MonsterData ResolvePreparedEnemy(
             bool isBoss,
             bool isElite,
-            bool isNightEncounter)
+            bool isNightEncounter,
+            int monsterIdOverride = 0)
         {
-            int monsterId = ResolveMonsterId(isBoss, isElite, isNightEncounter);
+            int monsterId = ResolveMonsterId(
+                isBoss,
+                isElite,
+                isNightEncounter,
+                monsterIdOverride);
             MonsterData baseData = RuntimeContent.Catalog.GetEnemy(monsterId);
 
             return baseData != null
@@ -46,8 +52,14 @@ namespace OzGameLab01.Combat
         public static int ResolveMonsterId(
             bool isBoss,
             bool isElite,
-            bool isNightEncounter)
+            bool isNightEncounter,
+            int monsterIdOverride = 0)
         {
+            if (monsterIdOverride > 0)
+            {
+                return monsterIdOverride;
+            }
+
             // 최종 보스는 finalbossEnemy 시트에서 생성된 고정 데이터(ID 4)를,
             // 중간 보스는 semiboss 데이터(ID 3)를 사용합니다.
             if (isBoss)
