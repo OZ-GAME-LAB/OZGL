@@ -39,7 +39,12 @@ namespace OzGameLab01.Controllers
 
         public void Start()
         {
-            NextStepIndex = 0;
+            StartAt(0);
+        }
+
+        public void StartAt(int nextStepIndex)
+        {
+            NextStepIndex = Math.Max(0, Math.Min(nextStepIndex, steps.Count));
             ActiveStep = null;
             PendingStep = null;
             IsPlaying = true;

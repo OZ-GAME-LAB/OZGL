@@ -35,15 +35,6 @@ namespace OzGameLab01.Combat
         [Tooltip("적 유닛 id별 스탯. 비워두면 enemyPrefabResourceName 프리팹의 기본값을 그대로 사용합니다.")]
         [SerializeField] private MonsterRosterData monsterRosterData;
 
-        // EnemyData.json 기준: 1=normal, 2=night, 3=semiboss, 4=boss(최종보스, 엑셀
-        // finalbossEnemy 시트의 고정값 — EnemyPreparationCache가 성장 공식을 적용하지 않음).
-        // 보드의 낮/밤·중간보스/최종보스 상태로 자동 결정한다
-        // (BoardRunData.IsBossBattle/IsEliteBattle/IsNightEncounter).
-        private const int NightEnemyMonsterId = 2;
-        private const int SemibossEnemyMonsterId = 3;
-        private const int FinalBossEnemyMonsterId = 4;
-        private const int NormalEnemyMonsterId = 1;
-
         [Header("시너지 UI")]
         [Tooltip("시너지 표시 아이템이 배치될 부모입니다.")]
         [SerializeField] private Transform synergyPanelRoot;
@@ -88,13 +79,6 @@ namespace OzGameLab01.Combat
             _feedbackView?.Show(feedback);
         }
 
-        private static int ResolveEnemyMonsterId()
-        {
-            if (BoardRunData.IsBossBattle) return FinalBossEnemyMonsterId;
-            if (BoardRunData.IsEliteBattle) return SemibossEnemyMonsterId;
-            return BoardRunData.IsNightEncounter ? NightEnemyMonsterId : NormalEnemyMonsterId;
-        }
-
         private async void Awake()
         {
             IsBattleReady = false;
@@ -133,11 +117,10 @@ namespace OzGameLab01.Combat
 
             // 스폰/시너지 책임은 별도 클래스로 분리되어 있다. Inspector 참조는 CombatSession이
             // 그대로 들고 있고, 생성자로 넘겨주기만 한다(씬/프리팹 재배선 불필요).
-            MonsterData enemyMonsterData = RuntimeContent.Catalog.GetEnemy(ResolveEnemyMonsterId());
-
-            // 턴/낮밤/중간보스 상태로 스케일링한 체력과 플레이어 보유 유닛에서 훔친 액티브
-            // 스킬까지 반영한 전투용 스펙으로 교체합니다. 원본 로스터 캐시는 수정하지 않습니다.
-            enemyMonsterData = EnemyManager.Instance.Facade.BuildCombatSpec(enemyMonsterData);
+            // 보드의 전투 정보 화면과 같은 Resolver를 사용해, 미리 본 적과 실제 전투에
+            // 생성되는 적의 기본 데이터·성장 수치·보유 스킬이 일치하도록 합니다.
+            MonsterData enemyMonsterData = EnemyEncounterResolver.ResolveCurrentEncounter();
+            
             EnemyData = enemyMonsterData;
 
             _allySpawner = new AllySpawner(

@@ -173,7 +173,7 @@ namespace OzGameLab01.Controllers
             }
 
             ResetTimeScale();
-            transitioner.LoadBoardScene();
+            transitioner.LoadCombatReturnScene();
         }
 
         /// <summary>

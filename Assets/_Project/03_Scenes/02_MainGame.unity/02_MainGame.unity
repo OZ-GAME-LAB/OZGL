@@ -1737,6 +1737,8 @@ MonoBehaviour:
   _nightEventPopup: {fileID: 0}
   _timeStatusHud: {fileID: 0}
   _unitFormationController: {fileID: 0}
+  _useFixedUnitAcquisition: 0
+  _fixedUnitAcquisitionId: 111
   _eventUIPanel: {fileID: 815757260}
 --- !u!4 &1575848855
 Transform:
@@ -1907,7 +1909,7 @@ MonoBehaviour:
   defaultOffset: {x: 0, y: 15, z: 0}
   zoomSpeed: 1
   minZoomMultiplier: 0.3
-  maxZoomMultiplier: 2.5
+  maxZoomMultiplier: 1
   locateMoveDuration: 0.75
   locateHoldDuration: 1.5
 --- !u!81 &1701331398

@@ -1,7 +1,14 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
+using OzGameLab01.Board.Models;
+using OzGameLab01.Common;
+using OzGameLab01.Events;
+using OzGameLab01.Managers;
 using OzGameLab01.Map;
+using OzGameLab01.Save;
+using OzGameLab01.Data;
 using OzGameLab01.UI;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -12,12 +19,16 @@ namespace OzGameLab01.Controllers
     [DisallowMultipleComponent]
     public sealed class TutorialSequenceController : MonoBehaviour
     {
+        public static TutorialSequenceController Active { get; private set; }
+
         [Header("Controllers")]
         [SerializeField] private TutorialController tutorialController;
         [SerializeField] private ReadySceneView readySceneView;
         [SerializeField] private BoardUIController boardUIController;
         [SerializeField] private TutorialTargetRegistry targetRegistry;
         [SerializeField] private UnitFormationController unitFormationController;
+        [Tooltip("비워두면 비활성 오브젝트를 포함해 씬에서 자동으로 찾습니다.")]
+        [SerializeField] private EventSession eventSession;
 
         [Header("Board Tile Focus (Optional)")]
         [SerializeField] private BoardCameraController boardCameraController;
@@ -29,16 +40,34 @@ namespace OzGameLab01.Controllers
         [Tooltip("각 Step SO를 실행할 순서대로 등록합니다.")]
         [SerializeField] private List<TutorialSequenceStepData> steps = new();
 
+        [Header("Tutorial Board Rules")]
+        [Tooltip("현재 Step SO의 Set Next Dice Roll이 꺼져 있거나 예약값을 모두 사용했을 때만 적용되는 기본 눈입니다.")]
+        [SerializeField, Range(1,6)] private int defaultDiceRollValue = 2;
+
+        [Header("Tutorial Completion Result")]
+        [Tooltip("04_Tutorial 씬에 미리 배치한 ResultCanvas/RunResultUI의 RunResultAnimationView입니다.")]
+        [SerializeField] private RunResultAnimationView runResultView;
+
         private TutorialSequenceState<TutorialSequenceStepData> sequenceState;
         private Button waitingTriggerButton;
         private string waitingTriggerButtonKey;
 
         private Tween pendingShowTween;
+        private Coroutine pendingBossSpawnRoutine;
         private TutorialHighlightPresenter highlightPresenter;
         private TutorialSequenceStepData guideAfterLocateStep;
         private bool tutorialLocateInProgress;
         private bool tutorialTileFocusVisible;
         private GameObject locateInputBlocker;
+        private bool hasReservedDiceRoll;
+        private int reservedDiceRollValue;
+        private MapNode requiredMoveTarget;
+        private string invalidMoveFeedback;
+        private float invalidMoveFeedbackDuration;
+        private Coroutine invalidMoveFeedbackRoutine;
+        private TutorialSequenceStepData runtimeBoardTileTargetStep;
+        private MapNode runtimeBoardTileTarget;
+        private bool returningToTitle;
 
         public bool IsPlaying => sequenceState != null && sequenceState.IsPlaying;
         public int NextStepIndex => sequenceState != null
@@ -56,11 +85,15 @@ namespace OzGameLab01.Controllers
             EnsureHighlightPresenter();
             ResolveBoardFocusReferences();
             ResolveUnitFormationController();
+            ResolveEventSession();
+            ResolveRunResultView();
             CreateLocateInputBlocker();
         }
 
         private void OnEnable()
         {
+            Active = this;
+
             if (tutorialController != null)
                 tutorialController.GuideDismissed += HandleGuideDismissed;
 
@@ -78,9 +111,12 @@ namespace OzGameLab01.Controllers
 
             ResolveBoardFocusReferences();
             ResolveUnitFormationController();
+            ResolveEventSession();
             EnsureHighlightPresenter();
             highlightPresenter.Configure(targetRegistry, readySceneView);
             BindLocateEvents();
+            BindRunResultView();
+            BindEventSession();
         }
 
         private void Start()
@@ -92,11 +128,26 @@ namespace OzGameLab01.Controllers
             ResolveUnitFormationController();
 
             if (playOnStart)
-                PlaySequence();
+            {
+                if (TutorialSessionState.TryConsumeBoardResume(
+                        out int resumeStepIndex))
+                {
+                    PlaySequenceFrom(
+                        resumeStepIndex,
+                        TutorialStepTrigger.ReturnedFromCombat);
+                }
+                else
+                {
+                    PlaySequence();
+                }
+            }
         }
 
         private void OnDisable()
         {
+            if (Active == this)
+                Active = null;
+
             if (tutorialController != null)
                 tutorialController.GuideDismissed -= HandleGuideDismissed;
 
@@ -113,15 +164,27 @@ namespace OzGameLab01.Controllers
             }
 
             UnbindLocateEvents();
+            UnbindRunResultView();
+            UnbindEventSession();
             CancelTutorialLocatePresentation(false);
 
             UnbindWaitingButton();
             CancelPendingStep();
+            CancelPendingBossSpawn();
             highlightPresenter?.StopAll();
+            ClearRuntimeRules();
         }
 
         [ContextMenu("Play Tutorial Sequence")]
         public void PlaySequence()
+        {
+            TutorialSessionState.BeginNewSession();
+            PlaySequenceFrom(0, TutorialStepTrigger.SequenceStarted);
+        }
+
+        private void PlaySequenceFrom(
+            int nextStepIndex,
+            TutorialStepTrigger initialTrigger)
         {
             EnsureSequenceState();
             StopSequence();
@@ -130,10 +193,12 @@ namespace OzGameLab01.Controllers
                 !sequenceState.HasConfiguredSteps)
                 return;
 
-            sequenceState.Start();
+            sequenceState.StartAt(nextStepIndex);
+            TutorialSessionState.RecordBoardProgress(
+                sequenceState.NextStepIndex);
 
             PrepareNextStepTrigger();
-            TryShowNextStep(TutorialStepTrigger.SequenceStarted);
+            TryShowNextStep(initialTrigger);
         }
 
         [ContextMenu("Stop Tutorial Sequence")]
@@ -143,8 +208,11 @@ namespace OzGameLab01.Controllers
 
             UnbindWaitingButton();
             CancelPendingStep();
+            CancelPendingBossSpawn();
             highlightPresenter?.StopAll();
             CancelTutorialLocatePresentation(true);
+            ClearRuntimeRules();
+            HideRunResult();
 
             if (tutorialController != null && tutorialController.IsGuideVisible)
                 tutorialController.HideAllImmediate();
@@ -192,6 +260,38 @@ namespace OzGameLab01.Controllers
             HandleReadyViewVisibilityChanged(viewType,false);
         }
 
+        private void HandleEventUIHidden(EventSession _)
+        {
+            TryShowNextStep(TutorialStepTrigger.EventUIHidden);
+        }
+
+        public int ConsumeDiceRollValue()
+        {
+            if (!hasReservedDiceRoll)
+                return Mathf.Clamp(defaultDiceRollValue,1,6);
+
+            hasReservedDiceRoll = false;
+            return Mathf.Clamp(reservedDiceRollValue,1,6);
+        }
+
+        public bool CanMoveToTile(MapNode target)
+        {
+            if (requiredMoveTarget == null || target == requiredMoveTarget)
+                return true;
+
+            ShowInvalidMoveFeedback();
+            return false;
+        }
+
+        public void NotifyPlayerArrived(MapNode arrivedNode)
+        {
+            if (requiredMoveTarget == null || arrivedNode != requiredMoveTarget)
+                return;
+
+            ClearRequiredMoveRule();
+            TryShowNextStep(TutorialStepTrigger.RequiredTileReached);
+        }
+
         private void HandleGuideDismissed()
         {
             if (!IsPlaying || sequenceState.ActiveStep == null)
@@ -200,6 +300,13 @@ namespace OzGameLab01.Controllers
             TutorialSequenceStepData dismissedStep =
                 sequenceState.ClearActive();
             highlightPresenter?.HandleGuideDismissed(dismissedStep);
+
+            if (dismissedStep.ShowRunResultOnComplete)
+            {
+                CompleteSequence();
+                ShowRunResult();
+                return;
+            }
 
             if (!sequenceState.HasRemainingSteps)
             {
@@ -322,6 +429,31 @@ namespace OzGameLab01.Controllers
             if (step == null)
                 return;
 
+            if (step.SpawnBossTileNearPlayer)
+            {
+                pendingBossSpawnRoutine =
+                    StartCoroutine(SpawnBossTileThenExecuteStep(step));
+                return;
+            }
+
+            ExecuteActivatedStep(step);
+        }
+
+        private void ExecuteActivatedStep(TutorialSequenceStepData step)
+        {
+            TutorialSessionState.RecordBoardProgress(
+                sequenceState.NextStepIndex);
+
+            ApplyRuntimeRules(step);
+
+            if (!step.ShowGuide && step.ShowRunResultOnComplete)
+            {
+                sequenceState.ClearActive();
+                CompleteSequence();
+                ShowRunResult();
+                return;
+            }
+
             bool waitForLocateBeforeGuide =
                 step.FocusBoardTile &&
                 step.ShowGuide &&
@@ -364,6 +496,150 @@ namespace OzGameLab01.Controllers
                 !sequenceState.HasRemainingSteps &&
                 !locateStarted)
                 CompleteSequence();
+        }
+
+        private IEnumerator SpawnBossTileThenExecuteStep(
+            TutorialSequenceStepData step)
+        {
+            while (IsPlaying && sequenceState.ActiveStep == step)
+            {
+                ResolveBoardFocusReferences();
+
+                BoardPlayerController playerController =
+                    BoardPlayerController.Instance;
+                if (mapGenerator != null &&
+                    mapGenerator.IsPresentationComplete &&
+                    playerController != null &&
+                    playerController.CurrentNode != null)
+                {
+                    break;
+                }
+
+                yield return null;
+            }
+
+            if (!IsPlaying || sequenceState.ActiveStep != step)
+            {
+                pendingBossSpawnRoutine = null;
+                yield break;
+            }
+
+            if (!TrySpawnBossTileNearPlayer(step,out MapNode bossNode))
+            {
+                pendingBossSpawnRoutine = null;
+                Debug.LogError(
+                    $"[TutorialSequenceController] 플레이어 주변에 보스 타일을 생성하지 못했습니다. " +
+                    $"Normal 타일과 거리 설정을 확인해주세요. Step: {step.StepName}",
+                    this);
+                sequenceState.Stop();
+                yield break;
+            }
+
+            // 기존 타일 오브젝트 제거가 프레임 종료에 반영된 뒤 Guide와 Locate를 시작합니다.
+            yield return null;
+
+            pendingBossSpawnRoutine = null;
+            if (IsPlaying && sequenceState.ActiveStep == step && bossNode != null)
+                ExecuteActivatedStep(step);
+        }
+
+        private bool TrySpawnBossTileNearPlayer(
+            TutorialSequenceStepData step,
+            out MapNode bossNode)
+        {
+            bossNode = null;
+            ResolveBoardFocusReferences();
+
+            BoardPlayerController playerController = BoardPlayerController.Instance;
+            MapNode playerNode = playerController != null
+                ? playerController.CurrentNode
+                : null;
+
+            if (mapGenerator == null || playerNode == null)
+                return false;
+
+            int minDistance = Mathf.Max(1,step.BossSpawnMinDistance);
+            int maxDistance = Mathf.Max(
+                minDistance,
+                step.BossSpawnMaxDistance);
+            IReadOnlyDictionary<MapNode,int> reachableNodes =
+                BoardPathfinder.GetReachableNodeDistances(
+                    playerNode,
+                    maxDistance);
+
+            MapNode existingBoss = null;
+            int existingBossDistance = -1;
+            MapNode normalCandidate = null;
+            int normalCandidateDistance = -1;
+
+            foreach (KeyValuePair<MapNode,int> pair in reachableNodes)
+            {
+                MapNode candidate = pair.Key;
+                int distance = pair.Value;
+                if (candidate == null || distance < minDistance)
+                    continue;
+
+                if (candidate.Type == NodeType.Boss &&
+                    !BoardRunData.IsSpecialTileConsumed(candidate.Position) &&
+                    IsBetterBossSpawnCandidate(
+                        candidate,
+                        distance,
+                        existingBoss,
+                        existingBossDistance))
+                {
+                    existingBoss = candidate;
+                    existingBossDistance = distance;
+                    continue;
+                }
+
+                if (candidate.Type == NodeType.Normal &&
+                    !BoardRunData.IsSpecialTileConsumed(candidate.Position) &&
+                    IsBetterBossSpawnCandidate(
+                        candidate,
+                        distance,
+                        normalCandidate,
+                        normalCandidateDistance))
+                {
+                    normalCandidate = candidate;
+                    normalCandidateDistance = distance;
+                }
+            }
+
+            bossNode = existingBoss != null ? existingBoss : normalCandidate;
+            if (bossNode == null)
+                return false;
+
+            if (bossNode.Type != NodeType.Boss)
+            {
+                bossNode.Type = NodeType.Boss;
+                mapGenerator.ReplaceTileVisual(bossNode);
+
+                if (mapGenerator.GetNodeView(bossNode) == null)
+                {
+                    bossNode.Type = NodeType.Normal;
+                    mapGenerator.ReplaceTileVisual(bossNode);
+                    bossNode = null;
+                    return false;
+                }
+            }
+
+            bossNode.EncounterMonsterId = step.BossMonsterId;
+            runtimeBoardTileTargetStep = step;
+            runtimeBoardTileTarget = bossNode;
+            BoardRunData.SaveObjectivePosition(bossNode.Position);
+            return true;
+        }
+
+        private static bool IsBetterBossSpawnCandidate(
+            MapNode candidate,
+            int candidateDistance,
+            MapNode current,
+            int currentDistance)
+        {
+            return current == null ||
+                   candidateDistance > currentDistance ||
+                   (candidateDistance == currentDistance &&
+                    CompareNodePosition(candidate,current) < 0);
         }
 
         private bool TryStartTutorialTileLocate(
@@ -425,38 +701,90 @@ namespace OzGameLab01.Controllers
             node = null;
             target = null;
 
-            if (mapGenerator == null || mapGenerator.NodeDict.Count == 0)
-            {
+            if (!TryResolveTileNode(step,out node))
                 return false;
+
+            GameObject nodeView = mapGenerator.GetNodeView(node);
+            target = nodeView != null ? nodeView.transform : null;
+            return target != null;
+        }
+
+        private bool TryResolveTileNode(
+            TutorialSequenceStepData step,
+            out MapNode node)
+        {
+            ResolveBoardFocusReferences();
+            node = null;
+
+            if (mapGenerator == null || mapGenerator.NodeDict.Count == 0)
+                return false;
+
+            if (step == runtimeBoardTileTargetStep &&
+                runtimeBoardTileTarget != null)
+            {
+                node = runtimeBoardTileTarget;
+                return true;
             }
 
-            if (step.TileTargetMode == TutorialTileTargetMode.Position)
+            return TryResolveConfiguredTileNode(
+                step.TileTargetMode,
+                step.TilePosition,
+                step.TileType,
+                step.TileTypeOccurrence,
+                out node);
+        }
+
+        private bool TryResolveMoveTargetNode(
+            TutorialSequenceStepData step,
+            out MapNode node)
+        {
+            if (!step.UseSeparateMoveTarget)
+                return TryResolveTileNode(step,out node);
+
+            ResolveBoardFocusReferences();
+            return TryResolveConfiguredTileNode(
+                step.MoveTargetMode,
+                step.MoveTilePosition,
+                step.MoveTileType,
+                step.MoveTileTypeOccurrence,
+                out node);
+        }
+
+        private bool TryResolveConfiguredTileNode(
+            TutorialTileTargetMode targetMode,
+            Vector2Int targetPosition,
+            NodeType targetType,
+            int targetTypeOccurrence,
+            out MapNode node)
+        {
+            node = null;
+            if (mapGenerator == null || mapGenerator.NodeDict.Count == 0)
+                return false;
+
+            if (targetMode == TutorialTileTargetMode.Position)
             {
-                mapGenerator.NodeDict.TryGetValue(step.TilePosition, out node);
+                mapGenerator.NodeDict.TryGetValue(targetPosition,out node);
             }
             else
             {
                 List<MapNode> matches = new List<MapNode>();
                 foreach (MapNode candidate in mapGenerator.NodeDict.Values)
                 {
-                    if (candidate != null && candidate.Type == step.TileType)
+                    if (candidate != null && candidate.Type == targetType)
                     {
                         matches.Add(candidate);
                     }
                 }
 
                 matches.Sort(CompareNodePosition);
-                if (step.TileTypeOccurrence < matches.Count)
+                if (targetTypeOccurrence >= 0 &&
+                    targetTypeOccurrence < matches.Count)
                 {
-                    node = matches[step.TileTypeOccurrence];
+                    node = matches[targetTypeOccurrence];
                 }
             }
 
-            GameObject nodeView = node != null
-                ? mapGenerator.GetNodeView(node)
-                : null;
-            target = nodeView != null ? nodeView.transform : null;
-            return node != null && target != null;
+            return node != null;
         }
 
         private static int CompareNodePosition(MapNode left, MapNode right)
@@ -545,6 +873,31 @@ namespace OzGameLab01.Controllers
             }
         }
 
+        private void ResolveEventSession()
+        {
+            if (eventSession == null)
+            {
+                eventSession = FindFirstObjectByType<EventSession>(
+                    FindObjectsInactive.Include);
+            }
+        }
+
+        private void BindEventSession()
+        {
+            ResolveEventSession();
+            if (eventSession == null)
+                return;
+
+            eventSession.Hidden -= HandleEventUIHidden;
+            eventSession.Hidden += HandleEventUIHidden;
+        }
+
+        private void UnbindEventSession()
+        {
+            if (eventSession != null)
+                eventSession.Hidden -= HandleEventUIHidden;
+        }
+
         private void BindLocateEvents()
         {
             if (boardCameraController == null)
@@ -625,8 +978,189 @@ namespace OzGameLab01.Controllers
 
         private void OnDestroy()
         {
+            if (Active == this)
+                Active = null;
+
+            UnbindRunResultView();
+
             if (locateInputBlocker != null)
                 Destroy(locateInputBlocker);
+        }
+
+        private void ResolveRunResultView()
+        {
+            if (runResultView == null)
+            {
+                runResultView = FindFirstObjectByType<RunResultAnimationView>(
+                    FindObjectsInactive.Include);
+            }
+        }
+
+        private void BindRunResultView()
+        {
+            ResolveRunResultView();
+            if (runResultView == null)
+                return;
+
+            runResultView.MainButtonClicked -= HandleRunResultMainButtonClicked;
+            runResultView.MainButtonClicked += HandleRunResultMainButtonClicked;
+        }
+
+        private void UnbindRunResultView()
+        {
+            if (runResultView != null)
+            {
+                runResultView.MainButtonClicked -=
+                    HandleRunResultMainButtonClicked;
+            }
+        }
+
+        private void ShowRunResult()
+        {
+            ResolveRunResultView();
+            if (runResultView == null)
+            {
+                Debug.LogError(
+                    "[TutorialSequenceController] 씬에 배치된 RunResultAnimationView를 찾지 못했습니다.",
+                    this);
+                return;
+            }
+
+            BindRunResultView();
+            ClearRuntimeRules();
+            CancelTutorialLocatePresentation(false);
+            readySceneView?.HideAllOverlayViews();
+
+            bool wasActive = runResultView.gameObject.activeSelf;
+            runResultView.gameObject.SetActive(true);
+            if (wasActive)
+                runResultView.Replay();
+        }
+
+        private void HideRunResult()
+        {
+            if (runResultView != null && runResultView.gameObject.activeSelf)
+                runResultView.Hide();
+
+            returningToTitle = false;
+        }
+
+        private async void HandleRunResultMainButtonClicked(
+            RunResultAnimationView view)
+        {
+            if (returningToTitle)
+                return;
+
+            SceneTransitioner transitioner = SceneTransitioner.Instance;
+            if (transitioner == null || transitioner.IsTransitioning)
+                return;
+
+            returningToTitle = true;
+            if (view != null && view.MainButton != null)
+                view.MainButton.interactable = false;
+
+            Time.timeScale = 1f;
+            TutorialProgress.MarkCompleted();
+
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade != null)
+            {
+                saveFacade.ClearCurrentRun();
+                await saveFacade.SaveAsync();
+            }
+            else
+            {
+                BoardRunData.Clear();
+            }
+
+            transitioner.LoadTitleScene();
+        }
+
+        private void ApplyRuntimeRules(TutorialSequenceStepData step)
+        {
+            if (step.SetNextDiceRoll)
+            {
+                reservedDiceRollValue = Mathf.Clamp(step.NextDiceRollValue,1,6);
+                hasReservedDiceRoll = true;
+            }
+
+            if (!step.RequireMoveToTargetTile)
+                return;
+
+            if (!TryResolveMoveTargetNode(step,out MapNode target))
+            {
+                Debug.LogWarning(
+                    $"[TutorialSequenceController] 이동 제한 대상을 찾지 못했습니다. Step: {step.StepName}",
+                    this);
+                return;
+            }
+
+            requiredMoveTarget = target;
+            invalidMoveFeedback = step.InvalidMoveFeedback;
+            invalidMoveFeedbackDuration = step.InvalidMoveFeedbackDuration;
+        }
+
+        private void ShowInvalidMoveFeedback()
+        {
+            if (readySceneView == null ||
+                string.IsNullOrWhiteSpace(invalidMoveFeedback))
+            {
+                return;
+            }
+
+            FeedbackView feedbackView = readySceneView.FeedbackView;
+            if (feedbackView == null)
+                return;
+
+            if (invalidMoveFeedbackRoutine != null)
+                StopCoroutine(invalidMoveFeedbackRoutine);
+
+            feedbackView.Show(invalidMoveFeedback);
+            invalidMoveFeedbackRoutine =
+                StartCoroutine(HideInvalidMoveFeedbackRoutine());
+        }
+
+        private System.Collections.IEnumerator HideInvalidMoveFeedbackRoutine()
+        {
+            if (invalidMoveFeedbackDuration > 0f)
+                yield return new WaitForSecondsRealtime(invalidMoveFeedbackDuration);
+
+            HideInvalidMoveFeedback();
+            invalidMoveFeedbackRoutine = null;
+        }
+
+        private void ClearRequiredMoveRule()
+        {
+            requiredMoveTarget = null;
+            invalidMoveFeedback = string.Empty;
+            invalidMoveFeedbackDuration = 0f;
+
+            if (invalidMoveFeedbackRoutine != null)
+            {
+                StopCoroutine(invalidMoveFeedbackRoutine);
+                invalidMoveFeedbackRoutine = null;
+            }
+
+            HideInvalidMoveFeedback();
+        }
+
+        private void HideInvalidMoveFeedback()
+        {
+            if (readySceneView == null)
+                return;
+
+            FeedbackView feedbackView = readySceneView.FeedbackView;
+            if (feedbackView != null)
+                feedbackView.Hide();
+        }
+
+        private void ClearRuntimeRules()
+        {
+            hasReservedDiceRoll = false;
+            reservedDiceRollValue = 0;
+            runtimeBoardTileTargetStep = null;
+            runtimeBoardTileTarget = null;
+            ClearRequiredMoveRule();
         }
 
         private void ShowGuideForStep(TutorialSequenceStepData step)
@@ -652,6 +1186,15 @@ namespace OzGameLab01.Controllers
             }
 
             sequenceState?.ClearPending();
+        }
+
+        private void CancelPendingBossSpawn()
+        {
+            if (pendingBossSpawnRoutine == null)
+                return;
+
+            StopCoroutine(pendingBossSpawnRoutine);
+            pendingBossSpawnRoutine = null;
         }
 
         private void PrepareNextStepTrigger()

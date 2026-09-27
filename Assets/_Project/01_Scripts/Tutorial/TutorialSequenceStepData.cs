@@ -14,7 +14,10 @@ namespace OzGameLab01.Controllers
         ButtonClicked,
         Manual,
         LocateCompleted,
-        OwnedUnitHovered
+        OwnedUnitHovered,
+        RequiredTileReached,
+        ReturnedFromCombat,
+        EventUIHidden
     }
 
     public enum TutorialTileTargetMode
@@ -57,9 +60,26 @@ namespace OzGameLab01.Controllers
         [Tooltip("UI 동작 실행 후 TutorialGuideView도 함께 표시합니다. 끄면 Guide 해제를 기다리지 않는 동작 전용 Step이 됩니다.")]
         [SerializeField] private bool showGuide = true;
 
-        [Header("Board Tile Focus")]
+        [Header("Tutorial Dice Rule")]
+        [Tooltip("체크해야 Next Dice Roll Value가 적용됩니다. 끄면 아래 값과 관계없이 TutorialSequenceController의 기본 주사위 값을 사용합니다.")]
+        [SerializeField] private bool setNextDiceRoll;
+        [Tooltip("Set Next Dice Roll을 켰을 때 다음 주사위 굴림에 사용할 눈입니다.")]
+        [SerializeField, Range(1,6)] private int nextDiceRollValue = 2;
+
+        [Header("Boss Tile Spawn")]
+        [Tooltip("이 Step이 실행될 때 플레이어 주변의 Normal 타일 하나를 Boss 타일로 전환합니다. 타일 생성이 완료된 뒤 나머지 Step 동작과 Guide 표시를 진행합니다.")]
+        [SerializeField] private bool spawnBossTileNearPlayer;
+        [Tooltip("생성한 보스 타일 전투에서 사용할 MonsterData ID입니다. 기본값 5는 튜토리얼 전용 보스입니다.")]
+        [SerializeField, Min(1)] private int bossMonsterId = 5;
+        [Tooltip("플레이어 위치에서 보스 타일 후보까지의 최소 최단거리입니다.")]
+        [SerializeField, Min(1)] private int bossSpawnMinDistance = 1;
+        [Tooltip("플레이어 위치에서 보스 타일 후보까지의 최대 최단거리입니다. 범위 안에서 가장 먼 후보를 우선 사용합니다.")]
+        [SerializeField, Min(1)] private int bossSpawnMaxDistance = 4;
+
+        [Header("Board Tile Target")]
         [Tooltip("지정한 타일만 밝게 남기고 나머지 보드를 암전한 뒤 Locate 카메라 연출을 재생합니다.")]
         [SerializeField] private bool focusBoardTile;
+        [Tooltip("Locate 연출과 이동 제한이 함께 사용하는 타일 지정 방식입니다.")]
         [SerializeField] private TutorialTileTargetMode tileTargetMode =
             TutorialTileTargetMode.NodeType;
         [Tooltip("Target Mode가 Position일 때 사용할 논리 타일 좌표입니다.")]
@@ -70,6 +90,30 @@ namespace OzGameLab01.Controllers
         [SerializeField, Min(0)] private int tileTypeOccurrence;
         [Tooltip("Guide를 표시하는 Step이면 Locate가 플레이어에게 복귀한 뒤 Guide를 표시합니다.")]
         [SerializeField] private bool showGuideAfterLocate = true;
+
+        [Header("Board Movement Rule")]
+        [Tooltip("플레이어가 지정한 이동 목적 타일로만 이동할 수 있게 제한합니다. 올바른 타일에 실제 도착할 때까지 유지됩니다.")]
+        [SerializeField] private bool requireMoveToTargetTile;
+        [Tooltip("활성화하면 Board Tile Target과 별개로 이동 제한에 사용할 목적 타일을 지정합니다. 비활성화하면 기존처럼 Board Tile Target을 공유합니다.")]
+        [SerializeField] private bool useSeparateMoveTarget;
+        [Tooltip("별도 이동 목적 타일의 지정 방식입니다.")]
+        [SerializeField] private TutorialTileTargetMode moveTargetMode =
+            TutorialTileTargetMode.NodeType;
+        [Tooltip("Move Target Mode가 Position일 때 사용할 논리 타일 좌표입니다.")]
+        [SerializeField] private Vector2Int moveTilePosition;
+        [Tooltip("Move Target Mode가 NodeType일 때 찾을 타일 종류입니다.")]
+        [SerializeField] private NodeType moveTileType = NodeType.UnitAcquisition;
+        [Tooltip("같은 종류의 이동 목적 타일이 여러 개면 좌표 순으로 정렬한 뒤 사용할 인덱스입니다.")]
+        [SerializeField, Min(0)] private int moveTileTypeOccurrence;
+        [Tooltip("목표가 아닌 타일을 클릭했을 때 FeedbackView에 표시할 문구입니다.")]
+        [SerializeField, TextArea(2,4)] private string invalidMoveFeedback =
+            "지정된 타일로 이동해주세요.";
+        [Tooltip("잘못된 타일 안내를 표시하는 시간입니다.")]
+        [SerializeField, Min(0f)] private float invalidMoveFeedbackDuration = 2f;
+
+        [Header("Sequence Completion")]
+        [Tooltip("이 Step을 마지막으로 튜토리얼을 완료합니다. Guide Step이면 Guide를 닫은 뒤, 동작 전용 Step이면 실행 즉시 씬에 배치된 RunResultUI를 표시합니다.")]
+        [SerializeField] private bool showRunResultOnComplete;
 
         [Header("Guide Content")]
         [SerializeField] private Sprite characterSprite;
@@ -127,12 +171,27 @@ namespace OzGameLab01.Controllers
         public int TargetOwnedUnitId => targetOwnedUnitId;
         public bool OpenRollView => openRollView;
         public bool ShowGuide => showGuide;
+        public bool SetNextDiceRoll => setNextDiceRoll;
+        public int NextDiceRollValue => nextDiceRollValue;
+        public bool SpawnBossTileNearPlayer => spawnBossTileNearPlayer;
+        public int BossMonsterId => bossMonsterId > 0 ? bossMonsterId : 5;
+        public int BossSpawnMinDistance => bossSpawnMinDistance;
+        public int BossSpawnMaxDistance => bossSpawnMaxDistance;
         public bool FocusBoardTile => focusBoardTile;
         public TutorialTileTargetMode TileTargetMode => tileTargetMode;
         public Vector2Int TilePosition => tilePosition;
         public NodeType TileType => tileType;
         public int TileTypeOccurrence => tileTypeOccurrence;
         public bool ShowGuideAfterLocate => showGuideAfterLocate;
+        public bool RequireMoveToTargetTile => requireMoveToTargetTile;
+        public bool UseSeparateMoveTarget => useSeparateMoveTarget;
+        public TutorialTileTargetMode MoveTargetMode => moveTargetMode;
+        public Vector2Int MoveTilePosition => moveTilePosition;
+        public NodeType MoveTileType => moveTileType;
+        public int MoveTileTypeOccurrence => moveTileTypeOccurrence;
+        public string InvalidMoveFeedback => invalidMoveFeedback;
+        public float InvalidMoveFeedbackDuration => invalidMoveFeedbackDuration;
+        public bool ShowRunResultOnComplete => showRunResultOnComplete;
         public Sprite CharacterSprite => characterSprite;
         public string CharacterName => characterName;
         public string Dialogue => dialogue;

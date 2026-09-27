@@ -20,14 +20,20 @@ MonoBehaviour:
   triggerButtonKey: 
   manualTriggerKey: 
   targetOwnedUnitId: 0
-  openRollView: 1
+  openRollView: 0
   showGuide: 0
+  setNextDiceRoll: 0
+  nextDiceRollValue: 6
   focusBoardTile: 0
   tileTargetMode: 1
   tilePosition: {x: 0, y: 0}
   tileType: 13
   tileTypeOccurrence: 0
   showGuideAfterLocate: 1
+  requireMoveToTargetTile: 0
+  invalidMoveFeedback: "\uC9C0\uC815\uB41C \uD0C0\uC77C\uB85C \uC774\uB3D9\uD574\uC8FC\uC138\uC694."
+  invalidMoveFeedbackDuration: 2
+  showRunResultOnComplete: 0
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
   dialogue: "\uB0A8\uC740 \uD589\uB3D9\uB825\uB9CC\uD07C \uC774\uB3D9\uD560 \uC218
@@ -35,8 +41,8 @@ MonoBehaviour:
     \uD074\uB9AD\uD574\uC11C \uC6D0\uD558\uB294 \uD0C0\uC77C\uB85C \uC774\uB3D9\uD560
     \uC218 \uC788\uC5B4."
   showCharacter: 0
-  highlightButton: 0
-  highlightButtonKey: 
+  highlightButton: 1
+  highlightButtonKey: EndTurnButton
   keepButtonHighlightUntilClicked: 0
   highlightScale: 1.08
   highlightHalfDuration: 0.3

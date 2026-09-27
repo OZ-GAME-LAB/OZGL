@@ -9,6 +9,10 @@ namespace OzGameLab01.UI
     [DisallowMultipleComponent]
     public sealed class CombatInfoView : MonoBehaviour
     {
+        [Header("Visibility")]
+        [Tooltip("전투 정보 UI 전체를 켜고 끌 루트입니다. 비워두면 이 GameObject만 제어합니다.")]
+        [SerializeField] private GameObject visibilityRoot;
+
         [Header("Enemy")]
         [SerializeField] private TMP_Text enemyNameText;
         [SerializeField] private Image enemyImage;
@@ -267,7 +271,14 @@ namespace OzGameLab01.UI
         /// <param name="visible">표시 여부입니다.</param>
         public void SetVisible(bool visible)
         {
-            gameObject.SetActive(visible);
+            GameObject target = visibilityRoot != null
+                ? visibilityRoot
+                : gameObject;
+
+            if (target.activeSelf != visible)
+            {
+                target.SetActive(visible);
+            }
         }
 
         /// <summary>

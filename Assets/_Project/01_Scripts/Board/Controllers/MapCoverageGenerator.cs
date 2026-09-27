@@ -14,6 +14,9 @@ namespace OzGameLab01.Map
     public sealed class MapCoverageGenerator : MapGenerator
     {
         [Header("Interaction Coverage")]
+        [Tooltip("비활성화하면 기본 맵 생성 프로필의 배치 결과를 그대로 사용하고 상호작용 타일을 추가하지 않습니다.")]
+        [SerializeField] private bool enableInteractionCoverage = true;
+
         [Tooltip("상호작용 타일 없이 허용하는 최대 이동 칸 수입니다.")]
         [Min(1)] [SerializeField] private int maximumStepsWithoutInteraction = 8;
 
@@ -28,6 +31,11 @@ namespace OzGameLab01.Map
 
         protected override void ApplyPostGenerationRules()
         {
+            if (!enableInteractionCoverage)
+            {
+                return;
+            }
+
             MapNode startNode = AllNodes.FirstOrDefault(node => node.Type == NodeType.Start);
             if (startNode == null)
             {
