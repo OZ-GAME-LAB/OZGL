@@ -54,6 +54,16 @@ namespace OzGameLab01.UI.Battle
         public BattleArtifactView ArtifactView => artifactView;
         public RectTransform EnemyCombatArea => enemyCombatArea;
         public RectTransform EnemySkillArea => enemySkillArea;
+        public GameObject FormationGrid => formationGrid;
+        public bool IsFormationGridVisible =>
+            formationGrid != null && formationGrid.activeSelf;
+
+        public PlayerSlotItemView[] GetFormationSlots()
+        {
+            return formationGrid != null
+                ? formationGrid.GetComponentsInChildren<PlayerSlotItemView>(true)
+                : System.Array.Empty<PlayerSlotItemView>();
+        }
 
         /// <summary>
         /// 현재 Main View의 활성 상태입니다.

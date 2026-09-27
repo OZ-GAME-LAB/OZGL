@@ -37,6 +37,8 @@ namespace OzGameLab01.Controllers
         private bool targetCompletionRequested;
         private bool combatEntryEvaluated;
         private bool enteredFromTutorial;
+        private bool formationGridVisibilityOverridden;
+        private bool formationGridWasVisible;
 
         public bool IsPlaying => sequenceState != null && sequenceState.IsPlaying;
         public string ActiveStepName => sequenceState?.ActiveStep != null
@@ -132,6 +134,7 @@ namespace OzGameLab01.Controllers
         public void ResetProgress()
         {
             TutorialProgress.ResetFor(progressKey);
+            TutorialSessionState.ResetCombatTutorial();
         }
 
         public void NotifyManualTrigger(string triggerKey)
@@ -214,7 +217,10 @@ namespace OzGameLab01.Controllers
 
             targetCompletionRequested = false;
 
-            bool hasTarget = TryResolveTarget(step.Target, out RectTransform target);
+            bool hasTarget = TryResolveTarget(
+                step.Target,
+                out RectTransform target,
+                out List<PlayerSlotItemView> formationSlots);
             bool needsTarget = step.HighlightTarget || step.AllowsTargetClick;
 
             if (needsTarget && !hasTarget)
@@ -224,7 +230,10 @@ namespace OzGameLab01.Controllers
                     this);
             }
 
-            overlayPresenter?.ShowStep(step, hasTarget ? target : null);
+            overlayPresenter?.ShowStep(
+                step,
+                hasTarget ? target : null,
+                formationSlots);
 
             if (!step.ShowGuide && !step.AllowsTargetClick)
                 CompleteActiveStep();
@@ -269,6 +278,7 @@ namespace OzGameLab01.Controllers
             targetCompletionRequested = false;
 
             overlayPresenter?.HideStep();
+            RestoreFormationGridVisibility();
 
             CombatTutorialStepData nextStep = sequenceState.PeekNext();
             bool nextStartsImmediately = nextStep != null &&
@@ -306,17 +316,24 @@ namespace OzGameLab01.Controllers
             ReleaseTutorialPause();
             UnbindCombatEvents();
 
-            if (playOnce && !string.IsNullOrWhiteSpace(progressKey))
-                TutorialProgress.MarkCompletedFor(progressKey);
+            if (playOnce)
+            {
+                TutorialSessionState.MarkCombatTutorialCompleted();
+
+                if (!string.IsNullOrWhiteSpace(progressKey))
+                    TutorialProgress.MarkCompletedFor(progressKey);
+            }
 
             SequenceCompleted?.Invoke();
         }
 
         private bool TryResolveTarget(
             CombatTutorialTarget targetType,
-            out RectTransform target)
+            out RectTransform target,
+            out List<PlayerSlotItemView> formationSlots)
         {
             target = null;
+            formationSlots = null;
 
             ResolveReferences();
             CombatMainView mainView = combatUIView != null
@@ -340,9 +357,57 @@ namespace OzGameLab01.Controllers
                 case CombatTutorialTarget.EnemySkillArea:
                     target = mainView.EnemySkillArea;
                     break;
+
+                case CombatTutorialTarget.PlayerFormationSlots:
+                    formationSlots = ResolveFormationSlots(mainView);
+                    target = mainView.FormationGrid != null
+                        ? mainView.FormationGrid.transform as RectTransform
+                        : null;
+                    return formationSlots.Count > 0;
             }
 
             return target != null;
+        }
+
+        private List<PlayerSlotItemView> ResolveFormationSlots(
+            CombatMainView mainView)
+        {
+            var result = new List<PlayerSlotItemView>();
+            if (mainView == null || mainView.FormationGrid == null)
+                return result;
+
+            if (!formationGridVisibilityOverridden)
+            {
+                formationGridWasVisible = mainView.IsFormationGridVisible;
+                formationGridVisibilityOverridden = true;
+            }
+
+            mainView.SetFormationGridVisible(true);
+
+            PlayerSlotItemView[] slots = mainView.GetFormationSlots();
+            for (int i = 0; i < slots.Length; i++)
+            {
+                PlayerSlotItemView slot = slots[i];
+                if (slot != null && slot.SlotVisualImage != null)
+                    result.Add(slot);
+            }
+
+            return result;
+        }
+
+        private void RestoreFormationGridVisibility()
+        {
+            if (!formationGridVisibilityOverridden)
+                return;
+
+            ResolveReferences();
+            CombatMainView mainView = combatUIView != null
+                ? combatUIView.MainView
+                : null;
+            mainView?.SetFormationGridVisible(formationGridWasVisible);
+
+            formationGridVisibilityOverridden = false;
+            formationGridWasVisible = false;
         }
 
         private void ResolveReferences()
@@ -378,7 +443,7 @@ namespace OzGameLab01.Controllers
 
             if (playOnce &&
                 !ignoreCompletedProgress &&
-                TutorialProgress.IsCompletedFor(progressKey))
+                TutorialSessionState.IsCombatTutorialCompleted)
             {
                 return false;
             }
@@ -506,6 +571,7 @@ namespace OzGameLab01.Controllers
             else
                 overlayPresenter?.HideStep();
 
+            RestoreFormationGridVisibility();
             ReleaseTutorialPause();
             UnbindCombatEvents();
         }

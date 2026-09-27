@@ -16,7 +16,8 @@ namespace OzGameLab01.Controllers
         None,
         EnemyHpUI,
         EnemyCombatArea,
-        EnemySkillArea
+        EnemySkillArea,
+        PlayerFormationSlots
     }
 
     public enum CombatTutorialCompletionMode

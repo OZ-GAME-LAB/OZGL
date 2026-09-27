@@ -44,8 +44,8 @@ namespace OzGameLab01.Combat
             MonsterData prepared = Clone(baseData);
             if (baseData.type == MonsterType.boss)
             {
-                // 최종보스는 엑셀 finalbossEnemy 시트의 고정값을 그대로 쓴다 — 턴 진행에 따른
-                // 성장 공식을 전혀 적용하지 않는다(2026-09-23, 사용자 확인).
+                // 최종 보스는 finalbossEnemy 시트의 고정 스탯을 그대로 사용하고
+                // 턴 진행에 따른 성장 공식은 적용하지 않습니다.
             }
             else
             {

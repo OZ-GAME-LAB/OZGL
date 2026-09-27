@@ -3518,7 +3518,8 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0c15f682db00c3b4197e1e54da674e83, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.BattleInfoView
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.CombatInfoView
+  visibilityRoot: {fileID: 1344353293196058931}
   enemyNameText: {fileID: 460444618616870871}
   enemyImage: {fileID: 8042845089208907875}
   skillContentRoot: {fileID: 3124682465780023157}
