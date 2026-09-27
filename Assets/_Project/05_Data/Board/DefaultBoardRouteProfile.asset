@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 650f9f9145f24705aae8064b661787ba, type: 3}
   m_Name: DefaultBoardRouteProfile
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Board.Models.BoardRouteProfile
-  requiredEliteCount: 3
+  requiredEliteCount: 0
   firstEliteSpawnOrigin: 0
   minimumEliteLegDistance: 7
   maximumEliteLegDistance: 7

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: daf81f11f4d88644086a711a9211e715, type: 3}
-  m_Name: Dice 1
+  m_Name: "--------- \uBCF4\uC2A4 \uD0C0\uC77C \uAC15\uC870 -----------"
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.TutorialSequenceStepData
   stepName: Introduce3
   trigger: 1
@@ -20,33 +20,34 @@ MonoBehaviour:
   triggerButtonKey: 
   manualTriggerKey: 
   targetOwnedUnitId: 0
-  openRollView: 1
-  showGuide: 0
-  setNextDiceRoll: 1
-  nextDiceRollValue: 5
-  spawnBossTileNearPlayer: 0
+  openRollView: 0
+  showGuide: 1
+  setNextDiceRoll: 0
+  nextDiceRollValue: 3
+  spawnBossTileNearPlayer: 1
   bossSpawnMinDistance: 1
-  bossSpawnMaxDistance: 4
+  bossSpawnMaxDistance: 1
   focusBoardTile: 0
   tileTargetMode: 1
   tilePosition: {x: 0, y: 0}
-  tileType: 6
+  tileType: 13
   tileTypeOccurrence: 0
   showGuideAfterLocate: 1
-  requireMoveToTargetTile: 1
-  useSeparateMoveTarget: 1
+  requireMoveToTargetTile: 0
+  useSeparateMoveTarget: 0
   moveTargetMode: 1
   moveTilePosition: {x: 0, y: 0}
-  moveTileType: 6
+  moveTileType: 13
   moveTileTypeOccurrence: 0
   invalidMoveFeedback: "\uC9C0\uC815\uB41C \uD0C0\uC77C\uB85C \uC774\uB3D9\uD574\uC8FC\uC138\uC694."
   invalidMoveFeedbackDuration: 2
   showRunResultOnComplete: 0
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
-  dialogue: "[\uD589\uB3D9\uB825]\r\n\uD654\uBA74 \uC544\uB798\uC5D0 \uC22B\uC790
-    \uBCF4\uC774\uC9C0? \uC774\uAC8C \uB0A8\uC740 \uD589\uB3D9\uB825\uC774\uC57C."
-  showCharacter: 0
+  dialogue: "\uB3D9\uD654\uB97C \uB4A4\uC8FD\uBC15\uC8FD\uC73C\uB85C \uB9CC\uB4E0
+    \uB9C8\uB140\uB97C \uBB34\uCC0C\uB974\uBA74 \uB3FC.\r\n\uB9C8\uCE68 \uC800\uAE30
+    \uB098\uD0C0\uB0AC\uB124."
+  showCharacter: 1
   highlightButton: 0
   highlightButtonKey: 
   keepButtonHighlightUntilClicked: 0

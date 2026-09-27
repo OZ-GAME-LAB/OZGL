@@ -266,7 +266,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c211f11b72df4b98aae5968cd53eb180, type: 3}
-  m_Name:
+  m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.CombatTutorialSequenceController
   combatSceneController: {fileID: 404384626}
   combatSession: {fileID: 0}
@@ -280,6 +280,9 @@ MonoBehaviour:
   steps:
   - {fileID: 11400000, guid: 0195be87c2b341cb84fd63d76dd87ee9, type: 2}
   - {fileID: 11400000, guid: 258cbe64bca24964a18bc036d1c954ab, type: 2}
+  - {fileID: 11400000, guid: 3e6bf2722caf9174bac8c70d124a41bf, type: 2}
+  - {fileID: 11400000, guid: 426a31704d1a8e94093efe2ea108c5af, type: 2}
+  - {fileID: 11400000, guid: f0cb36e1835c2e34aa5c271e585dba5b, type: 2}
 --- !u!1 &410593570
 GameObject:
   m_ObjectHideFlags: 0
@@ -545,6 +548,22 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 701793091501105877, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 701793091501105877, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 701793091501105877, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 701793091501105877, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 750930056364262999, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -751,6 +770,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4494206030423772130, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4535994369715197371, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4535994369715197371, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4535994369715197371, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4535994369715197371, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
+      propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4594776121461979051, guid: 6044d01a01205b9439a63ebe513db1cc, type: 3}
