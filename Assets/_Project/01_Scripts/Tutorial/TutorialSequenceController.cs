@@ -623,6 +623,7 @@ namespace OzGameLab01.Controllers
                 }
             }
 
+            bossNode.EncounterMonsterId = step.BossMonsterId;
             runtimeBoardTileTargetStep = step;
             runtimeBoardTileTarget = bossNode;
             BoardRunData.SaveObjectivePosition(bossNode.Position);
