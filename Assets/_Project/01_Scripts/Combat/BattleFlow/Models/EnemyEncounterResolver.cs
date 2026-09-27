@@ -13,6 +13,7 @@ namespace OzGameLab01.Combat
         private const int NormalEnemyMonsterId = 1;
         private const int NightEnemyMonsterId = 2;
         private const int SemibossEnemyMonsterId = 3;
+        private const int FinalBossEnemyMonsterId = 4;
 
         /// <summary>
         /// 현재 BoardRunData에 기록된 전투 조건으로 최종 전투 스펙을 반환합니다.
@@ -47,9 +48,14 @@ namespace OzGameLab01.Combat
             bool isElite,
             bool isNightEncounter)
         {
-            // 최종 보스 전용 데이터가 추가되기 전까지 기존 규칙대로 중간 보스와
-            // 최종 보스가 같은 semiboss 데이터를 사용합니다.
-            if (isBoss || isElite)
+            // 최종 보스는 finalbossEnemy 시트에서 생성된 고정 데이터(ID 4)를,
+            // 중간 보스는 semiboss 데이터(ID 3)를 사용합니다.
+            if (isBoss)
+            {
+                return FinalBossEnemyMonsterId;
+            }
+
+            if (isElite)
             {
                 return SemibossEnemyMonsterId;
             }
