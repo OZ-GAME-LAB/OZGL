@@ -27,8 +27,8 @@ namespace OzGameLab01.Combat
             // HUD는 머리 앵커 바로 위에 둡니다(앵커가 없으면 기존 고정 오프셋).
             Transform head = unit.transform.Find(UnitPresenter.HeadAnchorPath);
             hudRoot.transform.localPosition = head != null
-                ? unit.transform.InverseTransformPoint(head.position) + new Vector3(-0.5f, 0.7f, 0f)
-                : new Vector3(-0.5f, 1.5f, 0f);
+                ? unit.transform.InverseTransformPoint(head.position) + new Vector3(-0.5f, 1.7f, 0f)
+                : new Vector3(-0.5f, 3.0f, 0f);
             hudRoot.transform.localScale = Vector3.one * 0.01f;
             RectTransform rect = hudRoot.GetComponent<RectTransform>();
             rect.sizeDelta = new Vector2(100f, 30f);
