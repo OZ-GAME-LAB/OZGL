@@ -57,6 +57,7 @@ namespace OzGameLab01.Combat
         private UnitPresenter _presenter;
         // 도트/기절/그을림/침묵 디버프 상태는 UnitStatusEffects에 위임합니다.
         private UnitStatusEffects _status;
+        private CombatSession _combatSession;
         // -1 means that no fixed-damage synergy is active.
         private float _fixedDamage = -1f;
         private float _extraDamageOnStatusPercent;
@@ -107,6 +108,7 @@ namespace OzGameLab01.Combat
         private void Awake()
         {
             EnsureRuntimeComponents();
+            _combatSession = FindFirstObjectByType<CombatSession>(FindObjectsInactive.Include);
             InitializeRuntimeState();
             CombatUnitRegistry.Register(this);
             _awakeInitialized = true;
@@ -124,6 +126,11 @@ namespace OzGameLab01.Combat
 
         private void Update()
         {
+            if (_combatSession != null && !_combatSession.IsBattleRunning)
+            {
+                return;
+            }
+
             if (_isDead || CombatManager.Instance == null)
             {
                 return;

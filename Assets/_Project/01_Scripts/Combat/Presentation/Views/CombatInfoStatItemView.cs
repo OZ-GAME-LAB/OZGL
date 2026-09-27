@@ -66,8 +66,11 @@ namespace OzGameLab01.UI
 
             if (statIcon != null)
             {
-                statIcon.sprite = icon;
-                statIcon.enabled = icon != null;
+                if (icon != null)
+                {
+                    statIcon.sprite = icon;
+                    statIcon.enabled = true;
+                }
             }
 
             if (valueText != null)

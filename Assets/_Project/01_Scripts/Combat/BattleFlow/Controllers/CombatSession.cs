@@ -63,9 +63,25 @@ namespace OzGameLab01.Combat
         private EnemyHeaderController _enemyHeaderController;
 
         public CombatState State => _state;
+        public MonsterData EnemyData { get; private set; }
         public bool IsBattleReady { get; private set; }
+        public bool IsBattleRunning { get; private set; }
 
         public event Action BattleReady;
+
+        /// <summary>
+        /// 준비된 전투의 실행을 시작하고 전투 시작 이벤트를 전달합니다.
+        /// </summary>
+        public void StartBattle()
+        {
+            if (!IsBattleReady || IsBattleRunning)
+            {
+                return;
+            }
+
+            IsBattleRunning = true;
+            PassiveEventBus.RaiseBattleStart();
+        }
 
         public void ReportFeedback(CombatFeedback feedback)
         {
@@ -81,6 +97,9 @@ namespace OzGameLab01.Combat
 
         private async void Awake()
         {
+            IsBattleReady = false;
+            IsBattleRunning = false;
+
             // 정적 상태라 실기기 빌드에서는 씬 전환만으로 비워지지 않는다.
             // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.
             CombatUnitRegistry.Clear();
@@ -119,6 +138,7 @@ namespace OzGameLab01.Combat
             // 턴/낮밤/중간보스 상태로 스케일링한 체력과 플레이어 보유 유닛에서 훔친 액티브
             // 스킬까지 반영한 전투용 스펙으로 교체합니다. 원본 로스터 캐시는 수정하지 않습니다.
             enemyMonsterData = EnemyManager.Instance.Facade.BuildCombatSpec(enemyMonsterData);
+            EnemyData = enemyMonsterData;
 
             _allySpawner = new AllySpawner(
                 _battleMapView,
@@ -172,10 +192,8 @@ namespace OzGameLab01.Combat
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
             SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState(_synergyController.ActiveSharedEffects);
 
-            // PassiveEventBus 구독은 RaiseBattleStart보다 먼저 끝나 있어야 Always/OnBattleStart
-            // 효과를 놓치지 않는다.
+            // 전투 시작 전 패시브 이벤트 구독 준비
             _combatEffectExecutor = new CombatEffectExecutor(CombatManager.Instance.Facade);
-            PassiveEventBus.RaiseBattleStart();
 
             IsBattleReady = true;
             BattleReady?.Invoke();
@@ -189,6 +207,8 @@ namespace OzGameLab01.Combat
         private void OnDestroy()
         {
             IsBattleReady = false;
+            IsBattleRunning = false;
+            EnemyData = null;
             _combatEffectExecutor?.Dispose();
             _allySpawner?.Dispose();
         }
