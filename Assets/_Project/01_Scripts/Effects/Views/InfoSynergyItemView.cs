@@ -9,6 +9,8 @@ namespace OzGameLab01.UI
         [UnityEngine.Serialization.FormerlySerializedAs("nameText")]
         [SerializeField] private TMP_Text _nameText;
 
+        public string Name => _nameText != null ? _nameText.text : string.Empty;
+
         public void SetName(string synergyName)
         {
             if (_nameText != null)

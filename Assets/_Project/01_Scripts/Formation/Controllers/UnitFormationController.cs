@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using OzGameLab01.Formation;
 using OzGameLab01.Managers;
 using OzGameLab01.Player;
@@ -97,6 +98,7 @@ namespace OzGameLab01.Controllers
         // 호버 대상별 진입 상태와 상세 데이터 연결 추가
         private UnitItemView _hoveredUnit;
         private UnitSlotItemView _hoveredSlot;
+        private int _detailRequestVersion;
 
         private void HandleUnitPointerEntered(UnitItemView item, PointerEventData eventData)
         {
@@ -138,8 +140,10 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void RefreshHoveredDetail()
+        private async void RefreshHoveredDetail()
         {
+            int requestVersion = ++_detailRequestVersion;
+
             if (unitView == null || unitView.UnitDetailView == null)
             {
                 return;
@@ -169,8 +173,55 @@ namespace OzGameLab01.Controllers
                 unitView.HideUnitDetail();
                 return;
             }
-            unitView.UnitDetailView.LoadUnit(data, GetUnitIcon(data));
+
+            unitView.HideUnitDetail();
+
+            UnitDetailData detailData = UnitDetailDataResolver.Resolve(
+                data,
+                RuntimeContent.Catalog.Skills.Values,
+                RuntimeContent.Catalog.Synergies.Values);
+
+            Task<Sprite> activeIconTask = LoadSkillIconAsync(detailData.ActiveSkill);
+            Task<Sprite> passiveIconTask = LoadSkillIconAsync(detailData.PassiveSkill);
+
+            try
+            {
+                await Task.WhenAll(activeIconTask, passiveIconTask);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError($"[UnitFormationController] 상세 스킬 아이콘 로드 실패: {exception.Message}", this);
+            }
+
+            if (this == null || requestVersion != _detailRequestVersion ||
+                unitView == null || unitView.UnitDetailView == null)
+            {
+                return;
+            }
+
+            var synergyNames = new List<string>(detailData.Synergies.Count);
+            foreach (SynergyData synergy in detailData.Synergies)
+            {
+                if (synergy != null)
+                    synergyNames.Add(UnitDetailDataResolver.GetDisplayName(synergy));
+            }
+
+            unitView.UnitDetailView.LoadUnit(
+                data,
+                GetUnitIcon(data),
+                synergyNames,
+                detailData.ActiveSkill,
+                activeIconTask.Status == TaskStatus.RanToCompletion ? activeIconTask.Result : null,
+                detailData.PassiveSkill,
+                passiveIconTask.Status == TaskStatus.RanToCompletion ? passiveIconTask.Result : null);
             unitView.ShowUnitDetail();
+        }
+
+        private static Task<Sprite> LoadSkillIconAsync(SkillData skill)
+        {
+            return skill == null || string.IsNullOrWhiteSpace(skill.iconAddress)
+                ? Task.FromResult<Sprite>(null)
+                : SpriteManager.GetSpriteAsync(skill.iconAddress);
         }
 
         /// <summary>
@@ -402,7 +453,7 @@ namespace OzGameLab01.Controllers
                 // unitItem.SetIcon(unitIconSprite);
                 // UnitData.id에 연결된 PrivateAssets 아이콘을 우선 사용
                 unitItem.SetIcon(GetUnitIcon(testUnitDataList[i]));
-                unitItem.SetIconColor(testUnitDataList[i].color);
+                unitItem.SetIconColor(Color.white);
                 unitItem.SetSelected(false);
                 unitItem.gameObject.SetActive(true);
 
@@ -1259,7 +1310,7 @@ namespace OzGameLab01.Controllers
 
             // unitItem.SetIcon(unitIconSprite);
             unitItem.SetIcon(GetUnitIcon(newData));
-            unitItem.SetIconColor(newData.color);
+            unitItem.SetIconColor(Color.white);
             unitItem.SetSelected(false);
             unitItem.gameObject.SetActive(true);
             // 3. 컨트롤러가 관리하는 딕셔너리와 View에 등록
