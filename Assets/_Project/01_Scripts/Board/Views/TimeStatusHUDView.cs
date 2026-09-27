@@ -36,7 +36,7 @@ namespace OzGameLab01.UI
         {
             if (turnsUntilNightText != null)
             {
-                turnsUntilNightText.text = $"Until night {turns}trun";
+                turnsUntilNightText.text = $"다음 시간대까지 {turns}턴";
             }
         }
 

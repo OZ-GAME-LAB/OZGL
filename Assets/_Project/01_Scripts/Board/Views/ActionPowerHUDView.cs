@@ -36,7 +36,7 @@ namespace OzGameLab01.UI
         {
             if (actionPowerText != null)
             {
-                actionPowerText.text = $"ActionPower {value}";
+                actionPowerText.text = $"행동력 {value}";
             }
         }
 

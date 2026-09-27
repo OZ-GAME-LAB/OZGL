@@ -187,11 +187,7 @@ namespace OzGameLab01.Controllers
             {
                 _actionPowerHud = FindFirstObjectByType<ActionPowerHUDView>();
             }
-            if (_actionPowerHud == null)
-            {
-                _actionPowerHud = new GameObject("ActionPowerHUD").AddComponent<ActionPowerHUDView>();
-            }
-            _actionPowerHud.SetActionPower(_currentDiceValue);
+            _actionPowerHud?.SetActionPower(_currentDiceValue);
         }
 
         public bool EndTurn()

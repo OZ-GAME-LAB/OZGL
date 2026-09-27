@@ -69,6 +69,8 @@ namespace OzGameLab01.UI.Battle
 
         public void Show()
         {
+            RefreshDpsListVisibility();
+
             if (overlayTransition != null)
             {
                 overlayTransition.Show();
@@ -194,6 +196,7 @@ namespace OzGameLab01.UI.Battle
             DpsInfoItemView item = Instantiate(dpsInfoItemPrefab,dpsListRoot);
 
             dpsInfoItems.Add(item);
+            RefreshDpsListVisibility();
 
             return item;
         }
@@ -209,6 +212,7 @@ namespace OzGameLab01.UI.Battle
             }
 
             dpsInfoItems.Clear();
+            RefreshDpsListVisibility();
         }
 
         #endregion
@@ -218,6 +222,14 @@ namespace OzGameLab01.UI.Battle
         private void HandleEndBattleButtonClick()
         {
             EndBattleClicked?.Invoke(this);
+        }
+
+        private void RefreshDpsListVisibility()
+        {
+            if (dpsListRoot != null)
+            {
+                dpsListRoot.gameObject.SetActive(dpsInfoItems.Count > 0);
+            }
         }
 
         #endregion
