@@ -395,6 +395,7 @@ namespace OzGameLab01.Map
             }
 
             node.Type = NodeType.Normal;
+            node.EncounterMonsterId = 0;
             ReplaceTileVisual(node);
             return true;
         }

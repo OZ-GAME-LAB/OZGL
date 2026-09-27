@@ -56,6 +56,7 @@ namespace OzGameLab01.Save
         public bool hasCurrentBattle;
         public int currentBattlePositionX; // 현재 전투가 발생한 보드 X 좌표
         public int currentBattlePositionY; // 현재 전투가 발생한 보드 Y 좌표
+        public int currentBattleMonsterId; // 0이면 기존 전투 종류 규칙으로 적 데이터를 선택합니다.
         public bool isBossBattle;
         public bool isEliteBattle;
         public bool isNightEncounter;

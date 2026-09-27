@@ -21,7 +21,8 @@ namespace OzGameLab01.Controllers
         {
             None = 0,
             UserInterface = 1 << 0,
-            Tutorial = 1 << 1
+            Tutorial = 1 << 1,
+            BattleInfo = 1 << 2
         }
 
         public enum BattleState
@@ -42,6 +43,7 @@ namespace OzGameLab01.Controllers
         private readonly HashSet<Unit> _pendingDeadUnits = new HashSet<Unit>();
         private bool _isReturningToTitle; // [추가] 런 종료 저장 중 중복 타이틀 이동 요청 방지
         private PauseReason _pauseReasons;
+        private CombatSession _combatSession;
 
         public BattleState CurrentState { get; private set; } = BattleState.Running;
         public bool IsPaused => _pauseReasons != PauseReason.None;
@@ -50,6 +52,20 @@ namespace OzGameLab01.Controllers
 
         public bool IsResolved => _resolved;
         public bool IsBossVictory => _wasBossBattle && _victory;
+
+        private void Awake()
+        {
+            _combatSession = FindFirstObjectByType<CombatSession>(FindObjectsInactive.Include);
+            SetPauseReason(PauseReason.BattleInfo, true);
+        }
+
+        /// <summary>
+        /// 전투 정보 확인 상태를 종료하고 전투 시간 진행을 허용합니다.
+        /// </summary>
+        public void BeginBattle()
+        {
+            SetPauseReason(PauseReason.BattleInfo, false);
+        }
 
         public void SetFastForward(bool enabled)
         {
@@ -115,6 +131,7 @@ namespace OzGameLab01.Controllers
 
         private void LateUpdate()
         {
+            if (_combatSession != null && !_combatSession.IsBattleRunning) return;
             if (_resolved || !_outcomeDirty) return;
             _outcomeDirty = false;
             // Evaluate after synchronous death/follow-up effects have finished.
@@ -171,7 +188,7 @@ namespace OzGameLab01.Controllers
             }
 
             ResetTimeScale();
-            transitioner.LoadBoardScene();
+            transitioner.LoadCombatReturnScene();
         }
 
         /// <summary>

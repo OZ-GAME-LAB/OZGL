@@ -15,6 +15,7 @@ namespace OzGameLab01.Data
         public static bool HasPlayerPosition => _state.HasPlayerPosition;
         public static Vector2Int CurrentBattlePosition => _state.CurrentBattlePosition;
         public static bool HasCurrentBattle => _state.HasCurrentBattle;
+        public static int CurrentBattleMonsterId => _state.CurrentBattleMonsterId;
         public static bool IsBossBattle => _state.IsBossBattle;
         public static bool IsNightEncounter => _state.IsNightEncounter;
         public static bool IsBossDefeated => _state.IsBossDefeated;
@@ -51,7 +52,21 @@ namespace OzGameLab01.Data
         public static void SaveObjectivePosition(Vector2Int position) { EnsureActiveRun(); _state.SaveObjectivePosition(position); }
         public static void ClearObjective() { _state.ClearObjective(); }
         public static void ActivateMidBoss() { EnsureActiveRun(); _state.ActivateMidBoss(); }
-        public static void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false, bool isNightEncounter = false) { EnsureActiveRun(); _state.BeginBattle(battlePosition, isBossBattle, isEliteBattle, isNightEncounter); }
+        public static void BeginBattle(
+            Vector2Int battlePosition,
+            bool isBossBattle,
+            bool isEliteBattle = false,
+            bool isNightEncounter = false,
+            int monsterIdOverride = 0)
+        {
+            EnsureActiveRun();
+            _state.BeginBattle(
+                battlePosition,
+                isBossBattle,
+                isEliteBattle,
+                isNightEncounter,
+                monsterIdOverride);
+        }
         public static void CompleteCurrentBattle() { _state.CompleteCurrentBattle(); }
         public static bool IsBattleCompleted(Vector2Int position) { return _state.IsBattleCompleted(position); }
         public static void ConsumeSpecialTile(Vector2Int position) { EnsureActiveRun(); _state.ConsumeSpecialTile(position); }

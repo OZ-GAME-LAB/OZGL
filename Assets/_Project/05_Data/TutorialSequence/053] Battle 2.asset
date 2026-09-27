@@ -22,12 +22,18 @@ MonoBehaviour:
   targetOwnedUnitId: 0
   openRollView: 0
   showGuide: 1
+  setNextDiceRoll: 0
+  nextDiceRollValue: 4
   focusBoardTile: 0
   tileTargetMode: 1
   tilePosition: {x: 0, y: 0}
   tileType: 13
   tileTypeOccurrence: 0
   showGuideAfterLocate: 1
+  requireMoveToTargetTile: 0
+  invalidMoveFeedback: "\uC9C0\uC815\uB41C \uD0C0\uC77C\uB85C \uC774\uB3D9\uD574\uC8FC\uC138\uC694."
+  invalidMoveFeedbackDuration: 2
+  showRunResultOnComplete: 0
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
   dialogue: "\uADF8\uC804\uC5D0, \uD65C\uB3D9\uB825\uC744 \uB2E4 \uC18C\uBAA8\uD588\uC73C\uB2C8\uAE4C

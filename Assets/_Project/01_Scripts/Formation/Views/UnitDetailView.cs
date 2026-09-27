@@ -66,11 +66,11 @@ namespace OzGameLab01.UI
             }
 
             SetUnitIcon(icon);
+
             if (unitIcon != null)
             {
                 unitIcon.color = Color.white;
             }
-
             SetUnitName(data.name);
             SetSynergies(synergyNames);
             SetSkill(0, activeSkillIcon, FormatSkill(activeSkill));
@@ -316,6 +316,60 @@ namespace OzGameLab01.UI
 
             synergyBadgeItems.AddRange(
                 synergyBadgeRoot.GetComponentsInChildren<InfoSynergyItemView>(true));
+        }
+
+        private void BindUnitStats(OzGameLab01.Data.UnitData data)
+        {
+            ClearStats();
+
+            SetStat(
+                0,
+                null,
+                data.healthPoint.ToString("0.##"),
+                "체력",
+                "유닛의 최대 체력");
+
+            SetStat(
+                1,
+                null,
+                data.attackPoint.ToString("0.##"),
+                "공격력",
+                "유닛의 기본 공격력");
+
+            SetStat(
+                2,
+                null,
+                data.defensePoint.ToString("0.##"),
+                "방어력",
+                "유닛의 피해 감소 수치");
+
+            SetStat(
+                3,
+                null,
+                data.attackSpeed.ToString("0.##"),
+                "공격속도",
+                "유닛의 기본 공격 간격");
+
+            SetStat(
+                4,
+                null,
+                $"{data.criticalRate:0.##}%",
+                "치명타 확률",
+                "유닛의 치명타 발생 확률");
+
+            SetStat(
+                5,
+                null,
+                $"{data.criticalMult:0.##}%",
+                "치명타 피해",
+                "유닛의 치명타 피해 배율");
+
+            SetStat(
+                6,
+                null,
+                $"{data.dodgeRate:0.##}%",
+                "회피율",
+                "유닛의 공격 회피 확률");
         }
 
         #endregion

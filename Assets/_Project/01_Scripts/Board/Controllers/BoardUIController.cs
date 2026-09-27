@@ -28,6 +28,10 @@ namespace OzGameLab01.Controllers
         public TextMeshProUGUI resultText;
         public TextMeshProUGUI warningText;
 
+        [Header("Boss Battle Preview")]
+        [Tooltip("Battle_Info_Ui 프리팹 안의 CombatInfoView입니다. 비워두면 비활성 오브젝트를 포함해 자동으로 찾습니다.")]
+        [SerializeField] private CombatInfoView battleInfoView;
+
         [Header("Locate")]
         public MapRouteDirector mapRouteDirector;
         public BoardCameraController boardCameraController;
@@ -75,6 +79,7 @@ namespace OzGameLab01.Controllers
         private Sequence _clockRotationSequence;
         private RelicFacade _relicFacade;
         private UnitFormationController _formationController;
+        private CombatInfoPresenter _battleInfoPresenter;
         private bool _started;
         private bool _actionPointUiRefreshPending;
 
@@ -83,6 +88,14 @@ namespace OzGameLab01.Controllers
         private void Awake()
         {
             _feedbackView = new BoardFeedbackView(resultText, warningText);
+
+            if (battleInfoView == null)
+            {
+                battleInfoView = FindFirstObjectByType<CombatInfoView>(FindObjectsInactive.Include);
+            }
+
+            _battleInfoPresenter = new CombatInfoPresenter(battleInfoView);
+            _battleInfoPresenter.Hide();
         }
 
         private void Start()
@@ -172,6 +185,7 @@ namespace OzGameLab01.Controllers
                 boardSceneController.PlayerTurnReady += HandlePlayerTurnReady;
                 boardSceneController.UnitAcquired += HandleUnitAcquired;
                 boardSceneController.ForcedFormationRequested += HandleForcedFormationRequested;
+                boardSceneController.BattlePreviewRequested += HandleBattlePreviewRequested;
             }
 
         }
@@ -190,6 +204,7 @@ namespace OzGameLab01.Controllers
             _timeOfDayFeedbackRoutine = null;
             _formationFeedbackRoutine = null;
             _feedbackView?.HideWarning();
+            _battleInfoPresenter?.Hide();
 
             _diceSubscription?.Dispose();
             _diceSubscription = null;
@@ -237,6 +252,7 @@ namespace OzGameLab01.Controllers
                 boardSceneController.PlayerTurnReady -= HandlePlayerTurnReady;
                 boardSceneController.UnitAcquired -= HandleUnitAcquired;
                 boardSceneController.ForcedFormationRequested -= HandleForcedFormationRequested;
+                boardSceneController.BattlePreviewRequested -= HandleBattlePreviewRequested;
             }
         }
 
@@ -388,6 +404,36 @@ namespace OzGameLab01.Controllers
             }
 
             _formationFeedbackRoutine = StartCoroutine(ShowFormationFeedbackRoutine());
+        }
+
+        private void HandleBattlePreviewRequested(MonsterData enemy)
+        {
+            CancelAutomaticRollView();
+
+            if (_battleInfoPresenter == null || !_battleInfoPresenter.IsAvailable)
+            {
+                Debug.LogWarning(
+                    "[BoardUIController] CombatInfoView가 연결되지 않아 전투 정보 화면을 건너뜁니다.",
+                    this);
+                boardSceneController?.ConfirmPendingBattlePreview();
+                return;
+            }
+
+            readySceneView?.HideAllOverlayViews();
+            readySceneView?.MainView?.SetInteractable(false);
+            _battleInfoPresenter.Show(enemy, HandleBattlePreviewConfirmed);
+        }
+
+        private bool HandleBattlePreviewConfirmed()
+        {
+            if (boardSceneController == null ||
+                !boardSceneController.ConfirmPendingBattlePreview())
+            {
+                return false;
+            }
+
+            readySceneView?.MainView?.SetInteractable(true);
+            return true;
         }
 
         // 강제 유닛 배치 피드백 표시 시간 관리

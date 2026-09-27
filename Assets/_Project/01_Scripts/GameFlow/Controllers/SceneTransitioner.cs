@@ -57,6 +57,7 @@ namespace OzGameLab01.Managers
         private string _combatEntryFromScene = string.Empty;
         private string _combatEntryToScene = string.Empty;
         private bool _combatEntryPending;
+        private string _combatReturnScene = SceneNames.Board;
 
         /// <summary>
         /// 외부에서 현재 씬 전환 여부를 확인할 수 있습니다.
@@ -66,6 +67,7 @@ namespace OzGameLab01.Managers
         public bool IsTutorialCombat =>
             _combatEntryPending &&
             _combatEntryMode == CombatEntryMode.Tutorial;
+        public string CombatReturnScene => _combatReturnScene;
 
         private void Awake()
         {
@@ -138,6 +140,7 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadTitleScene()
         {
+            OzGameLab01.Controllers.TutorialSessionState.EndSession();
             LoadScene(SceneNames.Title);
         }
 
@@ -154,10 +157,21 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadCombatScene()
         {
+            string activeSceneName = SceneManager.GetActiveScene().name;
             CombatEntryMode entryMode =
-                SceneManager.GetActiveScene().name == SceneNames.Tutorial
+                activeSceneName == SceneNames.Tutorial
                 ? CombatEntryMode.Tutorial
                 : CombatEntryMode.Normal;
+
+            if (entryMode == CombatEntryMode.Tutorial)
+            {
+                int nextStepIndex =
+                    OzGameLab01.Controllers.TutorialSequenceController.Active != null
+                        ? OzGameLab01.Controllers.TutorialSequenceController.Active.NextStepIndex
+                        : OzGameLab01.Controllers.TutorialSessionState.BoardNextStepIndex;
+                OzGameLab01.Controllers.TutorialSessionState.PrepareCombat(
+                    nextStepIndex);
+            }
 
             LoadScene(SceneNames.Combat,entryMode);
         }
@@ -167,7 +181,30 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadTutorialScene()
         {
+            OzGameLab01.Controllers.TutorialSessionState.BeginNewSession();
             LoadScene(SceneNames.Tutorial);
+        }
+
+        /// <summary>
+        /// 현재 전투에 진입하기 전의 보드 씬으로 복귀합니다.
+        /// 일반 전투는 MainGame, 튜토리얼 전투는 Tutorial로 돌아갑니다.
+        /// </summary>
+        public void LoadCombatReturnScene()
+        {
+            string returnScene = IsSupportedCombatReturnScene(_combatReturnScene)
+                ? _combatReturnScene
+                : SceneNames.Board;
+
+            if (string.Equals(
+                    returnScene,
+                    SceneNames.Tutorial,
+                    System.StringComparison.Ordinal))
+            {
+                OzGameLab01.Controllers.TutorialSessionState
+                    .MarkReturningFromCombat();
+            }
+
+            LoadScene(returnScene);
         }
 
         public bool TryConsumeTutorialCombatEntry()
@@ -188,7 +225,9 @@ namespace OzGameLab01.Managers
                     SceneNames.Combat,
                     System.StringComparison.Ordinal);
 
-            ClearCombatEntryContext();
+            // 전투 튜토리얼 시작 여부는 한 번만 소비하지만,
+            // 전투 종료 후 돌아갈 씬은 전투가 끝날 때까지 유지합니다.
+            ClearCombatTutorialEntryToken();
             return isTutorialEntry;
         }
 
@@ -295,14 +334,35 @@ namespace OzGameLab01.Managers
             _combatEntryToScene = toScene ?? string.Empty;
             _combatEntryMode = entryMode;
             _combatEntryPending = true;
+            _combatReturnScene = IsSupportedCombatReturnScene(fromScene)
+                ? fromScene
+                : SceneNames.Board;
         }
 
         private void ClearCombatEntryContext()
+        {
+            ClearCombatTutorialEntryToken();
+            _combatReturnScene = SceneNames.Board;
+        }
+
+        private void ClearCombatTutorialEntryToken()
         {
             _combatEntryFromScene = string.Empty;
             _combatEntryToScene = string.Empty;
             _combatEntryMode = CombatEntryMode.Normal;
             _combatEntryPending = false;
+        }
+
+        private static bool IsSupportedCombatReturnScene(string sceneName)
+        {
+            return string.Equals(
+                       sceneName,
+                       SceneNames.Board,
+                       System.StringComparison.Ordinal) ||
+                   string.Equals(
+                       sceneName,
+                       SceneNames.Tutorial,
+                       System.StringComparison.Ordinal);
         }
 
         private void PublishTransition(OzGameLab01.GameFlow.Models.GameFlowNotificationKind kind)

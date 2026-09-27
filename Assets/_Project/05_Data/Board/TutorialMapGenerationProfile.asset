@@ -27,14 +27,14 @@ MonoBehaviour:
   minShopDistanceFromStart: 0
   maxShopDistanceFromStart: 999
   eventCount: 1
-  minEventDistance: 6
-  minEventDistanceFromStart: 6
-  maxEventDistanceFromStart: 6
+  minEventDistance: 3
+  minEventDistanceFromStart: 3
+  maxEventDistanceFromStart: 3
   battleCount: 1
-  minBattleDistance: 4
-  minBattleDistanceFromStart: 4
-  maxBattleDistanceFromStart: 4
+  minBattleDistance: 3
+  minBattleDistanceFromStart: 3
+  maxBattleDistanceFromStart: 3
   unitAcquisitionCount: 1
-  minUnitAcquisitionDistance: 2
-  minUnitAcquisitionDistanceFromStart: 2
-  maxUnitAcquisitionDistanceFromStart: 2
+  minUnitAcquisitionDistance: 1
+  minUnitAcquisitionDistanceFromStart: 1
+  maxUnitAcquisitionDistanceFromStart: 1

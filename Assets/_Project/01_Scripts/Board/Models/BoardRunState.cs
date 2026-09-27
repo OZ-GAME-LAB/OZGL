@@ -15,6 +15,7 @@ namespace OzGameLab01.Board.Models
         public bool HasPlayerPosition { get; private set; }
         public Vector2Int CurrentBattlePosition { get; private set; }
         public bool HasCurrentBattle { get; private set; }
+        public int CurrentBattleMonsterId { get; private set; }
         public bool IsBossBattle { get; private set; }
         public bool IsNightEncounter { get; private set; }
         public bool IsBossDefeated { get; private set; }
@@ -86,6 +87,7 @@ namespace OzGameLab01.Board.Models
                 hasCurrentBattle = HasCurrentBattle,
                 currentBattlePositionX = CurrentBattlePosition.x,
                 currentBattlePositionY = CurrentBattlePosition.y,
+                currentBattleMonsterId = CurrentBattleMonsterId,
                 isBossBattle = IsBossBattle,
                 isEliteBattle = IsEliteBattle,
                 isNightEncounter = IsNightEncounter,
@@ -155,6 +157,9 @@ namespace OzGameLab01.Board.Models
             CurrentBattlePosition = new Vector2Int(
                 saveData.currentBattlePositionX,
                 saveData.currentBattlePositionY);
+            CurrentBattleMonsterId = HasCurrentBattle
+                ? Mathf.Max(0, saveData.currentBattleMonsterId)
+                : 0;
             IsBossBattle = saveData.isBossBattle;
             IsEliteBattle = saveData.isEliteBattle;
             IsNightEncounter = saveData.isNightEncounter;
@@ -278,10 +283,16 @@ namespace OzGameLab01.Board.Models
         {
             IsMidBossActive = true;
         }
-        public void BeginBattle(Vector2Int battlePosition, bool isBossBattle, bool isEliteBattle = false, bool isNightEncounter = false)
+        public void BeginBattle(
+            Vector2Int battlePosition,
+            bool isBossBattle,
+            bool isEliteBattle = false,
+            bool isNightEncounter = false,
+            int monsterIdOverride = 0)
         {
             CurrentBattlePosition = battlePosition;
             HasCurrentBattle = true;
+            CurrentBattleMonsterId = Mathf.Max(0, monsterIdOverride);
             IsBossBattle = isBossBattle;
             IsEliteBattle = isEliteBattle; // 엘리트전 여부 기록
             IsNightEncounter = isNightEncounter; // 전투 시작 시점의 보드 낮/밤 — 적 종류/스탯 선택에 사용
@@ -325,6 +336,7 @@ namespace OzGameLab01.Board.Models
             }
 
             HasCurrentBattle = false;
+            CurrentBattleMonsterId = 0;
             IsBossBattle = false;
             IsEliteBattle = false;
             IsNightEncounter = false;
@@ -389,6 +401,7 @@ namespace OzGameLab01.Board.Models
 
             CurrentBattlePosition = Vector2Int.zero;
             HasCurrentBattle = false;
+            CurrentBattleMonsterId = 0;
             IsBossBattle = false;
             IsBossDefeated = false; // 보스 처치 상태 초기화
             // [추가] New Game에서 이전 엘리트 전투 상태가 남지 않도록 초기화

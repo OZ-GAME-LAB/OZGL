@@ -19,8 +19,29 @@ MonoBehaviour:
   targetReadyView: 0
   triggerButtonKey: 
   manualTriggerKey: 
-  openRollView: 0
-  showGuide: 1
+  targetOwnedUnitId: 0
+  openRollView: 1
+  showGuide: 0
+  setNextDiceRoll: 1
+  nextDiceRollValue: 5
+  spawnBossTileNearPlayer: 0
+  bossSpawnMinDistance: 1
+  bossSpawnMaxDistance: 4
+  focusBoardTile: 0
+  tileTargetMode: 1
+  tilePosition: {x: 0, y: 0}
+  tileType: 6
+  tileTypeOccurrence: 0
+  showGuideAfterLocate: 1
+  requireMoveToTargetTile: 1
+  useSeparateMoveTarget: 1
+  moveTargetMode: 1
+  moveTilePosition: {x: 0, y: 0}
+  moveTileType: 6
+  moveTileTypeOccurrence: 0
+  invalidMoveFeedback: "\uC9C0\uC815\uB41C \uD0C0\uC77C\uB85C \uC774\uB3D9\uD574\uC8FC\uC138\uC694."
+  invalidMoveFeedbackDuration: 2
+  showRunResultOnComplete: 0
   characterSprite: {fileID: 21300000, guid: 4fbb994fd6a75354f99f9ec618de2e80, type: 3}
   characterName: "\uB3C4\uB85C\uC2DC"
   dialogue: "[\uD589\uB3D9\uB825]\r\n\uD654\uBA74 \uC544\uB798\uC5D0 \uC22B\uC790
@@ -28,6 +49,7 @@ MonoBehaviour:
   showCharacter: 0
   highlightButton: 0
   highlightButtonKey: 
+  keepButtonHighlightUntilClicked: 0
   highlightScale: 1.08
   highlightHalfDuration: 0.3
   highlightColor: {r: 1, g: 0.8, b: 0.2, a: 1}
@@ -35,6 +57,9 @@ MonoBehaviour:
   ignoreTimeScale: 1
   outlineHighlight: 0
   outlineTargetKey: 
+  formationSlotHighlightGroup: 0
+  keepFormationSlotHighlightUntilReadyViewHidden: 1
+  formationSlotHighlightReleaseView: 2
   outlineColor: {r: 1, g: 0.8, b: 0.2, a: 1}
   outlineMinDistance: {x: 2, y: 2}
   outlineMaxDistance: {x: 8, y: 8}

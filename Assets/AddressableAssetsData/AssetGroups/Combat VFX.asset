@@ -35,11 +35,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 091d3f4a57cceab4e8477e775ff7980c
-    m_Address: VFX/Skill/Effect/Public_Heal_EF
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1888c010747789c4fad4f4f80d36b1cf
     m_Address: VFX/BasicAttack/Impact/Scarecrow_Attack_Hit_EF
     m_ReadOnly: 0
@@ -57,11 +52,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1aee781aff25cf542a5d2c4767a7f029
     m_Address: VFX/Projectiles/Ally_CheshireCat
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 1b6513b80bdb488478a289456a3ecf6d
-    m_Address: VFX/Skill/Effect/Public_Stat_Down_EF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -87,11 +77,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 36789463e000dbe47bd312218ad142e4
     m_Address: VFX/Projectiles/Default
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 39cdf0e4ca01def48a2f2ba4621e3874
-    m_Address: VFX/Skill/Effect/Public_Stat_Up_EF
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
