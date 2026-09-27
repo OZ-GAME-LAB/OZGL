@@ -57,16 +57,26 @@ namespace OzGameLab01.Effects.Models
         /// </summary>
         public RelicData AcquireRandomRelic()
         {
+            RelicData picked = PickRandomRelic();
+            if (picked == null) return null;
+            AcquireRelic(picked.id);
+            return picked;
+        }
+
+        /// <summary>
+        /// 획득하지 않고 dropWeight 가중치로 유물 하나만 뽑습니다. 보유 유물과 excludedIds는
+        /// 후보에서 제외합니다(이벤트 보상 선택지처럼 여러 개를 보여주고 고른 것만 지급할 때).
+        /// </summary>
+        public RelicData PickRandomRelic(IEnumerable<int> excludedIds = null)
+        {
             List<int> ownedIds = new List<int>();
             foreach (RelicData owned in OwnedRelics)
             {
                 if (owned != null) ownedIds.Add(owned.id);
             }
-            RelicData picked = RelicSelectionModel.Select(OzGameLab01.Data.RuntimeContent.Catalog.Relics,
+            if (excludedIds != null) ownedIds.AddRange(excludedIds);
+            return RelicSelectionModel.Select(OzGameLab01.Data.RuntimeContent.Catalog.Relics,
                 ownedIds, count => UnityEngine.Random.Range(0, count), () => UnityEngine.Random.value);
-            if (picked == null) return null;
-            AcquireRelic(picked.id);
-            return picked;
         }
 
         /// <summary>

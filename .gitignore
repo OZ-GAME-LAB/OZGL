@@ -117,3 +117,6 @@ InitTestScene*.unity*
 /Assets/_Project/04_Art/Fonts/MalgunGothic SDF.asset.meta
 
 /_SharedPackages/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

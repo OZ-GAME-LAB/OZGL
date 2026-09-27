@@ -1,8 +1,10 @@
 using System;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using OzGameLab01.Events;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI
 {
@@ -20,6 +22,8 @@ namespace OzGameLab01.UI
         private Action<int> _onClick;
         [SerializeField]
         private int _choiceIndex;
+        private string _currentIconAddress;
+
         #region Unity Lifecycle
 
         private void OnEnable()
@@ -79,6 +83,40 @@ namespace OzGameLab01.UI
             if (button != null)
             {
                 button.interactable = true;
+            }
+        }
+
+        /// <summary>
+        /// 어드레서블 주소 기반으로 이벤트 액션 버튼 바인딩
+        /// </summary>
+        public async Task BindAsync(int choiceIndex, string label, string iconAddress, Action<int> onClick)
+        {
+            gameObject.SetActive(true);
+            _choiceIndex = choiceIndex;
+            _onClick = onClick;
+            _currentIconAddress = iconAddress;
+
+            if (labelText != null)
+            {
+                labelText.text = label ?? string.Empty;
+            }
+
+            if (button != null)
+            {
+                button.interactable = true;
+            }
+
+            if (string.IsNullOrEmpty(iconAddress))
+            {
+                SetIcon(null);
+                return;
+            }
+
+            Sprite icon = await SpriteManager.GetSpriteAsync(iconAddress);
+
+            if (_currentIconAddress == iconAddress)
+            {
+                SetIcon(icon);
             }
         }
 

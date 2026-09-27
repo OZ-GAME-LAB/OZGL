@@ -17,7 +17,7 @@ namespace OzGameLab01.Managers
         public static async Task LoadAllSpritesAsync()
         {
             await Task.WhenAll(
-                PreloadSpritesByLabelAsync("")
+                PreloadSpritesByLabelAsync("Icon")
             );
         }
 

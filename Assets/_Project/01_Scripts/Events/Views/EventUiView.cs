@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using OzGameLab01.Events;
+using UnityEngine.UI;
 
 namespace OzGameLab01.UI
 {
@@ -42,7 +43,7 @@ namespace OzGameLab01.UI
             eventDescriptionText.text = description ?? string.Empty;
         }
 
-        public void ShowChoices(List<EventChoice> choices, Action<int> onChoiceSelected)
+        public void ShowChoices(List<EventChoice> choices, Action<int> onChoiceSelected, Action<int> onChoiceEventBeforeBurn = null)
         {
             ClearChoices();
             HideAction();
@@ -53,7 +54,7 @@ namespace OzGameLab01.UI
             {
                 EventChoiceButtonView choiceButton = Instantiate(choiceButtonPrefab, choiceRoot);
 
-                choiceButton.Bind(i, choices[i], onChoiceSelected);
+                choiceButton.Bind(i, choices[i], onChoiceSelected , onChoiceEventBeforeBurn);
                 _choiceButtons.Add(choiceButton);
             }
         }
@@ -74,7 +75,17 @@ namespace OzGameLab01.UI
                 choiceRoot.gameObject.SetActive(false);
             }
         }
-
+        public void DisableButtons(int selectedButtonIndex)
+        {
+            for (int i = 0; i < _choiceButtons.Count; i++)
+            {
+                if (i != selectedButtonIndex)
+                {
+                    //_choiceButtons[i].gameObject.SetActive(false);
+                    _choiceButtons[i].GetComponent<Button>().enabled = false;
+                }
+            }
+        }
         public void ShowAction(List<EventChoice> choices, Action<int> onActionClicked)
         {
             ClearChoices();

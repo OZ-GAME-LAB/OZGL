@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cc088593ed32cb8448be5dd188df1195, type: 3}
+  m_Name: CombatVfxLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Combat.CombatVfxLibrary
+  healEffect: {fileID: 5023353015567381922, guid: 091d3f4a57cceab4e8477e775ff7980c, type: 3}
+  stunEffect: {fileID: 5539438732264354742, guid: 0a194521a8e5c1743b204558e7eb1bed, type: 3}
+  silenceEffect: {fileID: 7153383227937534157, guid: 50281b1a0c07c394382b0b2494d18915, type: 3}
+  damageOverTimeEffect: {fileID: 0}
+  attackUpEffect: {fileID: 3871730096559169797, guid: 82da814259710414ba381b9ea102afb9, type: 3}
+  defenseUpEffect: {fileID: 3871730096559169797, guid: 6f7439fd7aa0eec43a6439df89521d56, type: 3}
+  criticalChanceUpEffect: {fileID: 3871730096559169797, guid: ff3ec111e897bea4786522269dda064a, type: 3}
+  criticalDamageUpEffect: {fileID: 3871730096559169797, guid: 3739cecd1a651734ba287f12d5d9659b, type: 3}
+  dodgeUpEffect: {fileID: 3871730096559169797, guid: 1745267cac77f6346b631c62dc05bd38, type: 3}
+  attackSpeedUpEffect: {fileID: 3871730096559169797, guid: d332eccd54a982d468369a401dc8445c, type: 3}
+  attackDownEffect: {fileID: 6690736211316310120, guid: 152bdeeed102feb4d889118bf87e4498, type: 3}
+  defenseDownEffect: {fileID: 6690736211316310120, guid: 1df644100db555b4d8948946366bc247, type: 3}
+  criticalChanceDownEffect: {fileID: 6690736211316310120, guid: e74c3603671d95647a4ee75a0fc0957c, type: 3}
+  criticalDamageDownEffect: {fileID: 6690736211316310120, guid: 0f5934a9e2b86b34caa2eb8cc4f080d1, type: 3}
+  dodgeDownEffect: {fileID: 6690736211316310120, guid: 4932736902a855a4dad377e4b04f9122, type: 3}
+  attackSpeedDownEffect: {fileID: 6690736211316310120, guid: c34c62335e60c4c45be6ad0a85286537, type: 3}
+  healEffectScale: 0.28
+  statEffectScale: 0.45
+  statusEffectScale: 0.4
