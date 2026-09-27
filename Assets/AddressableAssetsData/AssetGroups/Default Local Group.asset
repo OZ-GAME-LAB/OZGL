@@ -14,7 +14,27 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
   m_GroupName: Default Local Group
   m_GUID: 517b0716e18e03246bf2db9080b7d88b
-  m_SerializeEntries: []
+  m_SerializeEntries:
+  - m_GUID: ab8838a52520e4442ba40809ed24f736
+    m_Address: I_Un_106
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cb821b7726334844292a475ec35b1700
+    m_Address: I_Un_100
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cdd675b0f82c3614ba8e1d4e9f885b96
+    m_Address: I_Un_101
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d119d9c0420cfc94db9b1f3adef3a495
+    m_Address: Assets/ImportedAssets/UI_Resources/05. Icon/Unit/CheshireCat_Icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: ce5f67fb151836b46b2008baa3abfb8c, type: 2}
   m_SchemaSet:

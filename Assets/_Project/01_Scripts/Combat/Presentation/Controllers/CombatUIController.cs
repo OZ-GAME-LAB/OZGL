@@ -25,6 +25,10 @@ namespace OzGameLab01.Controllers
         // 인스펙터 연결 여부와 무관하게 직접 물고 있을 숨겨진 뷰들
         private CombatControlView _controlView;
         private CombatTimerView _timerView;
+        private CombatInfoView _infoView;
+        private GameObject _infoPanel;
+        private CombatSession _combatSession;
+        private bool _isBattleInfoBinding;
         
         private float _battleTimer = 0f;
         private bool _rewardApplied;
@@ -43,6 +47,9 @@ namespace OzGameLab01.Controllers
             if (settingsView == null) settingsView = FindFirstObjectByType<TitleSettingsView>(FindObjectsInactive.Include);
             if (surrenderPopup == null) surrenderPopup = FindFirstObjectByType<ConfirmPopupView>(FindObjectsInactive.Include);
             if (combatSceneController == null) combatSceneController = FindFirstObjectByType<CombatSceneController>(FindObjectsInactive.Include);
+            _combatSession = FindFirstObjectByType<CombatSession>(FindObjectsInactive.Include);
+            _infoView = FindFirstObjectByType<CombatInfoView>(FindObjectsInactive.Include);
+            _infoPanel = FindBattleInfoPanel(_infoView);
 
             // 2. CombatUIView 내부 깊숙이 있는 컨트롤 뷰와 타이머 뷰를 직접 찾아냅니다!
             if (battleUIView != null)
@@ -59,6 +66,15 @@ namespace OzGameLab01.Controllers
             _isFastForward = SystemBus.Get<SaveFacade>()?.CurrentData?.combatFastForward ?? false;
             combatSceneController?.SetFastForward(_isFastForward);
             UpdateSpeedDisplay(_controlView);
+
+            _infoView?.SetBattleAction(HandleBattleClicked);
+            _infoView?.SetBattleInteractable(false);
+            SetBattleInfoVisible(true);
+
+            if (_combatSession != null && _combatSession.IsBattleReady)
+            {
+                HandleBattleReady();
+            }
         }
 
         private void OnEnable()
@@ -93,6 +109,11 @@ namespace OzGameLab01.Controllers
             {
                 combatSceneController.OnBattleResolved += HandleBattleResolved;
             }
+
+            if (_combatSession != null)
+            {
+                _combatSession.BattleReady += HandleBattleReady;
+            }
         }
 
         private void OnDisable()
@@ -124,12 +145,20 @@ namespace OzGameLab01.Controllers
             {
                 combatSceneController.OnBattleResolved -= HandleBattleResolved;
             }
+
+            if (_combatSession != null)
+            {
+                _combatSession.BattleReady -= HandleBattleReady;
+            }
         }
 
         private void Update()
         {
             // 3. 누락되어 있던 전투 타이머 동기화 로직 추가!
-            if (combatSceneController != null && !combatSceneController.IsResolved)
+            if (combatSceneController != null &&
+                !combatSceneController.IsResolved &&
+                _combatSession != null &&
+                _combatSession.IsBattleRunning)
             {
                 // UnscaledDeltaTime을 쓰면 배속에 무관하게 흐르는 현실 시간을 잴 수 있고,
                 // DeltaTime을 쓰면 배속 시 게임 시간도 빨리 흐릅니다. (보통 전투 타이머는 배속 시 빨리 흐릅니다)
@@ -145,6 +174,19 @@ namespace OzGameLab01.Controllers
         }
 
         #region 버튼 클릭 이벤트 처리
+
+        private void HandleBattleClicked()
+        {
+            if (_combatSession == null || !_combatSession.IsBattleReady)
+            {
+                return;
+            }
+
+            _infoView?.SetBattleInteractable(false);
+            SetBattleInfoVisible(false);
+            _combatSession.StartBattle();
+            combatSceneController?.BeginBattle();
+        }
 
         // 배속 변경 즉시 저장을 위한 비동기 처리
         private async void HandleSpeedClicked(CombatControlView view)
@@ -229,6 +271,96 @@ namespace OzGameLab01.Controllers
         #endregion
 
         #region 게임 로직 이벤트 처리
+
+        private async void HandleBattleReady()
+        {
+            if (_isBattleInfoBinding || _infoView == null || _combatSession == null)
+            {
+                return;
+            }
+
+            _isBattleInfoBinding = true;
+
+            MonsterData enemyData = _combatSession.EnemyData;
+            Unit enemyUnit = _combatSession.State.EnemyUnit;
+            if (enemyData == null || enemyUnit == null)
+            {
+                _isBattleInfoBinding = false;
+                return;
+            }
+
+            SpriteRenderer enemyRenderer = enemyUnit.GetComponentInChildren<SpriteRenderer>(true);
+            Sprite enemySprite = enemyRenderer != null ? enemyRenderer.sprite : null;
+            _infoView.Clear();
+            _infoView.SetEnemy(enemyUnit.DisplayName, enemySprite);
+            BindEnemyStats(enemyData);
+
+            for (int index = 0; index < enemyData.skillIds.Count; index++)
+            {
+                SkillData skill = RuntimeContent.Catalog.GetSkill(enemyData.skillIds[index]);
+                if (skill == null)
+                {
+                    continue;
+                }
+
+                Sprite icon = await SpriteManager.GetSpriteAsync(skill.iconAddress);
+                if (_infoView == null)
+                {
+                    _isBattleInfoBinding = false;
+                    return;
+                }
+
+                _infoView.AddSkill(icon, skill.name, skill.description);
+            }
+
+            _infoView.SetBattleAction(HandleBattleClicked);
+            _infoView.SetBattleInteractable(true);
+            SetBattleInfoVisible(true);
+            _isBattleInfoBinding = false;
+        }
+
+        private void BindEnemyStats(MonsterData enemyData)
+        {
+            _infoView.AddStat(null, enemyData.healthPoint.ToString(), "체력", "적의 최대 체력");
+            _infoView.AddStat(null, enemyData.attackPoint.ToString(), "공격력", "적의 기본 공격력");
+            _infoView.AddStat(null, enemyData.defensePoint.ToString("0.##"), "방어력", "적의 피해 감소 수치");
+            _infoView.AddStat(null, enemyData.attackSpeed.ToString("0.##"), "공격속도", "적의 기본 공격 간격");
+            _infoView.AddStat(null, $"{enemyData.criticalRate}%", "치명타 확률", "적의 치명타 발생 확률");
+            _infoView.AddStat(null, $"{enemyData.criticalMult}%", "치명타 피해", "적의 치명타 피해 배율");
+            _infoView.AddStat(null, $"{enemyData.dodgeRate}%", "회피율", "적의 공격 회피 확률");
+        }
+
+        private void SetBattleInfoVisible(bool visible)
+        {
+            if (_infoPanel != null)
+            {
+                _infoPanel.SetActive(visible);
+                return;
+            }
+
+            _infoView?.SetVisible(visible);
+        }
+
+        private static GameObject FindBattleInfoPanel(CombatInfoView infoView)
+        {
+            if (infoView == null)
+            {
+                return null;
+            }
+
+            Transform current = infoView.transform;
+            while (current != null)
+            {
+                if (current.name == "Battle_Info_Ui")
+                {
+                    return current.gameObject;
+                }
+
+                current = current.parent;
+            }
+
+            return infoView.gameObject;
+        }
 
         private void HandleBattleResolved(bool victory)
         {

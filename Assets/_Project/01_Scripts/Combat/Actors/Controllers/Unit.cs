@@ -57,6 +57,7 @@ namespace OzGameLab01.Combat
         private UnitPresenter _presenter;
         // 도트/기절/그을림/침묵 디버프 상태는 UnitStatusEffects에 위임합니다.
         private UnitStatusEffects _status;
+        private CombatSession _combatSession;
         // -1 means that no fixed-damage synergy is active.
         private float _fixedDamage = -1f;
         private float _extraDamageOnStatusPercent;
@@ -107,6 +108,7 @@ namespace OzGameLab01.Combat
         private void Awake()
         {
             EnsureRuntimeComponents();
+            _combatSession = FindFirstObjectByType<CombatSession>(FindObjectsInactive.Include);
             InitializeRuntimeState();
             CombatUnitRegistry.Register(this);
             _awakeInitialized = true;
@@ -124,6 +126,11 @@ namespace OzGameLab01.Combat
 
         private void Update()
         {
+            if (_combatSession != null && !_combatSession.IsBattleRunning)
+            {
+                return;
+            }
+
             if (_isDead || CombatManager.Instance == null)
             {
                 return;
@@ -168,8 +175,11 @@ namespace OzGameLab01.Combat
                 skill.timer -= Time.deltaTime;
                 if (skill.timer <= 0f && (isBasicAttack || (!_activeSkillsDisabled && !_status.IsSilenced)))
                 {
-                    // 기본공격과 스킬 모두 Attack 모션을 사용합니다(_CC는 상태이상 피격 모션).
-                    _animationController?.PlayAttack();
+                    // 기본 공격 전용 Attack 모션
+                    if (isBasicAttack)
+                    {
+                        _animationController?.PlayAttack();
+                    }
 
                     StartCoroutine(CastSkill(target, skill, isBasicAttack));
                     skill.timer = GetEffectiveCooldown(skill);
@@ -374,7 +384,11 @@ namespace OzGameLab01.Combat
             if (!isBasicAttack && (_activeSkillsDisabled || _status.IsSilenced)) return;
 
             UnitSkillRuntime skill = _skills[index];
-            _animationController?.PlayAttack();
+            // 기본 공격 전용 Attack 모션
+            if (isBasicAttack)
+            {
+                _animationController?.PlayAttack();
+            }
 
             StartCoroutine(CastSkill(target, skill, isBasicAttack));
             skill.timer = GetEffectiveCooldown(skill);
@@ -570,8 +584,10 @@ namespace OzGameLab01.Combat
                     _presenter.PlaySkillCastEffect(skill.data.castVfxAddress, transform, skill.data.castVfxScale);
                 }
 
-                // Attack 모션 진행 중간 지점에서 발사(즉발형·스킬은 적용)합니다. 대기 중 시전자가 죽으면 취소합니다.
-                float attackDuration = _animationController != null ? _animationController.GetAttackDuration() : 0f;
+                // 기본 공격의 Attack 모션 중간 발사 시점
+                float attackDuration = isBasicAttack && _animationController != null
+                    ? _animationController.GetAttackDuration()
+                    : 0f;
                 if (attackDuration > 0f) yield return new WaitForSeconds(attackDuration * AttackReleaseRatio);
                 if (_isDead) yield break;
                 // 대기 중 기절(모든 공격)·침묵/스킬 봉인(스킬)에 걸리면 이번 공격은 취소합니다.
@@ -884,6 +900,7 @@ namespace OzGameLab01.Combat
             if (_status.Apply(profile))
             {
                 _presenter.SetStatusEffectActive(profile.type, true, transform);
+                _animationController?.PlayCrowdControl();
             }
         }
 

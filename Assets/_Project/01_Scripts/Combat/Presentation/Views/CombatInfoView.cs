@@ -46,6 +46,8 @@ namespace OzGameLab01.UI
 
         private CombatInfoSkillItemView hoveredSkillItem;
         private CombatInfoStatItemView hoveredStatItem;
+        private int _visibleSkillItemCount;
+        private int _visibleStatItemCount;
 
         private Action battleCallback;
 
@@ -54,6 +56,7 @@ namespace OzGameLab01.UI
 
         private void Awake()
         {
+            CacheConfiguredItems();
             HideSkillDetail();
             HideStatDetail();
         }
@@ -127,11 +130,20 @@ namespace OzGameLab01.UI
                 return null;
             }
 
-            CombatInfoSkillItemView item = Instantiate(skillItemPrefab, skillContentRoot);
+            CombatInfoSkillItemView item;
+            if (_visibleSkillItemCount < skillItems.Count)
+            {
+                item = skillItems[_visibleSkillItemCount];
+                item.gameObject.SetActive(true);
+            }
+            else
+            {
+                item = Instantiate(skillItemPrefab, skillContentRoot);
+                skillItems.Add(item);
+            }
 
             item.Bind(icon, title, description);
-
-            skillItems.Add(item);
+            _visibleSkillItemCount++;
 
             if (isActiveAndEnabled)
             {
@@ -159,11 +171,20 @@ namespace OzGameLab01.UI
                 return null;
             }
 
-            CombatInfoStatItemView item = Instantiate(statItemPrefab, statContentRoot);
+            CombatInfoStatItemView item;
+            if (_visibleStatItemCount < statItems.Count)
+            {
+                item = statItems[_visibleStatItemCount];
+                item.gameObject.SetActive(true);
+            }
+            else
+            {
+                item = Instantiate(statItemPrefab, statContentRoot);
+                statItems.Add(item);
+            }
 
             item.Bind(icon, value, title, description);
-
-            statItems.Add(item);
+            _visibleStatItemCount++;
 
             if (isActiveAndEnabled)
             {
@@ -190,10 +211,11 @@ namespace OzGameLab01.UI
                 }
 
                 UnsubscribeSkillItem(item);
-                Destroy(item.gameObject);
+                item.Clear();
+                item.gameObject.SetActive(false);
             }
 
-            skillItems.Clear();
+            _visibleSkillItemCount = 0;
             hoveredSkillItem = null;
         }
 
@@ -214,10 +236,10 @@ namespace OzGameLab01.UI
                 }
 
                 UnsubscribeStatItem(item);
-                Destroy(item.gameObject);
+                item.gameObject.SetActive(false);
             }
 
-            statItems.Clear();
+            _visibleStatItemCount = 0;
             hoveredStatItem = null;
         }
 
@@ -346,6 +368,23 @@ namespace OzGameLab01.UI
 
 
         #region Private Methods
+
+        private void CacheConfiguredItems()
+        {
+            if (skillContentRoot != null)
+            {
+                CombatInfoSkillItemView[] configuredSkillItems =
+                    skillContentRoot.GetComponentsInChildren<CombatInfoSkillItemView>(true);
+                skillItems.AddRange(configuredSkillItems);
+            }
+
+            if (statContentRoot != null)
+            {
+                CombatInfoStatItemView[] configuredStatItems =
+                    statContentRoot.GetComponentsInChildren<CombatInfoStatItemView>(true);
+                statItems.AddRange(configuredStatItems);
+            }
+        }
 
         private void ShowSkillDetail(CombatInfoSkillItemView item)
         {

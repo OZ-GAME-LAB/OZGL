@@ -29,7 +29,7 @@ namespace OzGameLab01.Combat
 
         public void PlayIdle() => PlayState("_Idle", false);
         public void PlayAttack() => PlayState("_Attack", true);
-        public void PlayUltimate() => PlayState("_Ult", true);
+        public void PlayCrowdControl() => PlayState("_CC", true);
 
         /// <summary>
         /// Attack 클립 1회의 실제 재생 시간(클립 길이 ÷ Animator 속도)을 반환합니다. Attack 클립이 없으면 0입니다.
