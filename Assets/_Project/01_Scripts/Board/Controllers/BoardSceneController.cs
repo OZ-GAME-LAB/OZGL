@@ -79,9 +79,13 @@ namespace OzGameLab01.Controllers
         private MapNode _pendingBattleNode;
         private bool _pendingBattleIsBoss;
         private bool _pendingBattleIsElite;
+        private PendingBattleState _pendingBattleState;
 
         public event Action ForcedFormationRequested;
-        public bool HasPendingBattleFormation => _pendingBattleNode != null;
+        public event Action<MonsterData> BattlePreviewRequested;
+        public bool HasPendingBattleFormation =>
+            _pendingBattleNode != null &&
+            _pendingBattleState == PendingBattleState.AwaitingFormation;
         public event Action<BoardNotification> Notification;
 
         // 상태 확정 후 값 스냅샷 발행
@@ -267,7 +271,8 @@ namespace OzGameLab01.Controllers
         /// </summary>
         public bool TryCompletePendingBattleFormation()
         {
-            if (_pendingBattleNode == null)
+            if (_pendingBattleNode == null ||
+                _pendingBattleState != PendingBattleState.AwaitingFormation)
             {
                 return false;
             }
@@ -290,6 +295,37 @@ namespace OzGameLab01.Controllers
             return true;
         }
 
+        /// <summary>
+        /// 중간 보스/보스 정보 화면의 Battle 버튼을 누른 뒤 전투 진입을 계속합니다.
+        /// 편성이 부족하면 기존 강제 편성 화면으로 전환합니다.
+        /// </summary>
+        public bool ConfirmPendingBattlePreview()
+        {
+            if (_pendingBattleNode == null ||
+                _pendingBattleState != PendingBattleState.AwaitingPreviewConfirmation)
+            {
+                return false;
+            }
+
+            if (_unitFormationController != null && !_unitFormationController.CanStartBattle)
+            {
+                _pendingBattleState = PendingBattleState.AwaitingFormation;
+                ForcedFormationRequested?.Invoke();
+                return true;
+            }
+
+            if (!TryStartBattle(
+                    _pendingBattleNode,
+                    _pendingBattleIsBoss,
+                    _pendingBattleIsElite))
+            {
+                return false;
+            }
+
+            ClearPendingBattleFormation();
+            return true;
+        }
+
         // 전투 타일 전용 강제 편성 요청
         private void RequestBattle(MapNode battleNode, bool isBoss, bool isElite = false)
         {
@@ -302,7 +338,47 @@ namespace OzGameLab01.Controllers
             _pendingBattleNode = battleNode;
             _pendingBattleIsBoss = isBoss;
             _pendingBattleIsElite = isElite;
+            _pendingBattleState = PendingBattleState.AwaitingFormation;
             ForcedFormationRequested?.Invoke();
+        }
+
+        // 중간 보스/보스는 정보를 먼저 보여주고 사용자의 Battle 버튼 입력을 기다립니다.
+        private void RequestBattlePreview(MapNode battleNode, bool isBoss, bool isElite)
+        {
+            if (battleNode == null || _pendingBattleState != PendingBattleState.None)
+            {
+                return;
+            }
+
+            MonsterData enemy = EnemyEncounterResolver.ResolvePreparedEnemy(
+                isBoss,
+                isElite,
+                CurrentTimeOfDay == BoardTimeOfDay.Night);
+
+            if (enemy == null)
+            {
+                Debug.LogWarning(
+                    "[BoardSceneController] 전투 정보에 표시할 적 데이터를 찾지 못해 즉시 전투 진입을 시도합니다.",
+                    this);
+                RequestBattle(battleNode, isBoss, isElite);
+                return;
+            }
+
+            _pendingBattleNode = battleNode;
+            _pendingBattleIsBoss = isBoss;
+            _pendingBattleIsElite = isElite;
+            _pendingBattleState = PendingBattleState.AwaitingPreviewConfirmation;
+
+            if (BattlePreviewRequested == null)
+            {
+                Debug.LogWarning(
+                    "[BoardSceneController] BattleInfoView 연결이 없어 전투 정보 화면을 건너뜁니다.",
+                    this);
+                ConfirmPendingBattlePreview();
+                return;
+            }
+
+            BattlePreviewRequested.Invoke(enemy);
         }
 
         // 보류 전투 상태 초기화
@@ -311,6 +387,7 @@ namespace OzGameLab01.Controllers
             _pendingBattleNode = null;
             _pendingBattleIsBoss = false;
             _pendingBattleIsElite = false;
+            _pendingBattleState = PendingBattleState.None;
         }
 
         // 보류 여부와 무관한 실제 전투 진입
@@ -427,12 +504,26 @@ namespace OzGameLab01.Controllers
         private void HandleBattleNode(MapNode battleNode, bool isElite)
         {
             if (BoardRunData.IsBattleCompleted(battleNode.Position)) return;
-            RequestBattle(battleNode, false, isElite);
+
+            if (isElite)
+            {
+                RequestBattlePreview(battleNode, false, true);
+                return;
+            }
+
+            RequestBattle(battleNode, false);
         }
 
         private void HandleBossNode(MapNode bossNode)
         {
-            RequestBattle(bossNode, true);
+            RequestBattlePreview(bossNode, true, false);
+        }
+
+        private enum PendingBattleState
+        {
+            None,
+            AwaitingPreviewConfirmation,
+            AwaitingFormation
         }
 
         private bool TryGetSceneTransitioner(out SceneTransitioner transitioner)
