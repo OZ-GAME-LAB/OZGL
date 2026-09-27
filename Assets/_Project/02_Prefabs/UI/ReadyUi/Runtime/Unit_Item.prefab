@@ -508,7 +508,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &6763797295097999945
 RectTransform:
   m_ObjectHideFlags: 0
@@ -550,6 +550,11 @@ MonoBehaviour:
   pressedScale: 1.1
   pressDuration: 0.08
   releaseDuration: 0.12
+  placementScale: 1.08
+  placementGrowDuration: 0.08
+  placementReturnDuration: 0.14
+  placementGrowEase: 9
+  placementReturnEase: 3
 --- !u!225 &6489672786067141993
 CanvasGroup:
   m_ObjectHideFlags: 0
