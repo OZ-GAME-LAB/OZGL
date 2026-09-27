@@ -376,7 +376,8 @@ namespace OzGameLab01.Controllers
             MonsterData enemy = EnemyEncounterResolver.ResolvePreparedEnemy(
                 isBoss,
                 isElite,
-                CurrentTimeOfDay == BoardTimeOfDay.Night);
+                CurrentTimeOfDay == BoardTimeOfDay.Night,
+                battleNode.EncounterMonsterId);
 
             if (enemy == null)
             {
@@ -421,7 +422,12 @@ namespace OzGameLab01.Controllers
                 return false;
             }
 
-            BoardRunData.BeginBattle(battleNode.Position, isBoss, isElite, CurrentTimeOfDay == BoardTimeOfDay.Night);
+            BoardRunData.BeginBattle(
+                battleNode.Position,
+                isBoss,
+                isElite,
+                CurrentTimeOfDay == BoardTimeOfDay.Night,
+                battleNode.EncounterMonsterId);
             Publish(BoardNotificationKind.BattleRequested, battleNode);
             transitioner.LoadCombatScene();
             return true;
@@ -598,6 +604,7 @@ namespace OzGameLab01.Controllers
             {
                 BoardRunData.ConsumeSpecialTile(node.Position);
                 node.Type = NodeType.Normal;
+                node.EncounterMonsterId = 0;
             }
             Publish(BoardNotificationKind.SpecialTileConsumed, node, tileType: consumedType);
         }

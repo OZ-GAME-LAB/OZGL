@@ -12,6 +12,7 @@ namespace OzGameLab01.Board.Models
         public bool hasCurrentBattle;
         public int currentBattlePositionX;
         public int currentBattlePositionY;
+        public int currentBattleMonsterId;
         public bool isBossBattle;
         public bool isEliteBattle;
         public bool isNightEncounter;
