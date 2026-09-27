@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using DG.Tweening;
 using OzGameLab01.UI;
+using OzGameLab01.UI.Battle;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,9 +20,12 @@ namespace OzGameLab01.Controllers
         private RectTransform focusRect;
         private Image focusImage;
         private Button focusButton;
-        private TutorialOutlinePulseView focusPulse;
+        private readonly Image[] focusBorders = new Image[4];
+        private Tween focusBorderTween;
         private RectTransform activeTarget;
         private CombatTutorialStepData activeStep;
+        private readonly List<TutorialOutlinePulseView> formationSlotHighlights =
+            new();
 
         public bool IsGuideVisible =>
             guidePresenter != null && guidePresenter.IsGuideVisible;
@@ -66,6 +72,7 @@ namespace OzGameLab01.Controllers
 
             guidePresenter = canvasObject.AddComponent<TutorialController>();
             guidePresenter.ConfigureRuntime(overlayRoot, guidePrefab);
+            guidePresenter.GuideView?.SetDismissOnAnyClick(true);
             guidePresenter.GuideDismissed += HandleGuideDismissed;
 
             CreateFocusTarget();
@@ -73,7 +80,8 @@ namespace OzGameLab01.Controllers
 
         public void ShowStep(
             CombatTutorialStepData step,
-            RectTransform target)
+            RectTransform target,
+            IReadOnlyList<PlayerSlotItemView> formationSlots = null)
         {
             if (step == null)
                 return;
@@ -81,7 +89,9 @@ namespace OzGameLab01.Controllers
             activeStep = step;
             activeTarget = target;
 
-            bool hasTarget = target != null;
+            bool hasFormationSlots =
+                formationSlots != null && formationSlots.Count > 0;
+            bool hasTarget = target != null || hasFormationSlots;
             bool needsTarget = step.HighlightTarget || step.AllowsTargetClick;
             bool allowGuideDismiss =
                 step.AllowsGuideDismiss ||
@@ -105,10 +115,26 @@ namespace OzGameLab01.Controllers
                 }
             }
 
-            if (hasTarget && needsTarget)
+            if (hasFormationSlots)
+            {
+                if (step.HighlightTarget)
+                    ShowFormationSlotHighlights(step, formationSlots);
+
+                // 슬롯 전체 영역을 투명 클릭 대상으로 사용합니다. 각 슬롯의 강조는
+                // SlotVisual에 별도로 적용하므로 큰 사각형 테두리는 표시하지 않습니다.
+                if (step.AllowsTargetClick && target != null)
+                    ShowFocus(step, target, showBorder: false);
+                else
+                    HideFocus();
+            }
+            else if (hasTarget && needsTarget)
+            {
                 ShowFocus(step, target);
+            }
             else
+            {
                 HideFocus();
+            }
         }
 
         public void Tick()
@@ -130,6 +156,7 @@ namespace OzGameLab01.Controllers
         {
             activeStep = null;
             HideFocus();
+            StopFormationSlotHighlights();
             SetInputBlockerVisible(false);
             guidePresenter?.SetGuideDismissEnabled(true);
         }
@@ -142,6 +169,9 @@ namespace OzGameLab01.Controllers
 
         public void Dispose()
         {
+            StopFocusBorder();
+            StopFormationSlotHighlights();
+
             if (guidePresenter != null)
                 guidePresenter.GuideDismissed -= HandleGuideDismissed;
 
@@ -157,7 +187,8 @@ namespace OzGameLab01.Controllers
             focusRect = null;
             focusImage = null;
             focusButton = null;
-            focusPulse = null;
+            for (int i = 0; i < focusBorders.Length; i++)
+                focusBorders[i] = null;
             activeTarget = null;
             activeStep = null;
         }
@@ -184,13 +215,14 @@ namespace OzGameLab01.Controllers
             focusButton.targetGraphic = focusImage;
             focusButton.onClick.AddListener(HandleTargetClicked);
 
-            focusPulse = focusObject.AddComponent<TutorialOutlinePulseView>();
+            CreateFocusBorders();
             focusObject.SetActive(false);
         }
 
         private void ShowFocus(
             CombatTutorialStepData step,
-            RectTransform target)
+            RectTransform target,
+            bool showBorder = true)
         {
             if (focusRect == null)
                 return;
@@ -203,9 +235,38 @@ namespace OzGameLab01.Controllers
 
             SyncFocusRect(target);
 
-            if (step.HighlightTarget)
+            if (step.HighlightTarget && showBorder)
             {
-                focusPulse.PlayHighlight(
+                PlayFocusBorder(step);
+            }
+            else
+            {
+                StopFocusBorder();
+            }
+        }
+
+        private void ShowFormationSlotHighlights(
+            CombatTutorialStepData step,
+            IReadOnlyList<PlayerSlotItemView> formationSlots)
+        {
+            StopFormationSlotHighlights();
+
+            for (int i = 0; i < formationSlots.Count; i++)
+            {
+                PlayerSlotItemView slot = formationSlots[i];
+                Image slotVisual = slot != null ? slot.SlotVisualImage : null;
+                if (slotVisual == null)
+                    continue;
+
+                TutorialOutlinePulseView highlight =
+                    slotVisual.GetComponent<TutorialOutlinePulseView>();
+                if (highlight == null)
+                {
+                    highlight = slotVisual.gameObject
+                        .AddComponent<TutorialOutlinePulseView>();
+                }
+
+                highlight.PlayHighlight(
                     step.OutlineColor,
                     step.OutlineMinDistance,
                     step.OutlineMaxDistance,
@@ -214,20 +275,133 @@ namespace OzGameLab01.Controllers
                     step.OutlineHalfDuration,
                     step.OutlineEase,
                     ignoreTimeScale: true);
+                formationSlotHighlights.Add(highlight);
             }
-            else
-            {
-                focusPulse.StopHighlight();
-            }
+        }
+
+        private void StopFormationSlotHighlights()
+        {
+            for (int i = 0; i < formationSlotHighlights.Count; i++)
+                formationSlotHighlights[i]?.StopHighlight();
+
+            formationSlotHighlights.Clear();
         }
 
         private void HideFocus()
         {
             activeTarget = null;
-            focusPulse?.StopHighlight();
+            StopFocusBorder();
 
             if (focusRect != null)
                 focusRect.gameObject.SetActive(false);
+        }
+
+        private void CreateFocusBorders()
+        {
+            focusBorders[0] = CreateBorder("TopBorder", focusRect);
+            focusBorders[1] = CreateBorder("BottomBorder", focusRect);
+            focusBorders[2] = CreateBorder("LeftBorder", focusRect);
+            focusBorders[3] = CreateBorder("RightBorder", focusRect);
+
+            RectTransform top = focusBorders[0].rectTransform;
+            top.anchorMin = new Vector2(0f, 1f);
+            top.anchorMax = Vector2.one;
+            top.pivot = new Vector2(0.5f, 0.5f);
+
+            RectTransform bottom = focusBorders[1].rectTransform;
+            bottom.anchorMin = Vector2.zero;
+            bottom.anchorMax = new Vector2(1f, 0f);
+            bottom.pivot = new Vector2(0.5f, 0.5f);
+
+            RectTransform left = focusBorders[2].rectTransform;
+            left.anchorMin = Vector2.zero;
+            left.anchorMax = new Vector2(0f, 1f);
+            left.pivot = new Vector2(0.5f, 0.5f);
+
+            RectTransform right = focusBorders[3].rectTransform;
+            right.anchorMin = new Vector2(1f, 0f);
+            right.anchorMax = Vector2.one;
+            right.pivot = new Vector2(0.5f, 0.5f);
+        }
+
+        private static Image CreateBorder(string objectName, Transform parent)
+        {
+            GameObject borderObject = CreateGraphicObject(
+                objectName,
+                parent,
+                Color.clear,
+                raycastTarget: false);
+            return borderObject.GetComponent<Image>();
+        }
+
+        private void PlayFocusBorder(CombatTutorialStepData step)
+        {
+            StopFocusBorder();
+            ApplyFocusBorder(step, 0f);
+
+            float value = 0f;
+            focusBorderTween = DOTween
+                .To(
+                    () => value,
+                    nextValue =>
+                    {
+                        value = nextValue;
+                        ApplyFocusBorder(step, value);
+                    },
+                    1f,
+                    Mathf.Max(0.01f, step.OutlineHalfDuration))
+                .SetEase(step.OutlineEase)
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetUpdate(true);
+        }
+
+        private void ApplyFocusBorder(CombatTutorialStepData step, float value)
+        {
+            float horizontalThickness = Mathf.Lerp(
+                Mathf.Abs(step.OutlineMinDistance.x),
+                Mathf.Abs(step.OutlineMaxDistance.x),
+                value);
+            float verticalThickness = Mathf.Lerp(
+                Mathf.Abs(step.OutlineMinDistance.y),
+                Mathf.Abs(step.OutlineMaxDistance.y),
+                value);
+
+            Color color = step.OutlineColor;
+            color.a = Mathf.Lerp(
+                step.OutlineMinAlpha,
+                step.OutlineMaxAlpha,
+                value);
+
+            SetBorder(focusBorders[0], color, 0f, verticalThickness);
+            SetBorder(focusBorders[1], color, 0f, verticalThickness);
+            SetBorder(focusBorders[2], color, horizontalThickness, 0f);
+            SetBorder(focusBorders[3], color, horizontalThickness, 0f);
+        }
+
+        private static void SetBorder(
+            Image border,
+            Color color,
+            float width,
+            float height)
+        {
+            if (border == null)
+                return;
+
+            border.color = color;
+            border.rectTransform.anchoredPosition = Vector2.zero;
+            border.rectTransform.sizeDelta = new Vector2(width, height);
+        }
+
+        private void StopFocusBorder()
+        {
+            focusBorderTween?.Kill();
+            focusBorderTween = null;
+
+            for (int i = 0; i < focusBorders.Length; i++)
+            {
+                if (focusBorders[i] != null)
+                    focusBorders[i].color = Color.clear;
+            }
         }
 
         private void SyncFocusRect(RectTransform target)

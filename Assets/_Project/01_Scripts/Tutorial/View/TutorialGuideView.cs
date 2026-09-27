@@ -2,12 +2,13 @@ using System;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace OzGameLab01.UI
 {
     [DisallowMultipleComponent]
-    public sealed class TutorialGuideView : MonoBehaviour
+    public sealed class TutorialGuideView : MonoBehaviour, IPointerClickHandler
     {
         [Header("References")]
         [SerializeField] private CanvasGroup canvasGroup;
@@ -33,6 +34,7 @@ namespace OzGameLab01.UI
         private Sequence currentSequence;
         private int originalSiblingIndex = -1;
         private bool isBroughtToFront;
+        private bool dismissOnAnyClick;
 
         public event Action DialoguePanelClicked;
 
@@ -43,7 +45,6 @@ namespace OzGameLab01.UI
         {
             ResolveDialoguePanelButton();
             CacheDefaultTransform();
-            HideImmediate();
         }
 
         private void OnEnable()
@@ -263,6 +264,30 @@ namespace OzGameLab01.UI
         public void StopAnimation()
         {
             KillTween();
+        }
+
+
+        /// <summary>
+        /// DialoguePanel 외의 가이드 배경이나 콘텐츠를 클릭해도
+        /// 동일한 닫기 요청을 전달할지 설정합니다.
+        /// 전투 튜토리얼처럼 런타임에 생성되는 가이드에서만 사용합니다.
+        /// </summary>
+        public void SetDismissOnAnyClick(bool enabled)
+        {
+            dismissOnAnyClick = enabled;
+        }
+
+
+        public void OnPointerClick(PointerEventData eventData)
+        {
+            if (!dismissOnAnyClick ||
+                eventData == null ||
+                eventData.button != PointerEventData.InputButton.Left)
+            {
+                return;
+            }
+
+            DialoguePanelClicked?.Invoke();
         }
 
         #endregion
