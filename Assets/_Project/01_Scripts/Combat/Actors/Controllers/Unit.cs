@@ -1005,5 +1005,16 @@ namespace OzGameLab01.Combat
                 return;
             }
         }
+
+        internal void CompleteDeathPresentation()
+        {
+            if (!_isDead)
+            {
+                return;
+            }
+
+            _presenter.HideCombatImage();
+            gameObject.SetActive(false);
+        }
     }
 }

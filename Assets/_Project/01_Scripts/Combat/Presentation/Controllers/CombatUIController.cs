@@ -372,9 +372,10 @@ namespace OzGameLab01.Controllers
                     {
                         if (battleUIView.ResultView != null)
                         {
-                            battleUIView.ResultView.SetResultText("Victory");
+                            battleUIView.ResultView.SetResultText("승리");
                             battleUIView.ResultView.SetOptionalMessage(string.Empty);
-                            battleUIView.ResultView.SetEndBattleButtonText("Return To Title");
+                            battleUIView.ResultView.SetEndBattleButtonText("타이틀로 돌아가기");
+                            battleUIView.ResultView.SetRewardIcon(null);
                         }
 
                         battleUIView.ShowResultView();
@@ -392,10 +393,11 @@ namespace OzGameLab01.Controllers
                             _rewardApplied = true;
                         }
 
-                        battleUIView.ResultView.SetResultText("Victory!");
+                        battleUIView.ResultView.SetResultText("승리!");
                         battleUIView.ResultView.SetOptionalMessage(
                             grantedRelic != null ? $"유물 획득: {grantedRelic.name}" : string.Empty);
-                        battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
+                        battleUIView.ResultView.SetEndBattleButtonText("보드로 돌아가기");
+                        _ = battleUIView.ResultView.SetRewardIconAsync(grantedRelic?.iconAddress);
                     }
 
                     battleUIView.ShowResultView();
@@ -405,9 +407,10 @@ namespace OzGameLab01.Controllers
                     // 패배 시 바로 결과 창(ResultView)을 띄웁니다.
                     if (battleUIView.ResultView != null)
                     {
-                        battleUIView.ResultView.SetResultText("Defeat...");
-                        battleUIView.ResultView.SetOptionalMessage("Better luck next time...");
-                        battleUIView.ResultView.SetEndBattleButtonText("Return To Board");
+                        battleUIView.ResultView.SetResultText("패배...");
+                        battleUIView.ResultView.SetOptionalMessage("다음 기회에 다시 도전해 보세요.");
+                        battleUIView.ResultView.SetEndBattleButtonText("보드로 돌아가기");
+                        battleUIView.ResultView.SetRewardIcon(null);
                     }
                     battleUIView.ShowResultView();
                 }

@@ -94,5 +94,50 @@ namespace OzGameLab01.Tests.EditMode
             Assert.That(enemyName.font.sourceFontFile, Is.Not.Null,
                 "The dynamic Korean font needs its source TTF to add missing Hangul glyphs at runtime.");
         }
+
+        [Test]
+        public void BattleUi_ResultTextsSupportLocalizedCopy()
+        {
+            const string battleUiPath = "Assets/_Project/02_Prefabs/UI/BattleUi/BattleUI.prefab";
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(battleUiPath);
+            CombatResultView resultView = prefab != null
+                ? prefab.GetComponentInChildren<CombatResultView>(true)
+                : null;
+
+            Assert.That(prefab, Is.Not.Null);
+            Assert.That(resultView, Is.Not.Null);
+            Assert.That(resultView.ResultText.font.name, Does.Contain("NotoSansKR"));
+            Assert.That(resultView.OptionalMessageText.font.name, Does.Contain("NotoSansKR"));
+            Assert.That(resultView.EndBattleButton.GetComponentInChildren<TMP_Text>(true).font.name,
+                Does.Contain("NotoSansKR"));
+        }
+
+        [Test]
+        public void BattleUi_EmptyDpsAreaIsHiddenWhenResultIsShown()
+        {
+            const string battleUiPath = "Assets/_Project/02_Prefabs/UI/BattleUi/BattleUI.prefab";
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(battleUiPath);
+            GameObject instance = prefab != null ? Object.Instantiate(prefab) : null;
+
+            try
+            {
+                CombatResultView resultView = instance != null
+                    ? instance.GetComponentInChildren<CombatResultView>(true)
+                    : null;
+
+                Assert.That(resultView, Is.Not.Null);
+                resultView.ClearDpsInfoItems();
+                resultView.Show();
+
+                Assert.That(resultView.DpsListRoot.gameObject.activeSelf, Is.False);
+            }
+            finally
+            {
+                if (instance != null)
+                {
+                    Object.DestroyImmediate(instance);
+                }
+            }
+        }
     }
 }

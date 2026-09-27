@@ -2967,7 +2967,11 @@ MonoBehaviour:
   _settingsButton: {fileID: 7171539722014777503}
   _locateButton: {fileID: 0}
   _synergyContentRoot: {fileID: 783868264504852942}
+  _synergyItemPrefab: {fileID: 2963044796329331369, guid: a2be8f054ea1d314a8826b10c4c8bf4b, type: 3}
+  _synergyActiveColor: {r: 1, g: 1, b: 1, a: 1}
+  _synergyInactiveColor: {r: 1, g: 1, b: 1, a: 0.4}
   _artifactContentRoot: {fileID: 831321211347981865}
+  _artifactItemPrefab: {fileID: 3212436079286693887, guid: fe92ed840adb62643963714dcab2b741, type: 3}
   _endTurnButton: {fileID: 3623372659761151762}
   _clockHand: {fileID: 7021746841431764545}
   _currentTurnNumber: {fileID: 6705851006443302319}

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 using OzGameLab01.Dice.Contracts;
@@ -10,6 +11,8 @@ using OzGameLab01.Data;
 using OzGameLab01.Map;
 using OzGameLab01.Common;
 using OzGameLab01.Board.Contracts;
+using OzGameLab01.Effects.Models;
+using OzGameLab01.Effects.Views;
 
 namespace OzGameLab01.Controllers
 {
@@ -74,6 +77,8 @@ namespace OzGameLab01.Controllers
         private BoardFeedbackView _feedbackView;
         private System.IDisposable _diceSubscription;
         private Sequence _clockRotationSequence;
+        private RelicFacade _relicFacade;
+        private UnitFormationController _formationController;
         private CombatInfoPresenter _battleInfoPresenter;
         private bool _started;
         private bool _actionPointUiRefreshPending;
@@ -113,10 +118,20 @@ namespace OzGameLab01.Controllers
         {
             if (mapRouteDirector == null) mapRouteDirector = FindFirstObjectByType<MapRouteDirector>();
             if (boardCameraController == null) boardCameraController = FindFirstObjectByType<BoardCameraController>();
+            if (_formationController == null) _formationController = FindFirstObjectByType<UnitFormationController>(FindObjectsInactive.Include);
 
             _ = Managers.DiceManager.Instance.Facade; // 씬 직접 실행 시 시스템 구성
             _diceSubscription?.Dispose();
             _diceSubscription = SystemBus.Messages.Subscribe<DiceRolled>(message => HandleDiceRolled(message.Value));
+            if (_relicFacade != null)
+            {
+                _relicFacade.Notification -= HandleRelicNotification;
+            }
+            _relicFacade = SystemBus.Get<RelicFacade>();
+            if (_relicFacade != null)
+            {
+                _relicFacade.Notification += HandleRelicNotification;
+            }
             BoardPlayerController.OnPlayerFinishedMoving -= HandlePlayerFinishedMoving;
             BoardPlayerController.OnPlayerFinishedMoving += HandlePlayerFinishedMoving;
             BoardPlayerController.OnPlayerStepCompleted -= HandlePlayerStepCompleted;
@@ -142,6 +157,8 @@ namespace OzGameLab01.Controllers
                     readySceneView.MainView.SetCurrentTurn(initialTurn);
 
                     RefreshEndTurnFeedback(true);
+                    RefreshArtifactItems();
+                    StartCoroutine(RefreshSynergyItemsNextFrame());
                 }
 
                 if (readySceneView.SettingsView != null)
@@ -191,6 +208,11 @@ namespace OzGameLab01.Controllers
 
             _diceSubscription?.Dispose();
             _diceSubscription = null;
+            if (_relicFacade != null)
+            {
+                _relicFacade.Notification -= HandleRelicNotification;
+                _relicFacade = null;
+            }
             BoardPlayerController.OnPlayerFinishedMoving -= HandlePlayerFinishedMoving;
             BoardPlayerController.OnPlayerStepCompleted -= HandlePlayerStepCompleted;
 
@@ -365,6 +387,7 @@ namespace OzGameLab01.Controllers
             }
 
             if (readySceneView != null) readySceneView.HideUnitView();
+            RefreshSynergyItems();
         }
 
         // 전투 타일 전용 유닛 배치 안내 및 화면 표시
@@ -642,6 +665,136 @@ namespace OzGameLab01.Controllers
             }
         }
 
+        private void HandleRelicNotification(EffectsNotification notification)
+        {
+            if (notification.Kind == EffectsNotificationKind.RelicAcquired ||
+                notification.Kind == EffectsNotificationKind.RelicsRestored ||
+                notification.Kind == EffectsNotificationKind.RelicsCleared)
+            {
+                RefreshArtifactItems();
+            }
+        }
+
+        private void RefreshArtifactItems()
+        {
+            ReadyMainView mainView = readySceneView?.MainView;
+            if (mainView == null || mainView.ArtifactContentRoot == null || _relicFacade == null)
+            {
+                return;
+            }
+
+            mainView.RefreshArtifactItems();
+            int relicCount = _relicFacade.OwnedRelics.Count;
+
+            for (int i = 0; i < relicCount; i++)
+            {
+                ArtifactInfoItemView item;
+                if (i < mainView.ArtifactItems.Count)
+                {
+                    item = mainView.ArtifactItems[i];
+                }
+                else
+                {
+                    if (mainView.ArtifactItemPrefab == null)
+                    {
+                        Debug.LogWarning("[BoardUIController] 유물 아이템 프리팹이 연결되지 않았습니다.", mainView);
+                        return;
+                    }
+
+                    item = Instantiate(mainView.ArtifactItemPrefab, mainView.ArtifactContentRoot);
+                    mainView.RegisterArtifactItem(item);
+                }
+
+                item.SetVisible(true);
+                _ = item.UpdateRelicIconAsync(_relicFacade.OwnedRelics[i].iconAddress);
+            }
+
+            for (int i = relicCount; i < mainView.ArtifactItems.Count; i++)
+            {
+                mainView.ArtifactItems[i].SetVisible(false);
+            }
+        }
+
+        private System.Collections.IEnumerator RefreshSynergyItemsNextFrame()
+        {
+            yield return null;
+            RefreshSynergyItems();
+        }
+
+        private void RefreshSynergyItems()
+        {
+            ReadyMainView mainView = readySceneView?.MainView;
+            UnitRosterData rosterData = _formationController?.RosterData;
+            if (mainView == null || mainView.SynergyContentRoot == null ||
+                mainView.SynergyItemPrefab == null || rosterData == null ||
+                _formationController == null)
+            {
+                return;
+            }
+
+            var traitsById = new Dictionary<int, List<SynergyDefinition>>();
+            var battleUnitIds = new List<int>();
+            foreach (UnitData unit in _formationController.BattleUnitData)
+            {
+                AddSynergyUnit(unit, rosterData, battleUnitIds, traitsById);
+            }
+
+            if (battleUnitIds.Count == 0)
+            {
+                foreach (int unitId in UnitFormationCombatLink.SavedBattleUnitIdList)
+                {
+                    if (unitId < 0)
+                    {
+                        continue;
+                    }
+
+                    AddSynergyUnit(
+                        RuntimeContent.Catalog.GetUnit(unitId),
+                        rosterData,
+                        battleUnitIds,
+                        traitsById);
+                }
+            }
+
+            Dictionary<SynergyDefinition, int> counts =
+                SynergyPanelUtility.CountTraits(battleUnitIds, traitsById);
+            List<SynergyPanelUtility.DisplayItem> displayItems =
+                SynergyPanelUtility.BuildDisplayItems(rosterData.SynergyDefinitions, counts);
+            var panel = new SynergyPanelView(
+                mainView.SynergyContentRoot,
+                mainView.SynergyItemPrefab,
+                mainView.SynergyActiveColor,
+                mainView.SynergyInactiveColor);
+            panel.Render(displayItems);
+            StartCoroutine(RefreshSynergyItemBindingsNextFrame(mainView));
+        }
+
+        private static System.Collections.IEnumerator RefreshSynergyItemBindingsNextFrame(ReadyMainView mainView)
+        {
+            yield return null;
+            mainView?.RefreshSynergyItems();
+        }
+
+        private static void AddSynergyUnit(
+            UnitData unit,
+            UnitRosterData rosterData,
+            List<int> battleUnitIds,
+            Dictionary<int, List<SynergyDefinition>> traitsById)
+        {
+            if (unit == null)
+            {
+                return;
+            }
+
+            battleUnitIds.Add(unit.id);
+            var traits = new List<SynergyDefinition>();
+            SynergyDefinition jobTrait = rosterData.GetJobTrait(unit.jobType);
+            SynergyDefinition tribeTrait = rosterData.GetTribeTrait(unit.tribeType);
+            if (jobTrait != null) traits.Add(jobTrait);
+            if (tribeTrait != null && tribeTrait != jobTrait) traits.Add(tribeTrait);
+            traitsById[unit.id] = traits;
+        }
+
         private void ShowTimeOfDayFeedback(string message)
         {
             CancelAutomaticRollView();
@@ -742,6 +895,13 @@ namespace OzGameLab01.Controllers
         private RollViewOpenResult TryOpenRollViewInternal()
         {
             if (_timeOfDayFeedbackRoutine != null)
+            {
+                return RollViewOpenResult.Retry;
+            }
+
+            UnitAcquirePopupView unitAcquirePopup = readySceneView?.UnitAcquirePopupView;
+            if (unitAcquirePopup != null &&
+                (unitAcquirePopup.IsVisible || unitAcquirePopup.IsPlaying))
             {
                 return RollViewOpenResult.Retry;
             }

@@ -32,6 +32,12 @@ namespace OzGameLab01.Data
 
         public List<int> skillIds = new List<int>();
 
+        // 편성 상세 UI에서 표시할 액티브/패시브 스킬 정의 ID입니다.
+        // 전투 실행 순서를 나타내는 skillIds와 분리해 표시 데이터의 의미를 명확히 유지합니다.
+        public int activeSkillId;
+        public int passiveSkillId;
+        public string flavorText;
+
         public string passiveSkillKey;
         public string activeSkillKey;
         public int skillCooldown;

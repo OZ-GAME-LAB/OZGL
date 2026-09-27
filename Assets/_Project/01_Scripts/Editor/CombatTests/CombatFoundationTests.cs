@@ -39,6 +39,43 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
+        public void BattleResolutionHidesDeadUnitBeforeResultUi()
+        {
+            var controllerObject = new UnityEngine.GameObject("Battle resolution controller");
+            var unitObject = new UnityEngine.GameObject("Last defeated unit");
+            float previousScale = UnityEngine.Time.timeScale;
+
+            try
+            {
+                var controller = controllerObject.AddComponent<OzGameLab01.Controllers.CombatSceneController>();
+                var unit = unitObject.AddComponent<Unit>();
+                InitializeUnit(unit);
+                typeof(Unit).GetField("_isDead",
+                        System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .SetValue(unit, true);
+
+                var markDirty = controller.GetType().GetMethod("MarkOutcomeDirty",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var resolve = controller.GetType().GetMethod("ResolveBattle",
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                bool wasActiveWhenUiOpened = true;
+                controller.OnBattleResolved += _ => wasActiveWhenUiOpened = unitObject.activeSelf;
+
+                markDirty.Invoke(controller, new object[] { unit });
+                resolve.Invoke(controller, new object[] { false });
+
+                Assert.That(wasActiveWhenUiOpened, Is.False);
+                Assert.That(unitObject.activeSelf, Is.False);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(unitObject);
+                UnityEngine.Object.DestroyImmediate(controllerObject);
+                UnityEngine.Time.timeScale = previousScale;
+            }
+        }
+
+        [Test]
         public void CombatPauseReasonsDoNotReleaseEachOther()
         {
             var go = new UnityEngine.GameObject("Combat pause reason test");

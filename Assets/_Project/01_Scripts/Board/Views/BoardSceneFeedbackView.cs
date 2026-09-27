@@ -14,12 +14,11 @@ namespace OzGameLab01.Board.Views
             if (_popup == null && createIfMissing) { _popup = new GameObject("NightEventPopup").AddComponent<NightEventPopupView>(); }
             _popup?.Show(message);
         }
-        public void ShowUnit(string name, int ownedCount) { Show($"New Unit Acquired!\n[{name}]\n(Currently {ownedCount} units owned)"); }
+        public void ShowUnit(string name, int ownedCount) { Show($"새 유닛 획득!\n[{name}]\n(현재 보유 유닛 {ownedCount}명)"); }
         public void ShowTurns(int remainingTurns)
         {
             if (_hud == null) { _hud = Object.FindFirstObjectByType<TimeStatusHUDView>(); }
-            if (_hud == null) { _hud = new GameObject("TimeStatusHUD").AddComponent<TimeStatusHUDView>(); }
-            _hud.SetTurnsUntilNight(remainingTurns);
+            _hud?.SetTurnsUntilNight(remainingTurns);
         }
     }
 }

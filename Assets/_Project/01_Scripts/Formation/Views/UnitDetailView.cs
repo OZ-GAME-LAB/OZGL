@@ -29,28 +29,39 @@ namespace OzGameLab01.UI
         [SerializeField] private TMP_Text conceptDescriptionText;
 
         private readonly List<InfoSynergyItemView> synergyBadgeItems = new ();
+        private Sprite[] defaultStatIcons;
 
         public bool IsVisible => gameObject.activeSelf;
 
-        // 현재 데이터 로드와 추후 상세 정보 확장 진입점 추가
+        private void Awake()
+        {
+            CacheDefaultStatIcons();
+            CacheSynergyBadgeItems();
+        }
+
         /// <summary>
-        /// 기존 UI 틀을 유지하고 연결된 유닛 데이터를 표시합니다.
-        /// 스킬 데이터가 준비되면 이 함수에서 data.passiveSkillKey와 data.activeSkillKey로
-        /// 해당 스킬의 아이콘과 설명을 조회한 뒤 SetSkill(슬롯 번호, 아이콘, 설명)을 호출합니다.
-        /// 슬롯 번호 0과 1은 Inspector의 Skill Icons 및 Skill Description Texts 배열 순서입니다.
-        /// 패시브와 액티브의 표시 순서는 기획 확정 후 해당 슬롯에 맞춰 연결합니다.
-        /// 유닛 상세 설명은 data.id로 설명 데이터를 조회한 뒤 SetConceptDescription(설명)으로 전달합니다.
-        /// 현재 스킬 및 상세 설명의 데이터 조회 기능은 구현되어 있지 않습니다.
-        /// 연결 전에는 호출하지 않아 기존 스킬 칸과 설명의 기본 표시를 유지합니다.
-        /// SetSkill에 null 아이콘을 전달하면 이미지가 숨겨지므로, 데이터 누락 시에는
-        /// 이전 유닛의 값 대신 해당 슬롯의 기본 아이콘과 기본 설명을 전달하도록 연결합니다.
+        /// 스탯만 필요한 기존 호출 경로입니다. 상세 데이터는 빈 값으로 초기화합니다.
         /// </summary>
         public void LoadUnit(OzGameLab01.Data.UnitData data, Sprite icon)
         {
-//            ClearDetail();
-            // 미연결 스킬 칸과 설명의 프리팹 기본 표시 유지
+            LoadUnit(data, icon, null, null, null, null, null);
+        }
+
+        /// <summary>
+        /// 편성 창에서 선택한 유닛의 모든 상세 표시 데이터를 갱신합니다.
+        /// </summary>
+        public void LoadUnit(
+            OzGameLab01.Data.UnitData data,
+            Sprite icon,
+            IReadOnlyList<string> synergyNames,
+            OzGameLab01.Data.SkillData activeSkill,
+            Sprite activeSkillIcon,
+            OzGameLab01.Data.SkillData passiveSkill,
+            Sprite passiveSkillIcon)
+        {
             if (data == null)
             {
+                ClearDetail();
                 return;
             }
 
@@ -58,22 +69,62 @@ namespace OzGameLab01.UI
 
             if (unitIcon != null)
             {
-                unitIcon.color = data.color;
+                unitIcon.color = Color.white;
             }
-            BindUnitStats(data);
             SetUnitName(data.name);
-            //            SetSynergies(new[] { data.jobType.ToString(), data.tribeType.ToString() });
-            // 고정 UI 보존을 위한 자동 시너지 이름표 생성 제외, SetSynergies 연결 함수 유지
-            // 활성 상태에서 유닛 변경으로 생성된 시너지 이름표도 입력 통과 처리
+            SetSynergies(synergyNames);
+            SetSkill(0, activeSkillIcon, FormatSkill(activeSkill));
+            SetSkill(1, passiveSkillIcon, FormatSkill(passiveSkill));
+            SetConceptDescription(data.flavorText);
+            BindStats(data);
+            ResetStatsScroll();
+        }
 
-            //foreach (Graphic graphic in GetComponentsInChildren<Graphic>(true)) //삭제 대상입니다, Inspector에서 켜둔 스크롤 입력도 다시 꺼
-            //graphic.raycastTarget = false;
+        private static string FormatSkill(OzGameLab01.Data.SkillData skill)
+        {
+            if (skill == null)
+                return string.Empty;
 
-            //            SetConceptDescription($" healthPoint  {data.healthPoint:0.##}\n " +
-            //                $"attackPoint  {data.attackPoint:0.##}\n defensePoint  {data.defensePoint:0.##}\n " +
-            //                $"attackSpeed  {data.attackSpeed:0.##}\n criticalMult   {data.criticalMult:0.##}\n " +
-            //                $"criticalRate  {data.criticalRate:0.##}\n dodgeRate  {data.dodgeRate:0.##}");
-            // 설명 영역의 임시 능력치 출력 제외, SetConceptDescription 연결 함수 유지
+            if (string.IsNullOrWhiteSpace(skill.name))
+                return skill.description ?? string.Empty;
+
+            if (string.IsNullOrWhiteSpace(skill.description))
+                return skill.name;
+
+            return $"<b>{skill.name}</b>\n{skill.description}";
+        }
+
+        private void BindStats(OzGameLab01.Data.UnitData data)
+        {
+            CacheDefaultStatIcons();
+            BindStat(0, data.healthPoint, false, "체력", "전투 시작 시 보유하는 최대 체력입니다.");
+            BindStat(1, data.attackPoint, false, "공격력", "기본 공격과 공격력 계수 스킬의 기준값입니다.");
+            BindStat(2, data.defensePoint, false, "방어력", "받는 피해를 감소시키는 방어 수치입니다.");
+            BindStat(3, data.attackSpeed, false, "공격 속도", "기본 공격 주기에 적용되는 공격 속도입니다.");
+            BindStat(4, data.criticalRate, true, "치명타 확률", "공격이 치명타로 적중할 확률입니다.");
+            BindStat(5, data.criticalMult, true, "치명타 피해", "치명타 적중 시 적용되는 피해 배율입니다.");
+            BindStat(6, data.dodgeRate, true, "회피율", "적의 공격을 회피할 확률입니다.");
+        }
+
+        private void BindStat(int index, float value, bool percent, string title, string description)
+        {
+            Sprite icon = defaultStatIcons != null && index >= 0 && index < defaultStatIcons.Length
+                ? defaultStatIcons[index]
+                : null;
+            string formattedValue = value.ToString("0.##") + (percent ? "%" : string.Empty);
+            SetStat(index, icon, formattedValue, title, description);
+        }
+
+        private void CacheDefaultStatIcons()
+        {
+            if (defaultStatIcons != null)
+                return;
+
+            int count = statItems != null ? statItems.Length : 0;
+            defaultStatIcons = new Sprite[count];
+
+            for (int index = 0; index < count; index++)
+                defaultStatIcons[index] = statItems[index] != null ? statItems[index].Icon : null;
         }
 
         private void OnEnable()
@@ -123,6 +174,7 @@ namespace OzGameLab01.UI
 
         public void SetSynergies(IReadOnlyList<string> synergyNames)
         {
+            CacheSynergyBadgeItems();
             ClearSynergies();
 
             if (synergyNames == null || synergyBadgeRoot == null || synergyBadgeItemPrefab == null)
@@ -130,13 +182,21 @@ namespace OzGameLab01.UI
                 return;
             }
 
-            foreach (string synergyName in synergyNames)
+            for (int index = 0; index < synergyNames.Count; index++)
             {
-                InfoSynergyItemView badgeItem = Instantiate(synergyBadgeItemPrefab,synergyBadgeRoot,false);
-                badgeItem.SetName(synergyName ?? string.Empty);
-                badgeItem.SetVisible(true);
+                InfoSynergyItemView badgeItem;
+                if (index < synergyBadgeItems.Count)
+                {
+                    badgeItem = synergyBadgeItems[index];
+                }
+                else
+                {
+                    badgeItem = Instantiate(synergyBadgeItemPrefab, synergyBadgeRoot, false);
+                    synergyBadgeItems.Add(badgeItem);
+                }
 
-                synergyBadgeItems.Add(badgeItem);
+                badgeItem.SetName(synergyNames[index] ?? string.Empty);
+                badgeItem.SetVisible(true);
             }
         }
 
@@ -238,16 +298,24 @@ namespace OzGameLab01.UI
 
         private void ClearSynergies()
         {
+            CacheSynergyBadgeItems();
+
             foreach (InfoSynergyItemView badgeItem in synergyBadgeItems)
             {
                 if (badgeItem == null)
                     continue;
 
                 badgeItem.SetVisible(false);
-                Destroy(badgeItem.gameObject);
             }
+        }
 
-            synergyBadgeItems.Clear();
+        private void CacheSynergyBadgeItems()
+        {
+            if (synergyBadgeItems.Count > 0 || synergyBadgeRoot == null)
+                return;
+
+            synergyBadgeItems.AddRange(
+                synergyBadgeRoot.GetComponentsInChildren<InfoSynergyItemView>(true));
         }
 
         private void BindUnitStats(OzGameLab01.Data.UnitData data)
