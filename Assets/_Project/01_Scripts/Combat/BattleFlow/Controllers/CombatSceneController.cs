@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using OzGameLab01.Combat;
@@ -38,6 +39,7 @@ namespace OzGameLab01.Controllers
         private bool _victory;
         private bool _fastForward;
         private bool _outcomeDirty;
+        private readonly HashSet<Unit> _pendingDeadUnits = new HashSet<Unit>();
         private bool _isReturningToTitle; // [추가] 런 종료 저장 중 중복 타이틀 이동 요청 방지
         private PauseReason _pauseReasons;
 
@@ -102,7 +104,14 @@ namespace OzGameLab01.Controllers
             _outcomeDirty = true;
         }
 
-        private void MarkOutcomeDirty(Unit unit) => _outcomeDirty = true;
+        private void MarkOutcomeDirty(Unit unit)
+        {
+            _outcomeDirty = true;
+            if (unit != null && unit.IsDead)
+            {
+                _pendingDeadUnits.Add(unit);
+            }
+        }
 
         private void LateUpdate()
         {
@@ -125,6 +134,12 @@ namespace OzGameLab01.Controllers
             _victory = victory;
             CurrentState = BattleState.Resolved;
             ApplyTimeScale();
+
+            foreach (Unit deadUnit in _pendingDeadUnits)
+            {
+                deadUnit?.CompleteDeathPresentation();
+            }
+            _pendingDeadUnits.Clear();
 
             if (victory)
             {
