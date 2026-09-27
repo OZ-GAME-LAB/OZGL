@@ -24,6 +24,11 @@ namespace OzGameLab01.Events
         public EventDB EventDB => eventDB;
         public GameObject PanelObject => gameObject;
 
+        /// <summary>
+        /// 열려 있던 Event UI가 CloseEvent를 통해 비활성화된 직후 발생합니다.
+        /// </summary>
+        public event Action<EventSession> Hidden;
+
         private void Awake()
         {
             eventDB?.SetDictionary();
@@ -64,7 +69,11 @@ namespace OzGameLab01.Events
 
         public void CloseEvent()
         {
+            bool wasVisible = gameObject.activeSelf;
             gameObject.SetActive(false);
+
+            if (wasVisible)
+                Hidden?.Invoke(this);
         }
     }
 }

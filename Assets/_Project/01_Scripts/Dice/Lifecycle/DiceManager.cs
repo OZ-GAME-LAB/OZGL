@@ -3,6 +3,7 @@ using OzGameLab01.Dice;
 using OzGameLab01.Common.Messaging;
 using OzGameLab01.Interfaces;
 using OzGameLab01.Common;
+using OzGameLab01.Controllers;
 
 namespace OzGameLab01.Managers
 {
@@ -31,11 +32,17 @@ namespace OzGameLab01.Managers
             {
                 _messages = new MessageBus(Debug.LogException);
                 _model = new DiceModel(new DiceState(), _messages, SystemBus.Messages,
-                    () => Random.Range(_minDice, _maxDice + 1));
+                    RollDiceValue);
                 Facade = new DiceFacade(_messages, SystemBus.Messages);
                 SystemBus.Register(Facade);
             }
             catch { Shutdown(); throw; }
+        }
+        private int RollDiceValue()
+        {
+            return TutorialSequenceController.Active != null
+                ? TutorialSequenceController.Active.ConsumeDiceRollValue()
+                : Random.Range(_minDice, _maxDice + 1);
         }
         public void Shutdown()
         {

@@ -234,6 +234,14 @@ namespace OzGameLab01.Controllers
             {
                 return;
             }
+
+            if (TutorialSequenceController.Active != null &&
+                !TutorialSequenceController.Active.CanMoveToTile(tile.MyNode))
+            {
+                ClearHover();
+                return;
+            }
+
             // 호버 캐시 대신 실제 클릭 대상 기준 경로 판정
             if (Model.TryBeginMovement(tile.MyNode, out IReadOnlyList<MapNode> path))
             {
@@ -282,6 +290,8 @@ namespace OzGameLab01.Controllers
             if (completed)
             {
                 PlayerArrived?.Invoke(Model.CurrentNode);
+                TutorialSequenceController.Active?.NotifyPlayerArrived(
+                    Model.CurrentNode);
             }
         }
 
