@@ -519,6 +519,8 @@ namespace OzGameLab01.Combat
             // 발사 위치는 시전자 스프라이트 중심(적은 원점이 발밑이라 원점에서 쏘면 바닥에서 출발).
             _presenter.FireProjectile(target, target != null ? target._presenter : null, UnitPresenter.GetVisualCenter(transform),
                 () => ResolveBasicAttackHit(target, damage, onImpact, applyDamage));
+
+            SoundConnector.RequestSfx(SoundId.UnitAttack);
         }
 
         /// <summary>
@@ -987,6 +989,8 @@ namespace OzGameLab01.Combat
             _presenter.SetHP(_currentHP);
             PassiveEventBus.RaiseHpChanged(this, previousRatio);
 
+            SoundConnector.RequestSfx(SoundId.UnitHit);
+
             if (_currentHP <= 0f)
             {
                 Die();
@@ -1004,6 +1008,8 @@ namespace OzGameLab01.Combat
 
             // 전투 로직 즉시 사망 처리
             PassiveEventBus.RaiseDeath(this);
+
+            SoundConnector.RequestSfx(SoundId.UnitDeath);
 
             // 사망 애니메이션 종료 후 화면 비활성화
             if (_animationController != null)
