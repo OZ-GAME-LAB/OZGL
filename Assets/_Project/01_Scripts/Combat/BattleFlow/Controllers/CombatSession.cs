@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
@@ -7,6 +8,7 @@ using OzGameLab01.Managers;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
 using OzGameLab01.Common;
+using OzGameLab01.Board.Models;
 
 namespace OzGameLab01.Combat
 {
@@ -19,6 +21,7 @@ namespace OzGameLab01.Combat
     /// </summary>
     public class CombatSession : MonoBehaviour
     {
+        private const int BATTLE_FORMATION_SLOT_COUNT = 9;
         [SerializeField] private CombatMapView battleMapPrefab;
         [SerializeField] private string enemyPrefabResourceName = "Characters/EnemyTemplate";
         [SerializeField] private float enemyScale = 3f;
@@ -167,6 +170,7 @@ namespace OzGameLab01.Combat
             }
 
             _synergyController.ApplySynergies(_state.SpawnedFormation, _state.SlotUnits);
+            ApplySavedAllyHealth(formationData);
             _synergyController.PopulateSynergyPanel();
 
             _state.EnemyUnit = _allySpawner.SpawnEnemy();
@@ -180,6 +184,69 @@ namespace OzGameLab01.Combat
 
             IsBattleReady = true;
             BattleReady?.Invoke();
+        }
+
+        public void SaveAllyHealthToRunData()
+        {
+            List<BattleUnitHealthSnapshot> entries = new List<BattleUnitHealthSnapshot>();
+            for (int placementIndex = 0;
+                placementIndex < BATTLE_FORMATION_SLOT_COUNT;
+                placementIndex++)
+            {
+                CombatManager.SlotKey slot =
+                    FormationPlacementResolver.PlacementIndexToSlotKey(placementIndex);
+                if (!_state.SpawnedFormation.TryGetValue(slot, out int unitId))
+                {
+                    continue;
+                }
+
+                Unit unit = _state.SlotUnits[slot.column, (int)slot.row];
+                if (unit == null || unit.MaxHp <= 0f)
+                {
+                    continue;
+                }
+
+                float healthRate = unit.CurrentHp / unit.MaxHp * 100f;
+                entries.Add(new BattleUnitHealthSnapshot
+                {
+                    slotIndex = placementIndex,
+                    unitId = unitId,
+                    healthRate = healthRate <= 0f ? 1f : Mathf.Clamp(healthRate, 0f, 100f)
+                });
+            }
+
+            BoardRunData.SaveBattleUnitHealth(entries);
+        }
+
+        private void ApplySavedAllyHealth(UnitData[] formationData)
+        {
+            if (formationData == null)
+            {
+                return;
+            }
+
+            int formationSlotCount = Mathf.Min(
+                formationData.Length,
+                BATTLE_FORMATION_SLOT_COUNT);
+            for (int placementIndex = 0;
+                placementIndex < formationSlotCount;
+                placementIndex++)
+            {
+                UnitData data = formationData[placementIndex];
+                if (data == null ||
+                    !BoardRunData.TryGetBattleUnitHealthRate(
+                        placementIndex,
+                        data.id,
+                        out float healthRate))
+                {
+                    continue;
+                }
+
+                CombatManager.SlotKey slot =
+                    FormationPlacementResolver.PlacementIndexToSlotKey(placementIndex);
+                Unit unit = _state.SlotUnits[slot.column, (int)slot.row];
+                unit?.ApplyCurrentHealthRate(healthRate);
+            }
         }
 
         private void Update()

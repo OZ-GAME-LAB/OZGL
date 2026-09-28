@@ -207,6 +207,8 @@ namespace OzGameLab01.Controllers
 
             TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
 
+            BoardRunData.RecoverBattleUnitHealth(BoardRunData.UnusedActionPoints);
+
             bool wasNightTurn = BoardTurnRules.IsNight(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
             BoardRunData.AdvanceTurn(wasNightTurn);
 

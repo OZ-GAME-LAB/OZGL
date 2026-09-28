@@ -6,9 +6,11 @@ namespace OzGameLab01.Board.Models
     // 보드 런 상태와 전투 완료 규칙
     public sealed class BoardRunState
     {
+        private const int BATTLE_FORMATION_SLOT_COUNT = 9;
         private readonly HashSet<Vector2Int> _completedBattlePositions = new();
         private readonly HashSet<Vector2Int> _consumedSpecialTilePositions = new();
         private readonly HashSet<Vector2Int> _visitedPositions = new();
+        private readonly List<BattleUnitHealthSnapshot> _battleUnitHealthEntries = new();
         public bool HasActiveRun { get; private set; }
         public int MapSeed { get; private set; }
         public Vector2Int PlayerPosition { get; private set; }
@@ -138,6 +140,16 @@ namespace OzGameLab01.Board.Models
                 });
             }
 
+            foreach (BattleUnitHealthSnapshot entry in _battleUnitHealthEntries)
+            {
+                saveData.battleUnitHealthEntries.Add(new BattleUnitHealthSnapshot
+                {
+                    slotIndex = entry.slotIndex,
+                    unitId = entry.unitId,
+                    healthRate = entry.healthRate
+                });
+            }
+
             return saveData;
         }
         public bool Restore(BoardRunSnapshot saveData)
@@ -250,6 +262,25 @@ namespace OzGameLab01.Board.Models
                 }
             }
 
+
+            if (saveData.battleUnitHealthEntries != null)
+            {
+                foreach (BattleUnitHealthSnapshot entry in saveData.battleUnitHealthEntries)
+                {
+                    if (!IsValidBattleUnitHealthEntry(entry))
+                    {
+                        continue;
+                    }
+
+                    _battleUnitHealthEntries.Add(new BattleUnitHealthSnapshot
+                    {
+                        slotIndex = entry.slotIndex,
+                        unitId = entry.unitId,
+                        healthRate = Mathf.Clamp(entry.healthRate, 0f, 100f)
+                    });
+                }
+            }
+
             // 방문 기록이 없던 구버전 저장은 현재 위치부터 기록을 이어갑니다.
             if (_visitedPositions.Count == 0 && HasPlayerPosition)
             {
@@ -268,6 +299,58 @@ namespace OzGameLab01.Board.Models
         {
 
             UnusedActionPoints = Mathf.Max(0, actionPoints);
+        }
+        public void SaveBattleUnitHealth(IReadOnlyList<BattleUnitHealthSnapshot> entries)
+        {
+            _battleUnitHealthEntries.Clear();
+            if (entries == null)
+            {
+                return;
+            }
+
+            foreach (BattleUnitHealthSnapshot entry in entries)
+            {
+                if (!IsValidBattleUnitHealthEntry(entry))
+                {
+                    continue;
+                }
+
+                _battleUnitHealthEntries.Add(new BattleUnitHealthSnapshot
+                {
+                    slotIndex = entry.slotIndex,
+                    unitId = entry.unitId,
+                    healthRate = Mathf.Clamp(entry.healthRate, 0f, 100f)
+                });
+            }
+        }
+        public bool TryGetBattleUnitHealthRate(int slotIndex, int unitId, out float healthRate)
+        {
+            foreach (BattleUnitHealthSnapshot entry in _battleUnitHealthEntries)
+            {
+                if (entry.slotIndex == slotIndex && entry.unitId == unitId)
+                {
+                    healthRate = entry.healthRate;
+                    return true;
+                }
+            }
+
+            healthRate = 100f;
+            return false;
+        }
+        public void RecoverBattleUnitHealth(int recoveryRate)
+        {
+            int normalizedRecoveryRate = Mathf.Max(0, recoveryRate);
+            foreach (BattleUnitHealthSnapshot entry in _battleUnitHealthEntries)
+            {
+                entry.healthRate = Mathf.Min(100f, entry.healthRate + normalizedRecoveryRate);
+            }
+        }
+        private static bool IsValidBattleUnitHealthEntry(BattleUnitHealthSnapshot entry)
+        {
+            return entry != null &&
+                entry.slotIndex >= 0 &&
+                entry.slotIndex < BATTLE_FORMATION_SLOT_COUNT &&
+                entry.unitId > 0;
         }
         public void SaveObjectivePosition(Vector2Int position)
         {
@@ -420,6 +503,7 @@ namespace OzGameLab01.Board.Models
             _completedBattlePositions.Clear();
             _consumedSpecialTilePositions.Clear();
             _visitedPositions.Clear();
+            _battleUnitHealthEntries.Clear();
 
             DefeatedElitesCount = 0;
             ClearObjective();

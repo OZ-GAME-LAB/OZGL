@@ -920,6 +920,18 @@ namespace OzGameLab01.Combat
             return true;
         }
 
+        public void ApplyCurrentHealthRate(float healthRate)
+        {
+            if (float.IsNaN(healthRate) || float.IsInfinity(healthRate))
+            {
+                return;
+            }
+
+            _isDead = false;
+            _currentHP = maxHP * Mathf.Clamp(healthRate, 0f, 100f) / 100f;
+            _presenter.SetHP(_currentHP);
+        }
+
         public void CleanseDebuffs()
         {
             _status.Clear();
