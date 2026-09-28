@@ -38,6 +38,14 @@ namespace OzGameLab01.Controllers
         private float _battleTimer = 0f;
         private bool _isFastForward = false; // 배속 상태 저장용 변수
 
+        private enum SurrenderTarget
+        {
+            Board,
+            Title
+        }
+
+        private SurrenderTarget _surrenderTarget;
+
         private void Awake()
         {
             // 이벤트 시스템 체크 (버튼 클릭 불가 원인 1순위)
@@ -99,9 +107,10 @@ namespace OzGameLab01.Controllers
             {
                 settingsView.CloseRequested += HandleSettingsBackClicked;
 
-                // 전투에서는 타이틀로 돌아가기 버튼만 노출(튜토리얼/데이터 초기화는 타이틀 전용)
+                // 전투에서는 보드 복귀와 체크포인트를 유지하는 타이틀 복귀를 제공합니다.
                 settingsView.ClearGameButtons();
-                settingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToMainClicked);
+                settingsView.AddGameButton("보드로 돌아가기", HandleReturnToBoardClicked);
+                settingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToTitleClicked);
             }
 
             if (surrenderPopup != null)
@@ -263,9 +272,22 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void HandleReturnToMainClicked()
+        /// <summary>
+        /// 보드로 돌아가기 버튼 클릭 처리
+        /// </summary>
+        private void HandleReturnToBoardClicked()
         {
+            _surrenderTarget = SurrenderTarget.Board;
             surrenderPopup?.Show("Would you like to surrender and return to the board?");
+        }
+
+        /// <summary>
+        /// 타이틀로 돌아가기 버튼 클릭 처리
+        /// </summary>
+        private void HandleReturnToTitleClicked()
+        {
+            _surrenderTarget = SurrenderTarget.Title;
+            surrenderPopup?.Show("Would you like to surrender and return to the title?");
         }
 
         private void HandleSurrenderConfirmClicked(ConfirmPopupView popup)
@@ -273,9 +295,20 @@ namespace OzGameLab01.Controllers
             surrenderPopup?.Hide();
             settingsView?.Hide();
 
-            if (combatSceneController != null)
+            if (combatSceneController == null)
             {
-                combatSceneController.ReturnToBoard();
+                return;
+            }
+
+            switch (_surrenderTarget)
+            {
+                case SurrenderTarget.Board:
+                    combatSceneController.ReturnToBoard();
+                    break;
+
+                case SurrenderTarget.Title:
+                    combatSceneController.ReturnToTitleFromCombat();
+                    break;
             }
         }
 
