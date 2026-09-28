@@ -10,6 +10,11 @@ namespace OzGameLab01.Map
     [RequireComponent(typeof(Collider))]
     public class TileView : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
     {
+        private static readonly int BaseColorPropertyId =
+            Shader.PropertyToID("_BaseColor");
+        private static readonly int ColorPropertyId =
+            Shader.PropertyToID("_Color");
+
         public MapNode MyNode { get; private set; }
         private IBoardTileInput _input;
 
@@ -22,6 +27,8 @@ namespace OzGameLab01.Map
         [SerializeField] private SpriteRenderer _spriteRenderer;
         private Color _originalMeshColor;
         private Color _originalSpriteColor;
+        private MaterialPropertyBlock _meshPropertyBlock;
+        private int _meshColorPropertyId = -1;
 
         public void Init(MapNode node)
         {
@@ -33,7 +40,7 @@ namespace OzGameLab01.Map
 
             if (_renderer != null)
             {
-                _originalMeshColor = _renderer.material.color;
+                CacheMeshColorProperty();
             }
 
             if (_spriteRenderer == null)
@@ -74,9 +81,9 @@ namespace OzGameLab01.Map
         {
             Color highlightColor = isReachable ? Color.cyan : Color.red;
 
-            if (_renderer != null)
+            if (_renderer != null && _meshColorPropertyId >= 0)
             {
-                _renderer.material.color = highlightColor;
+                SetMeshColor(highlightColor);
             }
 
             if (_spriteRenderer != null)
@@ -87,15 +94,50 @@ namespace OzGameLab01.Map
 
         public void ResetHighlight()
         {
-            if (_renderer != null)
+            if (_renderer != null && _meshColorPropertyId >= 0)
             {
-                _renderer.material.color = _originalMeshColor;
+                SetMeshColor(_originalMeshColor);
             }
 
             if (_spriteRenderer != null)
             {
                 _spriteRenderer.color = _originalSpriteColor;
             }
+        }
+
+        private void CacheMeshColorProperty()
+        {
+            Material sharedMaterial = _renderer.sharedMaterial;
+            if (sharedMaterial == null)
+            {
+                _meshColorPropertyId = -1;
+                return;
+            }
+
+            if (sharedMaterial.HasProperty(BaseColorPropertyId))
+            {
+                _meshColorPropertyId = BaseColorPropertyId;
+            }
+            else if (sharedMaterial.HasProperty(ColorPropertyId))
+            {
+                _meshColorPropertyId = ColorPropertyId;
+            }
+            else
+            {
+                _meshColorPropertyId = -1;
+                return;
+            }
+
+            _originalMeshColor = sharedMaterial.GetColor(_meshColorPropertyId);
+            _meshPropertyBlock ??= new MaterialPropertyBlock();
+        }
+
+        private void SetMeshColor(Color color)
+        {
+            _meshPropertyBlock ??= new MaterialPropertyBlock();
+            _renderer.GetPropertyBlock(_meshPropertyBlock);
+            _meshPropertyBlock.SetColor(_meshColorPropertyId, color);
+            _renderer.SetPropertyBlock(_meshPropertyBlock);
         }
     }
 }
