@@ -361,13 +361,12 @@ namespace OzGameLab01.Controllers
 
         private void BindEnemyStats(MonsterData enemyData)
         {
-            _infoView.AddStat(null, enemyData.healthPoint.ToString(), "체력", "적의 최대 체력");
-            _infoView.AddStat(null, enemyData.attackPoint.ToString(), "공격력", "적의 기본 공격력");
-            _infoView.AddStat(null, enemyData.defensePoint.ToString("0.##"), "방어력", "적의 피해 감소 수치");
-            _infoView.AddStat(null, enemyData.attackSpeed.ToString("0.##"), "공격속도", "적의 기본 공격 간격");
-            _infoView.AddStat(null, $"{enemyData.criticalRate}%", "치명타 확률", "적의 치명타 발생 확률");
-            _infoView.AddStat(null, $"{enemyData.criticalMult}%", "치명타 피해", "적의 치명타 피해 배율");
-            _infoView.AddStat(null, $"{enemyData.dodgeRate}%", "회피율", "적의 공격 회피 확률");
+            if (_infoView == null || enemyData == null)
+            {
+                return;
+            }
+
+            _infoView.BindStats(enemyData);
         }
 
         private void SetBattleInfoVisible(bool visible)
