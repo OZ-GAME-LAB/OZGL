@@ -276,8 +276,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.DebugTools.SkillVfxTestHarness
   sessionStub: {fileID: 144959593}
-  allySpawnPosition: {x: -4, y: -1.5, z: 0}
-  enemySpawnPosition: {x: 4, y: -1.5, z: 0}
+  allySpawnPosition: {x: -4, y: -3.25, z: 0}
+  enemySpawnPosition: {x: 4, y: -2.75, z: 0}
   testHealthPoints: 999999
   testAttackPoint: 3
 --- !u!1 &1381685064

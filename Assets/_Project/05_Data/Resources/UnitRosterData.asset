@@ -536,15 +536,6 @@ MonoBehaviour:
       duration: 2
       magnitude: 0
       tickInterval: 0
-  - id: 900
-    name: Temp_Basic
-    damage: 10
-    cooldown: 1
-    debuff:
-      type: 0
-      duration: 0
-      magnitude: 0
-      tickInterval: 0
   - id: 910
     name: Temp_DoT
     damage: 8

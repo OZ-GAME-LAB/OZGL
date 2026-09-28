@@ -18,8 +18,8 @@ namespace OzGameLab01.DebugTools
         [Header("전투 세션 스텁 (씬에 비활성 상태로 있어야 함 — Awake가 돌면 안 됨)")]
         [SerializeField] private CombatSession sessionStub;
 
-        [SerializeField] private Vector3 allySpawnPosition = new Vector3(-4f, -1.5f, 0f);
-        [SerializeField] private Vector3 enemySpawnPosition = new Vector3(4f, -1.5f, 0f);
+        [SerializeField] private Vector3 allySpawnPosition = new Vector3(-4f, -3.25f, 0f);
+        [SerializeField] private Vector3 enemySpawnPosition = new Vector3(4f, -2.75f, 0f);
 
         [Header("합성 스탯 (프리팹에 대응하는 실제 데이터를 못 찾았을 때 폴백)")]
         [SerializeField] private float testHealthPoints = 999999f;
