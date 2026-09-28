@@ -317,6 +317,7 @@ namespace OzGameLab01.Controllers
             unitView.UnitDragged += HandleUnitDragged;
             unitView.UnitEndDragged += HandleUnitEndDragged;
             unitView.SlotDropped += HandleSlotDropped;
+            unitView.WaitingAreaDropped += HandleWaitingAreaDropped;
         }
 
         /// <summary>
@@ -339,6 +340,7 @@ namespace OzGameLab01.Controllers
             unitView.UnitDragged -= HandleUnitDragged;
             unitView.UnitEndDragged -= HandleUnitEndDragged;
             unitView.SlotDropped -= HandleSlotDropped;
+            unitView.WaitingAreaDropped -= HandleWaitingAreaDropped;
         }
 
         /// <summary>
@@ -712,6 +714,23 @@ namespace OzGameLab01.Controllers
             }
         }
 
+        private void HandleWaitingAreaDropped(PointerEventData eventData)
+        {
+            if (draggingUnitItem == null)
+                return;
+
+            int battleIndex = FindBattleSlotIndex(draggingUnitItem);
+            int supportIndex = FindSupportSlotIndex(draggingUnitItem);
+            bool removed = battleIndex >= 0
+                ? RemoveUnit(FormationSlotKind.Battle, battleIndex)
+                : supportIndex >= 0 && RemoveUnit(FormationSlotKind.Support, supportIndex);
+            if (!removed)
+                return;
+
+            dragDropHandled = true;
+            SaveFormation();
+        }
+
         /// <summary>
         /// 드래그한 유닛을 지정한 슬롯(전투/서브 공통)에 배치·이동·교체·교환합니다.
         /// 전투/서브 슬롯 로직이 동일한 규칙을 그대로 복제하고 있던 것을
@@ -732,17 +751,21 @@ namespace OzGameLab01.Controllers
                 return false;
             }
 
-            bool wasUnplaced = slotState.FindBattleSlot(handle) < 0 && slotState.FindSupportSlot(handle) < 0;
             bool targetWasEmpty = GetSlotItem(kind, targetIndex) == null;
+            bool fromOtherKind = kind == FormationSlotKind.Battle
+                ? slotState.FindSupportSlot(handle) >= 0
+                : slotState.FindBattleSlot(handle) >= 0;
+            FormationSlotKind sourceKind = fromOtherKind
+                ? (kind == FormationSlotKind.Battle ? FormationSlotKind.Support : FormationSlotKind.Battle)
+                : kind;
 
             FormationDropResult result = slotState.TryDrop(kind, handle, targetIndex);
 
             switch (result.Outcome)
             {
                 case FormationDropOutcome.Rejected:
-                    // 새로 배치하려는 슬롯이 비어 있었는데도 거부됐다면 최대 인원 초과가 원인이다.
-                    // (반대 종류 슬롯에 이미 있는 유닛을 드롭한 경우는 조용히 무시한다 — 기존 동작과 동일)
-                    if (wasUnplaced && targetWasEmpty)
+                    // 빈 대상 슬롯에 대한 거부는 해당 편성의 최대 인원 초과다.
+                    if (targetWasEmpty)
                     {
                         string message = kind == FormationSlotKind.Battle
                             ? "[UnitFormationController] 전투 유닛은 최대 4명까지 배치할 수 있습니다."
@@ -765,8 +788,8 @@ namespace OzGameLab01.Controllers
 
                 case FormationDropOutcome.MovedToEmpty:
                 {
-                    UnitSlotItemView sourceSlot = FindSlot(kind, result.SourceIndex);
-                    ClearSlotArrays(kind, result.SourceIndex);
+                    UnitSlotItemView sourceSlot = FindSlot(sourceKind, result.SourceIndex);
+                    ClearSlotArrays(sourceKind, result.SourceIndex);
                     SetSlotArrays(kind, targetIndex, unitItem, unitData);
 
                     if (sourceSlot != null)
@@ -776,6 +799,8 @@ namespace OzGameLab01.Controllers
 
                     targetSlot.SetOccupied(true);
                     MoveUnitItemToSlot(unitItem, targetSlot);
+                    if (fromOtherKind)
+                        UpdateUnitCount();
                     return true;
                 }
 
@@ -792,11 +817,11 @@ namespace OzGameLab01.Controllers
 
                 case FormationDropOutcome.Swapped:
                 {
-                    UnitSlotItemView sourceSlot = FindSlot(kind, result.SourceIndex);
+                    UnitSlotItemView sourceSlot = FindSlot(sourceKind, result.SourceIndex);
                     UnitItemView displacedItem = GetSlotItem(kind, targetIndex);
                     UnitData displacedData = GetSlotData(kind, targetIndex);
 
-                    SetSlotArrays(kind, result.SourceIndex, displacedItem, displacedData);
+                    SetSlotArrays(sourceKind, result.SourceIndex, displacedItem, displacedData);
                     SetSlotArrays(kind, targetIndex, unitItem, unitData);
 
                     if (sourceSlot != null)
@@ -807,6 +832,8 @@ namespace OzGameLab01.Controllers
 
                     MoveUnitItemToSlot(unitItem, targetSlot);
                     targetSlot.SetOccupied(true);
+                    if (fromOtherKind)
+                        UpdateUnitCount();
                     return true;
                 }
 
