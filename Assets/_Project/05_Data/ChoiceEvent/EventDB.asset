@@ -18,6 +18,11 @@ MonoBehaviour:
   _eventList_Quiz:
   - {fileID: 11400000, guid: 66f03906db7120f48a0e816c2bf14c8b, type: 2}
   - {fileID: 11400000, guid: 6abe196bc90176147957ced36e547fd4, type: 2}
+  - {fileID: 11400000, guid: 5f9dbd0acce4c2c49b5c1d9d6237b93c, type: 2}
+  - {fileID: 11400000, guid: 9fb319f18567ca54fb5ec0c07fadbbff, type: 2}
+  - {fileID: 11400000, guid: 7012b3f2393e533459a7a44eb10d69b8, type: 2}
+  - {fileID: 11400000, guid: ad6aef88541ac2a4d95c8ec17d25fb91, type: 2}
+  - {fileID: 11400000, guid: 082c86cf659eabc48ac6dc94acf21aab, type: 2}
   _eventList_Relic:
   - {fileID: 11400000, guid: cca822f16d4d18344b6e7a7a4665a3d9, type: 2}
   - {fileID: 11400000, guid: 1078b6435bf75c04186154f8e939ce66, type: 2}
@@ -26,4 +31,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: afec5ca377a99ae4a9ca97a8e9c03670, type: 2}
   - {fileID: 11400000, guid: b151d8b367a97e246aa23fb8b2999e5c, type: 2}
   _eventList_Event:
+  - {fileID: 11400000, guid: b3365be11ac04a74aade78f44ba85d1c, type: 2}
+  - {fileID: 11400000, guid: 21f4a26ef127c70429e5f54db4cd3134, type: 2}
+  - {fileID: 11400000, guid: af0e7030d6e9a1b47a6aaba04629eb7f, type: 2}
   - {fileID: 11400000, guid: 5a929f63720574e4abfa2d33799bcb4f, type: 2}
