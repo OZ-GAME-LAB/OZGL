@@ -817,8 +817,8 @@ MonoBehaviour:
   nightMessage: Night Has Come
   dayMessage: Day Has Come
   clockRotatingVisual: {fileID: 0}
-  dayClockAngle: 45
-  nightClockAngle: 220
+  dayClockAngle: 220
+  nightClockAngle: 45
   catchAngleOffset: 15
   catchDuration: 0.1
   catchEase: 15
