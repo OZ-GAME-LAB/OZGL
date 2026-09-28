@@ -60,6 +60,8 @@ namespace OzGameLab01.Combat
         public MonsterData EnemyData { get; private set; }
         public bool IsBattleReady { get; private set; }
         public bool IsBattleRunning { get; private set; }
+        public IReadOnlyList<SynergyData> ActiveSynergies =>
+            _synergyController?.GetActiveSynergies() ?? Array.Empty<SynergyData>();
 
         public event Action BattleReady;
 

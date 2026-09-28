@@ -266,7 +266,11 @@ namespace OzGameLab01.Controllers
                         yield break;
                     }
                     yield return _view.MoveTo(nodeView.transform.position, _moveSpeed);
-                    Model.CompleteStep(node);
+                    if (!Model.CompleteStep(node))
+                    {
+                        yield break;
+                    }
+                    BoardRunData.RecordMovedNode();
                     RefreshActionPowerHud();
                     OnPlayerStepCompleted?.Invoke();
 

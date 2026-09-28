@@ -66,6 +66,9 @@ namespace OzGameLab01.Save
         public int remainingDiceValue; // 저장 시점의 이동 가능한 잔여 주사위 눈금
         public int unusedActionPoints; // 턴 종료시 남은 행동력
         public int turnCount;
+        public int diceRollCount;
+        public int movedNodeCount;
+        public int victoryBattleCount;
         public int timeCycleStartTurn; // 현재 낮/밤 주기가 시작된 전체 턴
         public bool isMidBossActive; // 처치 전까지 밤을 유지할 중간 보스가 활성화되었는지 여부
         public int defeatedElitesCount;

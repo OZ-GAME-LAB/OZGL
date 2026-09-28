@@ -27,6 +27,9 @@ namespace OzGameLab01.Board.Models
         public int RemainingDiceValue { get; private set; }
 
         public int TurnCount { get; private set; }
+        public int DiceRollCount { get; private set; }
+        public int MovedNodeCount { get; private set; }
+        public int VictoryBattleCount { get; private set; }
         public int TimeCycleStartTurn { get; private set; }
         public bool IsMidBossActive { get; private set; }
         public int DefeatedElitesCount { get; private set; }
@@ -61,6 +64,7 @@ namespace OzGameLab01.Board.Models
             HasRolledThisTurn = normalizedValue > 0;
             RolledDiceValue = normalizedValue;
             RemainingDiceValue = normalizedValue;
+            DiceRollCount++;
         }
 
         private void ResetTurnDiceState()
@@ -101,6 +105,9 @@ namespace OzGameLab01.Board.Models
 
                 unusedActionPoints = UnusedActionPoints,
                 turnCount = TurnCount,
+                diceRollCount = DiceRollCount,
+                movedNodeCount = MovedNodeCount,
+                victoryBattleCount = VictoryBattleCount,
    timeCycleStartTurn = TimeCycleStartTurn,
                 isMidBossActive = IsMidBossActive,
                 defeatedElitesCount = DefeatedElitesCount,
@@ -200,6 +207,9 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = Mathf.Max(0, saveData.unusedActionPoints);
             TurnCount = Mathf.Max(0, saveData.turnCount);
+            DiceRollCount = Mathf.Max(0, saveData.diceRollCount);
+            MovedNodeCount = Mathf.Max(0, saveData.movedNodeCount);
+            VictoryBattleCount = Mathf.Max(0, saveData.victoryBattleCount);
             TimeCycleStartTurn = Mathf.Clamp(saveData.timeCycleStartTurn, 0, TurnCount);
             IsMidBossActive = saveData.isMidBossActive;
             DefeatedElitesCount = Mathf.Max(0, saveData.defeatedElitesCount);
@@ -300,6 +310,10 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = Mathf.Max(0, actionPoints);
         }
+        public void RecordMovedNode()
+        {
+            MovedNodeCount++;
+        }
         public void SaveBattleUnitHealth(IReadOnlyList<BattleUnitHealthSnapshot> entries)
         {
             _battleUnitHealthEntries.Clear();
@@ -386,6 +400,11 @@ namespace OzGameLab01.Board.Models
             if (!HasCurrentBattle) return;
 
             bool defeatedMidBoss = IsEliteBattle;
+
+            if (!IsBossBattle)
+            {
+                VictoryBattleCount++;
+            }
 
             ConsumeSpecialTile(CurrentBattlePosition);
 
@@ -497,6 +516,9 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = 0;
             TurnCount = 0;
+            DiceRollCount = 0;
+            MovedNodeCount = 0;
+            VictoryBattleCount = 0;
             TimeCycleStartTurn = 0;
             IsMidBossActive = false;
 
