@@ -24,6 +24,9 @@ namespace OzGameLab01.Data
         public static int RolledDiceValue => _state.RolledDiceValue;
         public static int RemainingDiceValue => _state.RemainingDiceValue;
         public static int TurnCount => _state.TurnCount;
+        public static int DiceRollCount => _state.DiceRollCount;
+        public static int MovedNodeCount => _state.MovedNodeCount;
+        public static int VictoryBattleCount => _state.VictoryBattleCount;
         public static int TimeCycleStartTurn => _state.TimeCycleStartTurn;
         public static bool IsMidBossActive => _state.IsMidBossActive;
         public static int DefeatedElitesCount => _state.DefeatedElitesCount;
@@ -49,6 +52,7 @@ namespace OzGameLab01.Data
         public static void SetRemainingDiceValue(int value) { _state.SetRemainingDiceValue(value); }
         public static void SavePlayerPosition(Vector2Int position) { EnsureActiveRun(); _state.SavePlayerPosition(position); }
         public static void SaveUnusedActionPoints(int actionPoints) { EnsureActiveRun(); _state.SaveUnusedActionPoints(actionPoints); }
+        public static void RecordMovedNode() { EnsureActiveRun(); _state.RecordMovedNode(); }
         public static void SaveBattleUnitHealth(IReadOnlyList<BattleUnitHealthSnapshot> entries) { EnsureActiveRun(); _state.SaveBattleUnitHealth(entries); }
         public static bool TryGetBattleUnitHealthRate(int slotIndex, int unitId, out float healthRate) { return _state.TryGetBattleUnitHealthRate(slotIndex, unitId, out healthRate); }
         public static void RecoverBattleUnitHealth(int recoveryRate) { EnsureActiveRun(); _state.RecoverBattleUnitHealth(recoveryRate); }

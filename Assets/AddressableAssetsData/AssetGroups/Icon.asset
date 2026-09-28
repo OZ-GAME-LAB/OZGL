@@ -224,12 +224,6 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 8d54276a2e745204bab0436220226dd6
-    m_Address: I_Re_724
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - relic
-    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 901a89288bfca294e94caff72da60479
     m_Address: I_SP_115
     m_ReadOnly: 0

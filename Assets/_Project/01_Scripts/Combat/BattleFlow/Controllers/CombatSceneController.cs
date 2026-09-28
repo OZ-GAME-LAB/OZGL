@@ -142,12 +142,13 @@ namespace OzGameLab01.Controllers
         /// <summary>
         /// 승패를 판정하고 전투를 종료시킵니다.
         /// </summary>
-        private void ResolveBattle(bool victory)
+        private void ResolveBattle(bool victory, bool forceBossVictory = false)
         {
             if (_resolved) return;
 
             _resolved = true;
-            _wasBossBattle = BoardRunData.HasCurrentBattle && BoardRunData.IsBossBattle;
+            _wasBossBattle = forceBossVictory ||
+                (BoardRunData.HasCurrentBattle && BoardRunData.IsBossBattle);
             _victory = victory;
             CurrentState = BattleState.Resolved;
             ApplyTimeScale();
@@ -168,6 +169,13 @@ namespace OzGameLab01.Controllers
             PassiveEventBus.RaiseBattleEnd(victory);
             OnBattleResolved?.Invoke(victory);
         }
+
+#if UNITY_EDITOR
+        public void DebugResolveBossVictory()
+        {
+            ResolveBattle(true, true);
+        }
+#endif
 
         /// <summary>
         /// 항복했거나 결과창에서 확인을 누르면 보드 씬으로 이동합니다.

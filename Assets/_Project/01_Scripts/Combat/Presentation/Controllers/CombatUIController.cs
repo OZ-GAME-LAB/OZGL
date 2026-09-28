@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using OzGameLab01.UI;
@@ -9,6 +10,8 @@ using OzGameLab01.Data;
 using OzGameLab01.Managers;
 using OzGameLab01.Save;
 using OzGameLab01.Common;
+using OzGameLab01.Effects.Models;
+using OzGameLab01.Player;
 
 namespace OzGameLab01.Controllers
 {
@@ -28,6 +31,8 @@ namespace OzGameLab01.Controllers
         private CombatInfoView _infoView;
         private GameObject _infoPanel;
         private CombatSession _combatSession;
+        private RunResultAnimationView _runResultView;
+        private RunResultContentView _runResultContentView;
         private bool _isBattleInfoBinding;
         
         private float _battleTimer = 0f;
@@ -48,6 +53,8 @@ namespace OzGameLab01.Controllers
             if (surrenderPopup == null) surrenderPopup = FindFirstObjectByType<ConfirmPopupView>(FindObjectsInactive.Include);
             if (combatSceneController == null) combatSceneController = FindFirstObjectByType<CombatSceneController>(FindObjectsInactive.Include);
             _combatSession = FindFirstObjectByType<CombatSession>(FindObjectsInactive.Include);
+            _runResultView = FindFirstObjectByType<RunResultAnimationView>(FindObjectsInactive.Include);
+            _runResultContentView = FindFirstObjectByType<RunResultContentView>(FindObjectsInactive.Include);
             _infoView = FindFirstObjectByType<CombatInfoView>(FindObjectsInactive.Include);
             _infoPanel = FindBattleInfoPanel(_infoView);
 
@@ -114,6 +121,11 @@ namespace OzGameLab01.Controllers
             {
                 _combatSession.BattleReady += HandleBattleReady;
             }
+
+            if (_runResultView != null)
+            {
+                _runResultView.MainButtonClicked += HandleRunResultMainButtonClicked;
+            }
         }
 
         private void OnDisable()
@@ -150,6 +162,11 @@ namespace OzGameLab01.Controllers
             {
                 _combatSession.BattleReady -= HandleBattleReady;
             }
+
+            if (_runResultView != null)
+            {
+                _runResultView.MainButtonClicked -= HandleRunResultMainButtonClicked;
+            }
         }
 
         private void Update()
@@ -172,6 +189,22 @@ namespace OzGameLab01.Controllers
                 }
             }
         }
+
+#if UNITY_EDITOR
+        private void OnGUI()
+        {
+            if (combatSceneController == null || combatSceneController.IsResolved)
+            {
+                return;
+            }
+
+            Rect buttonRect = new Rect(20f, 20f, 190f, 44f);
+            if (GUI.Button(buttonRect, "DEBUG: Boss Victory"))
+            {
+                combatSceneController.DebugResolveBossVictory();
+            }
+        }
+#endif
 
         #region 버튼 클릭 이벤트 처리
 
@@ -370,15 +403,7 @@ namespace OzGameLab01.Controllers
                 {
                     if (combatSceneController != null && combatSceneController.IsBossVictory)
                     {
-                        if (battleUIView.ResultView != null)
-                        {
-                            battleUIView.ResultView.SetResultText("승리");
-                            battleUIView.ResultView.SetOptionalMessage(string.Empty);
-                            battleUIView.ResultView.SetEndBattleButtonText("타이틀로 돌아가기");
-                            battleUIView.ResultView.SetRewardIcon(null);
-                        }
-
-                        battleUIView.ShowResultView();
+                        ShowRunResult();
                         return;
                     }
 
@@ -415,6 +440,86 @@ namespace OzGameLab01.Controllers
                     battleUIView.ShowResultView();
                 }
             }
+        }
+
+        private void ShowRunResult()
+        {
+            if (_runResultView == null || _runResultContentView == null)
+            {
+                Debug.LogError("[CombatUIController] ResultCanvas 연결을 찾을 수 없습니다.", this);
+                return;
+            }
+
+            battleUIView?.HideAllOverlayViews();
+            _runResultContentView.ClearAllItems();
+            _runResultContentView.CreateStatItem("지나간 턴", BoardRunData.DiceRollCount.ToString());
+            _runResultContentView.CreateStatItem("움직인 칸", BoardRunData.MovedNodeCount.ToString());
+            _runResultContentView.CreateStatItem("승리한 배틀", BoardRunData.VictoryBattleCount.ToString());
+
+            CreateSynergyIcons(_combatSession?.ActiveSynergies);
+            CreateUnitIcons(SystemBus.Get<PlayerFacade>()?.OwnedUnits);
+            CreateRelicIcons(SystemBus.Get<RelicFacade>()?.OwnedRelics);
+
+            _runResultContentView.RefreshLayout();
+            bool wasActive = _runResultView.gameObject.activeSelf;
+            _runResultView.gameObject.SetActive(true);
+            if (wasActive)
+            {
+                _runResultView.Replay();
+            }
+        }
+
+        private void CreateSynergyIcons(IReadOnlyList<SynergyData> synergies)
+        {
+            if (synergies == null)
+            {
+                return;
+            }
+
+            foreach (SynergyData synergy in synergies)
+            {
+                CreateIcon(RunResultContentView.IconSection.Synergies, synergy?.iconAddress);
+            }
+        }
+
+        private void CreateUnitIcons(IReadOnlyList<UnitData> units)
+        {
+            if (units == null)
+            {
+                return;
+            }
+
+            foreach (UnitData unit in units)
+            {
+                CreateIcon(RunResultContentView.IconSection.Units, unit?.iconAddress);
+            }
+        }
+
+        private void CreateRelicIcons(IReadOnlyList<RelicData> relics)
+        {
+            if (relics == null)
+            {
+                return;
+            }
+
+            foreach (RelicData relic in relics)
+            {
+                CreateIcon(RunResultContentView.IconSection.Relics, relic?.iconAddress);
+            }
+        }
+
+        private void CreateIcon(RunResultContentView.IconSection section, string iconAddress)
+        {
+            ResultIconItemView item = _runResultContentView.CreateIconItem(section, null);
+            if (item != null)
+            {
+                _ = item.SetIconAsync(iconAddress);
+            }
+        }
+
+        private void HandleRunResultMainButtonClicked(RunResultAnimationView view)
+        {
+            combatSceneController?.ReturnToTitle();
         }
 
         #endregion

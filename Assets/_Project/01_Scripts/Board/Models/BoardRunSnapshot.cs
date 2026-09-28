@@ -22,6 +22,9 @@ namespace OzGameLab01.Board.Models
         public int remainingDiceValue;
         public int unusedActionPoints;
         public int turnCount;
+        public int diceRollCount;
+        public int movedNodeCount;
+        public int victoryBattleCount;
         public int timeCycleStartTurn;
         public bool isMidBossActive;
         public int defeatedElitesCount;
