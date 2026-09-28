@@ -152,9 +152,7 @@ namespace OzGameLab01.Controllers
                     readySceneView.MainView.LocateClicked += HandleLocateButtonClicked;
                     readySceneView.MainView.EndTurnClicked += HandleEndTurnButtonClicked;
 
-                    // [수정됨] 시작할 때 "현재 플레이 중인 턴(경과 턴 + 1)"을 표시합니다.
-                    int initialTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
-                    readySceneView.MainView.SetCurrentTurn(initialTurn);
+                    RefreshTurnInfo();
 
                     RefreshEndTurnFeedback(true);
                     RefreshArtifactItems();
@@ -537,15 +535,30 @@ namespace OzGameLab01.Controllers
 
             if (readySceneView != null && readySceneView.MainView != null)
             {
-                // 증가가 끝난 진짜 TurnCount 값에 +1을 더해서 "이번에 시작될 턴"을 표시합니다.
-                int displayTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
-
-                readySceneView.MainView.SetCurrentTurn(displayTurn);
+                RefreshTurnInfo();
             }
+        }
+
+        private void RefreshTurnInfo()
+        {
+            ReadyMainView mainView = readySceneView?.MainView;
+            if (mainView == null)
+            {
+                return;
+            }
+
+            int displayTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
+            int bossRemainingTurn = boardSceneController != null
+                ? boardSceneController.TurnsUntilBossAppearance
+                : 0;
+
+            mainView.SetCurrentTurn(displayTurn);
+            mainView.SetBossRemainingTurn(bossRemainingTurn);
         }
 
         private void HandleNightReached(int turnCount)
         {
+            RefreshTurnInfo();
             PlayClockTransition(nightClockAngle);
             Debug.Log($"[BoardUIController] {turnCount}턴 째 밤이 되었습니다!");
             ShowTimeOfDayFeedback(nightMessage);
@@ -553,6 +566,7 @@ namespace OzGameLab01.Controllers
 
         private void HandleDayReached(int turnCount)
         {
+            RefreshTurnInfo();
             PlayClockTransition(dayClockAngle);
             Debug.Log($"[BoardUIController] {turnCount}턴 째 낮이 되었습니다!");
             ShowTimeOfDayFeedback(dayMessage);

@@ -70,6 +70,14 @@ namespace OzGameLab01.Controllers
                 _morningTurns,
                 _lunchTurns,
                 _eveningTurns);
+        public int TurnsUntilBossAppearance =>
+            BoardTurnRules.TurnsUntilRunNight(
+                BoardRunData.TurnCount,
+                BoardRunData.TimeCycleStartTurn,
+                BoardRunData.IsMidBossActive,
+                _morningTurns,
+                _lunchTurns,
+                _eveningTurns);
         // [추가] 저장 대기 중 중복 타이틀 이동 요청 방지
         private bool _isReturningToTitle;
         private MapNode _pendingEventNode;
@@ -209,23 +217,33 @@ namespace OzGameLab01.Controllers
 
             BoardRunData.RecoverBattleUnitHealth(BoardRunData.UnusedActionPoints);
 
-            bool wasNightTurn = BoardTurnRules.IsNight(BoardRunData.TurnCount, _morningTurns, _lunchTurns, _eveningTurns);
+            bool wasNightTurn = previousTimeOfDay == BoardTimeOfDay.Night;
             BoardRunData.AdvanceTurn(wasNightTurn);
+
+            // 밤 진입 자체를 잠금 기준으로 삼습니다. 목표 타일 배치가 늦거나 실패하더라도
+            // 중간보스/보스를 처치하기 전에는 시간대가 낮으로 넘어가지 않습니다.
+            BoardTimeOfDay currentTimeOfDay = CurrentTimeOfDay;
+            if (previousTimeOfDay != BoardTimeOfDay.Night &&
+                currentTimeOfDay == BoardTimeOfDay.Night)
+            {
+                BoardRunData.ActivateMidBoss();
+                currentTimeOfDay = CurrentTimeOfDay;
+            }
 
             RefreshTimeOfDayOverlay();
             Publish(BoardNotificationKind.TurnAdvanced);
 
             // 낮→밤→낮 한 사이클(웨이브)이 방금 끝났으면 적 성장 오버턴 여부를 갱신한다.
             // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-3절.
-            if (previousTimeOfDay == BoardTimeOfDay.Night && CurrentTimeOfDay == BoardTimeOfDay.Day)
+            if (previousTimeOfDay == BoardTimeOfDay.Night && currentTimeOfDay == BoardTimeOfDay.Day)
             {
                 BoardRunData.RegisterEnemyGrowthCycleBoundary();
             }
 
-            bool hasTimeOfDayChanged = previousTimeOfDay != CurrentTimeOfDay;
+            bool hasTimeOfDayChanged = previousTimeOfDay != currentTimeOfDay;
             if (hasTimeOfDayChanged)
             {
-                switch (CurrentTimeOfDay)
+                switch (currentTimeOfDay)
                 {
                     case BoardTimeOfDay.Day:
                         DayReached?.Invoke(BoardRunData.TurnCount);
@@ -271,6 +289,54 @@ namespace OzGameLab01.Controllers
         private void HandleMapPresentationCompleted()
         {
             RefreshTimeOfDayOverlay();
+        }
+
+        /// <summary>
+        /// 이벤트 선택 결과로 현재 플레이어 위치에서 일반 전투 진입을 요청합니다.
+        /// 호출자는 위치, 시간대, 편성 상태나 씬 전환을 별도로 처리할 필요가 없습니다.
+        /// 편성이 부족하면 기존 강제 편성 UI를 열고, 편성이 완료된 뒤 같은 요청을 이어서 처리합니다.
+        /// </summary>
+        /// <returns>전투 진입 또는 강제 편성 대기 상태로 정상 접수되었으면 true입니다.</returns>
+        public bool TryRequestEventBattle()
+        {
+            if (!BoardRunData.HasPlayerPosition)
+            {
+                Debug.LogWarning(
+                    "[BoardSceneController] 플레이어 위치가 없어 이벤트 전투를 요청할 수 없습니다.",
+                    this);
+                return false;
+            }
+
+            if (_pendingBattleState != PendingBattleState.None)
+            {
+                Debug.LogWarning(
+                    "[BoardSceneController] 이미 처리 중인 전투 요청이 있어 이벤트 전투를 요청할 수 없습니다.",
+                    this);
+                return false;
+            }
+
+            var eventBattleNode = new MapNode
+            {
+                Position = BoardRunData.PlayerPosition,
+                Type = NodeType.Battle,
+                EncounterMonsterId = 0
+            };
+
+            if (_unitFormationController == null ||
+                _unitFormationController.CanStartBattle)
+            {
+                return TryStartBattle(
+                    eventBattleNode,
+                    isBoss: false,
+                    isElite: false);
+            }
+
+            _pendingBattleNode = eventBattleNode;
+            _pendingBattleIsBoss = false;
+            _pendingBattleIsElite = false;
+            _pendingBattleState = PendingBattleState.AwaitingFormation;
+            ForcedFormationRequested?.Invoke();
+            return true;
         }
 
         private void RefreshTimeOfDayOverlay()
@@ -447,6 +513,15 @@ namespace OzGameLab01.Controllers
             if (!TryGetSceneTransitioner(out SceneTransitioner transitioner)) return;
             _isReturningToTitle = true;
             Time.timeScale = 1f;
+
+            // 튜토리얼은 저장된 메인 런과 분리된 임시 런입니다.
+            // 타이틀 복귀 시 현재 튜토리얼 맵을 Continue 데이터에 기록하지 않습니다.
+            if (TutorialSessionState.IsActive)
+            {
+                transitioner.LoadTitleScene();
+                return;
+            }
+
             // [수정] 타이틀 복귀는 런 포기가 아니라 Continue 저장 시점으로 처리
             SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
             if (saveFacade == null)
