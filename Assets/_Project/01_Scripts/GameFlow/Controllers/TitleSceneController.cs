@@ -66,6 +66,8 @@ namespace OzGameLab01.Controllers
             // 매니저 초기화 이후 Continue 데이터 상태 확인
             SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
             _titleView.SetContinueInteractable(saveFacade != null && saveFacade.HasContinueData);
+
+            SoundConnector.RequestBgm(SoundId.BgmTitle, true);
         }
 
         private void OnDisable()
