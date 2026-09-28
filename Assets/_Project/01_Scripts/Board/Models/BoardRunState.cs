@@ -6,9 +6,11 @@ namespace OzGameLab01.Board.Models
     // 보드 런 상태와 전투 완료 규칙
     public sealed class BoardRunState
     {
+        private const int BATTLE_FORMATION_SLOT_COUNT = 9;
         private readonly HashSet<Vector2Int> _completedBattlePositions = new();
         private readonly HashSet<Vector2Int> _consumedSpecialTilePositions = new();
         private readonly HashSet<Vector2Int> _visitedPositions = new();
+        private readonly List<BattleUnitHealthSnapshot> _battleUnitHealthEntries = new();
         public bool HasActiveRun { get; private set; }
         public int MapSeed { get; private set; }
         public Vector2Int PlayerPosition { get; private set; }
@@ -25,6 +27,9 @@ namespace OzGameLab01.Board.Models
         public int RemainingDiceValue { get; private set; }
 
         public int TurnCount { get; private set; }
+        public int DiceRollCount { get; private set; }
+        public int MovedNodeCount { get; private set; }
+        public int VictoryBattleCount { get; private set; }
         public int TimeCycleStartTurn { get; private set; }
         public bool IsMidBossActive { get; private set; }
         public int DefeatedElitesCount { get; private set; }
@@ -59,6 +64,7 @@ namespace OzGameLab01.Board.Models
             HasRolledThisTurn = normalizedValue > 0;
             RolledDiceValue = normalizedValue;
             RemainingDiceValue = normalizedValue;
+            DiceRollCount++;
         }
 
         private void ResetTurnDiceState()
@@ -99,6 +105,9 @@ namespace OzGameLab01.Board.Models
 
                 unusedActionPoints = UnusedActionPoints,
                 turnCount = TurnCount,
+                diceRollCount = DiceRollCount,
+                movedNodeCount = MovedNodeCount,
+                victoryBattleCount = VictoryBattleCount,
    timeCycleStartTurn = TimeCycleStartTurn,
                 isMidBossActive = IsMidBossActive,
                 defeatedElitesCount = DefeatedElitesCount,
@@ -135,6 +144,16 @@ namespace OzGameLab01.Board.Models
                 {
                     x = position.x,
                     y = position.y
+                });
+            }
+
+            foreach (BattleUnitHealthSnapshot entry in _battleUnitHealthEntries)
+            {
+                saveData.battleUnitHealthEntries.Add(new BattleUnitHealthSnapshot
+                {
+                    slotIndex = entry.slotIndex,
+                    unitId = entry.unitId,
+                    healthRate = entry.healthRate
                 });
             }
 
@@ -188,6 +207,9 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = Mathf.Max(0, saveData.unusedActionPoints);
             TurnCount = Mathf.Max(0, saveData.turnCount);
+            DiceRollCount = Mathf.Max(0, saveData.diceRollCount);
+            MovedNodeCount = Mathf.Max(0, saveData.movedNodeCount);
+            VictoryBattleCount = Mathf.Max(0, saveData.victoryBattleCount);
             TimeCycleStartTurn = Mathf.Clamp(saveData.timeCycleStartTurn, 0, TurnCount);
             IsMidBossActive = saveData.isMidBossActive;
             DefeatedElitesCount = Mathf.Max(0, saveData.defeatedElitesCount);
@@ -250,6 +272,25 @@ namespace OzGameLab01.Board.Models
                 }
             }
 
+
+            if (saveData.battleUnitHealthEntries != null)
+            {
+                foreach (BattleUnitHealthSnapshot entry in saveData.battleUnitHealthEntries)
+                {
+                    if (!IsValidBattleUnitHealthEntry(entry))
+                    {
+                        continue;
+                    }
+
+                    _battleUnitHealthEntries.Add(new BattleUnitHealthSnapshot
+                    {
+                        slotIndex = entry.slotIndex,
+                        unitId = entry.unitId,
+                        healthRate = Mathf.Clamp(entry.healthRate, 0f, 100f)
+                    });
+                }
+            }
+
             // 방문 기록이 없던 구버전 저장은 현재 위치부터 기록을 이어갑니다.
             if (_visitedPositions.Count == 0 && HasPlayerPosition)
             {
@@ -268,6 +309,62 @@ namespace OzGameLab01.Board.Models
         {
 
             UnusedActionPoints = Mathf.Max(0, actionPoints);
+        }
+        public void RecordMovedNode()
+        {
+            MovedNodeCount++;
+        }
+        public void SaveBattleUnitHealth(IReadOnlyList<BattleUnitHealthSnapshot> entries)
+        {
+            _battleUnitHealthEntries.Clear();
+            if (entries == null)
+            {
+                return;
+            }
+
+            foreach (BattleUnitHealthSnapshot entry in entries)
+            {
+                if (!IsValidBattleUnitHealthEntry(entry))
+                {
+                    continue;
+                }
+
+                _battleUnitHealthEntries.Add(new BattleUnitHealthSnapshot
+                {
+                    slotIndex = entry.slotIndex,
+                    unitId = entry.unitId,
+                    healthRate = Mathf.Clamp(entry.healthRate, 0f, 100f)
+                });
+            }
+        }
+        public bool TryGetBattleUnitHealthRate(int slotIndex, int unitId, out float healthRate)
+        {
+            foreach (BattleUnitHealthSnapshot entry in _battleUnitHealthEntries)
+            {
+                if (entry.slotIndex == slotIndex && entry.unitId == unitId)
+                {
+                    healthRate = entry.healthRate;
+                    return true;
+                }
+            }
+
+            healthRate = 100f;
+            return false;
+        }
+        public void RecoverBattleUnitHealth(int recoveryRate)
+        {
+            int normalizedRecoveryRate = Mathf.Max(0, recoveryRate);
+            foreach (BattleUnitHealthSnapshot entry in _battleUnitHealthEntries)
+            {
+                entry.healthRate = Mathf.Min(100f, entry.healthRate + normalizedRecoveryRate);
+            }
+        }
+        private static bool IsValidBattleUnitHealthEntry(BattleUnitHealthSnapshot entry)
+        {
+            return entry != null &&
+                entry.slotIndex >= 0 &&
+                entry.slotIndex < BATTLE_FORMATION_SLOT_COUNT &&
+                entry.unitId > 0;
         }
         public void SaveObjectivePosition(Vector2Int position)
         {
@@ -303,6 +400,11 @@ namespace OzGameLab01.Board.Models
             if (!HasCurrentBattle) return;
 
             bool defeatedMidBoss = IsEliteBattle;
+
+            if (!IsBossBattle)
+            {
+                VictoryBattleCount++;
+            }
 
             ConsumeSpecialTile(CurrentBattlePosition);
 
@@ -414,12 +516,16 @@ namespace OzGameLab01.Board.Models
 
             UnusedActionPoints = 0;
             TurnCount = 0;
+            DiceRollCount = 0;
+            MovedNodeCount = 0;
+            VictoryBattleCount = 0;
             TimeCycleStartTurn = 0;
             IsMidBossActive = false;
 
             _completedBattlePositions.Clear();
             _consumedSpecialTilePositions.Clear();
             _visitedPositions.Clear();
+            _battleUnitHealthEntries.Clear();
 
             DefeatedElitesCount = 0;
             ClearObjective();

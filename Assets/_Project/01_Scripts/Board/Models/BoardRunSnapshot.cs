@@ -22,6 +22,9 @@ namespace OzGameLab01.Board.Models
         public int remainingDiceValue;
         public int unusedActionPoints;
         public int turnCount;
+        public int diceRollCount;
+        public int movedNodeCount;
+        public int victoryBattleCount;
         public int timeCycleStartTurn;
         public bool isMidBossActive;
         public int defeatedElitesCount;
@@ -35,6 +38,15 @@ namespace OzGameLab01.Board.Models
         public List<BoardRunPosition> completedBattlePositions = new List<BoardRunPosition>();
         public List<BoardRunPosition> consumedSpecialTilePositions = new List<BoardRunPosition>();
         public List<BoardRunPosition> visitedPositions = new List<BoardRunPosition>();
+        public List<BattleUnitHealthSnapshot> battleUnitHealthEntries =
+            new List<BattleUnitHealthSnapshot>();
+    }
+
+    public sealed class BattleUnitHealthSnapshot
+    {
+        public int slotIndex;
+        public int unitId;
+        public float healthRate;
     }
     // 보드 좌표 전달 값
     public sealed class BoardRunPosition
