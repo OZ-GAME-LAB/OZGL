@@ -229,6 +229,15 @@ namespace OzGameLab01.Controllers
 
             ResetTimeScale();
 
+            // 튜토리얼 전투는 저장된 메인 런과 분리된 임시 런입니다.
+            // 튜토리얼에서 타이틀로 나갈 때 기존 Continue 데이터를 삭제하지 않습니다.
+            if (TutorialSessionState.IsActive)
+            {
+                transitioner.LoadTitleScene();
+                _isReturningToTitle = false;
+                return;
+            }
+
             // [수정] 런타임 상태와 저장 파일의 Continue 데이터를 함께 초기화 (BoardRunData.Clear()를 포함)
             SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
             if (saveFacade == null)

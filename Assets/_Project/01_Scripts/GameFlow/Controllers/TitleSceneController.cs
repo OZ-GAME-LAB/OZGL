@@ -68,6 +68,34 @@ namespace OzGameLab01.Controllers
             _titleView.SetContinueInteractable(saveFacade != null && saveFacade.HasContinueData);
         }
 
+#if UNITY_EDITOR
+        private void Update()
+        {
+            UnityEngine.InputSystem.Keyboard keyboard =
+                UnityEngine.InputSystem.Keyboard.current;
+
+            if (keyboard == null || !keyboard.f1Key.wasPressedThisFrame)
+            {
+                return;
+            }
+
+            bool markAsCompleted = !TutorialProgress.IsCompleted;
+            if (markAsCompleted)
+            {
+                TutorialProgress.MarkCompleted();
+            }
+            else
+            {
+                TutorialProgress.Reset();
+            }
+
+            Debug.Log(
+                $"[TitleSceneController] F1 튜토리얼 상태 변경 | " +
+                $"{(markAsCompleted ? "완료" : "미완료")}",
+                this);
+        }
+#endif
+
         private void OnDisable()
         {
             _requestVersion++;
@@ -97,9 +125,10 @@ namespace OzGameLab01.Controllers
 
         #region Event Handlers
 
-        // 게임 시작 요청을 받아 보드 씬으로 이동합니다.
+        // 게임 시작 요청을 받아 최초 1회는 튜토리얼, 이후에는 보드 씬으로 이동합니다.
         /// <summary>
-        /// [수정] New Game 초기화와 저장이 끝난 뒤 메인보드로 이동
+        /// 튜토리얼을 완료하지 않았다면 튜토리얼 씬으로 이동합니다.
+        /// 완료한 상태라면 New Game 초기화와 저장이 끝난 뒤 메인보드로 이동합니다.
         /// </summary>
         private async void HandleStartRequested()
         {
@@ -120,8 +149,19 @@ namespace OzGameLab01.Controllers
             int version = _requestVersion;
             try
             {
+                // 최초 시작에서는 메인 런을 미리 만들지 않습니다.
+                // 튜토리얼 완료 이력과 메인 게임 세이브를 서로 독립적으로 유지합니다.
+                if (!TutorialProgress.IsCompleted)
+                {
+                    Debug.Log(
+                        "[TitleSceneController] 최초 게임 시작 요청 | 튜토리얼 씬 이동",
+                        this);
+                    transitioner.LoadTutorialScene();
+                    return;
+                }
+
                 Debug.Log(
-                    "[TitleSceneController] 게임 시작 요청 | 보드 씬 이동",
+                    "[TitleSceneController] 새 게임 요청 | 보드 씬 이동",
                     this);
                 // [수정] 이전 런을 초기화하고 새 Map Seed와 빈 편성을 저장한 뒤 이동
                 SaveFacade saveFacade = SystemBus.Get<SaveFacade>();

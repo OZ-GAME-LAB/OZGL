@@ -349,7 +349,13 @@ namespace OzGameLab01.Map
 
         private void CreateNodeView(MapNode node, bool animateScale)
         {
-            Transform nodeTransform = MapView.CreateNode(node, _currentTheme, tileSpacing, tileScaleMultiplier, OzGameLab01.Controllers.BoardPlayerController.Instance);
+            Transform nodeTransform = MapView.CreateNode(
+                node,
+                _currentTheme,
+                BoardRunData.MapSeed,
+                tileSpacing,
+                tileScaleMultiplier,
+                OzGameLab01.Controllers.BoardPlayerController.Instance);
             if (nodeTransform != null && animateScale)
             {
                 StartCoroutine(MapView.ScaleUpNode(nodeTransform, NodeScaleAnimationDuration));

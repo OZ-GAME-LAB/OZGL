@@ -159,6 +159,43 @@ namespace OzGameLab01.Board.Models
             return TurnsUntilPhase(elapsedTurns, morningTurns, lunchTurns, eveningTurns);
         }
 
+        /// <summary>
+        /// 현재 런 주기를 기준으로 다음 밤, 즉 다음 중간보스 또는 보스가
+        /// 등장할 시점까지 남은 총 턴 수를 반환합니다.
+        /// 이미 밤이거나 밤 고정 상태라면 0을 반환합니다.
+        /// </summary>
+        public static int TurnsUntilRunNight(
+            int turnCount,
+            int cycleStartTurn,
+            bool isNightLocked,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            if (isNightLocked)
+            {
+                return 0;
+            }
+
+            morningTurns = NormalizeDuration(morningTurns);
+            lunchTurns = NormalizeDuration(lunchTurns);
+            eveningTurns = NormalizeDuration(eveningTurns);
+
+            int nightStartTurn = morningTurns + lunchTurns;
+            int cycleLength = nightStartTurn + eveningTurns;
+            if (cycleLength <= 0)
+            {
+                return 0;
+            }
+
+            int elapsedTurns = System.Math.Max(0, turnCount - cycleStartTurn);
+            int cycleTurn = elapsedTurns % cycleLength;
+
+            return cycleTurn < nightStartTurn
+                ? nightStartTurn - cycleTurn
+                : 0;
+        }
+
         public static int DisplayTurn(int turnCount)
         {
             return turnCount + 1;

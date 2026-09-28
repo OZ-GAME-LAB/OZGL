@@ -23,6 +23,12 @@ namespace OzGameLab01.Controllers
             PlayerPrefs.Save();
         }
 
+        public static void Reset()
+        {
+            PlayerPrefs.DeleteKey(CompletedKey);
+            PlayerPrefs.Save();
+        }
+
         public static void MarkCompletedFor(string progressKey)
         {
             if (string.IsNullOrWhiteSpace(progressKey))

@@ -3,11 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using OzGameLab01.Board.Models;
-using OzGameLab01.Common;
 using OzGameLab01.Events;
 using OzGameLab01.Managers;
 using OzGameLab01.Map;
-using OzGameLab01.Save;
 using OzGameLab01.Data;
 using OzGameLab01.UI;
 using UnityEngine;
@@ -1045,7 +1043,7 @@ namespace OzGameLab01.Controllers
             returningToTitle = false;
         }
 
-        private async void HandleRunResultMainButtonClicked(
+        private void HandleRunResultMainButtonClicked(
             RunResultAnimationView view)
         {
             if (returningToTitle)
@@ -1061,17 +1059,6 @@ namespace OzGameLab01.Controllers
 
             Time.timeScale = 1f;
             TutorialProgress.MarkCompleted();
-
-            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
-            if (saveFacade != null)
-            {
-                saveFacade.ClearCurrentRun();
-                await saveFacade.SaveAsync();
-            }
-            else
-            {
-                BoardRunData.Clear();
-            }
 
             transitioner.LoadTitleScene();
         }

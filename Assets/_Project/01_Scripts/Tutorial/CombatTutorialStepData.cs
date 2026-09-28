@@ -8,7 +8,9 @@ namespace OzGameLab01.Controllers
         BattleReady,
         PreviousStepCompleted,
         EnemySkillUsed,
-        Manual
+        Manual,
+        BattleInfoReady,
+        BattleButtonClicked
     }
 
     public enum CombatTutorialTarget
@@ -17,7 +19,8 @@ namespace OzGameLab01.Controllers
         EnemyHpUI,
         EnemyCombatArea,
         EnemySkillArea,
-        PlayerFormationSlots
+        PlayerFormationSlots,
+        BattleButton
     }
 
     public enum CombatTutorialCompletionMode

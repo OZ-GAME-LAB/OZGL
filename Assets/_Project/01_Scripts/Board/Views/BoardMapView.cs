@@ -13,6 +13,11 @@ namespace OzGameLab01.Board.Views
     /// </summary>
     public sealed class BoardMapView
     {
+        private const int NormalPrefabSalt = 0x13579BDF;
+        private const int TreePrefabSalt = 0x2468ACE;
+        private const int RockPrefabSalt = 0x31415926;
+        private const int WaterBodyPrefabSalt = 0x27182818;
+
         private readonly Transform _root;
         private readonly Dictionary<MapNode, GameObject> _nodeViews = new Dictionary<MapNode, GameObject>();
 
@@ -53,11 +58,17 @@ namespace OzGameLab01.Board.Views
             _nodeViews.Remove(node);
         }
 
-        public Transform CreateNode(MapNode node, MapThemeData theme, float spacing, float scale, IBoardTileInput input)
+        public Transform CreateNode(
+            MapNode node,
+            MapThemeData theme,
+            int mapSeed,
+            float spacing,
+            float scale,
+            IBoardTileInput input)
         {
             Vector3 position = new Vector3(node.Position.x * spacing, 0f, node.Position.y * spacing);
-            GameObject normalPrefab = GetRandomNormalPrefab(theme);
-            GameObject basePrefab = GetBasePrefabForType(node.Type, theme, normalPrefab);
+            GameObject normalPrefab = GetDeterministicNormalPrefab(theme, node, mapSeed);
+            GameObject basePrefab = GetBasePrefabForType(node, theme, normalPrefab, mapSeed);
             GameObject objectPrefab = GetObjectPrefabForType(node.Type, theme);
 
             GameObject baseView = CreateTileInstance(basePrefab, position, scale, false);
@@ -113,9 +124,13 @@ namespace OzGameLab01.Board.Views
             }
         }
 
-        private static GameObject GetBasePrefabForType(NodeType type, MapThemeData theme, GameObject normalPrefab)
+        private static GameObject GetBasePrefabForType(
+            MapNode node,
+            MapThemeData theme,
+            GameObject normalPrefab,
+            int mapSeed)
         {
-            switch (type)
+            switch (node.Type)
             {
                 case NodeType.Start:
                 case NodeType.Normal:
@@ -133,9 +148,17 @@ namespace OzGameLab01.Board.Views
                 case NodeType.UnitAcquisition:
                     return ResolveSpecialBase(theme.UnitAcqBasePrefab, theme.UnitAcqObjectPrefab, theme.UnitAcquisitionPrefab, normalPrefab);
                 case NodeType.Tree:
-                    return GetRandomThemePrefab(theme.TreePrefabs) ?? normalPrefab;
+                    return GetDeterministicThemePrefab(
+                               theme.TreePrefabs,
+                               node,
+                               mapSeed,
+                               TreePrefabSalt) ?? normalPrefab;
                 case NodeType.Rock:
-                    return GetRandomThemePrefab(theme.RockPrefabs) ?? normalPrefab;
+                    return GetDeterministicThemePrefab(
+                               theme.RockPrefabs,
+                               node,
+                               mapSeed,
+                               RockPrefabSalt) ?? normalPrefab;
                 case NodeType.WaterPuddle:
                     return theme.WaterPuddlePrefab != null ? theme.WaterPuddlePrefab : normalPrefab;
                 case NodeType.WaterStart:
@@ -143,7 +166,11 @@ namespace OzGameLab01.Board.Views
                 case NodeType.WaterEnd:
                     return theme.WaterEndPrefab != null ? theme.WaterEndPrefab : normalPrefab;
                 case NodeType.WaterBody:
-                    return GetRandomThemePrefab(theme.WaterBodyPrefabs) ?? normalPrefab;
+                    return GetDeterministicThemePrefab(
+                               theme.WaterBodyPrefabs,
+                               node,
+                               mapSeed,
+                               WaterBodyPrefabSalt) ?? normalPrefab;
                 default:
                     return normalPrefab;
             }
@@ -175,7 +202,10 @@ namespace OzGameLab01.Board.Views
                 : legacyPrefab != null ? legacyPrefab : normalFallback;
         }
 
-        private static GameObject GetRandomNormalPrefab(MapThemeData theme)
+        private static GameObject GetDeterministicNormalPrefab(
+            MapThemeData theme,
+            MapNode node,
+            int mapSeed)
         {
             if (!HasWeightedNormalPrefab(theme))
             {
@@ -185,7 +215,12 @@ namespace OzGameLab01.Board.Views
             int totalWeight = theme.NormalPrefabs
                 .Where(tile => tile != null && tile.Prefab != null && tile.Weight > 0)
                 .Sum(tile => tile.Weight);
-            int randomValue = Random.Range(0, totalWeight);
+            int randomValue = GetDeterministicRange(
+                mapSeed,
+                node.Position,
+                node.Type,
+                NormalPrefabSalt,
+                totalWeight);
 
             foreach (WeightedTile tile in theme.NormalPrefabs)
             {
@@ -211,7 +246,11 @@ namespace OzGameLab01.Board.Views
                    theme.NormalPrefabs.Any(tile => tile != null && tile.Prefab != null && tile.Weight > 0);
         }
 
-        private static GameObject GetRandomThemePrefab(List<GameObject> prefabs)
+        private static GameObject GetDeterministicThemePrefab(
+            List<GameObject> prefabs,
+            MapNode node,
+            int mapSeed,
+            int salt)
         {
             if (prefabs == null)
             {
@@ -220,8 +259,57 @@ namespace OzGameLab01.Board.Views
 
             List<GameObject> validPrefabs = prefabs.Where(prefab => prefab != null).ToList();
             return validPrefabs.Count > 0
-                ? validPrefabs[Random.Range(0, validPrefabs.Count)]
+                ? validPrefabs[GetDeterministicRange(
+                    mapSeed,
+                    node.Position,
+                    node.Type,
+                    salt,
+                    validPrefabs.Count)]
                 : null;
+        }
+
+        /// <summary>
+        /// 전역 Random 상태나 타일 생성 순서와 무관하게 같은 런의 같은 좌표는
+        /// 항상 같은 프리팹 선택값을 반환합니다.
+        /// </summary>
+        private static int GetDeterministicRange(
+            int mapSeed,
+            Vector2Int position,
+            NodeType nodeType,
+            int salt,
+            int maxExclusive)
+        {
+            if (maxExclusive <= 1)
+            {
+                return 0;
+            }
+
+            unchecked
+            {
+                uint hash = 2166136261u;
+                hash = MixHash(hash, mapSeed);
+                hash = MixHash(hash, position.x);
+                hash = MixHash(hash, position.y);
+                hash = MixHash(hash, (int)nodeType);
+                hash = MixHash(hash, salt);
+
+                // 좌표가 가까운 타일끼리 비슷한 하위 비트를 갖지 않도록 최종 확산합니다.
+                hash ^= hash >> 16;
+                hash *= 0x7FEB352Du;
+                hash ^= hash >> 15;
+                hash *= 0x846CA68Bu;
+                hash ^= hash >> 16;
+
+                return (int)(hash % (uint)maxExclusive);
+            }
+        }
+
+        private static uint MixHash(uint hash, int value)
+        {
+            unchecked
+            {
+                return (hash ^ (uint)value) * 16777619u;
+            }
         }
 
         public IEnumerator ScaleUpNode(Transform nodeTransform, float duration)
