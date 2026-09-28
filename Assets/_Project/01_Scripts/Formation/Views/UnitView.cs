@@ -298,18 +298,17 @@ namespace OzGameLab01.UI
             }
         }
 
-        public void SetSelectedUnitDetail(Sprite unitIcon,string unitName,IReadOnlyList<string> synergyNames,Sprite firstSkillIcon,string firstSkillDescription,Sprite secondSkillIcon,string secondSkillDescription,string conceptDescription)
+        public void SetSelectedUnitDetail(Sprite unitIcon,string unitName,IReadOnlyList<string> synergyNames,Sprite firstSkillIcon,string firstSkillName,string firstSkillDescription,Sprite secondSkillIcon,string secondSkillName,string secondSkillDescription,string conceptDescription)
         {
             if (unitDetailView == null)
-            {
                 return;
-            }
 
             unitDetailView.SetUnitIcon(unitIcon);
             unitDetailView.SetUnitName(unitName);
             unitDetailView.SetSynergies(synergyNames);
-            unitDetailView.SetSkill(0, firstSkillIcon, firstSkillDescription);
-            unitDetailView.SetSkill(1, secondSkillIcon, secondSkillDescription);
+
+            unitDetailView.SetSkill(0,firstSkillIcon,firstSkillName,firstSkillDescription);
+            unitDetailView.SetSkill(1,secondSkillIcon,secondSkillName,secondSkillDescription);
             unitDetailView.SetConceptDescription(conceptDescription);
         }
 
