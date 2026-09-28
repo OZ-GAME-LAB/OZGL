@@ -1,6 +1,70 @@
 {
   "skillList": [
     {
+      "id": 900,
+      "unitId": 0,
+      "name": "Temp_Basic",
+      "description": "기본 공격",
+      "damage": 10.0,
+      "cooldown": 1.0,
+      "debuff": {
+        "type": 0,
+        "duration": 0.0,
+        "magnitude": 0.0,
+        "tickInterval": 0.0
+      },
+      "activeEffects": null,
+      "passiveEffects": null
+    },
+    {
+      "id": 201,
+      "unitId": 0,
+      "name": "Enemy_Basic",
+      "description": "적 기본 공격",
+      "damage": 10.0,
+      "cooldown": 1.2,
+      "debuff": {
+        "type": 0,
+        "duration": 0.0,
+        "magnitude": 0.0,
+        "tickInterval": 0.0
+      },
+      "activeEffects": null,
+      "passiveEffects": null
+    },
+    {
+      "id": 202,
+      "unitId": 0,
+      "name": "Enemy_Skill1",
+      "description": "적 스킬 1",
+      "damage": 30.0,
+      "cooldown": 4.0,
+      "debuff": {
+        "type": 0,
+        "duration": 0.0,
+        "magnitude": 0.0,
+        "tickInterval": 0.0
+      },
+      "activeEffects": null,
+      "passiveEffects": null
+    },
+    {
+      "id": 203,
+      "unitId": 0,
+      "name": "Enemy_Skill2",
+      "description": "적 스킬 2",
+      "damage": 30.0,
+      "cooldown": 5.0,
+      "debuff": {
+        "type": 0,
+        "duration": 0.0,
+        "magnitude": 0.0,
+        "tickInterval": 0.0
+      },
+      "activeEffects": null,
+      "passiveEffects": null
+    },
+    {
       "id": 51001,
       "unitId": 100,
       "iconAddress": "I_SA_100",
@@ -145,7 +209,7 @@
       "id": 51022,
       "unitId": 102,
       "iconAddress": "I_SP_102",
-      "name": "환상속의 안개",
+      "name": "환상통의 안개",
       "description": "모든 아군의 회피율 10% 증가.",
       "cooldown": 0.0,
       "activeEffects": null,
@@ -310,7 +374,7 @@
       "unitId": 109,
       "iconAddress": "I_SA_109",
       "castVfxAddress": "VFX/Skill/Cast/Dorothy_Activate_Skill_EF",
-      "name": "부끄러운줄 알아야지",
+      "name": "부끄러운 줄 알아야지!",
       "description": "적에게 상태이상 '공격력 감소 20% 부여' (5초 지속)\n그 수치만큼 자신의 공격력 상승.",
       "cooldown": 9.0,
       "activeEffects": [
@@ -466,7 +530,7 @@
       "iconAddress": "I_SA_114",
       "castVfxAddress": "VFX/Skill/Cast/Peter_Pan_Activate_Skill_EF",
       "name": "어른이 되기 싫었어",
-      "description": "자신의 공격속도 감소(공격력*0.2)\n자신의 공격력 증가 ( (1.0-공격속도)*50 ) (최소0)",
+      "description": "자신의 공격속도 감소(공격력*0.2)\n자신의 공격력 증가 ( (1.0-공격속도)*50) ) (최소0)",
       "cooldown": 9.0,
       "activeEffects": [
         {
@@ -520,7 +584,7 @@
       "iconAddress": "I_SA_115",
       "castVfxAddress": "VFX/Skill/Cast/Tinker_Bell_Activate_Skill_EF",
       "name": "광기의 집착",
-      "description": "적에게 1종의 상태이상 부여. (7초 지속)\n자신에게 같은 상태이상 부여. (7초 지속)",
+      "description": "적에게 임의의 상태이상 부여. (7초 지속)\n자신에게 같은 상태이상 부여. (7초 지속)",
       "cooldown": 13.0,
       "activeEffects": [
         {
