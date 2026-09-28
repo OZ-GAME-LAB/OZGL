@@ -164,11 +164,11 @@ namespace OzGameLab01.Controllers
             {
                 _combatSession?.SaveAllyHealthToRunData();
                 BoardRunData.CompleteCurrentBattle();
-                SoundConnector.RequestBgm(SoundId.BgmVictory, true);
+                SoundConnector.RequestSfx(SoundId.CombatVictory);
             }
             else
             {
-                SoundConnector.RequestBgm(SoundId.BgmDefeat, true);
+                SoundConnector.RequestSfx(SoundId.CombatDefeat);
             }
 
             // UI 컨트롤러에게 결과창을 띄우라고 신호를 보냅니다.
