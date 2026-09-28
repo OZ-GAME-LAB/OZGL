@@ -36,7 +36,6 @@ namespace OzGameLab01.Controllers
         private bool _isBattleInfoBinding;
         
         private float _battleTimer = 0f;
-        private bool _rewardApplied;
         private bool _isFastForward = false; // 배속 상태 저장용 변수
 
         private void Awake()
@@ -69,7 +68,6 @@ namespace OzGameLab01.Controllers
         // 전투 진입 시 마지막 저장 배속 및 버튼 표시 복원
         private void Start()
         {
-            _rewardApplied = false;
             _isFastForward = SystemBus.Get<SaveFacade>()?.CurrentData?.combatFastForward ?? false;
             combatSceneController?.SetFastForward(_isFastForward);
             UpdateSpeedDisplay(_controlView);
@@ -336,7 +334,16 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                Sprite icon = await SpriteManager.GetSpriteAsync(skill.iconAddress);
+
+                Sprite icon = null;
+
+                // 스킬 아이콘 주소가 있는 경우에만 SpriteManager에 로드를 요청합니다.
+                // 주소가 비어 있으면 아이콘 없이 스킬 정보만 표시합니다.
+                if (!string.IsNullOrWhiteSpace(skill.iconAddress))
+                {
+                    icon = await SpriteManager.GetSpriteAsync(skill.iconAddress);
+                }
+
                 if (_infoView == null)
                 {
                     _isBattleInfoBinding = false;
@@ -412,11 +419,6 @@ namespace OzGameLab01.Controllers
                         // 일반 전투는 승리 시 무작위 유물 1개를 자동으로 지급합니다
                         // (dropWeight 가중치, RelicFacade.AcquireRandomRelic).
                         RelicData grantedRelic = BattleRewardService.ApplyAutomaticVictoryReward(this);
-
-                        if (grantedRelic != null)
-                        {
-                            _rewardApplied = true;
-                        }
 
                         battleUIView.ResultView.SetResultText("승리!");
                         battleUIView.ResultView.SetOptionalMessage(

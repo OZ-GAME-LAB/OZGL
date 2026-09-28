@@ -92,7 +92,7 @@ namespace OzGameLab01.Save
 
             PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
             playerFacade?.ClearInventory();
-            GrantStarterUnit(playerFacade);
+            //GrantStarterUnit(playerFacade);
 
             _state.CurrentData = SaveData.CreateDefault();
             CaptureCurrentRun();
