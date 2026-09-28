@@ -36,7 +36,6 @@ namespace OzGameLab01.Controllers
         private bool _isBattleInfoBinding;
         
         private float _battleTimer = 0f;
-        private bool _rewardApplied;
         private bool _isFastForward = false; // 배속 상태 저장용 변수
 
         private void Awake()
@@ -69,7 +68,6 @@ namespace OzGameLab01.Controllers
         // 전투 진입 시 마지막 저장 배속 및 버튼 표시 복원
         private void Start()
         {
-            _rewardApplied = false;
             _isFastForward = SystemBus.Get<SaveFacade>()?.CurrentData?.combatFastForward ?? false;
             combatSceneController?.SetFastForward(_isFastForward);
             UpdateSpeedDisplay(_controlView);
@@ -336,7 +334,16 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                Sprite icon = await SpriteManager.GetSpriteAsync(skill.iconAddress);
+
+                Sprite icon = null;
+
+                // 스킬 아이콘 주소가 있는 경우에만 SpriteManager에 로드를 요청합니다.
+                // 주소가 비어 있으면 아이콘 없이 스킬 정보만 표시합니다.
+                if (!string.IsNullOrWhiteSpace(skill.iconAddress))
+                {
+                    icon = await SpriteManager.GetSpriteAsync(skill.iconAddress);
+                }
+
                 if (_infoView == null)
                 {
                     _isBattleInfoBinding = false;
@@ -354,13 +361,12 @@ namespace OzGameLab01.Controllers
 
         private void BindEnemyStats(MonsterData enemyData)
         {
-            _infoView.AddStat(null, enemyData.healthPoint.ToString(), "체력", "적의 최대 체력");
-            _infoView.AddStat(null, enemyData.attackPoint.ToString(), "공격력", "적의 기본 공격력");
-            _infoView.AddStat(null, enemyData.defensePoint.ToString("0.##"), "방어력", "적의 피해 감소 수치");
-            _infoView.AddStat(null, enemyData.attackSpeed.ToString("0.##"), "공격속도", "적의 기본 공격 간격");
-            _infoView.AddStat(null, $"{enemyData.criticalRate}%", "치명타 확률", "적의 치명타 발생 확률");
-            _infoView.AddStat(null, $"{enemyData.criticalMult}%", "치명타 피해", "적의 치명타 피해 배율");
-            _infoView.AddStat(null, $"{enemyData.dodgeRate}%", "회피율", "적의 공격 회피 확률");
+            if (_infoView == null || enemyData == null)
+            {
+                return;
+            }
+
+            _infoView.BindStats(enemyData);
         }
 
         private void SetBattleInfoVisible(bool visible)
@@ -412,11 +418,6 @@ namespace OzGameLab01.Controllers
                         // 일반 전투는 승리 시 무작위 유물 1개를 자동으로 지급합니다
                         // (dropWeight 가중치, RelicFacade.AcquireRandomRelic).
                         RelicData grantedRelic = BattleRewardService.ApplyAutomaticVictoryReward(this);
-
-                        if (grantedRelic != null)
-                        {
-                            _rewardApplied = true;
-                        }
 
                         battleUIView.ResultView.SetResultText("승리!");
                         battleUIView.ResultView.SetOptionalMessage(

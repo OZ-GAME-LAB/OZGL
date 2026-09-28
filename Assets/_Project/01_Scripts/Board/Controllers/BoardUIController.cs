@@ -410,9 +410,9 @@ namespace OzGameLab01.Controllers
 
             if (_battleInfoPresenter == null || !_battleInfoPresenter.IsAvailable)
             {
-                Debug.LogWarning(
-                    "[BoardUIController] CombatInfoView가 연결되지 않아 전투 정보 화면을 건너뜁니다.",
-                    this);
+                //Debug.LogWarning(
+                //    "[BoardUIController] CombatInfoView가 연결되지 않아 전투 정보 화면을 건너뜁니다.",
+                //    this);
                 boardSceneController?.ConfirmPendingBattlePreview();
                 return;
             }
