@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
+using UnityEngine.ResourceManagement.ResourceLocations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -9,22 +10,20 @@ namespace OzGameLab01.Managers
     public static class SpriteManager
     {
         private static readonly Dictionary<string, Sprite> _spriteDict = new();
+        private static readonly Dictionary<string, AsyncOperationHandle<Sprite>> _spriteHandles = new();
 
         /// <summary>
-        /// === 초기 로딩 시퀀스에서 호출 ===
-        /// 모든 스프라이트 비동기 일괄 로드 및 캐싱 (나중에 추가 예정)
+        /// 유물 스프라이트를 주소 기반으로 선로드한다.
         /// </summary>
         public static async Task LoadAllSpritesAsync()
         {
-            await Task.WhenAll(
-                PreloadSpritesByLabelAsync("Icon")
-            );
+            await PreloadSpritesByLabelAsync("relic");
         }
 
         /// <summary>
         /// 게임 시작 시 특정 Label에 속한 모든 스프라이트 비동기 일괄 로드 및 캐시
         /// </summary>
-        /// <param name="label">Addressables Groups에 설정한 레이블 (예: "Sprites", "Icons")</param>
+        /// <param name="label">Addressables 에셋에 설정한 레이블</param>
         public static async Task PreloadSpritesByLabelAsync(string label)
         {
             if (string.IsNullOrEmpty(label))
@@ -33,25 +32,48 @@ namespace OzGameLab01.Managers
                 return;
             }
 
-            // 레이블 기반 일괄 비동기 로드
-            AsyncOperationHandle<IList<Sprite>> handle = Addressables.LoadAssetsAsync<Sprite>(label, null);
-            IList<Sprite> loadedSprites = await handle.Task;
-
-            if (handle.Status == AsyncOperationStatus.Succeeded && loadedSprites != null)
+            AsyncOperationHandle<IList<IResourceLocation>> locationsHandle =
+                Addressables.LoadResourceLocationsAsync(label, typeof(Sprite));
+            try
             {
-                foreach (var sprite in loadedSprites)
+                IList<IResourceLocation> locations = await locationsHandle.Task;
+                if (locationsHandle.Status != AsyncOperationStatus.Succeeded || locations == null)
                 {
-                    if (sprite != null && !_spriteDict.ContainsKey(sprite.name))
+                    Debug.LogError($"[SpriteManager] '{label}' 스프라이트 위치 조회 실패");
+                    return;
+                }
+
+                int loadedCount = 0;
+                foreach (IResourceLocation location in locations)
+                {
+                    string address = location.PrimaryKey;
+                    if (string.IsNullOrEmpty(address) || _spriteDict.ContainsKey(address))
+                        continue;
+
+                    AsyncOperationHandle<Sprite> spriteHandle = Addressables.LoadAssetAsync<Sprite>(location);
+                    Sprite sprite = await spriteHandle.Task;
+                    if (spriteHandle.Status == AsyncOperationStatus.Succeeded && sprite != null)
                     {
-                        // 스프라이트 고유 이름 혹은 키를 기준으로 캐싱
-                        _spriteDict[sprite.name] = sprite;
+                        if (_spriteDict.ContainsKey(address))
+                        {
+                            Addressables.Release(spriteHandle);
+                            continue;
+                        }
+                        _spriteDict[address] = sprite;
+                        _spriteHandles[address] = spriteHandle;
+                        loadedCount++;
+                    }
+                    else
+                    {
+                        Addressables.Release(spriteHandle);
+                        Debug.LogError($"[SpriteManager] 스프라이트 선로드 실패: {address}");
                     }
                 }
-                Debug.Log($"[SpriteManager] '{label}' 스프라이트 {loadedSprites.Count}개 캐싱 완료");
+                Debug.Log($"[SpriteManager] '{label}' 스프라이트 {loadedCount}개 캐싱 완료");
             }
-            else
+            finally
             {
-                Debug.LogError($"[SpriteManager] '{label}' 스프라이트 사전 로드 실패");
+                Addressables.Release(locationsHandle);
             }
         }
 
@@ -81,11 +103,18 @@ namespace OzGameLab01.Managers
 
             if (handle.Status == AsyncOperationStatus.Succeeded && loadedSprite != null)
             {
+                if (_spriteDict.TryGetValue(spriteAddress, out cachedSprite))
+                {
+                    Addressables.Release(handle);
+                    return cachedSprite;
+                }
                 _spriteDict[spriteAddress] = loadedSprite;
+                _spriteHandles[spriteAddress] = handle;
                 return loadedSprite;
             }
 
             // 3. 그 외 없으면 로드 실패
+            Addressables.Release(handle);
             Debug.LogError($"[SpriteManager] 스프라이트 로드 실패: {spriteAddress}");
             return null;
         }
@@ -95,6 +124,9 @@ namespace OzGameLab01.Managers
         /// </summary>
         public static void ClearCache()
         {
+            foreach (AsyncOperationHandle<Sprite> handle in _spriteHandles.Values)
+                Addressables.Release(handle);
+            _spriteHandles.Clear();
             _spriteDict.Clear();
         }
     }

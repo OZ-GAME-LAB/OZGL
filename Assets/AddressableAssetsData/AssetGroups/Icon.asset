@@ -99,6 +99,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - relic
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 44ab28de2f27ebf45bc6df27ede257f5
+    m_Address: I_Re_725
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - relic
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 46070f3cea54e094a8120f1c2bf30108
     m_Address: I_Re_739
     m_ReadOnly: 0
@@ -348,12 +354,6 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: e931093057c78df49ae314860bef5382
     m_Address: I_Re_727
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - relic
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: eb50ecbfa2fa78d4286de05e8a0b07c3
-    m_Address: I_Re_725
     m_ReadOnly: 0
     m_SerializedLabels:
     - relic
