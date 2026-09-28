@@ -51,6 +51,19 @@ namespace OzGameLab01.UI
 
         private Action battleCallback;
 
+        public RectTransform BattleButtonHighlightTarget =>
+            battleButton != null
+                ? battleButton.transform as RectTransform
+                : null;
+
+        public bool IsBattleButtonReady =>
+            battleButton != null &&
+            battleButton.gameObject.activeInHierarchy &&
+            battleButton.interactable;
+
+        public event Action BattleButtonReady;
+        public event Action BattleButtonClicked;
+
 
         #region Unity Lifecycle
 
@@ -261,8 +274,29 @@ namespace OzGameLab01.UI
         {
             if (battleButton != null)
             {
+                bool wasReady = IsBattleButtonReady;
                 battleButton.interactable = interactable;
+
+                if (!wasReady && IsBattleButtonReady)
+                {
+                    BattleButtonReady?.Invoke();
+                }
             }
+        }
+
+        /// <summary>
+        /// 튜토리얼 오버레이처럼 실제 버튼 위에서 입력을 대신 받는 UI가
+        /// Battle 버튼과 동일한 동작을 요청할 때 사용합니다.
+        /// </summary>
+        public bool TryInvokeBattleButton()
+        {
+            if (!IsBattleButtonReady)
+            {
+                return false;
+            }
+
+            battleButton.onClick.Invoke();
+            return true;
         }
 
         /// <summary>
@@ -362,6 +396,7 @@ namespace OzGameLab01.UI
         private void HandleBattleClicked()
         {
             battleCallback?.Invoke();
+            BattleButtonClicked?.Invoke();
         }
 
         #endregion
