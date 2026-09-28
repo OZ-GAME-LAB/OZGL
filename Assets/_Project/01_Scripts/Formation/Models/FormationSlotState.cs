@@ -79,8 +79,7 @@ namespace OzGameLab01.Formation
 
         /// <summary>
         /// 지정한 슬롯 종류의 targetIndex에 handle을 드롭한 결과를 계산하고 상태에 반영합니다.
-        /// 이미 반대 종류(전투/서브) 슬롯에 배치되어 있는 유닛은 거부합니다 — 반대쪽에서 먼저
-        /// 빼야 합니다.
+        /// 반대 종류 슬롯에서 드롭하면 빈 슬롯으로 이동하거나 점유 슬롯과 교환합니다.
         /// </summary>
         public FormationDropResult TryDrop(FormationSlotKind kind, int handle, int targetIndex)
         {
@@ -94,13 +93,33 @@ namespace OzGameLab01.Formation
             int otherKindIndex = kind == FormationSlotKind.Battle
                 ? FindSupportSlot(handle)
                 : FindBattleSlot(handle);
-            if (otherKindIndex >= 0)
-            {
-                return FormationDropResult.Rejected();
-            }
-
             int sourceIndex = FindSlot(slots, handle);
             int? targetHandle = slots[targetIndex];
+
+            if (otherKindIndex >= 0)
+            {
+                FormationSlotKind sourceKind = kind == FormationSlotKind.Battle
+                    ? FormationSlotKind.Support : FormationSlotKind.Battle;
+                int?[] sourceSlots = sourceKind == FormationSlotKind.Battle ? _battleSlots : _supportSlots;
+                if (targetHandle == null)
+                {
+                    int targetCount = kind == FormationSlotKind.Battle ? BattleUnitCount : SupportUnitCount;
+                    int targetMax = kind == FormationSlotKind.Battle ? MAX_BATTLE_UNIT_COUNT : SUPPORT_SLOT_COUNT;
+                    int sourceCount = sourceKind == FormationSlotKind.Battle ? BattleUnitCount : SupportUnitCount;
+                    if (targetCount >= targetMax)
+                        return FormationDropResult.Rejected();
+
+                    sourceSlots[otherKindIndex] = null;
+                    slots[targetIndex] = handle;
+                    SetCount(sourceKind, sourceCount - 1);
+                    SetCount(kind, targetCount + 1);
+                    return new FormationDropResult(FormationDropOutcome.MovedToEmpty, otherKindIndex, targetIndex, null);
+                }
+
+                sourceSlots[otherKindIndex] = targetHandle;
+                slots[targetIndex] = handle;
+                return new FormationDropResult(FormationDropOutcome.Swapped, otherKindIndex, targetIndex, targetHandle);
+            }
 
             if (sourceIndex == targetIndex)
             {

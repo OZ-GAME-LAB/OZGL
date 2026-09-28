@@ -69,6 +69,27 @@ namespace OzGameLab01.Effects.Models
             return items;
         }
 
+        public static string GetIconAddress(SynergyDefinition definition)
+        {
+            if (definition == null || string.IsNullOrWhiteSpace(definition.DisplayName))
+                return null;
+
+            SynergyData subtitleMatch = null;
+            foreach (SynergyData data in RuntimeContent.Catalog.Synergies.Values)
+            {
+                if (data == null)
+                    continue;
+
+                if (data.name == definition.DisplayName)
+                    return data.iconAddress;
+
+                if (data.subTitle == definition.DisplayName)
+                    subtitleMatch = data;
+            }
+
+            return subtitleMatch?.iconAddress;
+        }
+
         private static int GetTraitCount(Dictionary<SynergyDefinition, int> traitCounts, SynergyDefinition definition)
         {
             if (definition == null)

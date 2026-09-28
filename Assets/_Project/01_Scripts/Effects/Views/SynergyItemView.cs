@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using OzGameLab01.Managers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -25,6 +27,7 @@ namespace OzGameLab01.UI
         [SerializeField] private TMP_Text _stackText;
 
         private bool _isInteractable = true;
+        private string _currentIconAddress;
 
         #region Properties
 
@@ -94,7 +97,20 @@ namespace OzGameLab01.UI
             if (_icon != null)
             {
                 _icon.sprite = sprite;
+                _icon.enabled = sprite != null;
             }
+        }
+
+        public async Task SetIconAsync(string iconAddress)
+        {
+            _currentIconAddress = iconAddress;
+            SetIcon(null);
+            if (string.IsNullOrWhiteSpace(iconAddress))
+                return;
+
+            Sprite sprite = await SpriteManager.GetSpriteAsync(iconAddress);
+            if (this != null && _currentIconAddress == iconAddress)
+                SetIcon(sprite);
         }
 
         public void SetIconColor(Color color)
