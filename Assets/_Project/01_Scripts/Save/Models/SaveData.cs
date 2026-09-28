@@ -84,6 +84,17 @@ namespace OzGameLab01.Save
 
         // 서포트 슬롯 순서대로 저장한 유닛 ID 목록 / 빈 슬롯은 -1
         public List<int> supportFormationUnitIds = new List<int>();
+
+        public List<BattleUnitHealthSaveEntry> battleUnitHealthEntries =
+            new List<BattleUnitHealthSaveEntry>();
+    }
+
+    [System.Serializable]
+    public class BattleUnitHealthSaveEntry
+    {
+        public int slotIndex;
+        public int unitId;
+        public float healthRate;
     }
 
     /// <summary>

@@ -291,6 +291,7 @@ namespace OzGameLab01.Save
                 data.boardRun.consumedSpecialTilePositions ??= new List<BoardPositionSaveEntry>();
                 data.boardRun.battleFormationUnitIds ??= new List<int>();
                 data.boardRun.supportFormationUnitIds ??= new List<int>();
+                data.boardRun.battleUnitHealthEntries ??= new List<BattleUnitHealthSaveEntry>();
             }
         }
 

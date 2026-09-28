@@ -9,7 +9,7 @@ namespace OzGameLab01.Board.Controllers
         public static BoardRunSaveData ToSave(BoardRunSnapshot source)
         {
             if (source == null) { return null; }
-            var result = new BoardRunSaveData
+            BoardRunSaveData result = new BoardRunSaveData
             {
                 hasActiveRun = source.hasActiveRun,
                 mapSeed = source.mapSeed,
@@ -43,23 +43,36 @@ namespace OzGameLab01.Board.Controllers
             };
             if (source.completedBattlePositions != null)
             {
-                foreach (var position in source.completedBattlePositions)
+                foreach (BoardRunPosition position in source.completedBattlePositions)
                 {
                     if (position != null) { result.completedBattlePositions.Add(new BoardPositionSaveEntry { x = position.x, y = position.y }); }
                 }
             }
             if (source.consumedSpecialTilePositions != null)
             {
-                foreach (var position in source.consumedSpecialTilePositions)
+                foreach (BoardRunPosition position in source.consumedSpecialTilePositions)
                 {
                     if (position != null) { result.consumedSpecialTilePositions.Add(new BoardPositionSaveEntry { x = position.x, y = position.y }); }
                 }
             }
             if (source.visitedPositions != null)
             {
-                foreach (var position in source.visitedPositions)
+                foreach (BoardRunPosition position in source.visitedPositions)
                 {
                     if (position != null) { result.visitedPositions.Add(new BoardPositionSaveEntry { x = position.x, y = position.y }); }
+                }
+            }
+            if (source.battleUnitHealthEntries != null)
+            {
+                foreach (BattleUnitHealthSnapshot entry in source.battleUnitHealthEntries)
+                {
+                    if (entry == null) { continue; }
+                    result.battleUnitHealthEntries.Add(new BattleUnitHealthSaveEntry
+                    {
+                        slotIndex = entry.slotIndex,
+                        unitId = entry.unitId,
+                        healthRate = entry.healthRate
+                    });
                 }
             }
             return result;
@@ -67,7 +80,7 @@ namespace OzGameLab01.Board.Controllers
         public static BoardRunSnapshot FromSave(BoardRunSaveData source)
         {
             if (source == null) { return null; }
-            var result = new BoardRunSnapshot
+            BoardRunSnapshot result = new BoardRunSnapshot
             {
                 hasActiveRun = source.hasActiveRun,
                 mapSeed = source.mapSeed,
@@ -100,23 +113,36 @@ namespace OzGameLab01.Board.Controllers
             };
             if (source.completedBattlePositions != null)
             {
-                foreach (var position in source.completedBattlePositions)
+                foreach (BoardPositionSaveEntry position in source.completedBattlePositions)
                 {
                     if (position != null) { result.completedBattlePositions.Add(new BoardRunPosition { x = position.x, y = position.y }); }
                 }
             }
             if (source.consumedSpecialTilePositions != null)
             {
-                foreach (var position in source.consumedSpecialTilePositions)
+                foreach (BoardPositionSaveEntry position in source.consumedSpecialTilePositions)
                 {
                     if (position != null) { result.consumedSpecialTilePositions.Add(new BoardRunPosition { x = position.x, y = position.y }); }
                 }
             }
             if (source.visitedPositions != null)
             {
-                foreach (var position in source.visitedPositions)
+                foreach (BoardPositionSaveEntry position in source.visitedPositions)
                 {
                     if (position != null) { result.visitedPositions.Add(new BoardRunPosition { x = position.x, y = position.y }); }
+                }
+            }
+            if (source.battleUnitHealthEntries != null)
+            {
+                foreach (BattleUnitHealthSaveEntry entry in source.battleUnitHealthEntries)
+                {
+                    if (entry == null) { continue; }
+                    result.battleUnitHealthEntries.Add(new BattleUnitHealthSnapshot
+                    {
+                        slotIndex = entry.slotIndex,
+                        unitId = entry.unitId,
+                        healthRate = entry.healthRate
+                    });
                 }
             }
             return result;

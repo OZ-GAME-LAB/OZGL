@@ -160,6 +160,7 @@ namespace OzGameLab01.Controllers
 
             if (victory)
             {
+                _combatSession?.SaveAllyHealthToRunData();
                 BoardRunData.CompleteCurrentBattle();
             }
 
