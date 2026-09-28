@@ -99,14 +99,74 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
-        public void UnitAlreadyInSupportSlot_CannotBeDroppedOnBattleSlot()
+        public void BattleUnit_DroppedOnEmptySupportSlot_MovesAcrossKinds()
+        {
+            var state = new FormationSlotState();
+            state.TryDrop(FormationSlotKind.Battle, 1, 4);
+
+            var result = state.TryDrop(FormationSlotKind.Support, 1, 0);
+
+            Assert.That(result.Outcome, Is.EqualTo(FormationDropOutcome.MovedToEmpty));
+            Assert.That(result.SourceIndex, Is.EqualTo(4));
+            Assert.That(state.BattleAt(4), Is.Null);
+            Assert.That(state.SupportAt(0), Is.EqualTo(1));
+            Assert.That(state.BattleUnitCount, Is.Zero);
+            Assert.That(state.SupportUnitCount, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void SupportUnit_DroppedOnEmptyBattleSlot_MovesAcrossKinds()
         {
             var state = new FormationSlotState();
             state.TryDrop(FormationSlotKind.Support, 1, 0);
 
-            var result = state.TryDrop(FormationSlotKind.Battle, 1, 0);
+            var result = state.TryDrop(FormationSlotKind.Battle, 1, 4);
+
+            Assert.That(result.Outcome, Is.EqualTo(FormationDropOutcome.MovedToEmpty));
+            Assert.That(state.SupportAt(0), Is.Null);
+            Assert.That(state.BattleAt(4), Is.EqualTo(1));
+            Assert.That(state.BattleUnitCount, Is.EqualTo(1));
+            Assert.That(state.SupportUnitCount, Is.Zero);
+        }
+
+        [Test]
+        public void BattleAndSupportUnits_DroppedOnOccupiedOppositeSlots_Swap()
+        {
+            var state = new FormationSlotState();
+            state.TryDrop(FormationSlotKind.Battle, 1, 4);
+            state.TryDrop(FormationSlotKind.Support, 2, 0);
+
+            var result = state.TryDrop(FormationSlotKind.Support, 1, 0);
+
+            Assert.That(result.Outcome, Is.EqualTo(FormationDropOutcome.Swapped));
+            Assert.That(result.SourceIndex, Is.EqualTo(4));
+            Assert.That(result.DisplacedHandle, Is.EqualTo(2));
+            Assert.That(state.BattleAt(4), Is.EqualTo(2));
+            Assert.That(state.SupportAt(0), Is.EqualTo(1));
+            Assert.That(state.BattleUnitCount, Is.EqualTo(1));
+            Assert.That(state.SupportUnitCount, Is.EqualTo(1));
+
+            result = state.TryDrop(FormationSlotKind.Battle, 1, 4);
+            Assert.That(result.Outcome, Is.EqualTo(FormationDropOutcome.Swapped));
+            Assert.That(state.BattleAt(4), Is.EqualTo(1));
+            Assert.That(state.SupportAt(0), Is.EqualTo(2));
+        }
+
+        [Test]
+        public void SupportToEmptyBattleSlot_RejectsWhenBattleRosterIsFull()
+        {
+            var state = new FormationSlotState();
+            for (int i = 0; i < FormationSlotState.MAX_BATTLE_UNIT_COUNT; i++)
+                state.TryDrop(FormationSlotKind.Battle, i, i);
+            state.TryDrop(FormationSlotKind.Support, 10, 0);
+
+            var result = state.TryDrop(FormationSlotKind.Battle, 10, 5);
+
             Assert.That(result.Outcome, Is.EqualTo(FormationDropOutcome.Rejected));
-            Assert.That(state.FindSupportSlot(1), Is.EqualTo(0));
+            Assert.That(state.BattleAt(5), Is.Null);
+            Assert.That(state.SupportAt(0), Is.EqualTo(10));
+            Assert.That(state.BattleUnitCount, Is.EqualTo(FormationSlotState.MAX_BATTLE_UNIT_COUNT));
+            Assert.That(state.SupportUnitCount, Is.EqualTo(1));
         }
 
         [Test]

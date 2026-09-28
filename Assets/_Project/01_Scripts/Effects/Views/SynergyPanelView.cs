@@ -42,6 +42,7 @@ namespace OzGameLab01.Effects.Views
                 item.SetTitle(display.Definition.DisplayName);
                 item.SetStackText(display.StackText);
                 item.SetBackgroundColor(display.IsActive ? _activeColor : _inactiveColor);
+                _ = item.SetIconAsync(SynergyPanelUtility.GetIconAddress(display.Definition));
             }
         }
     }

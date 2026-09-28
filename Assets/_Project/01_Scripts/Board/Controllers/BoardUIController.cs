@@ -82,6 +82,7 @@ namespace OzGameLab01.Controllers
         private CombatInfoPresenter _battleInfoPresenter;
         private bool _started;
         private bool _actionPointUiRefreshPending;
+        private int _unitAcquireIconRequestVersion;
 
 
         public static event Action OnRollViewClosed;
@@ -190,6 +191,7 @@ namespace OzGameLab01.Controllers
 
         private void OnDisable()
         {
+            _unitAcquireIconRequestVersion++;
             if (_actionPointUiRefreshPending)
             {
                 RefreshActionPointUi(immediate: true);
@@ -671,11 +673,28 @@ namespace OzGameLab01.Controllers
             ScheduleAutomaticRollView(turnAutoRollViewDelay);
         }
 
-        private void HandleUnitAcquired(UnitData unitData)
+        private async void HandleUnitAcquired(UnitData unitData)
         {
-            if (readySceneView != null)
+            ReadySceneView view = readySceneView;
+            if (view == null || unitData == null)
+                return;
+
+            view.PlayUnitAcquirePopup(unitData.name, null);
+            int requestVersion = ++_unitAcquireIconRequestVersion;
+            UnitAcquirePopupView popup = view.UnitAcquirePopupView;
+            if (popup == null || string.IsNullOrWhiteSpace(unitData.iconAddress))
+                return;
+
+            try
             {
-                readySceneView.PlayUnitAcquirePopup(unitData.name, null);
+                Sprite sprite = await OzGameLab01.Managers.SpriteManager.GetSpriteAsync(unitData.iconAddress);
+                if (popup != null && popup.gameObject.activeInHierarchy &&
+                    _unitAcquireIconRequestVersion == requestVersion && popup.UnitName == unitData.name)
+                    popup.SetUnitSprite(sprite);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception, this);
             }
         }
 
