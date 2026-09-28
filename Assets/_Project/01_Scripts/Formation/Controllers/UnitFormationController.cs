@@ -1145,6 +1145,7 @@ namespace OzGameLab01.Controllers
                 item.SetTitle(definition.DisplayName);
                 item.SetStackText(stackText);
                 item.SetBackgroundColor(isActive ? synergyActiveColor : synergyInactiveColor);
+                _ = item.SetIconAsync(OzGameLab01.Effects.Models.SynergyPanelUtility.GetIconAddress(definition));
             }
         }
 
