@@ -3,14 +3,10 @@ using OzGameLab01.Controllers;
 using OzGameLab01.Data;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Events.Contracts;
-<<<<<<< HEAD
-using OzGameLab01.Common;
 using OzGameLab01.Managers;
-=======
-using OzGameLab01.Managers;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
->>>>>>> dev
 
 namespace OzGameLab01.Events
 {
