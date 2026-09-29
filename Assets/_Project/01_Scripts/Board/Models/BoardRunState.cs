@@ -275,9 +275,10 @@ namespace OzGameLab01.Board.Models
 
             if (saveData.battleUnitHealthEntries != null)
             {
+                HashSet<int> restoredUnitIds = new HashSet<int>();
                 foreach (BattleUnitHealthSnapshot entry in saveData.battleUnitHealthEntries)
                 {
-                    if (!IsValidBattleUnitHealthEntry(entry))
+                    if (!IsValidBattleUnitHealthEntry(entry) || !restoredUnitIds.Add(entry.unitId))
                     {
                         continue;
                     }
@@ -322,9 +323,10 @@ namespace OzGameLab01.Board.Models
                 return;
             }
 
+            HashSet<int> savedUnitIds = new HashSet<int>();
             foreach (BattleUnitHealthSnapshot entry in entries)
             {
-                if (!IsValidBattleUnitHealthEntry(entry))
+                if (!IsValidBattleUnitHealthEntry(entry) || !savedUnitIds.Add(entry.unitId))
                 {
                     continue;
                 }
@@ -337,11 +339,11 @@ namespace OzGameLab01.Board.Models
                 });
             }
         }
-        public bool TryGetBattleUnitHealthRate(int slotIndex, int unitId, out float healthRate)
+        public bool TryGetBattleUnitHealthRate(int unitId, out float healthRate)
         {
             foreach (BattleUnitHealthSnapshot entry in _battleUnitHealthEntries)
             {
-                if (entry.slotIndex == slotIndex && entry.unitId == unitId)
+                if (entry.unitId == unitId)
                 {
                     healthRate = entry.healthRate;
                     return true;

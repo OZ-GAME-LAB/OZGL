@@ -7,6 +7,8 @@ using OzGameLab01.Data;
 using OzGameLab01.Board.Models;
 using OzGameLab01.Board.Views;
 using OzGameLab01.Map;
+using OzGameLab01.Common;
+using OzGameLab01.Player;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -177,6 +179,7 @@ namespace OzGameLab01.Map
                     hasWaterPrefabs = _currentTheme.WaterPuddlePrefab != null && _currentTheme.WaterStartPrefab != null && _currentTheme.WaterEndPrefab != null && _currentTheme.WaterBodyPrefabs != null && _currentTheme.WaterBodyPrefabs.Count > 0
                 };
                 _generationProfile.ApplyTo(settings);
+                settings.allowUnitAcquisition = HasAvailableUnitAcquisition();
                 BoardMapModel model = new BoardMapModel(_nodeDict, _allNodes, settings, message => Debug.LogWarning(message, this), message => Debug.LogError(message, this));
                 model.GenerateLogicalShape();
                 model.AssignNodeTypes();
@@ -210,6 +213,17 @@ namespace OzGameLab01.Map
             OzGameLab01.Controllers.BoardPlayerController.Instance.SetupPlayer(
                 targetNode,
                 isInitialPlayerPlacement);
+        }
+
+        private static bool HasAvailableUnitAcquisition()
+        {
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            if (playerFacade == null)
+            {
+                return true;
+            }
+
+            return playerFacade.GetAvailableUnitCandidates(RuntimeContent.Catalog.Units).Count > 0;
         }
 
         private Vector2Int GetStartNodePosition()
