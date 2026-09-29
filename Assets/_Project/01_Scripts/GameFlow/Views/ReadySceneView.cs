@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using ReadySettingsView = OzGameLab01.UI.Title.TitleSettingsView;
 
@@ -200,6 +201,24 @@ namespace OzGameLab01.UI
                     ReadySceneViewType.Tooltip,
                     wasVisible);
             }
+        }
+
+        public void ShowTooltip(
+            string title,
+            string description,
+            IReadOnlyList<TooltipView.EffectData> effects = null)
+        {
+            if (_tooltipView == null)
+            {
+                return;
+            }
+
+            bool wasVisible = _tooltipView.gameObject.activeSelf;
+            _tooltipView.Show(title, description, effects);
+            NotifyVisibilityChanged(
+                _tooltipView,
+                ReadySceneViewType.Tooltip,
+                wasVisible);
         }
 
         public void PlayUnitAcquirePopup(string unitName, Sprite sprite)

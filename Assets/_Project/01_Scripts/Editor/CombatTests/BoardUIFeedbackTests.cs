@@ -5,6 +5,7 @@ using OzGameLab01.Board.Views;
 using OzGameLab01.UI;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEditor;
 
 namespace OzGameLab01.Tests.EditMode
@@ -68,6 +69,163 @@ namespace OzGameLab01.Tests.EditMode
             Assert.That(mainView.ArtifactItemPrefab, Is.Not.Null);
             Assert.That(mainView.SynergyContentRoot, Is.Not.Null);
             Assert.That(mainView.SynergyItemPrefab, Is.Not.Null);
+        }
+
+        [Test]
+        public void ReadyUi_TooltipCanShowAndHide()
+        {
+            const string readyUiPath = "Assets/_Project/02_Prefabs/UI/ReadyUi/Refactor/ReadyUI.prefab";
+            GameObject instance = PrefabUtility.LoadPrefabContents(readyUiPath);
+
+            try
+            {
+                ReadySceneView readyView = instance != null
+                    ? instance.GetComponent<ReadySceneView>()
+                    : null;
+
+                Assert.That(readyView, Is.Not.Null);
+                Assert.That(readyView.TooltipView, Is.Not.Null);
+                Assert.That(readyView.TooltipView.IsVisible, Is.False);
+
+                readyView.ShowTooltip("Tooltip title", "Tooltip description");
+
+                Assert.That(readyView.TooltipView.IsVisible, Is.True);
+                Assert.That(readyView.TooltipView.Title, Is.EqualTo("Tooltip title"));
+                Assert.That(readyView.TooltipView.Description, Is.EqualTo("Tooltip description"));
+
+                readyView.HideTooltip();
+
+                Assert.That(readyView.TooltipView.IsVisible, Is.False);
+            }
+            finally
+            {
+                if (instance != null)
+                {
+                    PrefabUtility.UnloadPrefabContents(instance);
+                }
+            }
+        }
+
+        [Test]
+        public void TooltipEffectRow_UsesBoundedLayout()
+        {
+            const string effectRowPath =
+                "Assets/_Project/02_Prefabs/UI/ReadyUi/Runtime/EffectRow.prefab";
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(effectRowPath);
+            GameObject instance = prefab != null ? Object.Instantiate(prefab) : null;
+
+            try
+            {
+                EffectRowView row = instance != null
+                    ? instance.GetComponent<EffectRowView>()
+                    : null;
+                TMP_Text text = instance != null
+                    ? instance.GetComponentInChildren<TMP_Text>(true)
+                    : null;
+
+                Assert.That(row, Is.Not.Null);
+                Assert.That(text, Is.Not.Null);
+
+                row.Bind(
+                    "4개  여러 줄로 표시될 수 있는 충분히 긴 시너지 단계 설명입니다.",
+                    Color.white);
+
+                LayoutElement layout = instance.GetComponent<LayoutElement>();
+                Assert.That(layout, Is.Not.Null);
+                Assert.That(layout.preferredHeight, Is.GreaterThanOrEqualTo(40f));
+                Assert.That(text.enableAutoSizing, Is.True);
+                Assert.That(text.overflowMode, Is.EqualTo(TextOverflowModes.Overflow));
+            }
+            finally
+            {
+                if (instance != null)
+                {
+                    Object.DestroyImmediate(instance);
+                }
+            }
+        }
+
+        [Test]
+        public void TooltipPanel_ExpandsToFitEffectRows()
+        {
+            const string tooltipPath =
+                "Assets/_Project/02_Prefabs/UI/PublicUi/TooltipView.prefab";
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(tooltipPath);
+            GameObject instance = prefab != null ? Object.Instantiate(prefab) : null;
+
+            try
+            {
+                TooltipView tooltip = instance != null
+                    ? instance.GetComponent<TooltipView>()
+                    : null;
+                Assert.That(tooltip, Is.Not.Null);
+
+                tooltip.Show("Title", "Short description");
+                float compactHeight = tooltip.TooltipPanel.rect.height;
+
+                tooltip.Show(
+                    "Title",
+                    "Short description",
+                    new[]
+                    {
+                        new TooltipView.EffectData("First effect"),
+                        new TooltipView.EffectData("Second effect"),
+                        new TooltipView.EffectData("Third effect")
+                    });
+                float expandedHeight = tooltip.TooltipPanel.rect.height;
+
+                Assert.That(expandedHeight, Is.GreaterThan(compactHeight));
+            }
+            finally
+            {
+                if (instance != null)
+                {
+                    Object.DestroyImmediate(instance);
+                }
+            }
+        }
+
+        [Test]
+        public void TooltipPanel_ExpandsWidthForLongEffectText()
+        {
+            const string tooltipPath =
+                "Assets/_Project/02_Prefabs/UI/PublicUi/TooltipView.prefab";
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(tooltipPath);
+            GameObject instance = prefab != null ? Object.Instantiate(prefab) : null;
+
+            try
+            {
+                TooltipView tooltip = instance != null
+                    ? instance.GetComponent<TooltipView>()
+                    : null;
+                Assert.That(tooltip, Is.Not.Null);
+
+                tooltip.Show(
+                    "Title",
+                    string.Empty,
+                    new[] { new TooltipView.EffectData("Short effect") });
+                float compactWidth = tooltip.TooltipPanel.rect.width;
+
+                tooltip.Show(
+                    "Title",
+                    string.Empty,
+                    new[]
+                    {
+                        new TooltipView.EffectData(
+                            "This deliberately long effect description must expand the tooltip background horizontally.")
+                    });
+                float expandedWidth = tooltip.TooltipPanel.rect.width;
+
+                Assert.That(expandedWidth, Is.GreaterThan(compactWidth));
+                Assert.That(expandedWidth, Is.LessThanOrEqualTo(1200f));
+            }
+            finally
+            {
+                if (instance != null)
+                {
+                    Object.DestroyImmediate(instance);
+                }
+            }
         }
 
         [Test]

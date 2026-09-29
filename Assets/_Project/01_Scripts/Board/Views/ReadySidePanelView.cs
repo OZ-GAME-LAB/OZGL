@@ -40,6 +40,9 @@ namespace OzGameLab01.UI
 
         public bool IsContentOpen => CurrentTab != ReadySidePanelTab.None;
 
+        public RectTransform ContentPanelRect =>
+            contentPanel != null ? contentPanel.transform as RectTransform : null;
+
         /// <summary>
         /// 탭 전환 또는 닫기 후 발생합니다.
         /// 외부 툴팁 정리 등이 필요할 때 구독합니다.
