@@ -163,7 +163,7 @@
         {
           "trigger": "OnAllySkillUsed",
           "triggerParam": 0.0,
-          "target": "Self",
+          "target": "TriggeringUnit",
           "effect": "CooldownModifier",
           "statType": "TurnRecovery",
           "operation": "Multiply",
@@ -402,7 +402,7 @@
       "activeEffects": null,
       "passiveEffects": [
         {
-          "trigger": "OnEnemySkillUsed",
+          "trigger": "OnBattleStart",
           "triggerParam": 0.0,
           "target": "Enemy",
           "effect": "NullifyNextSkill",
@@ -460,15 +460,15 @@
       "activeEffects": null,
       "passiveEffects": [
         {
-          "trigger": "OnAllyHealed",
+          "trigger": "OnBattleStart",
           "triggerParam": 0.0,
-          "target": "Self",
+          "target": "AllAllies",
           "effect": "StatModifier",
           "statType": "RecoveryAmount",
           "operation": "Multiply",
           "effectParam": 40.0,
           "chance": 100.0,
-          "once": false
+          "once": true
         }
       ]
     },
@@ -519,6 +519,7 @@
           "statType": "Unknown",
           "operation": "Add",
           "effectParam": 1.0,
+          "effectSecondaryParam": 1.0,
           "chance": 100.0,
           "once": true
         }
@@ -678,6 +679,7 @@
           "statType": "Attack",
           "operation": "Add",
           "effectParam": 3.0,
+          "flatValue": true,
           "chance": 100.0,
           "once": false
         }

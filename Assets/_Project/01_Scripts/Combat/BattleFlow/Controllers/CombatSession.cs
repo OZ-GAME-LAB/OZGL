@@ -73,22 +73,33 @@ namespace OzGameLab01.Combat
             get
             {
                 float total = 0f;
-                IReadOnlyList<UnitFormationCombatLink.TransferredUnit> units = UnitFormationCombatLink.SupportUnitList;
-                IReadOnlyList<int> savedIds = UnitFormationCombatLink.SavedSupportUnitIdList;
-                for (int i = 0; i < units.Count; i++)
+                foreach (UnitData data in GetSupportUnitData())
                 {
-                    UnitData data = units[i]?.Data;
-                    if (data == null && i < savedIds.Count && savedIds[i] > 0)
-                    {
-                        data = RuntimeContent.Catalog.GetUnit(savedIds[i]);
-                    }
-                    if (data != null && data.attackSpeed > 0f)
+                    if (data.attackSpeed > 0f)
                     {
                         total += 1f / data.attackSpeed;
                     }
                 }
                 return total;
             }
+        }
+
+        /// <summary>보조칸에 편성된 유닛 데이터입니다(편성 화면을 거치지 않았으면 저장된 편성 id로 찾습니다).</summary>
+        private static List<UnitData> GetSupportUnitData()
+        {
+            var result = new List<UnitData>();
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> units = UnitFormationCombatLink.SupportUnitList;
+            IReadOnlyList<int> savedIds = UnitFormationCombatLink.SavedSupportUnitIdList;
+            for (int i = 0; i < units.Count; i++)
+            {
+                UnitData data = units[i]?.Data;
+                if (data == null && i < savedIds.Count && savedIds[i] > 0)
+                {
+                    data = RuntimeContent.Catalog.GetUnit(savedIds[i]);
+                }
+                if (data != null) result.Add(data);
+            }
+            return result;
         }
         public float BattleElapsedSeconds { get; private set; }
         public IReadOnlyList<SynergyData> ActiveSynergies =>
@@ -223,7 +234,12 @@ namespace OzGameLab01.Combat
             _assetPreloader.Preload(participants);
 
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
-            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState(_synergyController.ActiveSharedEffects);
+            // 유닛 패시브는 이번 전투에 출전한 유닛과 보조칸 유닛 것만 넣습니다.
+            var passiveOwners = new List<UnitData>(formationData);
+            passiveOwners.AddRange(GetSupportUnitData());
+            var extraSources = new List<RuntimeEffectManager.EffectSource>(_synergyController.ActiveSharedEffects);
+            extraSources.AddRange(UnitPassiveSources.Build(passiveOwners, RuntimeContent.Catalog));
+            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState(extraSources);
 
             // 전투 시작 전 패시브 이벤트 구독 준비
             _combatEffectExecutor = new CombatEffectExecutor(CombatManager.Instance.Facade);

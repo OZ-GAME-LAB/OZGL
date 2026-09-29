@@ -13,9 +13,7 @@ namespace OzGameLab01.Combat
     /// 이미 담당).
     ///
     /// 스탯, 고정 피해, 회복, 보호막, 디버프 해제, 부활, 쿨타임 회복, 디버프 지속시간 조정,
-    /// 보조칸 공속 전달을 지원합니다. DebuffImmunity/NullifyNextSkill은 대응하는 메커니즘이
-    /// Unit에 아직 없어 조용히 건너뜁니다 — Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md의 권고(메커니즘이
-    /// 생길 때 그 효과의 실행 로직도 같이 만들기)를 따릅니다.
+    /// 보조칸 공속 전달, 스킬 무효화, 디버프 면역을 지원합니다.
     /// </summary>
     public sealed class CombatEffectExecutor : System.IDisposable
     {
@@ -372,7 +370,15 @@ namespace OzGameLab01.Combat
             switch (effect.effect)
             {
                 case EffectType.StatModifier:
-                    return target.ApplyStatEffect(effect.statType, effect.effectParam, effect.operation,
+                    // 고정 수치(예: 공격력 +3)는 기본 능력치 대비 %로 환산해 같은 보정 경로로 적용합니다.
+                    float statPercent = effect.effectParam;
+                    if (effect.flatValue)
+                    {
+                        float baseStat = target.GetBaseStat(effect.statType);
+                        if (baseStat <= 0f) return false;
+                        statPercent = effect.effectParam / baseStat * 100f;
+                    }
+                    return target.ApplyStatEffect(effect.statType, statPercent, effect.operation,
                         effect.durationSeconds, effect.untilBattleEnd || effect.durationSeconds <= 0);
 
                 case EffectType.DealDamage:
@@ -413,8 +419,12 @@ namespace OzGameLab01.Combat
                     return target.ModifyReceivedDebuffDuration(effect.operation, effect.effectParam);
                 case EffectType.SupportAttackSpeedShare:
                     return target.AddBasicAttackRate(_facade.SupportAttackRate * effect.effectParam / 100f);
+                case EffectType.NullifyNextSkill:
+                    return target.AddNullifySkillCharges(Mathf.Max(1, Mathf.RoundToInt(effect.effectParam)));
+                case EffectType.DebuffImmunity:
+                    // effectSecondaryParam = 면역할 DebuffType 값
+                    return target.AddDebuffImmunity((DebuffType)Mathf.RoundToInt(effect.effectSecondaryParam));
 
-                // DebuffImmunity/NullifyNextSkill: 대응 메커니즘이 아직 없어 의도적으로 건너뜁니다.
                 // SynergyModifier는 SynergyController가 시너지 단계 계산에서 처리합니다.
             }
             return false;

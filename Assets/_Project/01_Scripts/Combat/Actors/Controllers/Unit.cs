@@ -80,6 +80,9 @@ namespace OzGameLab01.Combat
         // 이 유닛이 받는 디버프 지속시간 보정: (원래 시간 × 배율) + 추가 초. DebuffDurationModifier 효과가 설정합니다.
         private float _receivedDebuffDurationMultiplier = 1f;
         private float _receivedDebuffDurationBonus;
+        // 남은 액티브 스킬 무효화 횟수(NullifyNextSkill)와 면역인 디버프 종류(DebuffImmunity).
+        private int _nullifySkillCharges;
+        private readonly HashSet<DebuffType> _immuneDebuffs = new HashSet<DebuffType>();
 
         public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
         public bool AreActiveSkillsDisabled => _activeSkillsDisabled;
@@ -191,8 +194,9 @@ namespace OzGameLab01.Combat
                         _animationController?.PlayAttack();
                     }
 
-                    StartCoroutine(CastSkill(target, skill, isBasicAttack));
+                    // 캐스트 중 발생하는 "스킬 사용" 트리거(예: 쿨타임 회복 패시브)가 덮어써지지 않도록 쿨타임을 먼저 설정합니다.
                     skill.timer = GetEffectiveCooldown(skill);
+                    StartCoroutine(CastSkill(target, skill, isBasicAttack));
                 }
             }
         }
@@ -316,6 +320,8 @@ namespace OzGameLab01.Combat
             _tauntRemaining = 0f;
             _receivedDebuffDurationMultiplier = 1f;
             _receivedDebuffDurationBonus = 0f;
+            _nullifySkillCharges = 0;
+            _immuneDebuffs.Clear();
             _genieWishStacks = 0;
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
@@ -433,8 +439,8 @@ namespace OzGameLab01.Combat
                 _animationController?.PlayAttack();
             }
 
-            StartCoroutine(CastSkill(target, skill, isBasicAttack));
             skill.timer = GetEffectiveCooldown(skill);
+            StartCoroutine(CastSkill(target, skill, isBasicAttack));
         }
 
         /// <summary>
@@ -653,6 +659,15 @@ namespace OzGameLab01.Combat
 
                 if (target != null && !target.IsDead)
                 {
+                    // 무효화 효과가 남아 있으면 이번 액티브 스킬은 효과와 "스킬 사용" 트리거 없이 끝납니다.
+                    if (!isBasicAttack && _nullifySkillCharges > 0)
+                    {
+                        _nullifySkillCharges--;
+                        CombatManager.Instance?.Facade.ReportFeedback(new CombatFeedback(
+                            CombatFeedbackKind.Skill, skill.data.name, "무효화", this));
+                        yield break;
+                    }
+
                     if (isBasicAttack)
                     {
                         if (skill.data.effects != null && skill.data.effects.Count > 0)
@@ -955,6 +970,7 @@ namespace OzGameLab01.Combat
 
         public void ApplyDebuff(DebuffProfile profile)
         {
+            if (_immuneDebuffs.Contains(profile.type)) return;
             profile.duration = Mathf.Max(0f, profile.duration * _receivedDebuffDurationMultiplier + _receivedDebuffDurationBonus);
             if (_status.Apply(profile))
             {
@@ -1043,6 +1059,28 @@ namespace OzGameLab01.Combat
             if (operation == EffectOperation.Add) _receivedDebuffDurationBonus += value;
             else _receivedDebuffDurationMultiplier = Mathf.Max(0f, _receivedDebuffDurationMultiplier * (1f + value / 100f));
             return true;
+        }
+
+        /// <summary>이 유닛이 다음에 쓰는 액티브 스킬 charges회를 효과 없이 무효화합니다(NullifyNextSkill).</summary>
+        public bool AddNullifySkillCharges(int charges)
+        {
+            if (_isDead || charges <= 0) return false;
+            _nullifySkillCharges += charges;
+            return true;
+        }
+
+        /// <summary>지정한 종류의 디버프를 전투 끝까지 받지 않습니다(DebuffImmunity).</summary>
+        public bool AddDebuffImmunity(DebuffType type)
+        {
+            if (_isDead || type == DebuffType.None) return false;
+            return _immuneDebuffs.Add(type);
+        }
+
+        /// <summary>버프가 적용되지 않은 기본 능력치입니다. 고정 수치 효과를 퍼센트로 환산할 때 씁니다.</summary>
+        public float GetBaseStat(EffectStatType statType)
+        {
+            if (_stats == null) CaptureBaseStats();
+            return _stats.GetBase(statType);
         }
 
         /// <summary>

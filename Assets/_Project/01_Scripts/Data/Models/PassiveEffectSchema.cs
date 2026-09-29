@@ -128,6 +128,8 @@ namespace OzGameLab01.Data
         public bool effectParamIsPercent;
         // Heal에서 effectParamIsPercent일 때 최대 체력 대신 잃은 체력을 기준으로 계산합니다.
         public bool percentOfMissingHp;
+        // StatModifier에서 effectParam을 %가 아닌 고정 수치(예: 공격력 +3)로 적용합니다.
+        public bool flatValue;
         public float chance;
         public bool once;
         public float durationSeconds;
