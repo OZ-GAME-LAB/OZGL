@@ -30,6 +30,9 @@ namespace OzGameLab01.Controllers
         private Dictionary<int, List<SynergyDefinition>> _unitTraitsById;
         private Dictionary<SynergyDefinition, int> _traitCounts;
         private readonly List<RuntimeEffectManager.EffectSource> _activeSharedEffects = new List<RuntimeEffectManager.EffectSource>();
+        // 보유 유물의 SynergyModifier로 올릴 시너지 단계 수(시너지 id별 + 활성 시너지 전체 공통).
+        private readonly Dictionary<int, int> _tierBonusBySynergyId = new Dictionary<int, int>();
+        private int _allSynergyTierBonus;
         public IReadOnlyList<RuntimeEffectManager.EffectSource> ActiveSharedEffects => _activeSharedEffects;
 
         public IReadOnlyList<SynergyData> GetActiveSynergies()
@@ -96,6 +99,7 @@ namespace OzGameLab01.Controllers
             // 인스펙터 폴백 편성이 아니라 실제로 스폰된 편성(spawnedFormation)을 기준으로 삼아야
             // 배치 화면에서 넘어온 편성에도 시너지가 정상 반영된다.
             _traitCounts = SynergyPanelUtility.CountTraits(spawnedFormation.Values, _unitTraitsById);
+            CollectRelicTierBonuses(RelicManager.Instance?.Facade?.OwnedRelics, spawnedFormation.Count);
 
             // SelfSynergy 대상 효과: 해당 트레이트를 실제로 보유한 유닛에게만 적용한다.
             foreach (KeyValuePair<CombatManager.SlotKey, int> kvp in spawnedFormation)
@@ -415,9 +419,47 @@ namespace OzGameLab01.Controllers
             return null;
         }
 
-        private static SynergyTier FindActiveTier(SynergyData data, int count)
+        private SynergyTier FindActiveTier(SynergyData data, int count)
         {
-            return OzGameLab01.Effects.Models.SynergyModel.FindActiveTier(data, count);
+            SynergyTier tier = OzGameLab01.Effects.Models.SynergyModel.FindActiveTier(data, count);
+            if (tier == null || data == null) return tier;
+
+            _tierBonusBySynergyId.TryGetValue(data.id, out int bonus);
+            return OzGameLab01.Effects.Models.SynergyModel.PromoteTier(data, tier, bonus + _allSynergyTierBonus);
+        }
+
+        /// <summary>
+        /// 보유 유물 중 SynergyModifier 효과를 모아 시너지 단계 보정값을 계산합니다.
+        /// effectParam = 올릴 단계 수, effectSecondaryParam = 대상 시너지 id(0이면 활성 시너지 전체).
+        /// 이미 활성화된 시너지만 올리며, 조건(예: 아군 4명 이하)은 배치 인원 기준으로 판정합니다.
+        /// </summary>
+        public void CollectRelicTierBonuses(IEnumerable<RelicData> ownedRelics, int allyCount)
+        {
+            _tierBonusBySynergyId.Clear();
+            _allSynergyTierBonus = 0;
+            if (ownedRelics == null) return;
+
+            var context = new EffectConditionContext(allyCount, 0, 0, false);
+            foreach (RelicData relic in ownedRelics)
+            {
+                if (relic?.effects == null) continue;
+                foreach (EffectInstance effect in relic.effects)
+                {
+                    if (effect.effect != EffectType.SynergyModifier || !EffectConditionEvaluator.IsMet(effect, context)) continue;
+
+                    int steps = Mathf.RoundToInt(effect.effectParam);
+                    int synergyId = Mathf.RoundToInt(effect.effectSecondaryParam);
+                    if (synergyId == 0)
+                    {
+                        _allSynergyTierBonus += steps;
+                    }
+                    else
+                    {
+                        _tierBonusBySynergyId.TryGetValue(synergyId, out int current);
+                        _tierBonusBySynergyId[synergyId] = current + steps;
+                    }
+                }
+            }
         }
 
         /// <summary>

@@ -3,6 +3,8 @@ using OzGameLab01.Board.Contracts;
 using OzGameLab01.Common.Messaging;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
+using OzGameLab01.Managers;
+using UnityEngine;
 
 namespace OzGameLab01.Board.Controllers
 {
@@ -39,11 +41,15 @@ namespace OzGameLab01.Board.Controllers
                     return false;
                 }
 
+                // 유물(700 눈속임 주사위 등)의 이동력 보정을 굴린 눈에 더합니다.
+                int movement = request.Value + Mathf.RoundToInt(
+                    RelicManager.Instance?.Facade?.GetBoardStatBonus(EffectStatType.CurrentDiceValue) ?? 0f);
+
                 // 최초 굴림값과 잔여 행동력을 동시에 기록합니다.
-                BoardRunData.RecordDiceRoll(request.Value);
+                BoardRunData.RecordDiceRoll(movement);
 
                 // 실제 행동력은 즉시 반영하되 HUD는 주사위 연출 완료 후 갱신합니다.
-                player.SetCurrentDiceValue(request.Value, refreshHud: false);
+                player.SetCurrentDiceValue(movement, refreshHud: false);
 
                 return true;
             });

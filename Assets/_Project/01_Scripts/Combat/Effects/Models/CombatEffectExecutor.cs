@@ -12,11 +12,8 @@ namespace OzGameLab01.Combat
     /// RelicManager를 직접 참조하지 않습니다(그 둘의 보유 목록 취합은 RuntimeEffectManager가
     /// 이미 담당).
     ///
-    /// 스탯, 고정 피해, 회복, 보호막, 디버프 해제를 지원합니다. Revive/
-    /// DebuffImmunity/DebuffDurationModifier/CooldownModifier/
-    /// NullifyNextSkill/SynergyModifier는 대응하는 메커니즘이 Unit에 아직 없어 조용히
-    /// 건너뜁니다 — Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md의 권고(메커니즘이 생길 때 그
-    /// 효과의 실행 로직도 같이 만들기)를 따릅니다.
+    /// 스탯, 고정 피해, 회복, 보호막, 디버프 해제, 부활, 쿨타임 회복, 디버프 지속시간 조정,
+    /// 보조칸 공속 전달, 스킬 무효화, 디버프 면역을 지원합니다.
     /// </summary>
     public sealed class CombatEffectExecutor : System.IDisposable
     {
@@ -188,6 +185,12 @@ namespace OzGameLab01.Combat
                     continue;
                 }
 
+                if (effect.condition != EffectCondition.None &&
+                    !OzGameLab01.Effects.Models.EffectConditionEvaluator.IsMet(effect, BuildConditionContext()))
+                {
+                    continue;
+                }
+
                 // chance는 0~100 퍼센트. 0 이하는 "확률 미지정 = 항상 발동"으로 취급합니다.
                 if (effect.chance > 0f && _random.NextDouble() * 100f >= effect.chance)
                 {
@@ -217,6 +220,15 @@ namespace OzGameLab01.Combat
                     _firedOnce.Add(onceKey);
                 }
             }
+        }
+
+        private OzGameLab01.Effects.Models.EffectConditionContext BuildConditionContext()
+        {
+            return new OzGameLab01.Effects.Models.EffectConditionContext(
+                _facade.GetParticipatingAllyUnits().Count,
+                _facade.GetAlliesInRow(CombatManager.SlotRow.Front).Count,
+                _facade.ActiveSynergyCount,
+                _facade.IsNightBattle);
         }
 
         private IEnumerable<Unit> ResolveTargets(
@@ -352,13 +364,21 @@ namespace OzGameLab01.Combat
             return alive;
         }
 
-        private static bool ApplyEffect(EffectInstance effect, Unit target)
+        private bool ApplyEffect(EffectInstance effect, Unit target)
         {
             if (target == null) return false;
             switch (effect.effect)
             {
                 case EffectType.StatModifier:
-                    return target.ApplyStatEffect(effect.statType, effect.effectParam, effect.operation,
+                    // 고정 수치(예: 공격력 +3)는 기본 능력치 대비 %로 환산해 같은 보정 경로로 적용합니다.
+                    float statPercent = effect.effectParam;
+                    if (effect.flatValue)
+                    {
+                        float baseStat = target.GetBaseStat(effect.statType);
+                        if (baseStat <= 0f) return false;
+                        statPercent = effect.effectParam / baseStat * 100f;
+                    }
+                    return target.ApplyStatEffect(effect.statType, statPercent, effect.operation,
                         effect.durationSeconds, effect.untilBattleEnd || effect.durationSeconds <= 0);
 
                 case EffectType.DealDamage:
@@ -366,7 +386,9 @@ namespace OzGameLab01.Combat
                     return true;
 
                 case EffectType.Heal:
-                    return target.Heal(effect.effectParam);
+                    if (!effect.effectParamIsPercent) return target.Heal(effect.effectParam);
+                    float healBase = effect.percentOfMissingHp ? target.MaxHp - target.CurrentHp : target.MaxHp;
+                    return target.Heal(healBase * effect.effectParam / 100f);
                 case EffectType.GrantShield:
                     float shieldAmount = effect.effectParamIsPercent
                         ? target.MaxHp * effect.effectParam / 100f
@@ -391,10 +413,19 @@ namespace OzGameLab01.Combat
                     return true;
                 case EffectType.Revive:
                     return target.Revive(effect.effectParam > 0f ? effect.effectParam : 100f);
+                case EffectType.CooldownModifier:
+                    return target.RecoverSkillCooldownPercent(effect.effectParam);
+                case EffectType.DebuffDurationModifier:
+                    return target.ModifyReceivedDebuffDuration(effect.operation, effect.effectParam);
+                case EffectType.SupportAttackSpeedShare:
+                    return target.AddBasicAttackRate(_facade.SupportAttackRate * effect.effectParam / 100f);
+                case EffectType.NullifyNextSkill:
+                    return target.AddNullifySkillCharges(Mathf.Max(1, Mathf.RoundToInt(effect.effectParam)));
+                case EffectType.DebuffImmunity:
+                    // effectSecondaryParam = 면역할 DebuffType 값
+                    return target.AddDebuffImmunity((DebuffType)Mathf.RoundToInt(effect.effectSecondaryParam));
 
-                // Revive/DebuffImmunity/DebuffDurationModifier/
-                // CooldownModifier/NullifyNextSkill/SynergyModifier: 대응 메커니즘이 아직 없어
-                // 의도적으로 건너뜁니다(Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md 참고).
+                // SynergyModifier는 SynergyController가 시너지 단계 계산에서 처리합니다.
             }
             return false;
         }

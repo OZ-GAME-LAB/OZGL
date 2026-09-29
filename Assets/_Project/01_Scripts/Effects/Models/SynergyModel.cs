@@ -74,6 +74,35 @@ namespace OzGameLab01.Effects.Models
             return active;
         }
 
+        /// <summary>
+        /// 활성 단계를 steps만큼 위 단계로 올립니다(유물 시너지 단계 보정). 최고 단계를 넘지 않습니다.
+        /// </summary>
+        public static SynergyTier PromoteTier(SynergyData data, SynergyTier active, int steps)
+        {
+            if (data?.tiers == null || active == null || steps <= 0)
+            {
+                return active;
+            }
+
+            SynergyTier promoted = active;
+            for (int i = 0; i < steps; i++)
+            {
+                SynergyTier next = null;
+                foreach (SynergyTier tier in data.tiers)
+                {
+                    if (tier.requiredCount > promoted.requiredCount && (next == null || tier.requiredCount < next.requiredCount))
+                    {
+                        next = tier;
+                    }
+                }
+
+                if (next == null) break;
+                promoted = next;
+            }
+
+            return promoted;
+        }
+
         public static bool TryResolveStatType(SynergyEffectNode effect, out EffectStatType statType)
         {
             statType = EffectStatType.Unknown;

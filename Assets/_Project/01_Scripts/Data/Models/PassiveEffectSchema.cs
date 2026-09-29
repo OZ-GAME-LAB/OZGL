@@ -61,7 +61,8 @@ namespace OzGameLab01.Data
         DebuffDurationModifier,
         CooldownModifier,
         NullifyNextSkill,
-        SynergyModifier
+        SynergyModifier,
+        SupportAttackSpeedShare     // 보조칸 아군 공격 빈도의 effectParam%를 대상에게 더함 (유물 726)
     }
 
     /// <summary>
@@ -82,7 +83,22 @@ namespace OzGameLab01.Data
         Lifesteal,
         RecoveryAmount,
         CurrentDiceValue,
-        TurnRecovery
+        TurnRecovery,
+        NightSightStep,             // 보드 밤 시야를 몇 단계 넓힐지 (유물 717)
+        SkillCooldownReduction      // 액티브 스킬 쿨타임 감소율 % (유물 705/710/715)
+    }
+
+    /// <summary>
+    /// 효과가 발동하기 위한 추가 조건입니다. conditionParam과 함께 사용하며, 기존 데이터(필드 없음)는 None입니다.
+    /// </summary>
+    public enum EffectCondition
+    {
+        None,
+        AllyCountAtMost,            // 전투에 배치된 아군 수 <= conditionParam
+        FrontRowCountEquals,        // 전열 아군 수 == conditionParam
+        ActiveSynergyCountAtLeast,  // 활성 시너지 수 >= conditionParam
+        ActiveSynergyCountEquals,   // 활성 시너지 수 == conditionParam
+        NotNightBattle              // 밤 전투가 아닐 때
     }
 
     /// <summary>
@@ -110,6 +126,10 @@ namespace OzGameLab01.Data
         public float effectParam;
         public float effectSecondaryParam;
         public bool effectParamIsPercent;
+        // Heal에서 effectParamIsPercent일 때 최대 체력 대신 잃은 체력을 기준으로 계산합니다.
+        public bool percentOfMissingHp;
+        // StatModifier에서 effectParam을 %가 아닌 고정 수치(예: 공격력 +3)로 적용합니다.
+        public bool flatValue;
         public float chance;
         public bool once;
         public float durationSeconds;
@@ -117,5 +137,7 @@ namespace OzGameLab01.Data
         public float tickInterval;
         // Zero in legacy serialized structs means the previous default of one target.
         public int targetCount;
+        public EffectCondition condition;
+        public float conditionParam;
     }
 }

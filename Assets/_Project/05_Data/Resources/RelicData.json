@@ -9,7 +9,19 @@
       "baseValue": 1,
       "dropWeight": 15,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "StatModifier",
+          "statType": "CurrentDiceValue",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false
+        }
+      ]
     },
     {
       "id": 701,
@@ -118,7 +130,7 @@
           "triggerParam": 0,
           "target": "FrontRow",
           "effect": "StatModifier",
-          "statType": "AttackInterval",
+          "statType": "SkillCooldownReduction",
           "operation": "Multiply",
           "effectParam": 10,
           "chance": 0,
@@ -233,7 +245,7 @@
           "triggerParam": 0,
           "target": "MidRow",
           "effect": "StatModifier",
-          "statType": "AttackInterval",
+          "statType": "SkillCooldownReduction",
           "operation": "Multiply",
           "effectParam": 10,
           "chance": 0,
@@ -348,7 +360,7 @@
           "triggerParam": 0,
           "target": "BackRow",
           "effect": "StatModifier",
-          "statType": "AttackInterval",
+          "statType": "SkillCooldownReduction",
           "operation": "Multiply",
           "effectParam": 10,
           "chance": 0,
@@ -375,7 +387,10 @@
           "operation": "Add",
           "effectParam": 5,
           "chance": 0,
-          "once": false
+          "once": false,
+          "effectParamIsPercent": true,
+          "percentOfMissingHp": true,
+          "condition": "NotNightBattle"
         }
       ]
     },
@@ -388,7 +403,19 @@
       "baseValue": 0,
       "dropWeight": 3,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnNightStart",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "StatModifier",
+          "statType": "NightSightStep",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false
+        }
+      ]
     },
     {
       "id": 718,
@@ -399,7 +426,19 @@
       "baseValue": 1,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "Enemy",
+          "effect": "DebuffDurationModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false
+        }
+      ]
     },
     {
       "id": 719,
@@ -443,7 +482,8 @@
           "operation": "Add",
           "effectParam": 5,
           "chance": 0,
-          "once": false
+          "once": false,
+          "effectParamIsPercent": true
         }
       ]
     },
@@ -479,7 +519,47 @@
       "baseValue": 10,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "FrontRow",
+          "effect": "StatModifier",
+          "statType": "MaxHealth",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false,
+          "condition": "FrontRowCountEquals",
+          "conditionParam": 1
+        },
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "FrontRow",
+          "effect": "StatModifier",
+          "statType": "Attack",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false,
+          "condition": "FrontRowCountEquals",
+          "conditionParam": 1
+        },
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "FrontRow",
+          "effect": "StatModifier",
+          "statType": "Defense",
+          "operation": "Multiply",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false,
+          "condition": "FrontRowCountEquals",
+          "conditionParam": 1
+        }
+      ]
     },
     {
       "id": 723,
@@ -490,7 +570,22 @@
       "baseValue": 1,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 0,
+          "condition": "AllyCountAtMost",
+          "conditionParam": 4
+        }
+      ]
     },
     {
       "id": 724,
@@ -501,7 +596,47 @@
       "baseValue": 30,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "StatModifier",
+          "statType": "Attack",
+          "operation": "Multiply",
+          "effectParam": 30,
+          "chance": 0,
+          "once": false,
+          "condition": "AllyCountAtMost",
+          "conditionParam": 4
+        },
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "StatModifier",
+          "statType": "Defense",
+          "operation": "Multiply",
+          "effectParam": 30,
+          "chance": 0,
+          "once": false,
+          "condition": "AllyCountAtMost",
+          "conditionParam": 4
+        },
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "StatModifier",
+          "statType": "MaxHealth",
+          "operation": "Multiply",
+          "effectParam": 30,
+          "chance": 0,
+          "once": false,
+          "condition": "AllyCountAtMost",
+          "conditionParam": 4
+        }
+      ]
     },
     {
       "id": 725,
@@ -512,7 +647,21 @@
       "baseValue": 20,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "StatModifier",
+          "statType": "Attack",
+          "operation": "Multiply",
+          "effectParam": 20,
+          "chance": 0,
+          "once": false,
+          "condition": "ActiveSynergyCountAtLeast",
+          "conditionParam": 3
+        }
+      ]
     },
     {
       "id": 726,
@@ -523,7 +672,19 @@
       "baseValue": 0,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "BackRow",
+          "effect": "SupportAttackSpeedShare",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
     },
     {
       "id": 727,
@@ -534,7 +695,19 @@
       "baseValue": 10,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "CooldownModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
     },
     {
       "id": 728,
@@ -545,7 +718,47 @@
       "baseValue": 30,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "StatModifier",
+          "statType": "Attack",
+          "operation": "Multiply",
+          "effectParam": 30,
+          "chance": 0,
+          "once": false,
+          "condition": "ActiveSynergyCountEquals",
+          "conditionParam": 0
+        },
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "StatModifier",
+          "statType": "Defense",
+          "operation": "Multiply",
+          "effectParam": 30,
+          "chance": 0,
+          "once": false,
+          "condition": "ActiveSynergyCountEquals",
+          "conditionParam": 0
+        },
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "StatModifier",
+          "statType": "MaxHealth",
+          "operation": "Multiply",
+          "effectParam": 30,
+          "chance": 0,
+          "once": false,
+          "condition": "ActiveSynergyCountEquals",
+          "conditionParam": 0
+        }
+      ]
     },
     {
       "id": 729,
@@ -556,7 +769,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 200
+        }
+      ]
     },
     {
       "id": 730,
@@ -567,7 +793,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 202
+        }
+      ]
     },
     {
       "id": 731,
@@ -578,7 +817,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 201
+        }
+      ]
     },
     {
       "id": 732,
@@ -589,7 +841,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 206
+        }
+      ]
     },
     {
       "id": 733,
@@ -600,7 +865,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 207
+        }
+      ]
     },
     {
       "id": 734,
@@ -611,7 +889,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 209
+        }
+      ]
     },
     {
       "id": 735,
@@ -622,7 +913,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 208
+        }
+      ]
     },
     {
       "id": 736,
@@ -633,7 +937,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 210
+        }
+      ]
     },
     {
       "id": 737,
@@ -644,7 +961,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 211
+        }
+      ]
     },
     {
       "id": 738,
@@ -655,7 +985,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 203
+        }
+      ]
     },
     {
       "id": 739,
@@ -666,7 +1009,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 204
+        }
+      ]
     },
     {
       "id": 740,
@@ -677,7 +1033,20 @@
       "baseValue": 1,
       "dropWeight": 1,
       "targetScene": "보드씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "Always",
+          "triggerParam": 0,
+          "target": "Self",
+          "effect": "SynergyModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false,
+          "effectSecondaryParam": 205
+        }
+      ]
     }
   ]
 }
