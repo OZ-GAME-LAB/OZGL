@@ -105,8 +105,8 @@
       "id": 5,
       "name": "튜토리얼 보스",
       "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla",
-      "healthPoint": 100,
-      "attackPoint": 5,
+      "healthPoint": 70,
+      "attackPoint": 2,
       "criticalRate": 150,
       "dodgeRate": 10,
       "attackSpeed": 1.0,
@@ -119,6 +119,30 @@
       "type": "boss",
       "species": [
         {"name": "마녀", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla"}
+      ]
+    },
+    {
+      "id": 6,
+      "name": "튜토리얼 일반",
+      "healthPoint": 60,
+      "attackPoint": 3,
+      "criticalRate": 90,
+      "dodgeRate": 6,
+      "attackSpeed": 1.67,
+      "skillCooldown": 7,
+      "skillIds": [
+        201,
+        202,
+        203
+      ],
+      "type": "normal",
+      "species": [
+        {"name": "까마귀", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Crow_Vanilla"},
+        {"name": "장난감 병정", "prefabAddress": "Characters/EnemyPrefabs/Enemy_ToySoldier_Vanilla"},
+        {"name": "과자 괴물", "prefabAddress": "Characters/EnemyPrefabs/Enemy_CandyMonster_Vanilla"},
+        {"name": "늑대", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Wolf_Vanilla"},
+        {"name": "책", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Book_Vanilla"},
+        {"name": "사냥꾼", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Hunter_Vanilla"}
       ]
     }
   ]
