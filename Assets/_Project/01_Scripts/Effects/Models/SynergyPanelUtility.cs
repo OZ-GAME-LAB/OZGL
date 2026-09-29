@@ -15,12 +15,14 @@ namespace OzGameLab01.Effects.Models
         public readonly struct DisplayItem
         {
             public SynergyDefinition Definition { get; }
+            public int Count { get; }
             public bool IsActive { get; }
             public string StackText { get; }
 
-            public DisplayItem(SynergyDefinition definition, bool isActive, string stackText)
+            public DisplayItem(SynergyDefinition definition, int count, bool isActive, string stackText)
             {
                 Definition = definition;
+                Count = count;
                 IsActive = isActive;
                 StackText = stackText;
             }
@@ -63,13 +65,13 @@ namespace OzGameLab01.Effects.Models
                     ? $"{count}/{nextThreshold}"
                     : count.ToString();
 
-                items.Add(new DisplayItem(definition, isActive, stackText));
+                items.Add(new DisplayItem(definition, count, isActive, stackText));
             }
 
             return items;
         }
 
-        public static string GetIconAddress(SynergyDefinition definition)
+        public static SynergyData GetData(SynergyDefinition definition)
         {
             if (definition == null || string.IsNullOrWhiteSpace(definition.DisplayName))
                 return null;
@@ -81,13 +83,18 @@ namespace OzGameLab01.Effects.Models
                     continue;
 
                 if (data.name == definition.DisplayName)
-                    return data.iconAddress;
+                    return data;
 
                 if (data.subTitle == definition.DisplayName)
                     subtitleMatch = data;
             }
 
-            return subtitleMatch?.iconAddress;
+            return subtitleMatch;
+        }
+
+        public static string GetIconAddress(SynergyDefinition definition)
+        {
+            return GetData(definition)?.iconAddress;
         }
 
         private static int GetTraitCount(Dictionary<SynergyDefinition, int> traitCounts, SynergyDefinition definition)

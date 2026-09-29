@@ -85,6 +85,7 @@ namespace OzGameLab01.Tests.EditMode
             var counts = new Dictionary<SynergyDefinition, int> { { definition, 2 } };
             List<SynergyPanelUtility.DisplayItem> items = SynergyPanelUtility.BuildDisplayItems(new List<SynergyDefinition> { definition }, counts);
             Assert.AreEqual(1, items.Count);
+            Assert.AreEqual(2, items[0].Count);
             Assert.IsTrue(items[0].IsActive);
             Assert.AreEqual("2/4", items[0].StackText);
         }

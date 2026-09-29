@@ -51,6 +51,14 @@ namespace OzGameLab01.UI
         [SerializeField, Min(0f)]
         private float edgePadding = 12f;
 
+        [SerializeField, Min(0f)] private float contentHorizontalPadding = 20f;
+        [SerializeField, Min(0f)] private float contentTopPadding = 8f;
+        [SerializeField, Min(0f)] private float contentBottomPadding = 12f;
+        [SerializeField, Min(0f)] private float sectionSpacing = 6f;
+        [SerializeField, Min(1f)] private float minimumPanelWidth = 600f;
+        [SerializeField, Min(1f)] private float maximumPanelWidth = 1200f;
+        [SerializeField, Min(1f)] private float minimumPanelHeight = 80f;
+
         private readonly List<EffectRowView> effectRows = new();
 
         private readonly Vector3[] panelCorners = new Vector3[4];
@@ -112,6 +120,7 @@ namespace OzGameLab01.UI
         {
             Initialize();
             gameObject.SetActive(true);
+            RebuildContentLayout();
         }
 
         /// <summary>
@@ -156,7 +165,12 @@ namespace OzGameLab01.UI
             SetTitle(title);
             SetTitleVisible(!string.IsNullOrEmpty(title));
             SetDescription(description);
+            if (descriptionText != null)
+                descriptionText.gameObject.SetActive(!string.IsNullOrWhiteSpace(description));
             SetEffects(effects);
+
+            if (gameObject.activeInHierarchy)
+                RebuildContentLayout();
         }
 
         /// <summary>
@@ -233,6 +247,7 @@ namespace OzGameLab01.UI
             }
 
             SetEffectAreaVisible(true);
+            RebuildContentLayout();
         }
 
         #endregion
@@ -263,6 +278,54 @@ namespace OzGameLab01.UI
         {
             if (tooltipPanel != null)
                 tooltipPanel.sizeDelta = size;
+        }
+
+        public void RebuildContentLayout()
+        {
+            Initialize();
+
+            if (tooltipPanel == null)
+                return;
+
+            float panelWidth = GetPreferredPanelWidth();
+            tooltipPanel.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Horizontal,
+                panelWidth);
+
+            float contentWidth = Mathf.Max(1f, panelWidth - contentHorizontalPadding * 2f);
+            float cursor = contentTopPadding;
+
+            if (IsTextVisible(titleText))
+            {
+                float titleHeight = GetPreferredTextHeight(titleText, contentWidth);
+                ConfigureSection(titleText, cursor, titleHeight);
+                cursor += titleHeight;
+            }
+
+            if (IsTextVisible(descriptionText))
+            {
+                if (cursor > contentTopPadding)
+                    cursor += sectionSpacing;
+
+                float descriptionHeight = GetPreferredTextHeight(descriptionText, contentWidth);
+                ConfigureSection(descriptionText, cursor, descriptionHeight);
+                cursor += descriptionHeight;
+            }
+
+            if (effectListRoot != null && effectListRoot.gameObject.activeSelf)
+            {
+                if (cursor > contentTopPadding)
+                    cursor += sectionSpacing;
+
+                float effectHeight = GetEffectListHeight(contentWidth);
+                ConfigureTopSection(effectListRoot, cursor, effectHeight);
+                cursor += effectHeight;
+            }
+
+            tooltipPanel.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Vertical,
+                Mathf.Max(minimumPanelHeight, cursor + contentBottomPadding));
+            LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipPanel);
         }
 
         /// <summary>
@@ -310,7 +373,7 @@ namespace OzGameLab01.UI
                 return;
 
             if (tooltipPanel.gameObject.activeInHierarchy)
-                LayoutRebuilder.ForceRebuildLayoutImmediate(tooltipPanel);
+                RebuildContentLayout();
 
             tooltipPanel.GetWorldCorners(panelCorners);
 
@@ -360,6 +423,14 @@ namespace OzGameLab01.UI
             {
                 effectRowTemplate.gameObject.SetActive(false);
             }
+
+            if (effectListRoot != null &&
+                effectListRoot.TryGetComponent(out VerticalLayoutGroup effectLayout))
+            {
+                effectLayout.childControlWidth = true;
+                effectLayout.childControlHeight = true;
+                effectLayout.childForceExpandHeight = false;
+            }
         }
 
         private Canvas ResolveCanvas()
@@ -395,6 +466,132 @@ namespace OzGameLab01.UI
 
             if (effectSpacer != null)
                 effectSpacer.SetActive(visible);
+        }
+
+        private float GetEffectListHeight(float availableWidth)
+        {
+            int visibleCount = 0;
+            float height = 0f;
+
+            foreach (EffectRowView row in effectRows)
+            {
+                if (row == null || !row.gameObject.activeSelf)
+                    continue;
+
+                row.RefreshLayout(availableWidth);
+                height += row.PreferredHeight;
+                visibleCount++;
+            }
+
+            if (effectListRoot != null &&
+                effectListRoot.TryGetComponent(out VerticalLayoutGroup layout))
+            {
+                height += layout.padding.top + layout.padding.bottom;
+                height += Mathf.Max(0, visibleCount - 1) * layout.spacing;
+            }
+
+            return height;
+        }
+
+        private float GetPreferredPanelWidth()
+        {
+            float preferredContentWidth = 0f;
+
+            if (IsTextVisible(titleText))
+                preferredContentWidth = Mathf.Max(preferredContentWidth, GetPreferredTextWidth(titleText));
+
+            if (IsTextVisible(descriptionText))
+                preferredContentWidth = Mathf.Max(preferredContentWidth, GetPreferredTextWidth(descriptionText));
+
+            foreach (EffectRowView row in effectRows)
+            {
+                if (row == null || !row.gameObject.activeSelf)
+                    continue;
+
+                preferredContentWidth = Mathf.Max(preferredContentWidth, row.GetPreferredWidth());
+            }
+
+            float availableCanvasWidth = GetAvailableCanvasWidth();
+            float maximumWidth = Mathf.Max(minimumPanelWidth, maximumPanelWidth);
+
+            if (availableCanvasWidth > 0f)
+                maximumWidth = Mathf.Min(maximumWidth, availableCanvasWidth);
+
+            float minimumWidth = Mathf.Min(minimumPanelWidth, maximumWidth);
+            float preferredWidth = Mathf.Ceil(
+                preferredContentWidth + contentHorizontalPadding * 2f);
+
+            return Mathf.Clamp(preferredWidth, minimumWidth, maximumWidth);
+        }
+
+        private float GetAvailableCanvasWidth()
+        {
+            Canvas canvas = ResolveCanvas();
+            RectTransform canvasRect = canvas != null
+                ? canvas.transform as RectTransform
+                : null;
+
+            if (canvasRect == null)
+                return -1f;
+
+            return Mathf.Max(1f, canvasRect.rect.width - edgePadding * 2f);
+        }
+
+        private void ConfigureSection(TMP_Text text, float top, float height)
+        {
+            if (text == null)
+                return;
+
+            RectTransform section = text.rectTransform.parent as RectTransform;
+            if (section == null)
+                section = text.rectTransform;
+
+            ConfigureTopSection(section, top, height);
+
+            if (section != text.rectTransform)
+            {
+                RectTransform textRect = text.rectTransform;
+                textRect.anchorMin = Vector2.zero;
+                textRect.anchorMax = Vector2.one;
+                textRect.offsetMin = Vector2.zero;
+                textRect.offsetMax = Vector2.zero;
+            }
+        }
+
+        private void ConfigureTopSection(RectTransform section, float top, float height)
+        {
+            section.anchorMin = new Vector2(0f, 1f);
+            section.anchorMax = new Vector2(1f, 1f);
+            section.pivot = new Vector2(0.5f, 1f);
+            section.anchoredPosition = new Vector2(0f, -top);
+            section.sizeDelta = new Vector2(-contentHorizontalPadding * 2f, height);
+        }
+
+        private static bool IsTextVisible(TMP_Text text)
+        {
+            return text != null &&
+                   text.gameObject.activeSelf &&
+                   !string.IsNullOrWhiteSpace(text.text);
+        }
+
+        private static float GetPreferredTextHeight(TMP_Text text, float width)
+        {
+            return Mathf.Max(
+                1f,
+                Mathf.Ceil(text.GetPreferredValues(
+                    text.text ?? string.Empty,
+                    width,
+                    Mathf.Infinity).y));
+        }
+
+        private static float GetPreferredTextWidth(TMP_Text text)
+        {
+            return Mathf.Max(
+                1f,
+                Mathf.Ceil(text.GetPreferredValues(
+                    text.text ?? string.Empty,
+                    Mathf.Infinity,
+                    Mathf.Infinity).x));
         }
 
         private static void DisableRaycasts(GameObject target)

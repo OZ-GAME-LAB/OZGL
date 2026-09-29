@@ -24,6 +24,13 @@ namespace OzGameLab01.UI.Battle
 
         #region API
 
+        public void SetData(Sprite icon, string unitName, float dps)
+        {
+            SetUnitIcon(icon);
+            SetUnitName(unitName);
+            SetDpsText($" {dps:N1} DPS");
+        }
+
         public void Show()
         {
             gameObject.SetActive(true);

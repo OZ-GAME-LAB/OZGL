@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OzGameLab01.Data;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.UI;
 using UnityEngine;
@@ -38,11 +39,13 @@ namespace OzGameLab01.Effects.Views
             foreach (SynergyPanelUtility.DisplayItem display in items)
             {
                 SynergyItemView item = Object.Instantiate(_template, _root);
+                SynergyData data = SynergyPanelUtility.GetData(display.Definition);
                 item.gameObject.SetActive(true);
                 item.SetTitle(display.Definition.DisplayName);
                 item.SetStackText(display.StackText);
                 item.SetBackgroundColor(display.IsActive ? _activeColor : _inactiveColor);
-                _ = item.SetIconAsync(SynergyPanelUtility.GetIconAddress(display.Definition));
+                item.BindTooltip(data, display.Count);
+                _ = item.SetIconAsync(data?.iconAddress);
             }
         }
     }

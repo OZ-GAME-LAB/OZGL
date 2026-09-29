@@ -151,6 +151,7 @@ namespace OzGameLab01.Controllers
                 (BoardRunData.HasCurrentBattle && BoardRunData.IsBossBattle);
             _victory = victory;
             CurrentState = BattleState.Resolved;
+            _combatSession?.CompleteBattle();
             ApplyTimeScale();
 
             foreach (Unit deadUnit in _pendingDeadUnits)
