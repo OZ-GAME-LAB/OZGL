@@ -13,6 +13,7 @@ using OzGameLab01.Common;
 using OzGameLab01.Board.Contracts;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Effects.Views;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.Controllers
 {
@@ -581,7 +582,10 @@ namespace OzGameLab01.Controllers
         private void HandleNightReached(int turnCount)
         {
             RefreshTurnInfo();
-            PlayClockTransition(nightClockAngle);
+            if (PlayClockTransition(nightClockAngle) != null)
+            {
+                SoundConnector.RequestSfx(SoundId.BoardDayChange);
+            }
             Debug.Log($"[BoardUIController] {turnCount}턴 째 밤이 되었습니다!");
             ShowTimeOfDayFeedback(nightMessage);
         }
@@ -589,7 +593,10 @@ namespace OzGameLab01.Controllers
         private void HandleDayReached(int turnCount)
         {
             RefreshTurnInfo();
-            PlayClockTransition(dayClockAngle);
+            if (PlayClockTransition(dayClockAngle) != null)
+            {
+                SoundConnector.RequestSfx(SoundId.BoardDayChange);
+            }
             Debug.Log($"[BoardUIController] {turnCount}턴 째 낮이 되었습니다!");
             ShowTimeOfDayFeedback(dayMessage);
         }
@@ -699,10 +706,14 @@ namespace OzGameLab01.Controllers
             if (view == null || unitData == null)
                 return;
 
+            UnitAcquirePopupView popup = view.UnitAcquirePopupView;
+            if (popup == null)
+                return;
+
+            SoundConnector.RequestSfx(SoundId.BoardGetUnit);
             view.PlayUnitAcquirePopup(unitData.name, null);
             int requestVersion = ++_unitAcquireIconRequestVersion;
-            UnitAcquirePopupView popup = view.UnitAcquirePopupView;
-            if (popup == null || string.IsNullOrWhiteSpace(unitData.iconAddress))
+            if (string.IsNullOrWhiteSpace(unitData.iconAddress))
                 return;
 
             try

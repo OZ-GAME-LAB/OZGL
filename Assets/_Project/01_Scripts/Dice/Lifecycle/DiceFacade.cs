@@ -9,6 +9,14 @@ namespace OzGameLab01.Dice
     /// <summary>외부 요청을 시스템 내부 버스로 연결. 공개 메서드는 기존 호출 호환용.</summary>
     public sealed class DiceFacade : IDisposable
     {
+        private static readonly SoundId[] DiceRollSounds =
+        {
+            SoundId.BoardDiceRoll_0,
+            SoundId.BoardDiceRoll_1,
+            SoundId.BoardDiceRoll_2,
+            SoundId.BoardDiceRoll_3
+        };
+
         private readonly MessageBus _local;
         private readonly List<IDisposable> _registrations = new();
         public bool HasRolledThisTurn => _local.Request<DiceSnapshotRequested, DiceSnapshot>(default).HasRolledThisTurn;
@@ -23,14 +31,17 @@ namespace OzGameLab01.Dice
                 _registrations.Add(global.Handle<DiceSnapshotRequested, DiceSnapshot>(request => local.Request<DiceSnapshotRequested, DiceSnapshot>(request)));
                 _registrations.Add(global.Handle<DiceResetRequested, bool>(request => local.Request<DiceResetRequested, bool>(request)));
                 _registrations.Add(local.Subscribe<DiceRolled>(global.Publish));
-                _registrations.Add(local.Subscribe<DiceRolled>(message => OnDiceRolled?.Invoke(message.Value)));
+                _registrations.Add(local.Subscribe<DiceRolled>(message =>
+                {
+                    SoundConnector.RequestRandomSfx(DiceRollSounds);
+                    OnDiceRolled?.Invoke(message.Value);
+                }));
             }
             catch { Dispose(); throw; }
         }
         public void RollDice()
         {
             _local.Request<DiceRollRequested, DiceRollResult>(default);
-            SoundConnector.RequestSfx(SoundId.DiceRoll);
         }
         public void ResetTurnRoll() => _local.Request<DiceResetRequested, bool>(default);
         public void ResetRunState() => ResetTurnRoll();

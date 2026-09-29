@@ -212,6 +212,8 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            SoundConnector.RequestSfx(SoundId.BoardTurnEnd);
+
             BoardTimeOfDay previousTimeOfDay = CurrentTimeOfDay;
 
             SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
