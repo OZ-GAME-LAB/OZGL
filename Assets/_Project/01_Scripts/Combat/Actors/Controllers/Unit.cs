@@ -73,6 +73,24 @@ namespace OzGameLab01.Combat
         private float _shieldBonusDamagePerDefensePercent;
         private float _shieldDamageReductionPerDefensePercent;
 
+        #region Sounds
+        private readonly SoundId[] UnitAttackIds =
+        {
+            SoundId.UnitAttack_01,
+            SoundId.UnitAttack_02,
+            SoundId.UnitAttack_03,
+            SoundId.UnitAttack_04,
+            SoundId.UnitAttack_05
+        };
+
+        private readonly SoundId[] EnemyHitIds =
+        {
+            SoundId.EnemyHit_01,
+            SoundId.EnemyHit_02,
+            SoundId.EnemyHit_03
+        };
+        #endregion
+
         public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
         public bool AreActiveSkillsDisabled => _activeSkillsDisabled;
 
@@ -520,7 +538,7 @@ namespace OzGameLab01.Combat
             _presenter.FireProjectile(target, target != null ? target._presenter : null, UnitPresenter.GetVisualCenter(transform),
                 () => ResolveBasicAttackHit(target, damage, onImpact, applyDamage));
 
-            SoundConnector.RequestSfx(SoundId.UnitAttack);
+            if (this.team == Team.Ally) SoundConnector.RequestRandomSfx(UnitAttackIds);
         }
 
         /// <summary>
@@ -660,6 +678,8 @@ namespace OzGameLab01.Combat
 
         private void ExecuteSkillEffects(IReadOnlyList<EffectInstance> effects, Unit defaultTarget, float multiplier)
         {
+            SoundConnector.RequestSfx(SoundId.UnitUseSkill);
+
             for (int i = 0; i < effects.Count; i++)
             {
                 EffectInstance effect = effects[i];
@@ -673,6 +693,7 @@ namespace OzGameLab01.Combat
                             break;
                         case EffectType.Heal:
                             target.Heal(effect.effectParam);
+                            SoundConnector.RequestSfx(SoundId.UnitHeal);
                             break;
                         case EffectType.GrantShield:
                             target.GrantShield(effect.effectParam, effect.durationSeconds, effect.untilBattleEnd);
@@ -680,9 +701,11 @@ namespace OzGameLab01.Combat
                         case EffectType.StatModifier:
                             target.ApplyStatEffect(effect.statType, effect.effectParam, effect.operation,
                                 effect.durationSeconds, effect.untilBattleEnd || effect.durationSeconds <= 0);
+                            SoundConnector.RequestSfx(SoundId.UnitStatModify);
                             break;
                         case EffectType.CleanseDebuffs:
                             target.CleanseDebuffs();
+                            SoundConnector.RequestSfx(SoundId.UnitDebuff);
                             break;
                     }
                 }
@@ -989,7 +1012,9 @@ namespace OzGameLab01.Combat
             _presenter.SetHP(_currentHP);
             PassiveEventBus.RaiseHpChanged(this, previousRatio);
 
-            SoundConnector.RequestSfx(SoundId.UnitHit);
+            // 피격 사운드 추가
+            if (this.team == Team.Ally) SoundConnector.RequestSfx(SoundId.UnitHit);
+            else SoundConnector.RequestRandomSfx(EnemyHitIds);
 
             if (_currentHP <= 0f)
             {
@@ -1009,7 +1034,11 @@ namespace OzGameLab01.Combat
             // 전투 로직 즉시 사망 처리
             PassiveEventBus.RaiseDeath(this);
 
-            SoundConnector.RequestSfx(SoundId.UnitDeath);
+            // 사망 효과음 추가
+            if (this.team == Team.Ally)
+                SoundConnector.RequestSfx(SoundId.UnitDeath);
+            else
+                SoundConnector.RequestSfx(SoundId.EnemyDeath);
 
             // 사망 애니메이션 종료 후 화면 비활성화
             if (_animationController != null)
