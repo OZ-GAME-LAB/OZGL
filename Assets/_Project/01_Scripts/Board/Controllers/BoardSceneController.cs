@@ -11,6 +11,7 @@ using OzGameLab01.Board.Models;
 using OzGameLab01.Board.Views;
 using OzGameLab01.Board.Controllers;
 using OzGameLab01.Common;
+using System.Collections.Generic;
 
 namespace OzGameLab01.Controllers
 {
@@ -623,7 +624,7 @@ namespace OzGameLab01.Controllers
                 case NodeType.Boss: HandleBossNode(arrivedNode); break;
                 case NodeType.Event: HandleEventNode(arrivedNode); break;
                 case NodeType.UnitAcquisition:
-                    if (HandleUnitAcquisitionNode(out int acquiredUnitId))
+                    if (HandleUnitAcquisitionNode(arrivedNode, out int acquiredUnitId))
                     {
                         ConsumeSpecialNode(arrivedNode);
                         Publish(BoardNotificationKind.UnitGranted, arrivedNode, acquiredUnitId, NodeType.UnitAcquisition);
@@ -703,14 +704,28 @@ namespace OzGameLab01.Controllers
             return transitioner != null && !transitioner.IsTransitioning;
         }
 
-        private bool HandleUnitAcquisitionNode(out int acquiredUnitId)
+        private bool HandleUnitAcquisitionNode(MapNode acquisitionNode, out int acquiredUnitId)
         {
             acquiredUnitId = 0;
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            if (playerFacade == null)
+            {
+                Debug.LogWarning("[BoardSceneController] 유닛 지급 대상 인벤토리가 없습니다.", this);
+                return false;
+            }
+
+            IReadOnlyList<UnitData> availableUnits = playerFacade.GetAvailableUnitCandidates(
+                OzGameLab01.Data.RuntimeContent.Catalog.Units);
+            if (availableUnits.Count == 0)
+            {
+                Debug.Log("[BoardSceneController] 미보유 유닛이 없어 획득 타일을 소비합니다.", this);
+                ConsumeSpecialNode(acquisitionNode);
+                return false;
+            }
+
             UnitData selected = _useFixedUnitAcquisition
-                ? OzGameLab01.Data.RuntimeContent.Catalog.GetUnit(_fixedUnitAcquisitionId)
-                : BoardUnitSelection.Select(
-                    OzGameLab01.Data.RuntimeContent.Catalog.Units,
-                    count => UnityEngine.Random.Range(0, count));
+                ? FindAvailableUnit(availableUnits, _fixedUnitAcquisitionId)
+                : availableUnits[UnityEngine.Random.Range(0, availableUnits.Count)];
 
             if (selected == null)
             {
@@ -718,19 +733,40 @@ namespace OzGameLab01.Controllers
                     ? $"지정한 유닛 ID({_fixedUnitAcquisitionId})를 찾을 수 없습니다."
                     : "획득 가능한 유닛 데이터가 없습니다.";
                 Debug.LogWarning($"[BoardSceneController] {reason}", this);
+                ConsumeSpecialNode(acquisitionNode);
                 return false;
             }
-            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
-            if (playerFacade == null)
-            {
-                Debug.LogWarning("[BoardSceneController] 유닛 지급 대상 인벤토리가 없습니다.", this);
-                return false;
-            }
+
             UnitData acquired = PlayerFacade.CloneUnitData(selected);
-            playerFacade.AddUnit(acquired);
+            if (!playerFacade.AddUnit(acquired))
+            {
+                Debug.Log($"[BoardSceneController] 이미 보유한 유닛입니다. ID: {acquired.id}", this);
+                ConsumeSpecialNode(acquisitionNode);
+                return false;
+            }
+
             UnitAcquired?.Invoke(acquired);
             acquiredUnitId = acquired.id;
             return true;
+        }
+
+        private static UnitData FindAvailableUnit(IReadOnlyList<UnitData> availableUnits, int unitId)
+        {
+            if (availableUnits == null)
+            {
+                return null;
+            }
+
+            for (int unitIndex = 0; unitIndex < availableUnits.Count; unitIndex++)
+            {
+                UnitData unit = availableUnits[unitIndex];
+                if (unit != null && unit.id == unitId)
+                {
+                    return unit;
+                }
+            }
+
+            return null;
         }
 
         private void ConsumeSpecialNode(MapNode node)

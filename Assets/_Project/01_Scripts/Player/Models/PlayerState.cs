@@ -12,9 +12,24 @@ namespace OzGameLab01.Player
 
         public IReadOnlyList<UnitData> OwnedUnits => _ownedUnits;
 
-        public void AddUnit(UnitData unit)
+        public bool TryAddUnit(UnitData unit)
         {
+            if (unit == null)
+            {
+                return false;
+            }
+
+            for (int unitIndex = 0; unitIndex < _ownedUnits.Count; unitIndex++)
+            {
+                UnitData ownedUnit = _ownedUnits[unitIndex];
+                if (ownedUnit != null && ownedUnit.id == unit.id)
+                {
+                    return false;
+                }
+            }
+
             _ownedUnits.Add(unit);
+            return true;
         }
 
         public void Clear()

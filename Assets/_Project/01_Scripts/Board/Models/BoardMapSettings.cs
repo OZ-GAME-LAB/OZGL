@@ -20,6 +20,7 @@ namespace OzGameLab01.Board.Models
         public int minWaterClusterSize = 1;
         public int maxWaterClusterSize = 5;
         public bool forceUnitAtStart = true;
+        public bool allowUnitAcquisition = true;
         public int shopCount = 3;
         public int minShopDistance = 3;
         public int minShopDistFromStart = 0;
