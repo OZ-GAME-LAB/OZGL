@@ -71,6 +71,9 @@ namespace OzGameLab01.Controllers
         public float rollViewCloseDelay = 1.0f;
         public float warningTextDuration = 2.0f;
 
+        [Header("Tooltip")]
+        [SerializeField, Min(0f)] private float tooltipScreenOffset = 12f;
+
         private Coroutine _automaticRollViewRoutine;
         private Coroutine _timeOfDayFeedbackRoutine;
         private Coroutine _formationFeedbackRoutine;
@@ -82,6 +85,10 @@ namespace OzGameLab01.Controllers
         private CombatInfoPresenter _battleInfoPresenter;
         private bool _started;
         private bool _actionPointUiRefreshPending;
+        private int _unitAcquireIconRequestVersion;
+        private ReadySidePanelView _sidePanelView;
+        private object _tooltipOwner;
+        private readonly Vector3[] _tooltipAnchorCorners = new Vector3[4];
 
 
         public static event Action OnRollViewClosed;
@@ -151,6 +158,12 @@ namespace OzGameLab01.Controllers
                     readySceneView.MainView.SettingsClicked += HandleSettingsButtonClicked;
                     readySceneView.MainView.LocateClicked += HandleLocateButtonClicked;
                     readySceneView.MainView.EndTurnClicked += HandleEndTurnButtonClicked;
+                    readySceneView.MainView.SynergyPointerEntered += HandleSynergyPointerEntered;
+                    readySceneView.MainView.SynergyPointerExited += HandleSynergyPointerExited;
+                    readySceneView.MainView.ArtifactPointerEntered += HandleArtifactPointerEntered;
+                    readySceneView.MainView.ArtifactPointerExited += HandleArtifactPointerExited;
+
+                    BindSidePanel(readySceneView.MainView);
 
                     RefreshTurnInfo();
 
@@ -190,6 +203,7 @@ namespace OzGameLab01.Controllers
 
         private void OnDisable()
         {
+            _unitAcquireIconRequestVersion++;
             if (_actionPointUiRefreshPending)
             {
                 RefreshActionPointUi(immediate: true);
@@ -227,7 +241,13 @@ namespace OzGameLab01.Controllers
                     readySceneView.MainView.SettingsClicked -= HandleSettingsButtonClicked;
                     readySceneView.MainView.LocateClicked -= HandleLocateButtonClicked;
                     readySceneView.MainView.EndTurnClicked -= HandleEndTurnButtonClicked;
+                    readySceneView.MainView.SynergyPointerEntered -= HandleSynergyPointerEntered;
+                    readySceneView.MainView.SynergyPointerExited -= HandleSynergyPointerExited;
+                    readySceneView.MainView.ArtifactPointerEntered -= HandleArtifactPointerEntered;
+                    readySceneView.MainView.ArtifactPointerExited -= HandleArtifactPointerExited;
                 }
+
+                UnbindSidePanel();
 
                 if (readySceneView.SettingsView != null)
                 {
@@ -241,6 +261,8 @@ namespace OzGameLab01.Controllers
                 }
 
             }
+
+            HideTooltip();
 
             if (boardSceneController != null)
             {
@@ -671,11 +693,28 @@ namespace OzGameLab01.Controllers
             ScheduleAutomaticRollView(turnAutoRollViewDelay);
         }
 
-        private void HandleUnitAcquired(UnitData unitData)
+        private async void HandleUnitAcquired(UnitData unitData)
         {
-            if (readySceneView != null)
+            ReadySceneView view = readySceneView;
+            if (view == null || unitData == null)
+                return;
+
+            view.PlayUnitAcquirePopup(unitData.name, null);
+            int requestVersion = ++_unitAcquireIconRequestVersion;
+            UnitAcquirePopupView popup = view.UnitAcquirePopupView;
+            if (popup == null || string.IsNullOrWhiteSpace(unitData.iconAddress))
+                return;
+
+            try
             {
-                readySceneView.PlayUnitAcquirePopup(unitData.name, null);
+                Sprite sprite = await OzGameLab01.Managers.SpriteManager.GetSpriteAsync(unitData.iconAddress);
+                if (popup != null && popup.gameObject.activeInHierarchy &&
+                    _unitAcquireIconRequestVersion == requestVersion && popup.UnitName == unitData.name)
+                    popup.SetUnitSprite(sprite);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception, this);
             }
         }
 
@@ -691,6 +730,8 @@ namespace OzGameLab01.Controllers
 
         private void RefreshArtifactItems()
         {
+            HideTooltip();
+
             ReadyMainView mainView = readySceneView?.MainView;
             if (mainView == null || mainView.ArtifactContentRoot == null || _relicFacade == null)
             {
@@ -719,12 +760,15 @@ namespace OzGameLab01.Controllers
                     mainView.RegisterArtifactItem(item);
                 }
 
+                RelicData relic = _relicFacade.OwnedRelics[i];
+                item.SetRelicData(relic);
                 item.SetVisible(true);
-                _ = item.UpdateRelicIconAsync(_relicFacade.OwnedRelics[i].iconAddress);
+                _ = item.UpdateRelicIconAsync(relic.iconAddress);
             }
 
             for (int i = relicCount; i < mainView.ArtifactItems.Count; i++)
             {
+                mainView.ArtifactItems[i].SetRelicData(null);
                 mainView.ArtifactItems[i].SetVisible(false);
             }
         }
@@ -737,6 +781,8 @@ namespace OzGameLab01.Controllers
 
         private void RefreshSynergyItems()
         {
+            HideTooltip();
+
             ReadyMainView mainView = readySceneView?.MainView;
             UnitRosterData rosterData = _formationController?.RosterData;
             if (mainView == null || mainView.SynergyContentRoot == null ||
@@ -781,6 +827,163 @@ namespace OzGameLab01.Controllers
                 mainView.SynergyInactiveColor);
             panel.Render(displayItems);
             StartCoroutine(RefreshSynergyItemBindingsNextFrame(mainView));
+        }
+
+        private void BindSidePanel(ReadyMainView mainView)
+        {
+            UnbindSidePanel();
+
+            _sidePanelView = mainView != null
+                ? mainView.GetComponentInChildren<ReadySidePanelView>(true)
+                : null;
+            if (_sidePanelView != null)
+            {
+                _sidePanelView.TabChanged += HandleSidePanelTabChanged;
+            }
+        }
+
+        private void UnbindSidePanel()
+        {
+            if (_sidePanelView != null)
+            {
+                _sidePanelView.TabChanged -= HandleSidePanelTabChanged;
+                _sidePanelView = null;
+            }
+        }
+
+        private void HandleSidePanelTabChanged(ReadySidePanelTab _)
+        {
+            HideTooltip();
+        }
+
+        private void HandleSynergyPointerEntered(
+            SynergyItemView item,
+            UnityEngine.EventSystems.PointerEventData eventData)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            SynergyData data = item.SynergyData;
+            string title = data != null && !string.IsNullOrWhiteSpace(data.name)
+                ? data.name
+                : item.Title;
+            string description = data?.subTitle ?? string.Empty;
+            List<TooltipView.EffectData> effects = BuildSynergyTooltipEffects(data, item.CurrentCount);
+
+            ShowTooltip(item, item.TooltipAnchor, eventData, title, description, effects);
+        }
+
+        private void HandleSynergyPointerExited(
+            SynergyItemView item,
+            UnityEngine.EventSystems.PointerEventData _)
+        {
+            HideTooltip(item);
+        }
+
+        private void HandleArtifactPointerEntered(
+            ArtifactInfoItemView item,
+            UnityEngine.EventSystems.PointerEventData eventData)
+        {
+            RelicData relic = item?.RelicData;
+            if (item == null || relic == null)
+            {
+                return;
+            }
+
+            ShowTooltip(
+                item,
+                item.TooltipAnchor,
+                eventData,
+                relic.name,
+                relic.description,
+                null);
+        }
+
+        private void HandleArtifactPointerExited(
+            ArtifactInfoItemView item,
+            UnityEngine.EventSystems.PointerEventData _)
+        {
+            HideTooltip(item);
+        }
+
+        private static List<TooltipView.EffectData> BuildSynergyTooltipEffects(
+            SynergyData data,
+            int currentCount)
+        {
+            var effects = new List<TooltipView.EffectData>();
+            if (data?.tiers == null)
+            {
+                return effects;
+            }
+
+            foreach (SynergyTier tier in data.tiers)
+            {
+                if (tier == null)
+                {
+                    continue;
+                }
+
+                string text = string.IsNullOrWhiteSpace(tier.description)
+                    ? $"{tier.requiredCount}개"
+                    : $"{tier.requiredCount}개  {tier.description}";
+                effects.Add(new TooltipView.EffectData(
+                    text,
+                    currentCount >= tier.requiredCount));
+            }
+
+            return effects;
+        }
+
+        private void ShowTooltip(
+            object owner,
+            RectTransform anchor,
+            UnityEngine.EventSystems.PointerEventData eventData,
+            string title,
+            string description,
+            IReadOnlyList<TooltipView.EffectData> effects)
+        {
+            TooltipView tooltip = readySceneView?.TooltipView;
+            RectTransform placementAnchor = _sidePanelView?.ContentPanelRect ?? anchor;
+            if (tooltip == null || placementAnchor == null)
+            {
+                return;
+            }
+
+            _tooltipOwner = owner;
+            readySceneView.ShowTooltip(title, description, effects);
+
+            Canvas canvas = tooltip.RootCanvas;
+            Camera eventCamera = eventData?.enterEventCamera;
+            if (canvas != null)
+            {
+                eventCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay
+                    ? null
+                    : eventCamera != null ? eventCamera : canvas.worldCamera;
+            }
+
+            placementAnchor.GetWorldCorners(_tooltipAnchorCorners);
+            Vector3 anchorWorldPosition = _tooltipAnchorCorners[2];
+            Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(
+                eventCamera,
+                anchorWorldPosition);
+
+            tooltip.SetPivot(new Vector2(0f, 1f));
+            tooltip.SetScreenPosition(
+                screenPosition + Vector2.right * tooltipScreenOffset,
+                eventCamera);
+        }
+
+        private void HideTooltip(object owner = null)
+        {
+            if (owner != null && !ReferenceEquals(_tooltipOwner, owner))
+            {
+                return;
+            }
+
+            _tooltipOwner = null;
+            readySceneView?.HideTooltip();
         }
 
         private static System.Collections.IEnumerator RefreshSynergyItemBindingsNextFrame(ReadyMainView mainView)

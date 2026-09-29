@@ -133,7 +133,7 @@ namespace OzGameLab01.Tests.EditMode
         }
 
         [Test]
-        public void LoadUnit_BindsSynergiesSkillsAndFlavorWithoutPrefabPlaceholders()
+        public void LoadUnit_BindsSeparateSkillNamesDescriptionsAndFlavor()
         {
             GameObject root = PrefabUtility.LoadPrefabContents(UnitViewPrefabPath);
 
@@ -160,14 +160,19 @@ namespace OzGameLab01.Tests.EditMode
                     skillIcon);
 
                 Image[] skillIcons = GetPrivateField<Image[]>(detailView, "skillIcons");
-                TMP_Text[] skillTexts = GetPrivateField<TMP_Text[]>(detailView, "skillDescriptionTexts");
+                TMP_Text[] skillNameTexts = GetPrivateField<TMP_Text[]>(detailView, "skillNameTexts");
+                TMP_Text[] skillDescriptionTexts = GetPrivateField<TMP_Text[]>(detailView, "skillDescriptionTexts");
                 TMP_Text conceptText = GetPrivateField<TMP_Text>(detailView, "conceptDescriptionText");
                 Transform synergyRoot = GetPrivateField<Transform>(detailView, "synergyBadgeRoot");
                 InfoSynergyItemView[] badges = synergyRoot.GetComponentsInChildren<InfoSynergyItemView>(false);
 
                 Assert.That(skillIcons.Select(image => image.sprite), Is.All.EqualTo(skillIcon));
-                Assert.That(skillTexts[0].text, Does.Contain("액티브 스킬").And.Contain("액티브 설명"));
-                Assert.That(skillTexts[1].text, Does.Contain("패시브 스킬").And.Contain("패시브 설명"));
+                Assert.That(
+                    skillNameTexts.Select(text => text.text),
+                    Is.EqualTo(new[] { "액티브 스킬", "패시브 스킬" }));
+                Assert.That(
+                    skillDescriptionTexts.Select(text => text.text),
+                    Is.EqualTo(new[] { "액티브 설명", "패시브 설명" }));
                 Assert.That(conceptText.text, Is.EqualTo(data.flavorText));
                 Assert.That(badges.Select(badge => badge.Name), Is.EqualTo(new[] { "재간둥이", "인간" }));
             }

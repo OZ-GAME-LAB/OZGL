@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEngine.InputSystem;
+#endif
 
 namespace OzGameLab01.Map
 {
@@ -46,6 +49,55 @@ namespace OzGameLab01.Map
 
         /// <summary>맵 분석으로 예약된 최종 보스 위치입니다.</summary>
         public MapNode FinalBossNode => finalBossNode;
+
+#if UNITY_EDITOR
+        private bool _f10WasPressed;
+
+        /// <summary>플레이 중 F10으로 플레이어 바로 아래 타일에 중간보스 목표를 배치합니다.</summary>
+        public bool TrySpawnMidBossForDebug()
+        {
+            ResolveReferences();
+            MapNode playerNode = BoardPlayerController.Instance != null
+                ? BoardPlayerController.Instance.CurrentNode
+                : null;
+            if (!Application.isPlaying ||
+                !BoardRunData.HasActiveRun ||
+                BoardRunData.HasObjective ||
+                currentObjective != null ||
+                BoardRunData.IsBossDefeated ||
+                playerNode == null ||
+                mapGenerator == null ||
+                mapGenerator.NodeDict.Count == 0 ||
+                routeProfile == null ||
+                BoardRunData.DefeatedElitesCount >= routeProfile.RequiredEliteCount)
+            {
+                return false;
+            }
+
+            Vector2Int targetPosition = playerNode.Position + Vector2Int.down;
+            if (!mapGenerator.NodeDict.TryGetValue(targetPosition, out MapNode targetNode) ||
+                targetNode.Type != NodeType.Normal ||
+                BoardRunData.IsSpecialTileConsumed(targetPosition))
+            {
+                Debug.LogWarning($"[MapRouteDirector] F10 중간보스 배치 불가: 플레이어 아래 {targetPosition}에 사용 가능한 일반 타일이 없습니다.", this);
+                return false;
+            }
+
+            SetObjective(targetNode, NodeType.Elite, revealObjective: true);
+            return currentObjective == targetNode;
+        }
+
+        private void Update()
+        {
+            bool f10Pressed = Keyboard.current != null && Keyboard.current.f10Key.isPressed;
+            if (f10Pressed && !_f10WasPressed)
+            {
+                TrySpawnMidBossForDebug();
+            }
+
+            _f10WasPressed = f10Pressed;
+        }
+#endif
 
         private void Awake()
         {

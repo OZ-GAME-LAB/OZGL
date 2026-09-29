@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using OzGameLab01.Data;
 using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI
@@ -20,6 +21,7 @@ namespace OzGameLab01.UI
 
         private bool _isInteractable = true;
         private string _currentIconAddress;
+        private RelicData _relicData;
 
         #region Properties
 
@@ -28,6 +30,7 @@ namespace OzGameLab01.UI
 
         public Image Background => _background;
         public Image Icon => _icon;
+        public RelicData RelicData => _relicData;
 
         public bool IsInteractable
         {
@@ -52,6 +55,11 @@ namespace OzGameLab01.UI
             {
                 _icon.sprite = sprite;
             }
+        }
+
+        public void SetRelicData(RelicData relicData)
+        {
+            _relicData = relicData;
         }
 
         public async Task SetIconAsync(string iconAddress)

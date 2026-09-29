@@ -82,6 +82,7 @@ namespace OzGameLab01.Controllers
                 _eveningTurns);
         // [추가] 저장 대기 중 중복 타이틀 이동 요청 방지
         private bool _isReturningToTitle;
+        private bool _isStartingBattle;
         private MapNode _pendingEventNode;
         private IDisposable _eventCompletionSubscription;
         private BoardSceneFeedbackView _feedback;
@@ -490,21 +491,85 @@ namespace OzGameLab01.Controllers
         // 보류 여부와 무관한 실제 전투 진입
         private bool TryStartBattle(MapNode battleNode, bool isBoss, bool isElite)
         {
+            if (_isStartingBattle)
+            {
+                return false;
+            }
+
             if (!TryGetSceneTransitioner(out SceneTransitioner transitioner))
             {
                 return false;
             }
 
+            _isStartingBattle = true;
+            SaveBoardCheckpointAndStartBattle(
+                battleNode,
+                isBoss,
+                isElite,
+                transitioner);
+            return true;
+        }
+
+        /// <summary>
+        /// 전투에 들어가기 직전의 보드 상태를 저장한 뒤 전투 씬으로 이동합니다.
+        /// 이 저장 데이터는 전투 중 타이틀로 돌아갔을 때 Continue 지점으로 사용됩니다.
+        /// </summary>
+        private async void SaveBoardCheckpointAndStartBattle(
+            MapNode battleNode,
+            bool isBoss,
+            bool isElite,
+            SceneTransitioner transitioner)
+        {
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+
+            if (saveFacade == null)
+            {
+                Debug.LogError(
+                    "[BoardSceneController] 전투 진입 전 보드 상태를 저장할 SaveFacade를 찾을 수 없습니다.",
+                    this);
+
+                _isStartingBattle = false;
+                return;
+            }
+
+            // 아직 BeginBattle을 호출하기 전입니다.
+            // 따라서 현재 보드 위치, 턴, 편성, 유닛, 유물 등
+            // 전투 진입 직전 상태만 저장됩니다.
+            saveFacade.CaptureCurrentRun();
+
+            bool saved = await saveFacade.SaveAsync();
+
+            if (!saved)
+            {
+                Debug.LogError(
+                    "[BoardSceneController] 전투 진입 전 체크포인트 저장에 실패했습니다.",
+                    this);
+
+                _isStartingBattle = false;
+                return;
+            }
+
+            if (transitioner.IsTransitioning)
+            {
+                _isStartingBattle = false;
+                return;
+            }
+
+            // 체크포인트 저장이 끝난 뒤 전투 상태를 시작합니다.
             BoardRunData.BeginBattle(
                 battleNode.Position,
                 isBoss,
                 isElite,
                 CurrentTimeOfDay == BoardTimeOfDay.Night,
                 battleNode.EncounterMonsterId);
-            Publish(BoardNotificationKind.BattleRequested, battleNode);
+
+            Publish(
+                BoardNotificationKind.BattleRequested,
+                battleNode);
+
             transitioner.LoadCombatScene();
-            return true;
         }
+
         /// <summary>
         /// [수정] 현재 런 저장 완료 후 타이틀 씬으로 이동
         /// </summary>

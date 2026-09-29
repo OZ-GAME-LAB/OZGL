@@ -133,7 +133,7 @@ namespace OzGameLab01.Combat
             if (source == null) return result;
             foreach (MonsterSpecies entry in source)
             {
-                if (entry != null) result.Add(new MonsterSpecies { name = entry.name, prefabAddress = entry.prefabAddress });
+                if (entry != null) result.Add(new MonsterSpecies { name = entry.name, prefabAddress = entry.prefabAddress, iconAddress = entry.iconAddress });
             }
             return result;
         }

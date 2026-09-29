@@ -106,10 +106,19 @@ namespace OzGameLab01.Tests.EditMode
 
             Assert.That(prefab, Is.Not.Null);
             Assert.That(resultView, Is.Not.Null);
-            Assert.That(resultView.ResultText.font.name, Does.Contain("NotoSansKR"));
-            Assert.That(resultView.OptionalMessageText.font.name, Does.Contain("NotoSansKR"));
-            Assert.That(resultView.EndBattleButton.GetComponentInChildren<TMP_Text>(true).font.name,
-                Does.Contain("NotoSansKR"));
+            Assert.That(SupportsKorean(resultView.ResultText.font), Is.True);
+            Assert.That(SupportsKorean(resultView.OptionalMessageText.font), Is.True);
+            Assert.That(SupportsKorean(resultView.EndBattleButton.GetComponentInChildren<TMP_Text>(true).font),
+                Is.True);
+        }
+
+        // 결과창은 영문 폰트(Oxanium)에 NotoSansKR을 폴백으로 연결해 한글을 표시합니다.
+        private static bool SupportsKorean(TMP_FontAsset font)
+        {
+            if (font == null) return false;
+            if (font.name.Contains("NotoSansKR")) return true;
+            return font.fallbackFontAssetTable != null &&
+                font.fallbackFontAssetTable.Exists(fallback => fallback != null && fallback.name.Contains("NotoSansKR"));
         }
 
         [Test]

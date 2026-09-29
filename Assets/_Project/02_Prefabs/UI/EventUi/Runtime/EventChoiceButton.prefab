@@ -989,6 +989,7 @@ GameObject:
   - component: {fileID: 3199526570893442535}
   - component: {fileID: 3959275483108331219}
   - component: {fileID: 3919572342645761193}
+  - component: {fileID: 7837964288229193898}
   m_Layer: 0
   m_Name: EventChoiceButton
   m_TagString: Untagged
@@ -1136,3 +1137,17 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &7837964288229193898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8282477529149709784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9

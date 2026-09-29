@@ -1,5 +1,5 @@
 using OzGameLab01.UI.Common;
-using OzGameLab01.UI;
+using OzGameLab01.Managers;
 using System;
 using System.Collections.Generic;
 using TMPro;
@@ -226,12 +226,14 @@ namespace OzGameLab01.UI.Title
         public void Show(SettingsTab tab = SettingsTab.Game)
         {
             gameObject.SetActive(true);
+            SoundConnector.RequestSfx(SoundId.UiSettingsOpen);
             SelectTab(tab, false);
         }
 
         public void Hide()
         {
             HideResetConfirmation();
+            SoundConnector.RequestSfx(SoundId.UiSettingsClose);
             gameObject.SetActive(false);
         }
 

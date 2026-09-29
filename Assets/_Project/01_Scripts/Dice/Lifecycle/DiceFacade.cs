@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using OzGameLab01.Common.Messaging;
 using OzGameLab01.Dice.Contracts;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.Dice
 {
@@ -26,7 +27,11 @@ namespace OzGameLab01.Dice
             }
             catch { Dispose(); throw; }
         }
-        public void RollDice() => _local.Request<DiceRollRequested, DiceRollResult>(default);
+        public void RollDice()
+        {
+            _local.Request<DiceRollRequested, DiceRollResult>(default);
+            SoundConnector.RequestSfx(SoundId.DiceRoll);
+        }
         public void ResetTurnRoll() => _local.Request<DiceResetRequested, bool>(default);
         public void ResetRunState() => ResetTurnRoll();
         public void Dispose()

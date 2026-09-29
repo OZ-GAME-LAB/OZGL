@@ -147,7 +147,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5263473070984463780}
   m_Layer: 0
-  m_Name: DpsInfo_Item
+  m_Name: DpsInfo_Item_2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

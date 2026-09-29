@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using OzGameLab01.UI;
@@ -35,8 +36,15 @@ namespace OzGameLab01.Controllers
         private RunResultContentView _runResultContentView;
         private bool _isBattleInfoBinding;
         
-        private float _battleTimer = 0f;
         private bool _isFastForward = false; // 배속 상태 저장용 변수
+
+        private enum SurrenderTarget
+        {
+            Board,
+            Title
+        }
+
+        private SurrenderTarget _surrenderTarget;
 
         private void Awake()
         {
@@ -99,9 +107,10 @@ namespace OzGameLab01.Controllers
             {
                 settingsView.CloseRequested += HandleSettingsBackClicked;
 
-                // 전투에서는 타이틀로 돌아가기 버튼만 노출(튜토리얼/데이터 초기화는 타이틀 전용)
+                // 전투에서는 보드 복귀와 체크포인트를 유지하는 타이틀 복귀를 제공합니다.
                 settingsView.ClearGameButtons();
-                settingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToMainClicked);
+                settingsView.AddGameButton("보드로 돌아가기", HandleReturnToBoardClicked);
+                settingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToTitleClicked);
             }
 
             if (surrenderPopup != null)
@@ -177,11 +186,9 @@ namespace OzGameLab01.Controllers
             {
                 // UnscaledDeltaTime을 쓰면 배속에 무관하게 흐르는 현실 시간을 잴 수 있고,
                 // DeltaTime을 쓰면 배속 시 게임 시간도 빨리 흐릅니다. (보통 전투 타이머는 배속 시 빨리 흐릅니다)
-                _battleTimer += Time.deltaTime;
-
                 if (_timerView != null)
                 {
-                    TimeSpan time = TimeSpan.FromSeconds(_battleTimer);
+                    TimeSpan time = TimeSpan.FromSeconds(_combatSession.BattleElapsedSeconds);
                     // mm:ss (예: 01:23) 형식으로 텍스트 업데이트
                     _timerView.SetTimeText(time.ToString(@"mm\:ss"));
                 }
@@ -263,9 +270,22 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void HandleReturnToMainClicked()
+        /// <summary>
+        /// 보드로 돌아가기 버튼 클릭 처리
+        /// </summary>
+        private void HandleReturnToBoardClicked()
         {
+            _surrenderTarget = SurrenderTarget.Board;
             surrenderPopup?.Show("Would you like to surrender and return to the board?");
+        }
+
+        /// <summary>
+        /// 타이틀로 돌아가기 버튼 클릭 처리
+        /// </summary>
+        private void HandleReturnToTitleClicked()
+        {
+            _surrenderTarget = SurrenderTarget.Title;
+            surrenderPopup?.Show("Would you like to surrender and return to the title?");
         }
 
         private void HandleSurrenderConfirmClicked(ConfirmPopupView popup)
@@ -273,9 +293,20 @@ namespace OzGameLab01.Controllers
             surrenderPopup?.Hide();
             settingsView?.Hide();
 
-            if (combatSceneController != null)
+            if (combatSceneController == null)
             {
-                combatSceneController.ReturnToBoard();
+                return;
+            }
+
+            switch (_surrenderTarget)
+            {
+                case SurrenderTarget.Board:
+                    combatSceneController.ReturnToBoard();
+                    break;
+
+                case SurrenderTarget.Title:
+                    combatSceneController.ReturnToTitleFromCombat();
+                    break;
             }
         }
 
@@ -322,6 +353,25 @@ namespace OzGameLab01.Controllers
 
             SpriteRenderer enemyRenderer = enemyUnit.GetComponentInChildren<SpriteRenderer>(true);
             Sprite enemySprite = enemyRenderer != null ? enemyRenderer.sprite : null;
+            string enemyIconAddress = enemyData.species != null && enemyData.species.Count > 0
+                ? enemyData.species[0]?.iconAddress
+                : null;
+            if (!string.IsNullOrWhiteSpace(enemyIconAddress))
+            {
+                try
+                {
+                    enemySprite = await SpriteManager.GetSpriteAsync(enemyIconAddress) ?? enemySprite;
+                }
+                catch (System.Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+            if (_infoView == null)
+            {
+                _isBattleInfoBinding = false;
+                return;
+            }
             _infoView.Clear();
             _infoView.SetEnemy(enemyUnit.DisplayName, enemySprite);
             BindEnemyStats(enemyData);
@@ -403,6 +453,8 @@ namespace OzGameLab01.Controllers
 
         private void HandleBattleResolved(bool victory)
         {
+            _ = PopulateDpsListAsync();
+
             if (battleUIView != null)
             {
                 if (victory)
@@ -441,6 +493,110 @@ namespace OzGameLab01.Controllers
                     battleUIView.ShowResultView();
                 }
             }
+        }
+
+        private async Task PopulateDpsListAsync()
+        {
+            CombatResultView resultView = battleUIView?.ResultView;
+            if (resultView == null)
+            {
+                Debug.LogError("[CombatUIController] CombatResultView 참조가 없습니다.", this);
+                return;
+            }
+
+            resultView.ClearDpsInfoItems();
+            if (_combatSession == null)
+            {
+                Debug.LogError("[CombatUIController] CombatSession 참조가 없습니다.", this);
+                return;
+            }
+
+            float elapsedSeconds = _combatSession.BattleElapsedSeconds;
+            if (elapsedSeconds <= 0f)
+            {
+                Debug.LogWarning("[CombatUIController] 전투 시간이 없어 DPS를 계산할 수 없습니다.", this);
+                return;
+            }
+
+            List<DpsResultData> results = BuildDpsResults(elapsedSeconds);
+            results.Sort(CompareDpsResults);
+            for (int index = 0; index < results.Count; index++)
+            {
+                DpsResultData result = results[index];
+                Sprite icon = null;
+                if (!string.IsNullOrWhiteSpace(result.IconAddress))
+                {
+                    icon = await SpriteManager.GetSpriteAsync(result.IconAddress);
+                }
+
+                if (this == null || resultView == null)
+                {
+                    return;
+                }
+
+                DpsInfoItemView item = resultView.CreateDpsInfoItem();
+                if (item == null)
+                {
+                    return;
+                }
+
+                item.SetData(icon, result.UnitName, result.Dps);
+            }
+        }
+
+        private List<DpsResultData> BuildDpsResults(float elapsedSeconds)
+        {
+            List<DpsResultData> results = new List<DpsResultData>();
+            foreach (KeyValuePair<CombatManager.SlotKey, int> entry in
+                _combatSession.State.SpawnedFormation)
+            {
+                Unit unit = _combatSession.State.SlotUnits[
+                    entry.Key.column,
+                    (int)entry.Key.row];
+                if (unit == null)
+                {
+                    Debug.LogWarning($"[CombatUIController] 출전 유닛 참조가 없습니다. ID: {entry.Value}", this);
+                    continue;
+                }
+
+                if (!_combatSession.State.UnitDataById.TryGetValue(
+                    entry.Value,
+                    out UnitData unitData))
+                {
+                    Debug.LogWarning($"[CombatUIController] 유닛 데이터가 없습니다. ID: {entry.Value}", this);
+                    continue;
+                }
+
+                results.Add(new DpsResultData(
+                    unitData.id,
+                    unitData.name,
+                    unitData.iconAddress,
+                    unit.TotalDamageDealt / elapsedSeconds));
+            }
+
+            return results;
+        }
+
+        private static int CompareDpsResults(DpsResultData left, DpsResultData right)
+        {
+            int dpsComparison = right.Dps.CompareTo(left.Dps);
+            return dpsComparison != 0 ? dpsComparison : left.UnitId.CompareTo(right.UnitId);
+        }
+
+        private readonly struct DpsResultData
+        {
+            public DpsResultData(int unitId, string unitName, string iconAddress, float dps)
+            {
+                UnitId = unitId;
+                UnitName = unitName;
+                IconAddress = iconAddress;
+                Dps = dps;
+            }
+
+            public int UnitId { get; }
+            public string UnitName { get; }
+            public string IconAddress { get; }
+            public float Dps { get; }
         }
 
         private void ShowRunResult()

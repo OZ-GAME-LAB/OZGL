@@ -8,7 +8,7 @@ using UnityEngine.UI;
 namespace OzGameLab01.UI
 {
     [DisallowMultipleComponent]
-    public sealed class UnitView : MonoBehaviour
+    public sealed class UnitView : MonoBehaviour, IDropHandler
     {
         [Header("References")]
         [SerializeField] private Button closeButton;
@@ -64,12 +64,24 @@ namespace OzGameLab01.UI
         public event Action<UnitSlotItemView, PointerEventData> SlotPointerEntered; //슬롯 아이템 포인터 진입 이벤트
         public event Action<UnitSlotItemView, PointerEventData> SlotPointerExited; //슬롯 아이템 포인터 이탈 이벤트
         public event Action<UnitSlotItemView, PointerEventData> SlotDropped; //슬롯 아이템 드롭 이벤트
+        public event Action<PointerEventData> WaitingAreaDropped;
 
         public event Action<SynergyItemView, PointerEventData> SynergyClicked; //시너지 아이템 클릭 이벤트
         public event Action<SynergyItemView, PointerEventData> SynergyPointerEntered; //시너지 아이템 포인터 진입 이벤트
         public event Action<SynergyItemView, PointerEventData> SynergyPointerExited; //시너지 아이템 포인터 이탈 이벤트
 
         #endregion
+
+        public void OnDrop(PointerEventData eventData)
+        {
+            RectTransform viewport = unitContentRoot != null ? unitContentRoot.parent as RectTransform : null;
+            if (!isActiveAndEnabled || eventData == null || viewport == null ||
+                !RectTransformUtility.RectangleContainsScreenPoint(
+                    viewport, eventData.position, eventData.pressEventCamera))
+                return;
+
+            WaitingAreaDropped?.Invoke(eventData);
+        }
 
         #region Lifecycle
 
@@ -298,18 +310,17 @@ namespace OzGameLab01.UI
             }
         }
 
-        public void SetSelectedUnitDetail(Sprite unitIcon,string unitName,IReadOnlyList<string> synergyNames,Sprite firstSkillIcon,string firstSkillDescription,Sprite secondSkillIcon,string secondSkillDescription,string conceptDescription)
+        public void SetSelectedUnitDetail(Sprite unitIcon,string unitName,IReadOnlyList<string> synergyNames,Sprite firstSkillIcon,string firstSkillName,string firstSkillDescription,Sprite secondSkillIcon,string secondSkillName,string secondSkillDescription,string conceptDescription)
         {
             if (unitDetailView == null)
-            {
                 return;
-            }
 
             unitDetailView.SetUnitIcon(unitIcon);
             unitDetailView.SetUnitName(unitName);
             unitDetailView.SetSynergies(synergyNames);
-            unitDetailView.SetSkill(0, firstSkillIcon, firstSkillDescription);
-            unitDetailView.SetSkill(1, secondSkillIcon, secondSkillDescription);
+
+            unitDetailView.SetSkill(0,firstSkillIcon,firstSkillName,firstSkillDescription);
+            unitDetailView.SetSkill(1,secondSkillIcon,secondSkillName,secondSkillDescription);
             unitDetailView.SetConceptDescription(conceptDescription);
         }
 
