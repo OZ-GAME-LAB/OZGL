@@ -182,6 +182,21 @@ namespace OzGameLab01.Combat
             _allyPrefabHandles.Clear();
         }
 
+        /// <summary>
+        /// 적 슬롯은 평면 적 스프라이트용으로 Y축 45° 회전돼 있어, 아군 프리팹(뼈대 리그)을 그대로 두면
+        /// 안쪽 벽을 바라봅니다. 아군과 같은 정면 방향으로 되돌리고, 오른쪽을 보던 그림만 좌우 반전해
+        /// 아군 쪽(왼쪽)을 보게 합니다. Anchors(Head/Body/Ground)는 x=0이라 반전 영향이 없습니다.
+        /// </summary>
+        private static void FaceAlliesAsEnemy(Unit enemyUnit)
+        {
+            enemyUnit.transform.rotation = Quaternion.identity;
+            Transform visual = enemyUnit.transform.Find("Visual");
+            if (visual == null) return;
+            Vector3 visualScale = visual.localScale;
+            visualScale.x = -Mathf.Abs(visualScale.x);
+            visual.localScale = visualScale;
+        }
+
         public Unit SpawnEnemy()
         {
             if (_battleMapView == null || !_battleMapView.TryGetEnemySpawnPoint(out Transform spawnPoint))
@@ -213,6 +228,10 @@ namespace OzGameLab01.Combat
                     ? ReusedAllySemibossScaleMultiplier
                     : _enemyScale * (isBossTier ? BossEnemyScaleMultiplier : 1f);
                 enemyUnit.transform.localScale = prefab.transform.localScale * scale;
+                if (isReusedAllySemiboss)
+                {
+                    FaceAlliesAsEnemy(enemyUnit);
+                }
                 CombatUnitFactory.AlignGroundToSlot(enemyUnit, spawnPoint);
                 CombatUnitViewBinder.BindCombatPresentation(enemyUnit);
                 enemyUnit.gameObject.SetActive(true);
