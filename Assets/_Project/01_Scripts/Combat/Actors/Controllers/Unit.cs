@@ -59,6 +59,9 @@ namespace OzGameLab01.Combat
         private UnitPresenter _presenter;
         // 도트/기절/그을림/침묵 디버프 상태는 UnitStatusEffects에 위임합니다.
         private UnitStatusEffects _status;
+        // 매 프레임 Tick에 넘기는 콜백을 한 번만 만들어 프레임당 델리게이트 할당을 없앱니다.
+        private System.Action<float> _onStatusDamage;
+        private System.Action<DebuffType> _onStatusExpired;
         private CombatSession _combatSession;
         // -1 means that no fixed-damage synergy is active.
         private float _fixedDamage = -1f;
@@ -105,6 +108,9 @@ namespace OzGameLab01.Combat
             {
                 _status = new UnitStatusEffects();
             }
+
+            _onStatusDamage ??= dmg => TakeDamage(dmg);
+            _onStatusExpired ??= type => _presenter.SetStatusEffectActive(type, false, transform);
         }
 
         private void Awake()
@@ -142,8 +148,7 @@ namespace OzGameLab01.Combat
             if (_stats != null && _stats.Tick(Time.deltaTime)) RefreshStats();
             _shields.Tick(Time.deltaTime);
             if (_tauntRemaining > 0f) _tauntRemaining -= Time.deltaTime;
-            _status.Tick(Time.deltaTime, dmg => TakeDamage(dmg),
-                type => _presenter.SetStatusEffectActive(type, false, transform));
+            _status.Tick(Time.deltaTime, _onStatusDamage, _onStatusExpired);
             _presenter.SetDebuffTint(_status.IndicatorColor);
             bool hasCooldown = TryGetActiveSkillCooldown(out float cdRemaining, out float cdDuration);
             _presenter.UpdateHud(_currentHP, maxHP, hasCooldown, cdRemaining, cdDuration);
@@ -365,6 +370,34 @@ namespace OzGameLab01.Combat
             remaining = 0f;
             duration = 0f;
             return false;
+        }
+
+        /// <summary>
+        /// 전투 중 처음 사용할 때 디스크에서 읽게 되는 Addressable 키(투사체, 스킬 시전/효과 VFX)를 모읍니다.
+        /// CombatAssetPreloader가 전투 시작 전에 미리 로드해 첫 사용 시 프레임 멈춤을 막습니다.
+        /// </summary>
+        public void CollectPreloadKeys(ICollection<object> keys)
+        {
+            if (projectilePrefabReference != null && projectilePrefabReference.RuntimeKeyIsValid())
+            {
+                keys.Add(projectilePrefabReference.RuntimeKey);
+            }
+
+            foreach (UnitSkillRuntime skill in _skills)
+            {
+                SkillData data = skill.data;
+                if (data == null) continue;
+                if (!string.IsNullOrEmpty(data.castVfxAddress)) keys.Add(data.castVfxAddress);
+                if (data.activeEffects == null) continue;
+                foreach (ActiveSkillEffectNode node in data.activeEffects)
+                {
+                    if (node?.vfx == null) continue;
+                    foreach (SkillVfxCue cue in node.vfx)
+                    {
+                        if (!string.IsNullOrEmpty(cue?.address)) keys.Add(cue.address);
+                    }
+                }
+            }
         }
 
         /// <summary>스킬 슬롯 개수(0번째 = 기본공격). 디버그 툴에서 몇 개의 버튼을 그려야 하는지 알 때 사용.</summary>

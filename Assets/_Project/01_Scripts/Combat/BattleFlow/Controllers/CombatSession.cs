@@ -53,6 +53,7 @@ namespace OzGameLab01.Combat
         private AllySpawner _allySpawner;
         private SynergyController _synergyController;
         private CombatEffectExecutor _combatEffectExecutor;
+        private readonly CombatAssetPreloader _assetPreloader = new CombatAssetPreloader();
         private CombatEffectFeedbackView _feedbackView;
         private EnemyHeaderController _enemyHeaderController;
 
@@ -186,6 +187,11 @@ namespace OzGameLab01.Combat
             _state.EnemyUnit = _allySpawner.SpawnEnemy();
             _enemyHeaderController?.SetEnemyName(_state.EnemyUnit != null ? _state.EnemyUnit.DisplayName : string.Empty);
 
+            // 전투 정보 화면이 떠 있는 동안 투사체/스킬 VFX를 미리 로드해 전투 중 첫 사용 멈춤을 없앱니다.
+            List<Unit> participants = _state.GetParticipatingAllyUnits();
+            participants.Add(_state.EnemyUnit);
+            _assetPreloader.Preload(participants);
+
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
             SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState(_synergyController.ActiveSharedEffects);
 
@@ -276,6 +282,7 @@ namespace OzGameLab01.Combat
             EnemyData = null;
             _combatEffectExecutor?.Dispose();
             _allySpawner?.Dispose();
+            _assetPreloader.Dispose();
         }
 
         private void BuildUnitStatLookup()
