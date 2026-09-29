@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using OzGameLab01.Events;
 using OzGameLab01.Managers;
+using OzGameLab01.Data;
 
 namespace OzGameLab01.UI
 {
@@ -47,6 +48,23 @@ namespace OzGameLab01.UI
 
         #region Public API
 
+        public string GetAddressableIcon(int choiceInde, EventChoice eventChoice)
+        {
+            string addressableString = null;
+
+            switch(eventChoice.ChoiceCategory)
+            {
+                case EventChoiceCategory.Relic:
+                    RelicData tempRelicData;
+                    DataManager.Relics.TryGet(int.Parse(eventChoice.ResultTargetID), out tempRelicData);
+
+                    addressableString = tempRelicData.iconAddress;
+                    break;
+            }
+
+            return addressableString;
+        }
+
         /// <summary>
         /// 아이콘이 없는 일반 이벤트 액션을 표시합니다.
         /// 기존 표시 데이터와 클릭 콜백을 새로운 액션 정보로 교체합니다.
@@ -55,7 +73,8 @@ namespace OzGameLab01.UI
         /// <param name="onClick">액션 선택 시 호출되는 단발성 콜백입니다.</param>
         public void Bind(int choiceIndex, EventChoice eventChoice, Action<int> onClick)
         {
-            Bind(choiceIndex, eventChoice.ChoiceDialog, eventChoice.ChoiceSprite, onClick);
+            string iconAddress = GetAddressableIcon(choiceIndex, eventChoice);
+            Bind(choiceIndex, eventChoice.ChoiceDialog, iconAddress, onClick);
         }
 
         /// <summary>
@@ -67,7 +86,7 @@ namespace OzGameLab01.UI
         /// <param name="label">버튼에 표시할 액션 또는 아이템 이름입니다.</param>
         /// <param name="icon">표시할 아이콘입니다. null이면 아이콘 영역을 숨깁니다.</param>
         /// <param name="onClick">액션 선택 시 호출되는 단발성 콜백입니다.</param>
-        public void Bind(int choiceIndex, string label,Sprite icon,Action<int> onClick)
+        public async void Bind(int choiceIndex, string label, string iconAddress ,Action<int> onClick)
         {
             gameObject.SetActive(true);
             _choiceIndex= choiceIndex;
@@ -77,6 +96,7 @@ namespace OzGameLab01.UI
             {
                 labelText.text = label ?? string.Empty;
             }
+            Sprite icon = await SpriteManager.GetSpriteAsync(iconAddress);
 
             SetIcon(icon);
 
