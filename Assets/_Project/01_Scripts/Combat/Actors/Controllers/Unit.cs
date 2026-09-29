@@ -580,9 +580,19 @@ namespace OzGameLab01.Combat
 
         private IEnumerator CastSkill(Unit target, UnitSkillRuntime skill, bool isBasicAttack)
         {
+            if (_isDead)
+            {
+                yield break;
+            }
+
             int useCount = !isBasicAttack && _useSkillTwice ? 2 : 1;
             for (int useIndex = 0; useIndex < useCount; useIndex++)
             {
+                if (_isDead)
+                {
+                    yield break;
+                }
+
                 if (!isBasicAttack)
                 {
                     // 스킬은 발동 즉시 시전 VFX를 띄웁니다(유닛 아이콘은 시전 VFX에 포함).
@@ -626,7 +636,7 @@ namespace OzGameLab01.Combat
                             _presenter.FireProjectile(skillTarget, skillTarget._presenter, UnitPresenter.GetVisualCenter(transform),
                                 () =>
                                 {
-                                    if (!_isDead) ExecuteActiveEffects(data, skillTarget);
+                                    ExecuteActiveEffects(data, skillTarget);
                                     return false;
                                 }, data.projectileScale);
                         }
@@ -651,6 +661,11 @@ namespace OzGameLab01.Combat
                     // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
                     if (!isBasicAttack)
                     {
+                        if (_isDead)
+                        {
+                            yield break;
+                        }
+
                         CombatManager.Instance?.Facade.ReportFeedback(new CombatFeedback(
                             CombatFeedbackKind.Skill, skill.data.name,
                             $"{DisplayName ?? name} → {target.DisplayName ?? target.name}", this));
