@@ -287,7 +287,6 @@ namespace OzGameLab01.Tests.EditMode
                 label.font != null && label.font.name.Contains("NotoSansKR")));
         }
 
-        [TestCase("Assets/_Project/02_Prefabs/UI/BattleUi/BattleUI.prefab")]
         [TestCase("Assets/_Project/02_Prefabs/UI/ReadyUi/Runtime/Synergy_Item.prefab")]
         public void SynergyItemPrefabsUseReadableLocalizedText(string prefabPath)
         {

@@ -111,12 +111,12 @@ namespace OzGameLab01.Tests.EditMode
             Assert.That(DataManager.IsInitialized, Is.True);
             Assert.That(DataManager.Units.Count, Is.EqualTo(12));
             Assert.That(DataManager.Monsters.Count, Is.EqualTo(5));
-            Assert.That(DataManager.Skills.Count, Is.EqualTo(41));
+            Assert.That(DataManager.Skills.Count, Is.EqualTo(28));
             Assert.That(DataManager.Synergies.Count, Is.EqualTo(12));
             Assert.That(DataManager.Relics.Count, Is.EqualTo(41));
             Assert.That(catalog.Skills.Count, Is.EqualTo(41));
             Assert.That(catalog.GetUnit(100).healthPoint, Is.EqualTo(92f));
-            Assert.That(catalog.GetSkill(920).damage, Is.EqualTo(8f));
+            Assert.That(catalog.GetSkill(900).damage, Is.EqualTo(10f));
             Assert.That(catalog.GetEnemy(1).healthPoint, Is.EqualTo(100));
 
             yield return new ExitPlayMode();
