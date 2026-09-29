@@ -18,9 +18,11 @@ namespace OzGameLab01.Combat
     {
         // 적 종류(프리팹·표시 이름)는 전투 계층 행(MonsterData)의 species 목록에서 매번 랜덤으로
         // 고른다. 목록이 비어 있으면 semiboss/boss는 MonsterData.prefabAddress, 그 외는
-        // enemyPrefabResourceName으로 폴백한다. semiboss/boss(중간·최종보스)는 크게 스케일업한다.
+        // enemyPrefabResourceName으로 폴백한다. 아군 프리팹을 재사용하는 중간보스는
+        // 원래 유닛 크기를 기준으로 확대하고, 기존 적 프리팹 보스는 적 배율을 유지한다.
         // 상세: Docs/ENEMY_SCALING_DESIGN.md 4-2절.
         private const float BossEnemyScaleMultiplier = 2.5f;
+        private const float ReusedAllySemibossScaleMultiplier = 2f;
 
         private readonly CombatMapView _battleMapView;
         private readonly string _enemyPrefabResourceName;
@@ -204,7 +206,12 @@ namespace OzGameLab01.Combat
             if (enemyUnit != null)
             {
                 if (species != null) enemyUnit.SetDisplayName(species.name);
-                float scale = _enemyScale * (isBossTier ? BossEnemyScaleMultiplier : 1f);
+                Unit prefabUnit = prefab.GetComponent<Unit>();
+                bool isReusedAllySemiboss = _enemyMonsterData.type == MonsterType.semiboss &&
+                    prefabUnit != null && prefabUnit.TeamValue == Unit.Team.Ally;
+                float scale = isReusedAllySemiboss
+                    ? ReusedAllySemibossScaleMultiplier
+                    : _enemyScale * (isBossTier ? BossEnemyScaleMultiplier : 1f);
                 enemyUnit.transform.localScale = prefab.transform.localScale * scale;
                 CombatUnitFactory.AlignGroundToSlot(enemyUnit, spawnPoint);
                 CombatUnitViewBinder.BindCombatPresentation(enemyUnit);

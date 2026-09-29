@@ -355,6 +355,25 @@ namespace OzGameLab01.Controllers
 
             SpriteRenderer enemyRenderer = enemyUnit.GetComponentInChildren<SpriteRenderer>(true);
             Sprite enemySprite = enemyRenderer != null ? enemyRenderer.sprite : null;
+            string enemyIconAddress = enemyData.species != null && enemyData.species.Count > 0
+                ? enemyData.species[0]?.iconAddress
+                : null;
+            if (!string.IsNullOrWhiteSpace(enemyIconAddress))
+            {
+                try
+                {
+                    enemySprite = await SpriteManager.GetSpriteAsync(enemyIconAddress) ?? enemySprite;
+                }
+                catch (System.Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+            if (_infoView == null)
+            {
+                _isBattleInfoBinding = false;
+                return;
+            }
             _infoView.Clear();
             _infoView.SetEnemy(enemyUnit.DisplayName, enemySprite);
             BindEnemyStats(enemyData);
