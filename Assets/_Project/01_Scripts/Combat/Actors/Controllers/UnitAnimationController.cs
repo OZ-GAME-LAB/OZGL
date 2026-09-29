@@ -13,7 +13,7 @@ namespace OzGameLab01.Combat
     {
         [Header("애니메이션")]
         [Tooltip("유닛 전투 애니메이션의 재생 속도입니다. VFX 재생 속도와는 별도로 적용됩니다.")]
-        [SerializeField, Min(0.1f)] private float animationSpeed = 2f;
+        [SerializeField, Min(0.1f)] private float animationSpeed = 1.5f;
 
         private Animator _animator;
         private Coroutine _returnToIdleRoutine;
