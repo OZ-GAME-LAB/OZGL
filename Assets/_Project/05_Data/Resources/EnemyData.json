@@ -65,7 +65,18 @@
       ],
       "type": "semiboss",
       "species": [
-        {"name": "마녀", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla"}
+        {"name": "앨리스", "prefabAddress": "Characters/AllyPrefabs/Ally_Alice_Vanilla", "iconAddress": "I_Un_100"},
+        {"name": "흰토끼", "prefabAddress": "Characters/AllyPrefabs/Ally_Rabbit_Vanilla", "iconAddress": "I_Un_101"},
+        {"name": "체셔캣", "prefabAddress": "Characters/AllyPrefabs/Ally_CheshireCat_Vanilla", "iconAddress": "I_Un_102"},
+        {"name": "지니", "prefabAddress": "Characters/AllyPrefabs/Ally_Genie_Vanilla", "iconAddress": "I_Un_105"},
+        {"name": "사자", "prefabAddress": "Characters/AllyPrefabs/Ally_Lion_Vanilla", "iconAddress": "I_Un_106"},
+        {"name": "허수아비", "prefabAddress": "Characters/AllyPrefabs/Ally_Scarecrow_Vanilla", "iconAddress": "I_Un_108"},
+        {"name": "도로시", "prefabAddress": "Characters/AllyPrefabs/Ally_Dorothy_Vanilla", "iconAddress": "I_Un_109"},
+        {"name": "인어공주", "prefabAddress": "Characters/AllyPrefabs/Ally_Mermaid_Vanilla", "iconAddress": "I_Un_110"},
+        {"name": "백설공주", "prefabAddress": "Characters/AllyPrefabs/Ally_Snowwhite_Vanilla", "iconAddress": "I_Un_111"},
+        {"name": "피터팬", "prefabAddress": "Characters/AllyPrefabs/Ally_PeterPan_Vanilla", "iconAddress": "I_Un_114"},
+        {"name": "팅커벨", "prefabAddress": "Characters/AllyPrefabs/Ally_Tinkerbell_Vanilla", "iconAddress": "I_Un_115"},
+        {"name": "제페토", "prefabAddress": "Characters/AllyPrefabs/Ally_Zepeto_Vanilla", "iconAddress": "I_Un_120"}
       ]
     },
     {

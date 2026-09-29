@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using OzGameLab01.Controllers;
 using OzGameLab01.Data;
 using OzGameLab01.Managers;
@@ -44,9 +45,20 @@ namespace OzGameLab01.Combat
                 monsterIdOverride);
             MonsterData baseData = RuntimeContent.Catalog.GetEnemy(monsterId);
 
-            return baseData != null
-                ? EnemyManager.Instance.Facade.BuildCombatSpec(baseData)
-                : null;
+            if (baseData == null) return null;
+
+            MonsterData enemy = EnemyManager.Instance.Facade.BuildCombatSpec(baseData);
+            if (enemy == null) return null;
+            if (enemy.type == MonsterType.semiboss && enemy.species != null && enemy.species.Count > 0)
+            {
+                // 미리보기와 전투 씬에서 같은 유닛을 고르도록 런 정보로 선택한다.
+                int seed = unchecked(BoardRunData.MapSeed * 397 ^ BoardRunData.TurnCount * 31 ^ monsterId);
+                MonsterSpecies chosen = enemy.species[(seed & int.MaxValue) % enemy.species.Count];
+                enemy.name = chosen.name;
+                enemy.species = new List<MonsterSpecies> { chosen };
+            }
+
+            return enemy;
         }
 
         public static int ResolveMonsterId(

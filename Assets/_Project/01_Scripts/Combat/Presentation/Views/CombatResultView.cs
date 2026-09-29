@@ -11,8 +11,6 @@ namespace OzGameLab01.UI.Battle
     [DisallowMultipleComponent]
     public sealed class CombatResultView : MonoBehaviour, IRelicDisplayable
     {
-        private const int MaxDpsInfoCount = 4;
-
         [Header("References")]
         [SerializeField] private TMP_Text resultText;
         [SerializeField] private TMP_Text optionalMessageText;
@@ -181,19 +179,19 @@ namespace OzGameLab01.UI.Battle
 
         public DpsInfoItemView CreateDpsInfoItem()
         {
-            if (dpsInfoItemPrefab == null || dpsListRoot == null)
+            if (dpsInfoItemPrefab == null)
             {
+                Debug.LogError("[CombatResultView] DpsInfoItemPrefab 참조가 없습니다.", this);
                 return null;
             }
 
-            if (dpsInfoItems.Count >= MaxDpsInfoCount)
+            if (dpsListRoot == null)
             {
-                Debug.LogWarning($"{nameof(CombatResultView)} can display up to {MaxDpsInfoCount} DPS entries.", this);
-
+                Debug.LogError("[CombatResultView] DpsListRoot 참조가 없습니다.", this);
                 return null;
             }
 
-            DpsInfoItemView item = Instantiate(dpsInfoItemPrefab,dpsListRoot);
+            DpsInfoItemView item = Instantiate(dpsInfoItemPrefab, dpsListRoot);
 
             dpsInfoItems.Add(item);
             RefreshDpsListVisibility();

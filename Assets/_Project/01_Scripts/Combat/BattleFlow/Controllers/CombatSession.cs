@@ -60,6 +60,7 @@ namespace OzGameLab01.Combat
         public MonsterData EnemyData { get; private set; }
         public bool IsBattleReady { get; private set; }
         public bool IsBattleRunning { get; private set; }
+        public float BattleElapsedSeconds { get; private set; }
         public IReadOnlyList<SynergyData> ActiveSynergies =>
             _synergyController?.GetActiveSynergies() ?? Array.Empty<SynergyData>();
 
@@ -76,7 +77,13 @@ namespace OzGameLab01.Combat
             }
 
             IsBattleRunning = true;
+            BattleElapsedSeconds = 0f;
             PassiveEventBus.RaiseBattleStart();
+        }
+
+        public void CompleteBattle()
+        {
+            IsBattleRunning = false;
         }
 
         public void ReportFeedback(CombatFeedback feedback)
@@ -88,6 +95,7 @@ namespace OzGameLab01.Combat
         {
             IsBattleReady = false;
             IsBattleRunning = false;
+            BattleElapsedSeconds = 0f;
 
             // 정적 상태라 실기기 빌드에서는 씬 전환만으로 비워지지 않는다.
             // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.
@@ -253,6 +261,11 @@ namespace OzGameLab01.Combat
 
         private void Update()
         {
+            if (IsBattleRunning)
+            {
+                BattleElapsedSeconds += Time.deltaTime;
+            }
+
             _enemyHeaderController?.Refresh(_state.EnemyUnit);
         }
 

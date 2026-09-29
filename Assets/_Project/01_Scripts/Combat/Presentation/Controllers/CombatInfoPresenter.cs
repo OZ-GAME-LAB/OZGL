@@ -39,6 +39,23 @@ namespace OzGameLab01.UI
             _view.SetBattleAction(() => HandleBattleRequested(requestVersion, battleRequested));
             _view.SetVisible(true);
 
+            string enemyIconAddress = enemy.species != null && enemy.species.Count > 0
+                ? enemy.species[0]?.iconAddress
+                : null;
+            if (!string.IsNullOrWhiteSpace(enemyIconAddress))
+            {
+                try
+                {
+                    Sprite icon = await SpriteManager.GetSpriteAsync(enemyIconAddress);
+                    if (!IsCurrentRequest(requestVersion)) return;
+                    if (icon != null) _view.SetEnemy(enemy.name, icon);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+
             List<SkillData> skills = ResolveSkills(enemy.skillIds);
 
             try
