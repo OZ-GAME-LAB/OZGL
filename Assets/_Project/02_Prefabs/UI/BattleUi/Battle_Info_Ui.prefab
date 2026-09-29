@@ -948,6 +948,7 @@ GameObject:
   - component: {fileID: 8812217543947853087}
   - component: {fileID: 7002333507565990217}
   - component: {fileID: 5620129913122505087}
+  - component: {fileID: 6414467723790566443}
   m_Layer: 0
   m_Name: BattleButton
   m_TagString: Untagged
@@ -1091,6 +1092,20 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 1, g: 0, b: 0, a: 1}
   fadeDuration: 0.15
+--- !u!114 &6414467723790566443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1857832183265539461}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &1999997388754887585
 GameObject:
   m_ObjectHideFlags: 0

@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 1485323149864986886}
   - component: {fileID: 8824075219949205506}
   - component: {fileID: 7282735492262347158}
+  - component: {fileID: 1794779380111197956}
   m_Layer: 0
   m_Name: CancelButton
   m_TagString: Untagged
@@ -139,6 +140,20 @@ MonoBehaviour:
   hoverScale: 1.03
   pressedScale: 0.97
   duration: 0.12
+--- !u!114 &1794779380111197956
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 559540084736235809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &647797302483707209
 GameObject:
   m_ObjectHideFlags: 0
@@ -188,6 +203,7 @@ GameObject:
   - component: {fileID: 5706345331422756749}
   - component: {fileID: 3095186137306078711}
   - component: {fileID: 5800053834272833842}
+  - component: {fileID: 4677978729541088885}
   m_Layer: 0
   m_Name: ConfirmButton
   m_TagString: Untagged
@@ -314,6 +330,20 @@ MonoBehaviour:
   hoverScale: 1.03
   pressedScale: 0.97
   duration: 0.12
+--- !u!114 &4677978729541088885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 905786235325845416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &911744165187365704
 GameObject:
   m_ObjectHideFlags: 0
@@ -569,6 +599,7 @@ GameObject:
   - component: {fileID: 5798262011050951081}
   - component: {fileID: 422925664946764017}
   - component: {fileID: 8910247791454870731}
+  - component: {fileID: 9114869616855575172}
   m_Layer: 0
   m_Name: StartButton
   m_TagString: Untagged
@@ -712,6 +743,20 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
   fadeDuration: 0.15
+--- !u!114 &9114869616855575172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2149876839244331892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &2382765373614633933
 GameObject:
   m_ObjectHideFlags: 0
@@ -1551,6 +1596,7 @@ GameObject:
   - component: {fileID: 3713773251758216983}
   - component: {fileID: 5632681005365829287}
   - component: {fileID: 5668300582688793992}
+  - component: {fileID: 3360300758495548048}
   m_Layer: 0
   m_Name: ContinueButton
   m_TagString: Untagged
@@ -1694,6 +1740,20 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
   fadeDuration: 0.15
+--- !u!114 &3360300758495548048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3590973258407064451}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &3770233049471248919
 GameObject:
   m_ObjectHideFlags: 0
@@ -1783,6 +1843,7 @@ GameObject:
   - component: {fileID: 551105927560818174}
   - component: {fileID: 3796954686432133308}
   - component: {fileID: 3771424515009203194}
+  - component: {fileID: 8746287438056883053}
   m_Layer: 0
   m_Name: ExitButton
   m_TagString: Untagged
@@ -1926,6 +1987,20 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
   fadeDuration: 0.15
+--- !u!114 &8746287438056883053
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4815076507423990733}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &5121509752841881631
 GameObject:
   m_ObjectHideFlags: 0
@@ -2724,6 +2799,7 @@ GameObject:
   - component: {fileID: 5052358509614319603}
   - component: {fileID: 612949714809280725}
   - component: {fileID: 5825184593056480851}
+  - component: {fileID: 1344365618454326018}
   m_Layer: 0
   m_Name: SettingsButton
   m_TagString: Untagged
@@ -2867,6 +2943,20 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
   fadeDuration: 0.15
+--- !u!114 &1344365618454326018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7300180626939911151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &8026943552998850449
 GameObject:
   m_ObjectHideFlags: 0

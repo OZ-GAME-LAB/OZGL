@@ -1230,6 +1230,7 @@ GameObject:
   - component: {fileID: 6424425334681258210}
   - component: {fileID: 5688620646327216207}
   - component: {fileID: 1191089963085413520}
+  - component: {fileID: 8056272943199665896}
   m_Layer: 0
   m_Name: ConfirmButton
   m_TagString: Untagged
@@ -1373,3 +1374,17 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
   fadeDuration: 0.15
+--- !u!114 &8056272943199665896
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8482612673128952306}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
