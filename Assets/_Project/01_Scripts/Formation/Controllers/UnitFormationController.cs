@@ -608,6 +608,7 @@ namespace OzGameLab01.Controllers
             {
                 if (RemoveUnit(FormationSlotKind.Battle, battleSlotIndex))
                 {
+                    SoundConnector.RequestSfx(SoundId.UnitPlaced);
                     SaveFormation();
                 }
 
@@ -620,6 +621,7 @@ namespace OzGameLab01.Controllers
             {
                 if (RemoveUnit(FormationSlotKind.Support, supportSlotIndex))
                 {
+                    SoundConnector.RequestSfx(SoundId.UnitRemoved);
                     SaveFormation();
                 }
 

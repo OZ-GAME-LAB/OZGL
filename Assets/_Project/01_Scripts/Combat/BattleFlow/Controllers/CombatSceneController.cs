@@ -118,6 +118,8 @@ namespace OzGameLab01.Controllers
             // CombatSession resets the bus in Awake. Subscribe after all Awake calls.
             PassiveEventBus.OnSelfDeath += MarkOutcomeDirty;
             _outcomeDirty = true;
+
+            SoundConnector.RequestBgm(SoundId.BgmCombat, true);
         }
 
         private void MarkOutcomeDirty(Unit unit)
@@ -164,6 +166,11 @@ namespace OzGameLab01.Controllers
             {
                 _combatSession?.SaveAllyHealthToRunData();
                 BoardRunData.CompleteCurrentBattle();
+                SoundConnector.RequestSfx(SoundId.CombatVictory);
+            }
+            else
+            {
+                SoundConnector.RequestSfx(SoundId.CombatDefeat);
             }
 
             // UI 컨트롤러에게 결과창을 띄우라고 신호를 보냅니다.

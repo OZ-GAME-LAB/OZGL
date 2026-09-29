@@ -4,6 +4,7 @@ using OzGameLab01.Data;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Events.Contracts;
 using OzGameLab01.Managers;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -163,6 +164,7 @@ namespace OzGameLab01.Events
                     {
                         SystemBus.Get<RelicFacade>()?.AcquireRelic(relicId);
                     }
+                    SoundConnector.RequestSfx(SoundId.RelicGain);
                     Debug.Log($"Get [{selectedChoice.ResultTargetID}] Relic");
                     CloseCanvas();
                     break;
