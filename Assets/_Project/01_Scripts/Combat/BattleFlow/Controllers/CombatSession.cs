@@ -61,6 +61,8 @@ namespace OzGameLab01.Combat
         public MonsterData EnemyData { get; private set; }
         public bool IsBattleReady { get; private set; }
         public bool IsBattleRunning { get; private set; }
+        // 전투 종료 처리에서 BoardRunData의 전투 정보가 먼저 초기화되므로 시작 시점에 기억해 둡니다.
+        public bool IsNightBattle { get; private set; }
         public float BattleElapsedSeconds { get; private set; }
         public IReadOnlyList<SynergyData> ActiveSynergies =>
             _synergyController?.GetActiveSynergies() ?? Array.Empty<SynergyData>();
@@ -97,6 +99,7 @@ namespace OzGameLab01.Combat
             IsBattleReady = false;
             IsBattleRunning = false;
             BattleElapsedSeconds = 0f;
+            IsNightBattle = BoardRunData.IsNightEncounter;
 
             // 정적 상태라 실기기 빌드에서는 씬 전환만으로 비워지지 않는다.
             // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.

@@ -15,6 +15,8 @@ namespace OzGameLab01.Combat
         private CombatSession _session;
 
         public Unit EnemyUnit => GetSession()?.State.EnemyUnit;
+        public int ActiveSynergyCount => GetSession()?.ActiveSynergies.Count ?? 0;
+        public bool IsNightBattle => GetSession()?.IsNightBattle ?? false;
 
         public bool TryGetBattleOutcome(out bool victory)
         {

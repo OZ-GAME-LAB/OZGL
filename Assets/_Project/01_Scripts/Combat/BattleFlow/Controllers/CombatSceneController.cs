@@ -160,6 +160,9 @@ namespace OzGameLab01.Controllers
             }
             _pendingDeadUnits.Clear();
 
+            // 전투 종료 효과(예: 유물 716 종료 시 회복)가 저장될 체력에 반영되도록 HP 저장보다 먼저 발행합니다.
+            PassiveEventBus.RaiseBattleEnd(victory);
+
             if (victory)
             {
                 _combatSession?.SaveAllyHealthToRunData();
@@ -167,7 +170,6 @@ namespace OzGameLab01.Controllers
             }
 
             // UI 컨트롤러에게 결과창을 띄우라고 신호를 보냅니다.
-            PassiveEventBus.RaiseBattleEnd(victory);
             OnBattleResolved?.Invoke(victory);
         }
 

@@ -188,6 +188,12 @@ namespace OzGameLab01.Combat
                     continue;
                 }
 
+                if (effect.condition != EffectCondition.None &&
+                    !OzGameLab01.Effects.Models.EffectConditionEvaluator.IsMet(effect, BuildConditionContext()))
+                {
+                    continue;
+                }
+
                 // chance는 0~100 퍼센트. 0 이하는 "확률 미지정 = 항상 발동"으로 취급합니다.
                 if (effect.chance > 0f && _random.NextDouble() * 100f >= effect.chance)
                 {
@@ -217,6 +223,15 @@ namespace OzGameLab01.Combat
                     _firedOnce.Add(onceKey);
                 }
             }
+        }
+
+        private OzGameLab01.Effects.Models.EffectConditionContext BuildConditionContext()
+        {
+            return new OzGameLab01.Effects.Models.EffectConditionContext(
+                _facade.GetParticipatingAllyUnits().Count,
+                _facade.GetAlliesInRow(CombatManager.SlotRow.Front).Count,
+                _facade.ActiveSynergyCount,
+                _facade.IsNightBattle);
         }
 
         private IEnumerable<Unit> ResolveTargets(
@@ -366,7 +381,9 @@ namespace OzGameLab01.Combat
                     return true;
 
                 case EffectType.Heal:
-                    return target.Heal(effect.effectParam);
+                    if (!effect.effectParamIsPercent) return target.Heal(effect.effectParam);
+                    float healBase = effect.percentOfMissingHp ? target.MaxHp - target.CurrentHp : target.MaxHp;
+                    return target.Heal(healBase * effect.effectParam / 100f);
                 case EffectType.GrantShield:
                     float shieldAmount = effect.effectParamIsPercent
                         ? target.MaxHp * effect.effectParam / 100f

@@ -80,6 +80,27 @@ namespace OzGameLab01.Effects.Models
         }
 
         /// <summary>
+        /// 보유 유물의 보드용 수치 보정(StatModifier)을 합산합니다.
+        /// 예: CurrentDiceValue(700 이동 +1), NightSightStep(717 밤 시야 +1단계).
+        /// </summary>
+        public float GetBoardStatBonus(EffectStatType statType)
+        {
+            float total = 0f;
+            foreach (RelicData relic in OwnedRelics)
+            {
+                if (relic?.effects == null) continue;
+                foreach (EffectInstance effect in relic.effects)
+                {
+                    if (effect.effect == EffectType.StatModifier && effect.statType == statType)
+                    {
+                        total += effect.effectParam;
+                    }
+                }
+            }
+            return total;
+        }
+
+        /// <summary>
         /// 유물 세이브 데이터 복원
         /// </summary>
         /// <param name="saveEntries"></param>
