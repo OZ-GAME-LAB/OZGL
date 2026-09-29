@@ -1,10 +1,16 @@
-using System.Collections.Generic;
-using UnityEngine;
+using OzGameLab01.Common;
+using OzGameLab01.Controllers;
 using OzGameLab01.Data;
 using OzGameLab01.Effects.Models;
 using OzGameLab01.Events.Contracts;
+<<<<<<< HEAD
 using OzGameLab01.Common;
 using OzGameLab01.Managers;
+=======
+using OzGameLab01.Managers;
+using System.Collections.Generic;
+using UnityEngine;
+>>>>>>> dev
 
 namespace OzGameLab01.Events
 {
@@ -171,6 +177,11 @@ namespace OzGameLab01.Events
                     CloseCanvas();
                     break;
                 case EventChoiceCategory.Battle:
+
+                    BoardSceneController controller = UnityEngine.Object.FindFirstObjectByType<BoardSceneController>();
+
+                    controller.TryRequestEventBattle();
+
                     Debug.Log("Go To Battle Scene");
                     CloseCanvas();
                     break;
@@ -191,7 +202,7 @@ namespace OzGameLab01.Events
                     Debug.Log($"다음 선택지로 이동[{selectedChoice.ResultTargetID}]");
                     break;
                 case EventChoiceCategory.Heal:
-                    Debug.LogWarning("[EventFacade] 회복 효과가 아직 등록되지 않았습니다.");
+                    BoardRunData.RecoverBattleUnitHealth(10);
                     CloseCanvas();
                     break;
                 case EventChoiceCategory.Exit:
