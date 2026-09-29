@@ -293,6 +293,50 @@ MonoBehaviour:
     channel: 1
     clip: {fileID: 0}
     volume: 1
+  - id: 43
+    channel: 1
+    clip: {fileID: 8300000, guid: d449fe7ed35077840a9489756dd264a6, type: 3}
+    volume: 1
+  - id: 44
+    channel: 1
+    clip: {fileID: 8300000, guid: a43dc27275b70dd408cc04d2af17e03d, type: 3}
+    volume: 1
+  - id: 45
+    channel: 1
+    clip: {fileID: 8300000, guid: d5b9b4463bdcbf3439d3a4cb81a55121, type: 3}
+    volume: 1
+  - id: 46
+    channel: 1
+    clip: {fileID: 8300000, guid: 09a9f77e08df31e44998c07e3ef28e93, type: 3}
+    volume: 1
+  - id: 47
+    channel: 1
+    clip: {fileID: 8300000, guid: 2ee387194e4fb1e4f9a734a49ddfb537, type: 3}
+    volume: 1
+  - id: 48
+    channel: 1
+    clip: {fileID: 8300000, guid: c07f2d50720740a4888fb137eb42cb7f, type: 3}
+    volume: 1
+  - id: 49
+    channel: 1
+    clip: {fileID: 8300000, guid: 2ff8abdb781200a468e40e95a875d07f, type: 3}
+    volume: 1
+  - id: 50
+    channel: 1
+    clip: {fileID: 8300000, guid: e3de3500730dbf741b86bb7bcbca3bce, type: 3}
+    volume: 1
+  - id: 51
+    channel: 1
+    clip: {fileID: 8300000, guid: b580227b551ebd64a9f906c75893ac5f, type: 3}
+    volume: 1
+  - id: 52
+    channel: 1
+    clip: {fileID: 8300000, guid: 7181f80795a6d3448917f54c973482ce, type: 3}
+    volume: 1
+  - id: 53
+    channel: 1
+    clip: {fileID: 8300000, guid: 2798109f5a20f864b8199ec730d283a0, type: 3}
+    volume: 1
   bgmSource: {fileID: 0}
   sfxSource: {fileID: 0}
 --- !u!1 &7099416111231536268

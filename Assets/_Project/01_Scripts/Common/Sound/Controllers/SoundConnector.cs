@@ -9,6 +9,7 @@ namespace OzGameLab01.Managers
     [DisallowMultipleComponent]
     public sealed class SoundConnector : MonoBehaviour
     {
+        private static readonly System.Random SfxRandom = new System.Random();
         private static SoundConnector _global;
         private SoundManager _soundManager;
 
@@ -87,7 +88,9 @@ namespace OzGameLab01.Managers
                 return;
             }
 
-            SoundId picked = ids[UnityEngine.Random.Range(0, ids.Length)];
+            // 사운드 선택이 주사위나 전투처럼 UnityEngine.Random을 사용하는
+            // 게임 플레이 난수 순서에 영향을 주지 않도록 별도 난수원을 사용합니다.
+            SoundId picked = ids[SfxRandom.Next(ids.Length)];
             RequestSfx(picked);
         }
 

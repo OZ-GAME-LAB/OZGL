@@ -54,6 +54,8 @@ namespace OzGameLab01.Controllers
 
         [Header("Event UI")]
         [SerializeField] private OzGameLab01.Events.EventSession _eventUIPanel;
+        [Tooltip("튜토리얼 세션의 이벤트 타일에서 무작위 이벤트 대신 표시할 전용 이벤트입니다.")]
+        [SerializeField] private OzGameLab01.Events.EventSO _tutorialEvent;
 
         // ==================== 외부 시스템 통지용 이벤트 ====================
 
@@ -211,13 +213,18 @@ namespace OzGameLab01.Controllers
                 return;
             }
 
+            SoundConnector.RequestSfx(SoundId.BoardTurnEnd);
+
             BoardTimeOfDay previousTimeOfDay = CurrentTimeOfDay;
 
             SystemBus.Messages.Request<OzGameLab01.Dice.Contracts.DiceResetRequested, bool>(default);
 
             TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
 
-            BoardRunData.RecoverBattleUnitHealth(BoardRunData.UnusedActionPoints);
+            int healthRecoveryPerActionPoint =
+                TutorialSessionState.IsActive ? 100 : 1;
+            BoardRunData.RecoverBattleUnitHealth(
+                BoardRunData.UnusedActionPoints * healthRecoveryPerActionPoint);
 
             bool wasNightTurn = previousTimeOfDay == BoardTimeOfDay.Night;
             BoardRunData.AdvanceTurn(wasNightTurn);
@@ -648,7 +655,11 @@ namespace OzGameLab01.Controllers
                 _eventCompletionSubscription = SystemBus.Messages.Subscribe<OzGameLab01.Events.Contracts.EventChoiceCompleted>(
                     _ => HandleEventCompleted());
 
-                if (eventFacade.OpenRandomEvent())
+                bool opened = TutorialSessionState.IsActive && _tutorialEvent != null
+                    ? eventFacade.OpenChoiceEvent(_tutorialEvent)
+                    : eventFacade.OpenRandomEvent();
+
+                if (opened)
                 {
                     return;
                 }

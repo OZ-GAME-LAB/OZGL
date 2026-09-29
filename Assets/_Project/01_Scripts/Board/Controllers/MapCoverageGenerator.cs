@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using OzGameLab01.Board.Models;
 using System.Linq;
-using OzGameLab01.Data;
 using UnityEngine;
 
 namespace OzGameLab01.Map
@@ -43,12 +41,17 @@ namespace OzGameLab01.Map
                 return;
             }
 
-            List<Vector2Int> consumed = new List<Vector2Int>();
-            foreach (MapNode node in AllNodes)
-            {
-                if (BoardRunData.IsSpecialTileConsumed(node.Position)) { consumed.Add(node.Position); }
-            }
-            var model = new BoardCoverageModel(maximumStepsWithoutInteraction, minimumBranchDepth, maximumBranchPaths, eventTileRatio, consumed);
+            // 커버리지 배치는 소비 이력과 무관하게 MapSeed만으로 최초 맵과 동일하게
+            // 재현합니다. 소비된 타일을 여기서 제외하면 전투 복귀 시 빈 구간을 채우기
+            // 위해 다른 Normal 타일이 Event/Battle로 새로 승격됩니다.
+            // 보정이 끝난 뒤 MapGenerator.ApplyConsumedSpecialTiles()가 기존 소비 타일만
+            // Normal로 복원합니다.
+            var model = new BoardCoverageModel(
+                maximumStepsWithoutInteraction,
+                minimumBranchDepth,
+                maximumBranchPaths,
+                eventTileRatio,
+                System.Array.Empty<Vector2Int>());
             model.Repair(startNode, out int repairedBands, out int repairedBranches);
 
             Debug.Log(

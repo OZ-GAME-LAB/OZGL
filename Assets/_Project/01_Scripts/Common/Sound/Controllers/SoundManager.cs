@@ -55,7 +55,19 @@ namespace OzGameLab01.Managers
         CombatDefeat, // 전투 패배 효과음
         RelicGain, // 유물 획득
         ItemGain, // 아이템 획득
-        SceneTransition // 씬 전환
+        SceneTransition, // 씬 전환
+
+        BoardTurnEnd, // 보드 턴 종료
+        BoardPlayerMove_0, // 보드 플레이어 한 칸 이동 0
+        BoardPlayerMove_1, // 보드 플레이어 한 칸 이동 1
+        BoardPlayerMove_2, // 보드 플레이어 한 칸 이동 2
+        BoardPlayerMove_3, // 보드 플레이어 한 칸 이동 3
+        BoardDayChange, // 보드 낮/밤 전환
+        BoardDiceRoll_0, // 보드 주사위 굴리기 0
+        BoardDiceRoll_1, // 보드 주사위 굴리기 1
+        BoardDiceRoll_2, // 보드 주사위 굴리기 2
+        BoardDiceRoll_3, // 보드 주사위 굴리기 3
+        BoardGetUnit // 보드 유닛 획득
     }
 
     public enum SoundChannel
