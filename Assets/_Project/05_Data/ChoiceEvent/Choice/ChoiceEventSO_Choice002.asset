@@ -16,15 +16,15 @@ MonoBehaviour:
   eventTitle: "\uC0D8\uBB3C"
   eventDialog: "\uB9D1\uC740 \uBB3C\uAC00\uC5D0 \uB3C4\uCC29\uD588\uB2E4."
   eventCategory: 0
-  choiceCategory: 3
+  choiceCategory: 4
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 21300000, guid: 84127f75c805ce14f86dff2c58dc7279, type: 3}
     choiceDialog: "\uC0D8\uBB3C\uC744 \uB9C8\uC2E0\uB2E4."
-    choiceCategory: 3
+    choiceCategory: 4
     resultTargetID: 300
   - choiceIndex: 1
     choiceSprite: {fileID: 21300000, guid: 31707511d9d27f84eae0f71a2672a65e, type: 3}
     choiceDialog: "\uAC00\uB358 \uAE38\uC744 \uAC04\uB2E4."
-    choiceCategory: 3
+    choiceCategory: 4
     resultTargetID: 102

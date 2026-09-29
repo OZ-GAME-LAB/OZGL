@@ -18,20 +18,20 @@ MonoBehaviour:
     \uC778\uAC04 \uC138\uACC4\uB85C \uC62C\uB77C\uAC00 \uCC98\uC74C\uC73C\uB85C \uBAA9\uACA9\uD55C
     \uC655\uC790\uB294 \uC5B4\uB5A4 \uBAA8\uC2B5\uC774\uC5C8\uB098?"
   eventCategory: 1
-  choiceCategory: 5
+  choiceCategory: 6
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 0}
     choiceDialog: "\uAD81\uC804 \uC815\uC6D0\uC5D0\uC11C \uC0B0\uCC45"
-    choiceCategory: 3
+    choiceCategory: 4
     resultTargetID: 401
   - choiceIndex: 1
     choiceSprite: {fileID: 0}
     choiceDialog: "\uC120\uC0C1 \uD30C\uD2F0"
-    choiceCategory: 3
+    choiceCategory: 4
     resultTargetID: 200
   - choiceIndex: 2
     choiceSprite: {fileID: 0}
     choiceDialog: "\uD574\uBCC0\uC5D0\uC11C \uD6C8\uB828"
-    choiceCategory: 3
+    choiceCategory: 4
     resultTargetID: 401

@@ -18,15 +18,15 @@ MonoBehaviour:
     \uC815\uB2F5\uC744 \uB9DE\uCD94\uBA74 \uBCF4\uC0C1\uC73C\uB85C \uC720\uBB3C\uC744
     \uB4DC\uB9BD\uB2C8\uB2E4!"
   eventCategory: 0
-  choiceCategory: 3
+  choiceCategory: 4
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 21300000, guid: bc325881c0bae764e852afa24b556921, type: 3}
     choiceDialog: "\uB3C4\uC804\uD55C\uB2E4."
-    choiceCategory: 5
+    choiceCategory: 6
     resultTargetID: 500
   - choiceIndex: 1
     choiceSprite: {fileID: 21300000, guid: 31707511d9d27f84eae0f71a2672a65e, type: 3}
     choiceDialog: "\uAC00\uB358 \uAE38\uC744 \uAC04\uB2E4."
-    choiceCategory: 3
+    choiceCategory: 4
     resultTargetID: 102
