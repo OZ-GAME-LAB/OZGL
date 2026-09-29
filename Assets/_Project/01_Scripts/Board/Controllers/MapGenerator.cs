@@ -53,6 +53,9 @@ namespace OzGameLab01.Map
         public IReadOnlyDictionary<Vector2Int, MapNode> NodeDict => _nodeDict;
         private BoardMapView _mapView;
         private BoardMapView MapView => _mapView ?? (_mapView = new BoardMapView(transform));
+        private readonly Plane[] _frustumPlanes = new Plane[6];
+        private Camera _effectCullingCamera;
+        private Matrix4x4 _lastCullingMatrix;
 
         /// <summary>
         /// 논리 노드에 대응하는 현재 화면 오브젝트를 반환합니다.
@@ -125,6 +128,29 @@ namespace OzGameLab01.Map
             {
                 CreateMapImmediately();
             }
+        }
+
+        private void LateUpdate()
+        {
+            if (_effectCullingCamera == null)
+            {
+                _effectCullingCamera = Camera.main;
+                if (_effectCullingCamera == null)
+                {
+                    return;
+                }
+            }
+
+            // 카메라가 움직였거나 타일이 새로 생겼을 때만 시야 판정을 다시 합니다.
+            Matrix4x4 cullingMatrix = _effectCullingCamera.projectionMatrix * _effectCullingCamera.worldToCameraMatrix;
+            if (!MapView.EffectViewsChanged && cullingMatrix == _lastCullingMatrix)
+            {
+                return;
+            }
+
+            _lastCullingMatrix = cullingMatrix;
+            GeometryUtility.CalculateFrustumPlanes(cullingMatrix, _frustumPlanes);
+            MapView.UpdateEffectVisibility(_frustumPlanes);
         }
 
         public void GenerateMapData()
