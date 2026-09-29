@@ -29,6 +29,10 @@ namespace OzGameLab01.Controllers
         private readonly List<GameObject> _activeTileMasks = new List<GameObject>();
         private Material _reachableDimMaterial;
         private bool _tutorialTileFocusActive;
+        private Bounds _overlayBoardBounds;
+        private float _overlayPlaneY;
+        private bool _hasOverlayLayout;
+        private Camera _mainCamera;
 
         private MapGenerator _mapGenerator;
 
@@ -70,6 +74,16 @@ namespace OzGameLab01.Controllers
 
             _tutorialTileFocusActive = false;
             ClearMoveRange();
+        }
+
+        private void LateUpdate()
+        {
+            if (_hasOverlayLayout &&
+                _globalDimOverlay != null &&
+                _globalDimOverlay.activeSelf)
+            {
+                RefreshGlobalOverlayTransform();
+            }
         }
 
         private void CreateGlobalDimOverlay()
@@ -460,20 +474,73 @@ namespace OzGameLab01.Controllers
                 CreateGlobalDimOverlay();
             }
 
+            _overlayBoardBounds = boardBounds;
+            _overlayPlaneY = overlayY;
+            _hasOverlayLayout = true;
+
+            RefreshGlobalOverlayTransform();
+            _globalDimOverlay.SetActive(true);
+        }
+
+        private void RefreshGlobalOverlayTransform()
+        {
+            if (!_hasOverlayLayout || _globalDimOverlay == null)
+            {
+                return;
+            }
+
+            Bounds overlayBounds = _overlayBoardBounds;
+            ExpandBoundsToCameraView(ref overlayBounds, _overlayPlaneY);
+
             float spacing = _mapGenerator != null
                 ? Mathf.Max(0.01f, Mathf.Abs(_mapGenerator.tileSpacing))
                 : 1f;
             float padding = Mathf.Max(overlayPadding, spacing * 0.5f);
 
             _globalDimOverlay.transform.position = new Vector3(
-                boardBounds.center.x,
-                overlayY,
-                boardBounds.center.z);
+                overlayBounds.center.x,
+                _overlayPlaneY,
+                overlayBounds.center.z);
             _globalDimOverlay.transform.localScale = new Vector3(
-                Mathf.Max(spacing, boardBounds.size.x + padding * 2f),
-                Mathf.Max(spacing, boardBounds.size.z + padding * 2f),
+                Mathf.Max(spacing, overlayBounds.size.x + padding * 2f),
+                Mathf.Max(spacing, overlayBounds.size.z + padding * 2f),
                 1f);
-            _globalDimOverlay.SetActive(true);
+        }
+
+        private void ExpandBoundsToCameraView(
+            ref Bounds overlayBounds,
+            float drawingPlaneY)
+        {
+            if (_mainCamera == null)
+            {
+                _mainCamera = Camera.main;
+            }
+
+            if (_mainCamera == null)
+            {
+                return;
+            }
+
+            Plane drawingPlane = new Plane(
+                Vector3.up,
+                new Vector3(0f, drawingPlaneY, 0f));
+
+            for (int cornerIndex = 0; cornerIndex < 4; cornerIndex++)
+            {
+                float viewportX = (cornerIndex & 1) == 0 ? 0f : 1f;
+                float viewportY = (cornerIndex & 2) == 0 ? 0f : 1f;
+                Ray viewportRay = _mainCamera.ViewportPointToRay(
+                    new Vector3(viewportX, viewportY, 0f));
+
+                if (!drawingPlane.Raycast(viewportRay, out float distance))
+                {
+                    continue;
+                }
+
+                Vector3 planePoint = viewportRay.GetPoint(distance);
+                planePoint.y = overlayBounds.center.y;
+                overlayBounds.Encapsulate(planePoint);
+            }
         }
 
         /// <summary>
@@ -491,6 +558,8 @@ namespace OzGameLab01.Controllers
 
         private void ClearVisuals()
         {
+            _hasOverlayLayout = false;
+
             if (_globalDimOverlay != null)
             {
                 _globalDimOverlay.SetActive(false);
