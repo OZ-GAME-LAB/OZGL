@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using OzGameLab01.Data;
 using OzGameLab01.Managers;
 using TMPro;
 using UnityEngine;
@@ -28,6 +29,8 @@ namespace OzGameLab01.UI
 
         private bool _isInteractable = true;
         private string _currentIconAddress;
+        private SynergyData _synergyData;
+        private int _currentCount;
 
         #region Properties
 
@@ -38,6 +41,8 @@ namespace OzGameLab01.UI
         public Image Icon => _icon;
         public TMP_Text TitleText => _titleText;
         public TMP_Text StackText => _stackText;
+        public SynergyData SynergyData => _synergyData;
+        public int CurrentCount => _currentCount;
 
         public string Title
         {
@@ -90,6 +95,12 @@ namespace OzGameLab01.UI
         public void SetStackCount(int value)
         {
             SetStackText(value.ToString());
+        }
+
+        public void BindTooltip(SynergyData synergyData, int currentCount)
+        {
+            _synergyData = synergyData;
+            _currentCount = Mathf.Max(0, currentCount);
         }
 
         public void SetIcon(Sprite sprite)
