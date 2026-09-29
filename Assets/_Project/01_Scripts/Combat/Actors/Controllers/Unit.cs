@@ -84,6 +84,24 @@ namespace OzGameLab01.Combat
         private int _nullifySkillCharges;
         private readonly HashSet<DebuffType> _immuneDebuffs = new HashSet<DebuffType>();
 
+        #region Sounds
+        private readonly SoundId[] UnitAttackIds =
+        {
+            SoundId.UnitAttack_01,
+            SoundId.UnitAttack_02,
+            SoundId.UnitAttack_03,
+            SoundId.UnitAttack_04,
+            SoundId.UnitAttack_05
+        };
+
+        private readonly SoundId[] EnemyHitIds =
+        {
+            SoundId.EnemyHit_01,
+            SoundId.EnemyHit_02,
+            SoundId.EnemyHit_03
+        };
+        #endregion
+
         public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
         public bool AreActiveSkillsDisabled => _activeSkillsDisabled;
 
@@ -581,6 +599,8 @@ namespace OzGameLab01.Combat
             // 발사 위치는 시전자 스프라이트 중심(적은 원점이 발밑이라 원점에서 쏘면 바닥에서 출발).
             _presenter.FireProjectile(target, target != null ? target._presenter : null, UnitPresenter.GetVisualCenter(transform),
                 () => ResolveBasicAttackHit(target, damage, onImpact, applyDamage));
+
+            if (this.team == Team.Ally) SoundConnector.RequestRandomSfx(UnitAttackIds);
         }
 
         /// <summary>
@@ -637,9 +657,19 @@ namespace OzGameLab01.Combat
 
         private IEnumerator CastSkill(Unit target, UnitSkillRuntime skill, bool isBasicAttack)
         {
+            if (_isDead)
+            {
+                yield break;
+            }
+
             int useCount = !isBasicAttack && _useSkillTwice ? 2 : 1;
             for (int useIndex = 0; useIndex < useCount; useIndex++)
             {
+                if (_isDead)
+                {
+                    yield break;
+                }
+
                 if (!isBasicAttack)
                 {
                     // 스킬은 발동 즉시 시전 VFX를 띄웁니다(유닛 아이콘은 시전 VFX에 포함).
@@ -692,7 +722,7 @@ namespace OzGameLab01.Combat
                             _presenter.FireProjectile(skillTarget, skillTarget._presenter, UnitPresenter.GetVisualCenter(transform),
                                 () =>
                                 {
-                                    if (!_isDead) ExecuteActiveEffects(data, skillTarget);
+                                    ExecuteActiveEffects(data, skillTarget);
                                     return false;
                                 }, data.projectileScale);
                         }
@@ -717,6 +747,11 @@ namespace OzGameLab01.Combat
                     // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
                     if (!isBasicAttack)
                     {
+                        if (_isDead)
+                        {
+                            yield break;
+                        }
+
                         CombatManager.Instance?.Facade.ReportFeedback(new CombatFeedback(
                             CombatFeedbackKind.Skill, skill.data.name,
                             $"{DisplayName ?? name} → {target.DisplayName ?? target.name}", this));
@@ -729,6 +764,8 @@ namespace OzGameLab01.Combat
 
         private void ExecuteSkillEffects(IReadOnlyList<EffectInstance> effects, Unit defaultTarget, float multiplier)
         {
+            SoundConnector.RequestSfx(SoundId.UnitUseSkill);
+
             for (int i = 0; i < effects.Count; i++)
             {
                 EffectInstance effect = effects[i];
@@ -742,6 +779,7 @@ namespace OzGameLab01.Combat
                             break;
                         case EffectType.Heal:
                             target.Heal(effect.effectParam);
+                            SoundConnector.RequestSfx(SoundId.UnitHeal);
                             break;
                         case EffectType.GrantShield:
                             target.GrantShield(effect.effectParam, effect.durationSeconds, effect.untilBattleEnd);
@@ -749,9 +787,11 @@ namespace OzGameLab01.Combat
                         case EffectType.StatModifier:
                             target.ApplyStatEffect(effect.statType, effect.effectParam, effect.operation,
                                 effect.durationSeconds, effect.untilBattleEnd || effect.durationSeconds <= 0);
+                            SoundConnector.RequestSfx(SoundId.UnitStatModify);
                             break;
                         case EffectType.CleanseDebuffs:
                             target.CleanseDebuffs();
+                            SoundConnector.RequestSfx(SoundId.UnitDebuff);
                             break;
                     }
                 }
@@ -1122,6 +1162,10 @@ namespace OzGameLab01.Combat
             _presenter.SetHP(_currentHP);
             PassiveEventBus.RaiseHpChanged(this, previousRatio);
 
+            // 피격 사운드 추가
+            if (this.team == Team.Ally) SoundConnector.RequestSfx(SoundId.UnitHit);
+            else SoundConnector.RequestRandomSfx(EnemyHitIds);
+
             if (_currentHP <= 0f)
             {
                 Die();
@@ -1143,6 +1187,12 @@ namespace OzGameLab01.Combat
 
             // 전투 로직 즉시 사망 처리
             PassiveEventBus.RaiseDeath(this);
+
+            // 사망 효과음 추가
+            if (this.team == Team.Ally)
+                SoundConnector.RequestSfx(SoundId.UnitDeath);
+            else
+                SoundConnector.RequestSfx(SoundId.EnemyDeath);
 
             // 사망 애니메이션 종료 후 화면 비활성화
             if (_animationController != null)

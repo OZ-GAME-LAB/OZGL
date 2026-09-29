@@ -1757,6 +1757,7 @@ GameObject:
   - component: {fileID: 1047465793221336792}
   - component: {fileID: 4505411432842275843}
   - component: {fileID: 1439226105225674944}
+  - component: {fileID: 1829126184062232644}
   m_Layer: 0
   m_Name: CloseButton
   m_TagString: Untagged
@@ -1900,6 +1901,20 @@ MonoBehaviour:
   normalColor: {r: 0, g: 0, b: 0, a: 1}
   hoverColor: {r: 1, g: 1, b: 1, a: 1}
   fadeDuration: 0.15
+--- !u!114 &1829126184062232644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3110768678311358083}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &3399071057174117576
 GameObject:
   m_ObjectHideFlags: 0

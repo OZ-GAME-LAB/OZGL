@@ -31,12 +31,24 @@ namespace OzGameLab01.Managers
         MapNodeSelect, // 맵 노드 선택
         UnitPlaced, // 유닛 배치
         UnitRemoved, // 배치한 유닛 회수
-        UnitAttack, // 아군 유닛 공격
+        UnitAttack_01, // 아군 유닛 공격
+        UnitAttack_02, // 아군 유닛 공격
+        UnitAttack_03, // 아군 유닛 공격
+        UnitAttack_04, // 아군 유닛 공격
+        UnitAttack_05, // 아군 유닛 공격
+        UnitUseSkill,  // 아군 유닛 스킬 사용
         UnitHit, // 아군 유닛 피격
         UnitDeath, // 아군 유닛 사망
+        UnitHeal, // 아군 유닛 회복
+        UnitStatModify, // 아군 스탯 버프
+        UnitDebuff, // 아군 디버프 스킬
+
         EnemyAttack, // 적 유닛 공격
-        EnemyHit, // 적 유닛 피격
+        EnemyHit_01, // 적 유닛 피격
+        EnemyHit_02, // 적 유닛 피격
+        EnemyHit_03, // 적 유닛 피격
         EnemyDeath, // 적 유닛 사망
+
         RoundStart, // 전투 라운드 시작
         RoundEnd, // 전투 라운드 종료
         CombatVictory, // 전투 승리 효과음

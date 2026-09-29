@@ -37,7 +37,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -302, y: -90}
+  m_AnchoredPosition: {x: -142, y: -9}
   m_SizeDelta: {x: 500, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4888003754277329113
@@ -91,6 +91,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000010
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 136077797144797439}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &336359059230197701
 GameObject:
   m_ObjectHideFlags: 0
@@ -191,8 +203,8 @@ Transform:
   m_GameObject: {fileID: 402123663882121385}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3.5, y: -0.5, z: -1.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -3, y: 0, z: -2.17}
+  m_LocalScale: {x: 0.68, y: 0.68, z: 0.68}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4145605384187419334}
@@ -234,7 +246,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -580, y: -185}
+  m_AnchoredPosition: {x: -471, y: -156}
   m_SizeDelta: {x: 500, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1617122185238243610
@@ -288,6 +300,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000011
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 827908987592908461}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &948938192814054667
 GameObject:
   m_ObjectHideFlags: 0
@@ -325,7 +349,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -841, y: 232}
+  m_AnchoredPosition: {x: -790, y: 232}
   m_SizeDelta: {x: 1200, y: 1200}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3990937205439064092
@@ -379,6 +403,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000012
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 948938192814054667}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &978774304204370296
 GameObject:
   m_ObjectHideFlags: 0
@@ -491,8 +527,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -0.000061035156, y: 0}
-  m_SizeDelta: {x: 1400, y: 1400}
+  m_AnchoredPosition: {x: 0, y: 35.00003}
+  m_SizeDelta: {x: 1400, y: 1600}
   m_Pivot: {x: 1, y: 0}
 --- !u!222 &8918470827006943271
 CanvasRenderer:
@@ -545,6 +581,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000013
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1124009752745477324}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &1132854754689728856
 GameObject:
   m_ObjectHideFlags: 0
@@ -723,7 +771,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -580, y: 655}
+  m_AnchoredPosition: {x: -389, y: 387}
   m_SizeDelta: {x: 600, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3541891095020783000
@@ -777,6 +825,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000014
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1364393105087896759}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &1372465515764642617
 GameObject:
   m_ObjectHideFlags: 0
@@ -802,8 +862,8 @@ Transform:
   m_GameObject: {fileID: 1372465515764642617}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.5, y: -0.5, z: -1.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 3, y: 0, z: -2.17}
+  m_LocalScale: {x: 0.68, y: 0.68, z: 0.68}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4145605384187419334}
@@ -1038,8 +1098,8 @@ Transform:
   m_GameObject: {fileID: 1626127875612262596}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.5, y: -0.5, z: 1.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -1.5, y: 0, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4145605384187419334}
@@ -1538,6 +1598,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &8800000000000000015
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3151263615892460610}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &3180875676561377246
 GameObject:
   m_ObjectHideFlags: 0
@@ -1575,7 +1647,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 350, y: -107}
+  m_AnchoredPosition: {x: 149, y: -9}
   m_SizeDelta: {x: 800, y: 800}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7991722275220588261
@@ -1629,6 +1701,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000016
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3180875676561377246}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &3409909642264869223
 GameObject:
   m_ObjectHideFlags: 0
@@ -1864,6 +1948,410 @@ MonoBehaviour:
   - {fileID: 5161531038470156254}
   - {fileID: 2412715342294397052}
   enemySpawnPoint: {fileID: 3112188238950431945}
+--- !u!114 &8800000000000000001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3913014258608337680}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4243260318ed4b208480e68acab5286e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Reusable.UI.UIMotionView
+  elements:
+  - label: Bush_0_0
+    target: {fileID: 2329154916380897152}
+    opacity: {fileID: 8800000000000000010}
+    ambientEnabled: 1
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 1}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 3.5
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0
+    exitDelay: 0
+  - label: Bush_1_1
+    target: {fileID: 4588025537380432836}
+    opacity: {fileID: 8800000000000000011}
+    ambientEnabled: 1
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: -1}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 3.95
+    ambientDelay: 0.23
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.05
+    exitDelay: 0.03
+  - label: Tree_0_2
+    target: {fileID: 774261895039066943}
+    opacity: {fileID: 8800000000000000012}
+    ambientEnabled: 1
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0.7}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4.4
+    ambientDelay: 0.46
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.1
+    exitDelay: 0.06
+  - label: Frontright_3
+    target: {fileID: 3528915783383975134}
+    opacity: {fileID: 8800000000000000013}
+    ambientEnabled: 1
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: -1}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4.85
+    ambientDelay: 0.69
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.15
+    exitDelay: 0
+  - label: Cloud_0_4
+    target: {fileID: 1974741117119428967}
+    opacity: {fileID: 8800000000000000014}
+    ambientEnabled: 1
+    ambientPosition: {x: 18, y: 4, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 8.8
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.2
+    exitDelay: 0.03
+  - label: CeilingImage_5
+    target: {fileID: 6036933476514083067}
+    opacity: {fileID: 8800000000000000015}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 3.5
+    ambientDelay: 0.23
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0
+    exitDelay: 0.06
+  - label: Bush_1_6
+    target: {fileID: 4110352174379805778}
+    opacity: {fileID: 8800000000000000016}
+    ambientEnabled: 1
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 1}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 3.95
+    ambientDelay: 0.46
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.05
+    exitDelay: 0
+  - label: FloorImage_7
+    target: {fileID: 6677428863461210110}
+    opacity: {fileID: 8800000000000000017}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4.4
+    ambientDelay: 0.69
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.1
+    exitDelay: 0.03
+  - label: Box_F_8
+    target: {fileID: 6771124613643955501}
+    opacity: {fileID: 8800000000000000018}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4.85
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.15
+    exitDelay: 0.06
+  - label: Box_C_9
+    target: {fileID: 469349739453077692}
+    opacity: {fileID: 8800000000000000019}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 5.3
+    ambientDelay: 0.23
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.2
+    exitDelay: 0
+  - label: Background_10
+    target: {fileID: 8511415973423010648}
+    opacity: {fileID: 8800000000000000020}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 3.5
+    ambientDelay: 0.46
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0
+    exitDelay: 0.03
+  - label: Stone_0_11
+    target: {fileID: 9207982372341911891}
+    opacity: {fileID: 8800000000000000021}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 3.95
+    ambientDelay: 0.69
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.05
+    exitDelay: 0.06
+  - label: Cloud_0_12
+    target: {fileID: 2908063331760652880}
+    opacity: {fileID: 8800000000000000022}
+    ambientEnabled: 1
+    ambientPosition: {x: 18, y: 4, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 7.4
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.1
+    exitDelay: 0
+  - label: BackgroundImage_13
+    target: {fileID: 6999399270604442095}
+    opacity: {fileID: 8800000000000000023}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4.85
+    ambientDelay: 0.23
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.15
+    exitDelay: 0.03
+  - label: Frontleft_14
+    target: {fileID: 5761563604719697313}
+    opacity: {fileID: 8800000000000000024}
+    ambientEnabled: 1
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 1}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 5.3
+    ambientDelay: 0.46
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.2
+    exitDelay: 0.06
+  - label: Tree_1_15
+    target: {fileID: 8520851352193159905}
+    opacity: {fileID: 8800000000000000025}
+    ambientEnabled: 1
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: -0.7}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 3.5
+    ambientDelay: 0.69
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0
+    exitDelay: 0
+  - label: RightImage_16
+    target: {fileID: 6464787927252446619}
+    opacity: {fileID: 8800000000000000026}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 3.95
+    ambientDelay: 0
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.05
+    exitDelay: 0.03
+  - label: LeftImage_17
+    target: {fileID: 8985052510111233341}
+    opacity: {fileID: 8800000000000000027}
+    ambientEnabled: 0
+    ambientPosition: {x: 0, y: 0, z: 0}
+    ambientRotation: {x: 0, y: 0, z: 0}
+    ambientScale: {x: 0, y: 0, z: 0}
+    ambientPeriod: 4.4
+    ambientDelay: 0.23
+    enter:
+      positionOffset: {x: 0, y: -25, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    exit:
+      positionOffset: {x: 0, y: -15, z: 0}
+      rotationOffset: {x: 0, y: 0, z: 0}
+      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
+      alphaMultiplier: 0
+    enterDelay: 0.1
+    exitDelay: 0.06
+  onEnable: 1
+  useUnscaledTime: 1
+  ambientAfterEnter: 1
+  enterDuration: 0.6
+  exitDuration: 0.4
+  enterEase: 9
+  exitEase: 8
+  entered:
+    m_PersistentCalls:
+      m_Calls: []
+  exited:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &4366102192973230107
 GameObject:
   m_ObjectHideFlags: 0
@@ -1940,6 +2428,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &8800000000000000017
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4366102192973230107}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &4371122603878296461
 GameObject:
   m_ObjectHideFlags: 0
@@ -2006,7 +2506,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 2e0b25e86a441f44c9290e27b4e1456b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2016,6 +2516,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &8800000000000000018
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4371122603878296461}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &4439040014958250696
 GameObject:
   m_ObjectHideFlags: 0
@@ -2157,7 +2669,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 2e0b25e86a441f44c9290e27b4e1456b, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2167,6 +2679,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &8800000000000000019
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4506078765711798888}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &4708155340886109119
 GameObject:
   m_ObjectHideFlags: 0
@@ -2267,8 +2791,8 @@ Transform:
   m_GameObject: {fileID: 4713141128698466612}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.5, y: -0.5, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: -2, y: 0, z: -0.46000004}
+  m_LocalScale: {x: 0.65, y: 0.65, z: 0.65}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4145605384187419334}
@@ -2466,6 +2990,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000020
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5044353304734859008}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &5285290227957966952
 GameObject:
   m_ObjectHideFlags: 0
@@ -2672,8 +3208,8 @@ Transform:
   m_GameObject: {fileID: 5646613926688631760}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.5, y: -0.5, z: 1.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 5.5, y: 0, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4145605384187419334}
@@ -2853,7 +3389,7 @@ Transform:
   m_GameObject: {fileID: 6161058711026818547}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -2897,7 +3433,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 609, y: -40}
+  m_AnchoredPosition: {x: 516, y: 65}
   m_SizeDelta: {x: 1000, y: 1000}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3602719940251075859
@@ -2951,6 +3487,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000021
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6200567807517678875}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &6531520671047209268
 GameObject:
   m_ObjectHideFlags: 0
@@ -2976,8 +3524,8 @@ Transform:
   m_GameObject: {fileID: 6531520671047209268}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1, y: -0.5, z: -1.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -2.17}
+  m_LocalScale: {x: 0.68, y: 0.68, z: 0.68}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4145605384187419334}
@@ -3019,7 +3567,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 504, y: 230}
+  m_AnchoredPosition: {x: 315, y: 273}
   m_SizeDelta: {x: 500, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2575422537931342243
@@ -3073,6 +3621,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000022
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6594717493068404548}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &6661659360460530825
 GameObject:
   m_ObjectHideFlags: 0
@@ -3185,6 +3745,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &8800000000000000023
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7459160664690138613}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &7697613758485257651
 GameObject:
   m_ObjectHideFlags: 0
@@ -3222,8 +3794,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0.000061035156, y: 0}
-  m_SizeDelta: {x: 1400, y: 1400}
+  m_AnchoredPosition: {x: 0, y: 35}
+  m_SizeDelta: {x: 1400, y: 1600}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &8887688984672133398
 CanvasRenderer:
@@ -3276,6 +3848,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000024
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7697613758485257651}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &7765591605152928547
 GameObject:
   m_ObjectHideFlags: 0
@@ -3313,7 +3897,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 840, y: 202}
+  m_AnchoredPosition: {x: 762, y: 202}
   m_SizeDelta: {x: 500, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &255113989713526731
@@ -3367,6 +3951,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Mask
   m_ShowMaskGraphic: 1
+--- !u!225 &8800000000000000025
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7765591605152928547}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &7795210426439759322
 GameObject:
   m_ObjectHideFlags: 0
@@ -3443,6 +4039,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &8800000000000000026
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7795210426439759322}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &7893447446036348036
 GameObject:
   m_ObjectHideFlags: 0
@@ -3577,8 +4185,8 @@ Transform:
   m_GameObject: {fileID: 8098445621004404971}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.5, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 0.5, y: 0, z: -0.46000004}
+  m_LocalScale: {x: 0.65, y: 0.65, z: 0.65}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4145605384187419334}
@@ -3699,6 +4307,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!225 &8800000000000000027
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8192684275447829547}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 0
+  m_BlocksRaycasts: 0
+  m_IgnoreParentGroups: 0
 --- !u!1 &8245609322124289387
 GameObject:
   m_ObjectHideFlags: 0
@@ -3723,13 +4343,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8245609322124289387}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
+  m_LocalPosition: {x: 6.082583, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4282201951503723709}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!1 &8448993544815533445
 GameObject:
   m_ObjectHideFlags: 0
@@ -3857,8 +4477,8 @@ Transform:
   m_GameObject: {fileID: 8784655923176185117}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1, y: -0.5, z: 1.5}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 2, y: 0, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4145605384187419334}
@@ -3888,8 +4508,8 @@ Transform:
   m_GameObject: {fileID: 8986471969079201161}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 2.5, y: -0.5, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 4.5, y: 0, z: -0.46}
+  m_LocalScale: {x: 0.65, y: 0.65, z: 0.65}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4145605384187419334}
@@ -3996,623 +4616,3 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
---- !u!114 &8800000000000000001
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3913014258608337680}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4243260318ed4b208480e68acab5286e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Reusable.UI.UIMotionView
-  elements:
-  - label: Bush_0_0
-    target: {fileID: 2329154916380897152}
-    opacity: {fileID: 8800000000000000010}
-    ambientEnabled: 1
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 1.0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 3.5
-    ambientDelay: 0.00
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.00
-    exitDelay: 0.00
-  - label: Bush_1_1
-    target: {fileID: 4588025537380432836}
-    opacity: {fileID: 8800000000000000011}
-    ambientEnabled: 1
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: -1.0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 3.95
-    ambientDelay: 0.23
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.05
-    exitDelay: 0.03
-  - label: Tree_0_2
-    target: {fileID: 774261895039066943}
-    opacity: {fileID: 8800000000000000012}
-    ambientEnabled: 1
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0.7}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 4.4
-    ambientDelay: 0.46
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.10
-    exitDelay: 0.06
-  - label: Frontright_3
-    target: {fileID: 3528915783383975134}
-    opacity: {fileID: 8800000000000000013}
-    ambientEnabled: 1
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: -1.0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 4.85
-    ambientDelay: 0.69
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.15
-    exitDelay: 0.00
-  - label: Cloud_0_4
-    target: {fileID: 1974741117119428967}
-    opacity: {fileID: 8800000000000000014}
-    ambientEnabled: 1
-    ambientPosition: {x: 18, y: 4, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 8.8
-    ambientDelay: 0.00
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.20
-    exitDelay: 0.03
-  - label: CeilingImage_5
-    target: {fileID: 6036933476514083067}
-    opacity: {fileID: 8800000000000000015}
-    ambientEnabled: 0
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 3.5
-    ambientDelay: 0.23
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.00
-    exitDelay: 0.06
-  - label: Bush_1_6
-    target: {fileID: 4110352174379805778}
-    opacity: {fileID: 8800000000000000016}
-    ambientEnabled: 1
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 1.0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 3.95
-    ambientDelay: 0.46
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.05
-    exitDelay: 0.00
-  - label: FloorImage_7
-    target: {fileID: 6677428863461210110}
-    opacity: {fileID: 8800000000000000017}
-    ambientEnabled: 0
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 4.4
-    ambientDelay: 0.69
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.10
-    exitDelay: 0.03
-  - label: Box_F_8
-    target: {fileID: 6771124613643955501}
-    opacity: {fileID: 8800000000000000018}
-    ambientEnabled: 0
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 4.85
-    ambientDelay: 0.00
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.15
-    exitDelay: 0.06
-  - label: Box_C_9
-    target: {fileID: 469349739453077692}
-    opacity: {fileID: 8800000000000000019}
-    ambientEnabled: 0
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 5.3
-    ambientDelay: 0.23
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.20
-    exitDelay: 0.00
-  - label: Background_10
-    target: {fileID: 8511415973423010648}
-    opacity: {fileID: 8800000000000000020}
-    ambientEnabled: 0
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 3.5
-    ambientDelay: 0.46
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.00
-    exitDelay: 0.03
-  - label: Stone_0_11
-    target: {fileID: 9207982372341911891}
-    opacity: {fileID: 8800000000000000021}
-    ambientEnabled: 0
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 3.95
-    ambientDelay: 0.69
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.05
-    exitDelay: 0.06
-  - label: Cloud_0_12
-    target: {fileID: 2908063331760652880}
-    opacity: {fileID: 8800000000000000022}
-    ambientEnabled: 1
-    ambientPosition: {x: 18, y: 4, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 7.4
-    ambientDelay: 0.00
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.10
-    exitDelay: 0.00
-  - label: BackgroundImage_13
-    target: {fileID: 6999399270604442095}
-    opacity: {fileID: 8800000000000000023}
-    ambientEnabled: 0
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 4.85
-    ambientDelay: 0.23
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.15
-    exitDelay: 0.03
-  - label: Frontleft_14
-    target: {fileID: 5761563604719697313}
-    opacity: {fileID: 8800000000000000024}
-    ambientEnabled: 1
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 1.0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 5.3
-    ambientDelay: 0.46
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.20
-    exitDelay: 0.06
-  - label: Tree_1_15
-    target: {fileID: 8520851352193159905}
-    opacity: {fileID: 8800000000000000025}
-    ambientEnabled: 1
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: -0.7}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 3.5
-    ambientDelay: 0.69
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.00
-    exitDelay: 0.00
-  - label: RightImage_16
-    target: {fileID: 6464787927252446619}
-    opacity: {fileID: 8800000000000000026}
-    ambientEnabled: 0
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 3.95
-    ambientDelay: 0.00
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.05
-    exitDelay: 0.03
-  - label: LeftImage_17
-    target: {fileID: 8985052510111233341}
-    opacity: {fileID: 8800000000000000027}
-    ambientEnabled: 0
-    ambientPosition: {x: 0, y: 0, z: 0}
-    ambientRotation: {x: 0, y: 0, z: 0}
-    ambientScale: {x: 0, y: 0, z: 0}
-    ambientPeriod: 4.4
-    ambientDelay: 0.23
-    enter:
-      positionOffset: {x: 0, y: -25, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    exit:
-      positionOffset: {x: 0, y: -15, z: 0}
-      rotationOffset: {x: 0, y: 0, z: 0}
-      scaleMultiplier: {x: 0.98, y: 0.98, z: 1}
-      alphaMultiplier: 0
-    enterDelay: 0.10
-    exitDelay: 0.06
-  onEnable: 1
-  useUnscaledTime: 1
-  ambientAfterEnter: 1
-  enterDuration: 0.6
-  exitDuration: 0.4
-  enterEase: 9
-  exitEase: 8
-  entered:
-    m_PersistentCalls:
-      m_Calls: []
-  exited:
-    m_PersistentCalls:
-      m_Calls: []
---- !u!225 &8800000000000000010
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 136077797144797439}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000011
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 827908987592908461}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000012
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 948938192814054667}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000013
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1124009752745477324}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000014
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1364393105087896759}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000015
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3151263615892460610}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000016
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3180875676561377246}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000017
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4366102192973230107}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000018
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4371122603878296461}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000019
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4506078765711798888}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000020
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5044353304734859008}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000021
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6200567807517678875}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000022
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6594717493068404548}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000023
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7459160664690138613}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000024
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7697613758485257651}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000025
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7765591605152928547}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000026
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7795210426439759322}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0
---- !u!225 &8800000000000000027
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8192684275447829547}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 0
-  m_BlocksRaycasts: 0
-  m_IgnoreParentGroups: 0

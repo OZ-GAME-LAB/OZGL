@@ -166,11 +166,12 @@ MonoBehaviour:
     m_SubObjectType: 
     m_SubObjectGUID: 
     m_EditorAssetChanged: 0
+  instant: 0
   worldRenderer: {fileID: 5430290752030524750}
   uiRenderer: {fileID: 1913985580357652330}
   worldSpeed: 8
   uiSpeed: 900
-  worldScale: 0.25
+  worldScale: 0.35
   uiSize: {x: 36, y: 36}
   worldTravelEffectScale: 1
   uiTravelEffectScale: 12

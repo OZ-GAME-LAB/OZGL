@@ -552,6 +552,7 @@ GameObject:
   - component: {fileID: 6203475918930616925}
   - component: {fileID: 8943458931705243067}
   - component: {fileID: 6957626870727556288}
+  - component: {fileID: 3536666272936597544}
   m_Layer: 0
   m_Name: ConfirmButton
   m_TagString: Untagged
@@ -661,6 +662,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3536666272936597544
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4086317386018122021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &4808181379925394910
 GameObject:
   m_ObjectHideFlags: 0
@@ -810,6 +825,7 @@ GameObject:
   - component: {fileID: 790362089377032575}
   - component: {fileID: 2090018186131348854}
   - component: {fileID: 3694197989963035001}
+  - component: {fileID: 519390449670066139}
   m_Layer: 0
   m_Name: CancelButton
   m_TagString: Untagged
@@ -919,6 +935,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &519390449670066139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5109423028365850182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &5127633099641719025
 GameObject:
   m_ObjectHideFlags: 0

@@ -77,6 +77,21 @@ namespace OzGameLab01.Managers
         }
 
         /// <summary>
+        /// 효과음 Id 배열 중 하나 랜덤 재생 요청
+        /// </summary>
+        /// <param name="ids"></param>
+        public static void RequestRandomSfx(params SoundId[] ids)
+        {
+            if (ids == null || ids.Length == 0)
+            {
+                return;
+            }
+
+            SoundId picked = ids[UnityEngine.Random.Range(0, ids.Length)];
+            RequestSfx(picked);
+        }
+
+        /// <summary>
         /// 씬 전환과 결과 화면 시점의 BGM 요청
         /// </summary>
         public static void RequestBgm(SoundId id, bool restart = false)
