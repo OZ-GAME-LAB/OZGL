@@ -46,6 +46,7 @@ namespace OzGameLab01.Data
     {
         public string name;             // 전투 화면 표시 이름
         public string prefabAddress;    // Resources 경로(UnitPrefabProvider.GetEnemyPrefab 인자)
+        public string iconAddress;      // 전투 정보 화면 이미지 주소(지정하지 않으면 프리팹 스프라이트)
     }
 
     public enum MonsterType

@@ -239,6 +239,7 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            team = Team.Enemy;
             DisplayName = data.name;
             // data는 EnemyManager.BuildCombatSpec()이 턴 성장 배율과 훔친 액티브 스킬까지 반영해
             // 이미 확정한 전투용 스펙입니다. Unit은 그 값을 그대로 받아 런타임 상태(쿨타임/체력
