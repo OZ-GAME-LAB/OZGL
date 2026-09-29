@@ -53,6 +53,7 @@ namespace OzGameLab01.Combat
         private AllySpawner _allySpawner;
         private SynergyController _synergyController;
         private CombatEffectExecutor _combatEffectExecutor;
+        private readonly CombatAssetPreloader _assetPreloader = new CombatAssetPreloader();
         private CombatEffectFeedbackView _feedbackView;
         private EnemyHeaderController _enemyHeaderController;
 
@@ -60,6 +61,46 @@ namespace OzGameLab01.Combat
         public MonsterData EnemyData { get; private set; }
         public bool IsBattleReady { get; private set; }
         public bool IsBattleRunning { get; private set; }
+        // 전투 종료 처리에서 BoardRunData의 전투 정보가 먼저 초기화되므로 시작 시점에 기억해 둡니다.
+        public bool IsNightBattle { get; private set; }
+
+        /// <summary>
+        /// 보조칸 아군의 기본공격 빈도 합(초당 공격 수, 1 / attackSpeed). 보조칸 유닛은 전투에 스폰되지
+        /// 않으므로 편성 데이터(편성 화면을 거치지 않았으면 저장된 편성 id)에서 계산합니다.
+        /// </summary>
+        public float SupportAttackRate
+        {
+            get
+            {
+                float total = 0f;
+                foreach (UnitData data in GetSupportUnitData())
+                {
+                    if (data.attackSpeed > 0f)
+                    {
+                        total += 1f / data.attackSpeed;
+                    }
+                }
+                return total;
+            }
+        }
+
+        /// <summary>보조칸에 편성된 유닛 데이터입니다(편성 화면을 거치지 않았으면 저장된 편성 id로 찾습니다).</summary>
+        private static List<UnitData> GetSupportUnitData()
+        {
+            var result = new List<UnitData>();
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> units = UnitFormationCombatLink.SupportUnitList;
+            IReadOnlyList<int> savedIds = UnitFormationCombatLink.SavedSupportUnitIdList;
+            for (int i = 0; i < units.Count; i++)
+            {
+                UnitData data = units[i]?.Data;
+                if (data == null && i < savedIds.Count && savedIds[i] > 0)
+                {
+                    data = RuntimeContent.Catalog.GetUnit(savedIds[i]);
+                }
+                if (data != null) result.Add(data);
+            }
+            return result;
+        }
         public float BattleElapsedSeconds { get; private set; }
         public IReadOnlyList<SynergyData> ActiveSynergies =>
             _synergyController?.GetActiveSynergies() ?? Array.Empty<SynergyData>();
@@ -96,6 +137,7 @@ namespace OzGameLab01.Combat
             IsBattleReady = false;
             IsBattleRunning = false;
             BattleElapsedSeconds = 0f;
+            IsNightBattle = BoardRunData.IsNightEncounter;
 
             // 정적 상태라 실기기 빌드에서는 씬 전환만으로 비워지지 않는다.
             // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.
@@ -186,8 +228,18 @@ namespace OzGameLab01.Combat
             _state.EnemyUnit = _allySpawner.SpawnEnemy();
             _enemyHeaderController?.SetEnemyName(_state.EnemyUnit != null ? _state.EnemyUnit.DisplayName : string.Empty);
 
+            // 전투 정보 화면이 떠 있는 동안 투사체/스킬 VFX를 미리 로드해 전투 중 첫 사용 멈춤을 없앱니다.
+            List<Unit> participants = _state.GetParticipatingAllyUnits();
+            participants.Add(_state.EnemyUnit);
+            _assetPreloader.Preload(participants);
+
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
-            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState(_synergyController.ActiveSharedEffects);
+            // 유닛 패시브는 이번 전투에 출전한 유닛과 보조칸 유닛 것만 넣습니다.
+            var passiveOwners = new List<UnitData>(formationData);
+            passiveOwners.AddRange(GetSupportUnitData());
+            var extraSources = new List<RuntimeEffectManager.EffectSource>(_synergyController.ActiveSharedEffects);
+            extraSources.AddRange(UnitPassiveSources.Build(passiveOwners, RuntimeContent.Catalog));
+            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState(extraSources);
 
             // 전투 시작 전 패시브 이벤트 구독 준비
             _combatEffectExecutor = new CombatEffectExecutor(CombatManager.Instance.Facade);
@@ -276,6 +328,7 @@ namespace OzGameLab01.Combat
             EnemyData = null;
             _combatEffectExecutor?.Dispose();
             _allySpawner?.Dispose();
+            _assetPreloader.Dispose();
         }
 
         private void BuildUnitStatLookup()

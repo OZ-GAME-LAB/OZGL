@@ -36,11 +36,19 @@ namespace OzGameLab01.Tests.EditMode
         public void MissingTarget_DoesNotReportApplication(EffectType effect)
         {
             var method = typeof(CombatEffectExecutor).GetMethod("ApplyEffect",
-                BindingFlags.Static | BindingFlags.NonPublic);
-            Assert.IsFalse((bool)method.Invoke(null, new object[]
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            var executor = new CombatEffectExecutor(new CombatFacade());
+            try
             {
-                new EffectInstance { effect = effect, effectParam = 10 }, null
-            }));
+                Assert.IsFalse((bool)method.Invoke(executor, new object[]
+                {
+                    new EffectInstance { effect = effect, effectParam = 10 }, null
+                }));
+            }
+            finally
+            {
+                executor.Dispose();
+            }
         }
 
         [Test]

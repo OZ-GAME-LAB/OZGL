@@ -59,6 +59,9 @@ namespace OzGameLab01.Combat
         private UnitPresenter _presenter;
         // 도트/기절/그을림/침묵 디버프 상태는 UnitStatusEffects에 위임합니다.
         private UnitStatusEffects _status;
+        // 매 프레임 Tick에 넘기는 콜백을 한 번만 만들어 프레임당 델리게이트 할당을 없앱니다.
+        private System.Action<float> _onStatusDamage;
+        private System.Action<DebuffType> _onStatusExpired;
         private CombatSession _combatSession;
         // -1 means that no fixed-damage synergy is active.
         private float _fixedDamage = -1f;
@@ -74,6 +77,12 @@ namespace OzGameLab01.Combat
         private float _damageReductionPercent;
         private float _shieldBonusDamagePerDefensePercent;
         private float _shieldDamageReductionPerDefensePercent;
+        // 이 유닛이 받는 디버프 지속시간 보정: (원래 시간 × 배율) + 추가 초. DebuffDurationModifier 효과가 설정합니다.
+        private float _receivedDebuffDurationMultiplier = 1f;
+        private float _receivedDebuffDurationBonus;
+        // 남은 액티브 스킬 무효화 횟수(NullifyNextSkill)와 면역인 디버프 종류(DebuffImmunity).
+        private int _nullifySkillCharges;
+        private readonly HashSet<DebuffType> _immuneDebuffs = new HashSet<DebuffType>();
 
         #region Sounds
         private readonly SoundId[] UnitAttackIds =
@@ -123,6 +132,9 @@ namespace OzGameLab01.Combat
             {
                 _status = new UnitStatusEffects();
             }
+
+            _onStatusDamage ??= dmg => TakeDamage(dmg);
+            _onStatusExpired ??= type => _presenter.SetStatusEffectActive(type, false, transform);
         }
 
         private void Awake()
@@ -160,8 +172,7 @@ namespace OzGameLab01.Combat
             if (_stats != null && _stats.Tick(Time.deltaTime)) RefreshStats();
             _shields.Tick(Time.deltaTime);
             if (_tauntRemaining > 0f) _tauntRemaining -= Time.deltaTime;
-            _status.Tick(Time.deltaTime, dmg => TakeDamage(dmg),
-                type => _presenter.SetStatusEffectActive(type, false, transform));
+            _status.Tick(Time.deltaTime, _onStatusDamage, _onStatusExpired);
             _presenter.SetDebuffTint(_status.IndicatorColor);
             bool hasCooldown = TryGetActiveSkillCooldown(out float cdRemaining, out float cdDuration);
             _presenter.UpdateHud(_currentHP, maxHP, hasCooldown, cdRemaining, cdDuration);
@@ -201,8 +212,9 @@ namespace OzGameLab01.Combat
                         _animationController?.PlayAttack();
                     }
 
-                    StartCoroutine(CastSkill(target, skill, isBasicAttack));
+                    // 캐스트 중 발생하는 "스킬 사용" 트리거(예: 쿨타임 회복 패시브)가 덮어써지지 않도록 쿨타임을 먼저 설정합니다.
                     skill.timer = GetEffectiveCooldown(skill);
+                    StartCoroutine(CastSkill(target, skill, isBasicAttack));
                 }
             }
         }
@@ -324,6 +336,10 @@ namespace OzGameLab01.Combat
             _shieldBonusDamagePerDefensePercent = 0f;
             _shieldDamageReductionPerDefensePercent = 0f;
             _tauntRemaining = 0f;
+            _receivedDebuffDurationMultiplier = 1f;
+            _receivedDebuffDurationBonus = 0f;
+            _nullifySkillCharges = 0;
+            _immuneDebuffs.Clear();
             _genieWishStacks = 0;
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
@@ -385,6 +401,34 @@ namespace OzGameLab01.Combat
             return false;
         }
 
+        /// <summary>
+        /// 전투 중 처음 사용할 때 디스크에서 읽게 되는 Addressable 키(투사체, 스킬 시전/효과 VFX)를 모읍니다.
+        /// CombatAssetPreloader가 전투 시작 전에 미리 로드해 첫 사용 시 프레임 멈춤을 막습니다.
+        /// </summary>
+        public void CollectPreloadKeys(ICollection<object> keys)
+        {
+            if (projectilePrefabReference != null && projectilePrefabReference.RuntimeKeyIsValid())
+            {
+                keys.Add(projectilePrefabReference.RuntimeKey);
+            }
+
+            foreach (UnitSkillRuntime skill in _skills)
+            {
+                SkillData data = skill.data;
+                if (data == null) continue;
+                if (!string.IsNullOrEmpty(data.castVfxAddress)) keys.Add(data.castVfxAddress);
+                if (data.activeEffects == null) continue;
+                foreach (ActiveSkillEffectNode node in data.activeEffects)
+                {
+                    if (node?.vfx == null) continue;
+                    foreach (SkillVfxCue cue in node.vfx)
+                    {
+                        if (!string.IsNullOrEmpty(cue?.address)) keys.Add(cue.address);
+                    }
+                }
+            }
+        }
+
         /// <summary>스킬 슬롯 개수(0번째 = 기본공격). 디버그 툴에서 몇 개의 버튼을 그려야 하는지 알 때 사용.</summary>
         public int SkillCount => _skills.Count;
 
@@ -413,8 +457,8 @@ namespace OzGameLab01.Combat
                 _animationController?.PlayAttack();
             }
 
-            StartCoroutine(CastSkill(target, skill, isBasicAttack));
             skill.timer = GetEffectiveCooldown(skill);
+            StartCoroutine(CastSkill(target, skill, isBasicAttack));
         }
 
         /// <summary>
@@ -458,6 +502,19 @@ namespace OzGameLab01.Combat
                     _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform,
                         CombatVfxLibrary.Instance?.StatEffectScale ?? 1f);
                 }
+                return true;
+            }
+            // 액티브 스킬(1번 이후) 쿨타임을 전투 끝까지 줄입니다. 이미 흐르고 있는 타이머도 새 쿨타임을 넘지 않게 맞춥니다.
+            if (statType == EffectStatType.SkillCooldownReduction)
+            {
+                if (_skills.Count < 2 || !untilBattleEnd) return false;
+                for (int i = 1; i < _skills.Count; i++)
+                {
+                    float reduced = Mathf.Max(0.01f, GetSkillCooldown(_skills[i]) * (1 - percentValue / 100f));
+                    _skills[i].cooldownOverride = reduced;
+                    _skills[i].timer = Mathf.Min(_skills[i].timer, reduced);
+                }
+                PassiveEventBus.RaiseBuffed(this);
                 return true;
             }
             if (!_stats.Add(statType, percentValue, operation, durationSeconds, untilBattleEnd)) return false;
@@ -632,6 +689,15 @@ namespace OzGameLab01.Combat
 
                 if (target != null && !target.IsDead)
                 {
+                    // 무효화 효과가 남아 있으면 이번 액티브 스킬은 효과와 "스킬 사용" 트리거 없이 끝납니다.
+                    if (!isBasicAttack && _nullifySkillCharges > 0)
+                    {
+                        _nullifySkillCharges--;
+                        CombatManager.Instance?.Facade.ReportFeedback(new CombatFeedback(
+                            CombatFeedbackKind.Skill, skill.data.name, "무효화", this));
+                        yield break;
+                    }
+
                     if (isBasicAttack)
                     {
                         if (skill.data.effects != null && skill.data.effects.Count > 0)
@@ -944,6 +1010,8 @@ namespace OzGameLab01.Combat
 
         public void ApplyDebuff(DebuffProfile profile)
         {
+            if (_immuneDebuffs.Contains(profile.type)) return;
+            profile.duration = Mathf.Max(0f, profile.duration * _receivedDebuffDurationMultiplier + _receivedDebuffDurationBonus);
             if (_status.Apply(profile))
             {
                 _presenter.SetStatusEffectActive(profile.type, true, transform);
@@ -1008,6 +1076,63 @@ namespace OzGameLab01.Combat
             if (_isDead || seconds <= 0f || _skills.Count < 2) return false;
             for (int i = 1; i < _skills.Count; i++) _skills[i].timer = Mathf.Max(0f, _skills[i].timer - seconds);
             return true;
+        }
+
+        /// <summary>액티브 스킬의 남은 쿨타임을 각 스킬 쿨타임의 percent%만큼 줄입니다(CooldownModifier).</summary>
+        public bool RecoverSkillCooldownPercent(float percent)
+        {
+            if (_isDead || percent <= 0f || _skills.Count < 2) return false;
+            for (int i = 1; i < _skills.Count; i++)
+            {
+                _skills[i].timer = Mathf.Max(0f, _skills[i].timer - GetSkillCooldown(_skills[i]) * percent / 100f);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 이 유닛이 받는 디버프 지속시간을 조정합니다(DebuffDurationModifier).
+        /// Add는 초 단위 추가, Multiply는 퍼센트 증감(-50이면 절반)입니다.
+        /// </summary>
+        public bool ModifyReceivedDebuffDuration(EffectOperation operation, float value)
+        {
+            if (_isDead || value == 0f) return false;
+            if (operation == EffectOperation.Add) _receivedDebuffDurationBonus += value;
+            else _receivedDebuffDurationMultiplier = Mathf.Max(0f, _receivedDebuffDurationMultiplier * (1f + value / 100f));
+            return true;
+        }
+
+        /// <summary>이 유닛이 다음에 쓰는 액티브 스킬 charges회를 효과 없이 무효화합니다(NullifyNextSkill).</summary>
+        public bool AddNullifySkillCharges(int charges)
+        {
+            if (_isDead || charges <= 0) return false;
+            _nullifySkillCharges += charges;
+            return true;
+        }
+
+        /// <summary>지정한 종류의 디버프를 전투 끝까지 받지 않습니다(DebuffImmunity).</summary>
+        public bool AddDebuffImmunity(DebuffType type)
+        {
+            if (_isDead || type == DebuffType.None) return false;
+            return _immuneDebuffs.Add(type);
+        }
+
+        /// <summary>버프가 적용되지 않은 기본 능력치입니다. 고정 수치 효과를 퍼센트로 환산할 때 씁니다.</summary>
+        public float GetBaseStat(EffectStatType statType)
+        {
+            if (_stats == null) CaptureBaseStats();
+            return _stats.GetBase(statType);
+        }
+
+        /// <summary>
+        /// 기본공격 빈도(초당 공격 횟수)를 extraAttacksPerSecond만큼 늘립니다(유물 726 보조칸 공속 전달).
+        /// 쿨다운 기반이라 빈도 증가를 동일한 쿨다운 감소율로 바꿔 적용합니다.
+        /// </summary>
+        public bool AddBasicAttackRate(float extraAttacksPerSecond)
+        {
+            if (_isDead || extraAttacksPerSecond <= 0f || _skills.Count == 0) return false;
+            float rate = 1f / Mathf.Max(0.01f, GetSkillCooldown(_skills[0]));
+            float reductionPercent = (1f - rate / (rate + extraAttacksPerSecond)) * 100f;
+            return ApplyStatEffect(EffectStatType.AttackInterval, reductionPercent, EffectOperation.Add, 0f, true);
         }
 
         public float TakeDamage(float dmg, bool isBasicAttack = true)

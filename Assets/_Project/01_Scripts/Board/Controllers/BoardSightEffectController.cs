@@ -1,4 +1,6 @@
 using OzGameLab01.Board.Models;
+using OzGameLab01.Data;
+using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using UnityEngine;
 
@@ -139,7 +141,7 @@ namespace OzGameLab01.Controllers
             BoardSightState targetState = timeOfDay switch
             {
                 BoardTimeOfDay.Noon => BoardSightState.State2,
-                BoardTimeOfDay.Night => BoardSightState.State3,
+                BoardTimeOfDay.Night => ResolveNightSightState(),
                 _ => BoardSightState.State1
             };
 
@@ -149,6 +151,21 @@ namespace OzGameLab01.Controllers
             }
 
             boardSightEffectView.SetState(targetState, immediate);
+        }
+
+        /// <summary>
+        /// 밤 시야를 유물 보정(717 밤의 진주: NightSightStep +1)만큼 한 단계씩 넓힙니다.
+        /// </summary>
+        private static BoardSightState ResolveNightSightState()
+        {
+            int steps = Mathf.RoundToInt(
+                RelicManager.Instance?.Facade?.GetBoardStatBonus(EffectStatType.NightSightStep) ?? 0f);
+            return steps switch
+            {
+                <= 0 => BoardSightState.State3,
+                1 => BoardSightState.State2,
+                _ => BoardSightState.State1
+            };
         }
 
         private bool ValidateReferences()
