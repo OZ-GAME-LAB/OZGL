@@ -18,8 +18,15 @@ namespace OzGameLab01.Board.Views
         private const int RockPrefabSalt = 0x31415926;
         private const int WaterBodyPrefabSalt = 0x27182818;
 
+        // 카메라 밖 판정용 여유 크기. 파티클이 타일 밖으로 퍼지는 범위를 덮습니다.
+        private const float EffectCullingSize = 4f;
+
         private readonly Transform _root;
         private readonly Dictionary<MapNode, GameObject> _nodeViews = new Dictionary<MapNode, GameObject>();
+        // 파티클이 들어 있는 타일 오브젝트만 모아 카메라 밖에서는 비활성화합니다.
+        private readonly Dictionary<MapNode, GameObject> _effectViews = new Dictionary<MapNode, GameObject>();
+
+        public bool EffectViewsChanged { get; private set; }
 
         public BoardMapView(Transform root)
         {
@@ -46,6 +53,7 @@ namespace OzGameLab01.Board.Views
                 }
             }
             _nodeViews.Clear();
+            _effectViews.Clear();
         }
 
         public void Remove(MapNode node)
@@ -56,6 +64,29 @@ namespace OzGameLab01.Board.Views
                 Object.Destroy(view);
             }
             _nodeViews.Remove(node);
+            _effectViews.Remove(node);
+        }
+
+        /// <summary>
+        /// 카메라 시야 밖의 타일 파티클 연출을 꺼서 보이지 않는 파티클 갱신 비용을 없앱니다.
+        /// </summary>
+        public void UpdateEffectVisibility(Plane[] frustumPlanes)
+        {
+            EffectViewsChanged = false;
+            foreach (GameObject effect in _effectViews.Values)
+            {
+                if (effect == null)
+                {
+                    continue;
+                }
+
+                Bounds bounds = new Bounds(effect.transform.position, Vector3.one * EffectCullingSize);
+                bool visible = GeometryUtility.TestPlanesAABB(frustumPlanes, bounds);
+                if (effect.activeSelf != visible)
+                {
+                    effect.SetActive(visible);
+                }
+            }
         }
 
         public Transform CreateNode(
@@ -87,6 +118,12 @@ namespace OzGameLab01.Board.Views
             if (baseView != null && objectView != null)
             {
                 objectView.transform.SetParent(baseView.transform, true);
+            }
+
+            if (objectView != null && objectView.GetComponentInChildren<ParticleSystem>(true) != null)
+            {
+                _effectViews[node] = objectView;
+                EffectViewsChanged = true;
             }
 
             InitializeTileView(baseView, node, input);

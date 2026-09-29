@@ -25,8 +25,8 @@ namespace OzGameLab01.Tests.EditMode
                 controller.OnBattleResolved += won => sequence.Add("ui");
                 var resolve = controller.GetType().GetMethod("ResolveBattle",
                     System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                resolve.Invoke(controller, new object[] { false });
-                resolve.Invoke(controller, new object[] { false });
+                resolve.Invoke(controller, new object[] { false, false });
+                resolve.Invoke(controller, new object[] { false, false });
                 Assert.That(sequence, Is.EqualTo(new[] { "end", "ui" }));
                 Assert.That(controller.IsResolved, Is.True);
             }
@@ -62,7 +62,7 @@ namespace OzGameLab01.Tests.EditMode
                 controller.OnBattleResolved += _ => wasActiveWhenUiOpened = unitObject.activeSelf;
 
                 markDirty.Invoke(controller, new object[] { unit });
-                resolve.Invoke(controller, new object[] { false });
+                resolve.Invoke(controller, new object[] { false, false });
 
                 Assert.That(wasActiveWhenUiOpened, Is.False);
                 Assert.That(unitObject.activeSelf, Is.False);
