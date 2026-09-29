@@ -5,26 +5,35 @@ using UnityEngine;
 namespace OzGameLab01.Combat
 {
     /// <summary>
-    /// 캐릭터 Animator의 상태 재생을 담당합니다.
+    /// 유닛의 전투 애니메이션 상태 재생을 담당합니다.
+    /// 액티브 스킬은 Animator 상태를 변경하지 않습니다.
+    /// 현재 재생 중인 애니메이션을 그대로 유지하고 스킬 연출은 VFX에서 처리합니다.
     /// </summary>
     public sealed class UnitAnimationController : MonoBehaviour
     {
+        [Header("애니메이션")]
+        [Tooltip("유닛 전투 애니메이션의 재생 속도입니다. VFX 재생 속도와는 별도로 적용됩니다.")]
+        [SerializeField, Min(0.1f)] private float animationSpeed = 2f;
+
         private Animator _animator;
         private Coroutine _returnToIdleRoutine;
         private Coroutine _deadRoutine;
 
         /// <summary>
-        /// Animator를 참조하고 전투 애니메이션 재생 속도를 설정합니다.
+        /// 자식 오브젝트에서 Animator를 찾아 저장하고
+        /// Inspector에서 설정한 애니메이션 재생 속도를 적용합니다.
         /// </summary>
         private void Awake()
         {
             _animator = GetComponentInChildren<Animator>(true);
 
-            // 전투 애니메이션 재생 속도 3배 적용 (임시)
-            if (_animator != null)
+            if (_animator == null)
             {
-                _animator.speed = 3f;
+                return;
             }
+
+            // VFX와 별개로 유닛 Animator에만 적용되는 재생 속도
+            _animator.speed = animationSpeed;
         }
 
         public void PlayIdle() => PlayState("_Idle", false);
@@ -32,25 +41,43 @@ namespace OzGameLab01.Combat
         public void PlayCrowdControl() => PlayState("_CC", true);
 
         /// <summary>
-        /// Attack 클립 1회의 실제 재생 시간(클립 길이 ÷ Animator 속도)을 반환합니다. Attack 클립이 없으면 0입니다.
+        /// Attack 클립 1회의 실제 재생 시간을 반환합니다.
+        /// 기본 공격의 발사 타이밍 계산에 사용합니다.
+        /// Attack 클립을 찾을 수 없다면 0을 반환합니다.
         /// </summary>
         public float GetAttackDuration()
         {
-            if (_animator == null || _animator.runtimeAnimatorController == null) return 0f;
+            if (_animator == null)
+            {
+                return 0f;
+            }
+
+            if (_animator.runtimeAnimatorController == null)
+            {
+                return 0f;
+            }
 
             foreach (AnimationClip clip in _animator.runtimeAnimatorController.animationClips)
             {
-                if (clip != null && clip.name.EndsWith("_Attack"))
+                if (clip == null)
                 {
-                    return clip.length / Mathf.Max(0.01f, _animator.speed);
+                    continue;
                 }
+
+                if (!clip.name.EndsWith("_Attack"))
+                {
+                    continue;
+                }
+
+                return clip.length / Mathf.Max(0.01f, _animator.speed);
             }
 
             return 0f;
         }
 
         /// <summary>
-        /// 사망 애니메이션을 재생하고 종료 후 전달받은 작업을 실행합니다.
+        /// 사망 애니메이션을 재생하고 애니메이션 종료 후 전달받은 작업을 실행합니다.
+        /// Dead는 Idle, Attack, CC보다 우선합니다.
         /// </summary>
         public void PlayDead(Action onComplete)
         {
@@ -61,29 +88,36 @@ namespace OzGameLab01.Combat
             }
 
             int stateHash = FindStateHash("_Dead");
+
             if (stateHash == 0 || !_animator.HasState(0, stateHash))
             {
                 onComplete?.Invoke();
                 return;
             }
 
+            // Dead 상태가 가장 우선이므로 이전 상태에서 Idle로 돌아가면 안 됨
             if (_returnToIdleRoutine != null)
             {
                 StopCoroutine(_returnToIdleRoutine);
                 _returnToIdleRoutine = null;
             }
 
+            // 이미 Dead 종료 대기 코루틴이 있다면 중복 실행을 방지하기 위해 기존 코루틴을 중단
             if (_deadRoutine != null)
             {
                 StopCoroutine(_deadRoutine);
+                _deadRoutine = null;
             }
 
             _animator.Play(stateHash, 0, 0f);
+
             _deadRoutine = StartCoroutine(WaitForDeadAnimation(stateHash, onComplete));
         }
 
         /// <summary>
-        /// 접미사에 해당하는 Animator 상태를 재생하고 필요 시 대기 상태로 복귀합니다.
+        /// 전달받은 접미사와 일치하는 Animator State를 재생합니다.
+        /// returnToIdle이 true라면 해당 애니메이션이 끝난 뒤 Idle로 돌아갑니다.
+        /// Dead가 재생 중일 때는 일반 상태가 Dead를 덮어쓸 수 없습니다.
         /// </summary>
         private void PlayState(string suffix, bool returnToIdle)
         {
@@ -92,7 +126,13 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            if (_deadRoutine != null)
+            {
+                return;
+            }
+
             int stateHash = FindStateHash(suffix);
+
             if (stateHash == 0 || !_animator.HasState(0, stateHash))
             {
                 return;
@@ -108,17 +148,22 @@ namespace OzGameLab01.Combat
             if (_returnToIdleRoutine != null)
             {
                 StopCoroutine(_returnToIdleRoutine);
+                _returnToIdleRoutine = null;
             }
 
             _returnToIdleRoutine = StartCoroutine(ReturnToIdle(stateHash));
         }
 
         /// <summary>
-        /// 접미사와 일치하는 애니메이션 상태의 해시 값을 반환합니다.
+        /// 전달받은 접미사와 일치하는 AnimationClip을 찾아
+        /// Animator State의 Hash 값을 반환합니다.
+        /// 일치하는 AnimationClip이 없다면 0을 반환합니다.
         /// </summary>
         private int FindStateHash(string suffix)
         {
-            RuntimeAnimatorController controller = _animator.runtimeAnimatorController;
+            RuntimeAnimatorController controller =
+                _animator.runtimeAnimatorController;
+
             if (controller == null)
             {
                 return 0;
@@ -126,60 +171,100 @@ namespace OzGameLab01.Combat
 
             foreach (AnimationClip clip in controller.animationClips)
             {
-                if (clip != null && clip.name.EndsWith(suffix))
+                if (clip == null)
                 {
-                    return Animator.StringToHash(clip.name);
+                    continue;
                 }
+
+                if (!clip.name.EndsWith(suffix))
+                {
+                    continue;
+                }
+
+                // AnimationClip 이름과 Animator State 이름을 동일하게 사용
+                return Animator.StringToHash(clip.name);
             }
 
             return 0;
         }
 
         /// <summary>
-        /// 현재 애니메이션 재생이 끝난 후 대기 상태로 복귀합니다.
+        /// Attack 또는 CC 애니메이션이 끝날 때까지 기다린 뒤 Idle 상태로 돌아갑니다.
+        /// 고정 시간을 계산하지 않고 AnimatorStateInfo.normalizedTime을 사용하여
+        /// 실제 애니메이션 완료 여부를 확인합니다.
         /// </summary>
         private IEnumerator ReturnToIdle(int stateHash)
         {
-            // Animator 상태 반영 대기
             yield return null;
 
-            AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-            float duration = stateInfo.length > 0f ? stateInfo.length : 0.1f;
-
-            // AnimatorStateInfo.length는 Animator.speed가 이미 반영된 실제 재생 시간이라
-            // 여기서 다시 animator.speed로 나누면 안 됩니다(3배속이면 1/3 지점에서 끊겨버림).
-            yield return new WaitForSeconds(duration / Mathf.Max(0.01f, stateInfo.speed));
-
-            if (_animator != null &&
-                _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == stateHash)
+            while (true)
             {
-                PlayIdle();
+                if (_animator == null)
+                {
+                    _returnToIdleRoutine = null;
+                    yield break;
+                }
+
+                AnimatorStateInfo stateInfo =
+                    _animator.GetCurrentAnimatorStateInfo(0);
+
+                if (stateInfo.shortNameHash != stateHash)
+                {
+                    _returnToIdleRoutine = null;
+                    yield break;
+                }
+
+                if (stateInfo.normalizedTime >= 1f)
+                {
+                    break;
+                }
+
+                yield return null;
             }
 
             _returnToIdleRoutine = null;
+
+            PlayIdle();
         }
 
         /// <summary>
-        /// 사망 애니메이션 재생이 끝난 후 전달받은 작업을 실행합니다.
+        /// Dead 애니메이션이 끝날 때까지 기다린 뒤 전달받은 사망 완료 작업을 실행합니다.
+        /// 고정 시간을 계산하지 않고 AnimatorStateInfo.normalizedTime을 사용하여
+        /// 실제 Dead 애니메이션 완료 여부를 확인합니다.
         /// </summary>
         private IEnumerator WaitForDeadAnimation(int stateHash, Action onComplete)
         {
-            // Animator 상태 반영 대기
             yield return null;
 
-            AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
-            float duration = stateInfo.length > 0f ? stateInfo.length : 0.1f;
-
-            // AnimatorStateInfo.length는 Animator.speed가 이미 반영된 실제 재생 시간입니다.
-            yield return new WaitForSeconds(duration / Mathf.Max(0.01f, stateInfo.speed));
-
-            if (_animator != null &&
-                _animator.GetCurrentAnimatorStateInfo(0).shortNameHash == stateHash)
+            while (true)
             {
-                onComplete?.Invoke();
+                if (_animator == null)
+                {
+                    _deadRoutine = null;
+                    onComplete?.Invoke();
+                    yield break;
+                }
+
+                AnimatorStateInfo stateInfo = _animator.GetCurrentAnimatorStateInfo(0);
+
+                if (stateInfo.shortNameHash != stateHash)
+                {
+                    _deadRoutine = null;
+                    onComplete?.Invoke();
+                    yield break;
+                }
+
+                if (stateInfo.normalizedTime >= 1f)
+                {
+                    break;
+                }
+
+                yield return null;
             }
 
             _deadRoutine = null;
+
+            onComplete?.Invoke();
         }
     }
 }

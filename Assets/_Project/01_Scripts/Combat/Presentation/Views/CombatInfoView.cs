@@ -43,6 +43,7 @@ namespace OzGameLab01.UI
 
         private readonly List<CombatInfoSkillItemView> skillItems = new();
         private readonly List<CombatInfoStatItemView> statItems = new();
+        private Sprite[] defaultStatIcons;
 
         private CombatInfoSkillItemView hoveredSkillItem;
         private CombatInfoStatItemView hoveredStatItem;
@@ -51,12 +52,26 @@ namespace OzGameLab01.UI
 
         private Action battleCallback;
 
+        public RectTransform BattleButtonHighlightTarget =>
+            battleButton != null
+                ? battleButton.transform as RectTransform
+                : null;
+
+        public bool IsBattleButtonReady =>
+            battleButton != null &&
+            battleButton.gameObject.activeInHierarchy &&
+            battleButton.interactable;
+
+        public event Action BattleButtonReady;
+        public event Action BattleButtonClicked;
+
 
         #region Unity Lifecycle
 
         private void Awake()
         {
             CacheConfiguredItems();
+            CacheDefaultStatIcons();
             HideSkillDetail();
             HideStatDetail();
         }
@@ -195,6 +210,27 @@ namespace OzGameLab01.UI
         }
 
         /// <summary>
+        /// 적 데이터의 전투 스탯을 기존 아이콘과 함께 순서대로 표시합니다.
+        /// </summary>
+        /// <param name="data">표시할 적 데이터입니다.</param>
+        public void BindStats(OzGameLab01.Data.MonsterData data)
+        {
+            if (data == null)
+            {
+                return;
+            }
+
+            CacheDefaultStatIcons();
+            BindStat(0, data.healthPoint, false, "체력", "적의 최대 체력");
+            BindStat(1, data.attackPoint, false, "공격력", "적의 기본 공격력");
+            BindStat(2, data.defensePoint, false, "방어력", "적의 피해 감소 수치");
+            BindStat(3, data.attackSpeed, false, "공격속도", "적의 기본 공격 간격");
+            BindStat(4, data.criticalRate, true, "치명타 확률", "적의 치명타 발생 확률");
+            BindStat(5, data.criticalMult, true, "치명타 피해", "적의 치명타 피해 배율");
+            BindStat(6, data.dodgeRate, true, "회피율", "적의 공격 회피 확률");
+        }
+
+        /// <summary>
         /// 현재 생성된 모든 스킬 정보 아이템을 제거합니다.
         /// </summary>
         public void ClearSkills()
@@ -261,8 +297,29 @@ namespace OzGameLab01.UI
         {
             if (battleButton != null)
             {
+                bool wasReady = IsBattleButtonReady;
                 battleButton.interactable = interactable;
+
+                if (!wasReady && IsBattleButtonReady)
+                {
+                    BattleButtonReady?.Invoke();
+                }
             }
+        }
+
+        /// <summary>
+        /// 튜토리얼 오버레이처럼 실제 버튼 위에서 입력을 대신 받는 UI가
+        /// Battle 버튼과 동일한 동작을 요청할 때 사용합니다.
+        /// </summary>
+        public bool TryInvokeBattleButton()
+        {
+            if (!IsBattleButtonReady)
+            {
+                return false;
+            }
+
+            battleButton.onClick.Invoke();
+            return true;
         }
 
         /// <summary>
@@ -362,6 +419,7 @@ namespace OzGameLab01.UI
         private void HandleBattleClicked()
         {
             battleCallback?.Invoke();
+            BattleButtonClicked?.Invoke();
         }
 
         #endregion
@@ -384,6 +442,39 @@ namespace OzGameLab01.UI
                     statContentRoot.GetComponentsInChildren<CombatInfoStatItemView>(true);
                 statItems.AddRange(configuredStatItems);
             }
+        }
+
+        /// <summary>
+        /// 프리팹에 설정된 스탯 아이콘을 최초 한 번 보관합니다.
+        /// </summary>
+        private void CacheDefaultStatIcons()
+        {
+            if (defaultStatIcons != null)
+            {
+                return;
+            }
+
+            int count = statItems.Count;
+            defaultStatIcons = new Sprite[count];
+
+            for (int index = 0; index < count; index++)
+            {
+                defaultStatIcons[index] = statItems[index] != null
+                    ? statItems[index].Icon
+                    : null;
+            }
+        }
+
+        /// <summary>
+        /// 지정한 스탯 슬롯에 기본 아이콘과 형식화한 값을 표시합니다.
+        /// </summary>
+        private void BindStat(int index,float value,bool percent,string title,string description)
+        {
+            Sprite icon = defaultStatIcons != null && index >= 0 && index < defaultStatIcons.Length
+                ? defaultStatIcons[index]
+                : null;
+            string formattedValue = value.ToString("0.##") + (percent ? "%" : string.Empty);
+            AddStat(icon, formattedValue, title, description);
         }
 
         private void ShowSkillDetail(CombatInfoSkillItemView item)

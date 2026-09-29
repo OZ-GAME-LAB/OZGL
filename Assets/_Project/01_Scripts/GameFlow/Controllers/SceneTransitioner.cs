@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using OzGameLab01.Data;
 using OzGameLab01.Common;
+using OzGameLab01.Save;
 
 namespace OzGameLab01.Managers
 {
@@ -140,6 +141,20 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadTitleScene()
         {
+            if (OzGameLab01.Controllers.TutorialSessionState.IsActive)
+            {
+                SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+                if (saveFacade != null)
+                {
+                    saveFacade.EndTutorialRun();
+                }
+                else
+                {
+                    BoardRunData.Clear();
+                    SystemBus.Get<OzGameLab01.Dice.DiceFacade>()?.ResetRunState();
+                }
+            }
+
             OzGameLab01.Controllers.TutorialSessionState.EndSession();
             LoadScene(SceneNames.Title);
         }
@@ -149,6 +164,9 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadBoardScene()
         {
+            // New Game/Continue로 메인 보드에 진입할 때는
+            // 이전 튜토리얼 세션의 임시 상태가 남지 않도록 정리합니다.
+            OzGameLab01.Controllers.TutorialSessionState.EndSession();
             LoadScene(SceneNames.Board);
         }
 
@@ -181,6 +199,17 @@ namespace OzGameLab01.Managers
         /// </summary>
         public void LoadTutorialScene()
         {
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade != null)
+            {
+                saveFacade.BeginTutorialRun();
+            }
+            else
+            {
+                BoardRunData.BeginNewRun();
+                SystemBus.Get<OzGameLab01.Dice.DiceFacade>()?.ResetRunState();
+            }
+
             OzGameLab01.Controllers.TutorialSessionState.BeginNewSession();
             LoadScene(SceneNames.Tutorial);
         }

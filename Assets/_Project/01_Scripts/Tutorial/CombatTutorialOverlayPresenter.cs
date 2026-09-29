@@ -9,13 +9,18 @@ using UnityEngine.UI;
 namespace OzGameLab01.Controllers
 {
     /// <summary>
-    /// 전투 튜토리얼의 런타임 Canvas, Guide, 입력 차단 및 Focus 표시를 전담합니다.
+    /// Combat 씬에 배치된 튜토리얼 Canvas와 Guide를 사용하고,
+    /// 런타임 입력 차단 및 Focus 표시를 전담합니다.
     /// 전투 시퀀스 진행이나 완료 조건 판단은 소유하지 않습니다.
     /// </summary>
     public sealed class CombatTutorialOverlayPresenter : IDisposable
     {
         private TutorialController guidePresenter;
+        private bool ownsGuidePresenter;
         private RectTransform overlayRoot;
+        private Canvas overlayCanvas;
+        private int minimumSortingOrder;
+        private TutorialGuideView guideView;
         private GameObject inputBlocker;
         private RectTransform focusRect;
         private Image focusImage;
@@ -34,33 +39,58 @@ namespace OzGameLab01.Controllers
         public event Action TargetClicked;
 
         public void Initialize(
-            Transform owner,
-            TutorialGuideView guidePrefab,
+            RectTransform sceneOverlayRoot,
+            TutorialGuideView guideView,
             int sortingOrder)
         {
             if (overlayRoot != null)
                 return;
 
-            GameObject canvasObject = new(
-                "CombatTutorialCanvas",
-                typeof(RectTransform),
-                typeof(Canvas),
-                typeof(CanvasScaler),
-                typeof(GraphicRaycaster));
-            canvasObject.transform.SetParent(owner, false);
+            if (sceneOverlayRoot == null)
+                return;
 
-            overlayRoot = canvasObject.GetComponent<RectTransform>();
-            StretchToParent(overlayRoot);
+            Canvas canvas = sceneOverlayRoot.GetComponent<Canvas>();
+            if (canvas == null)
+            {
+                Debug.LogError(
+                    "[CombatTutorialOverlayPresenter] CombatTutorialCanvas에 Canvas 컴포넌트가 없습니다.",
+                    sceneOverlayRoot);
+                return;
+            }
 
-            Canvas canvas = canvasObject.GetComponent<Canvas>();
+            overlayRoot = sceneOverlayRoot;
+            this.guideView = guideView;
+            overlayCanvas = canvas;
+            minimumSortingOrder = Mathf.Max(sortingOrder, canvas.sortingOrder);
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.overrideSorting = true;
-            canvas.sortingOrder = sortingOrder;
+            EnsureTopmostSortingOrder();
 
-            CanvasScaler scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
-            scaler.matchWidthOrHeight = 0.5f;
+            CanvasScaler scaler = overlayRoot.GetComponent<CanvasScaler>();
+            if (scaler != null)
+            {
+                scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+                scaler.referenceResolution = new Vector2(1920f, 1080f);
+                scaler.matchWidthOrHeight = 0.5f;
+            }
+
+            if (guideView != null)
+            {
+                if (guideView.transform.parent != overlayRoot)
+                {
+                    Debug.LogError(
+                        "[CombatTutorialOverlayPresenter] TutorialGuideView는 CombatTutorialCanvas의 직속 자식이어야 합니다.",
+                        guideView);
+                }
+
+                RectTransform guideRect = guideView.transform as RectTransform;
+                if (guideRect != null)
+                {
+                    StretchToParent(guideRect);
+                    guideRect.localRotation = Quaternion.identity;
+                    guideRect.localScale = Vector3.one;
+                }
+            }
 
             inputBlocker = CreateGraphicObject(
                 "InputBlocker",
@@ -68,10 +98,18 @@ namespace OzGameLab01.Controllers
                 new Color(0f, 0f, 0f, 0.6f),
                 raycastTarget: true);
             StretchToParent(inputBlocker.GetComponent<RectTransform>());
+            inputBlocker.transform.SetAsFirstSibling();
             inputBlocker.SetActive(false);
 
-            guidePresenter = canvasObject.AddComponent<TutorialController>();
-            guidePresenter.ConfigureRuntime(overlayRoot, guidePrefab);
+            guidePresenter = overlayRoot.GetComponent<TutorialController>();
+            if (guidePresenter == null)
+            {
+                guidePresenter = overlayRoot.gameObject
+                    .AddComponent<TutorialController>();
+                ownsGuidePresenter = true;
+            }
+
+            guidePresenter.ConfigureSceneViews(overlayRoot, guideView);
             guidePresenter.GuideView?.SetDismissOnAnyClick(true);
             guidePresenter.GuideDismissed += HandleGuideDismissed;
 
@@ -85,6 +123,8 @@ namespace OzGameLab01.Controllers
         {
             if (step == null)
                 return;
+
+            EnsureTopmostSortingOrder();
 
             activeStep = step;
             activeTarget = target;
@@ -108,6 +148,7 @@ namespace OzGameLab01.Controllers
                         step.CharacterName,
                         step.Dialogue,
                         step.ShowCharacter);
+                    RefreshGuideLayout();
                 }
                 else
                 {
@@ -178,11 +219,20 @@ namespace OzGameLab01.Controllers
             if (focusButton != null)
                 focusButton.onClick.RemoveListener(HandleTargetClicked);
 
-            if (overlayRoot != null)
-                UnityEngine.Object.Destroy(overlayRoot.gameObject);
+            if (inputBlocker != null)
+                UnityEngine.Object.Destroy(inputBlocker);
+
+            if (focusRect != null)
+                UnityEngine.Object.Destroy(focusRect.gameObject);
+
+            if (ownsGuidePresenter && guidePresenter != null)
+                UnityEngine.Object.Destroy(guidePresenter);
 
             guidePresenter = null;
+            ownsGuidePresenter = false;
             overlayRoot = null;
+            overlayCanvas = null;
+            guideView = null;
             inputBlocker = null;
             focusRect = null;
             focusImage = null;
@@ -191,6 +241,35 @@ namespace OzGameLab01.Controllers
                 focusBorders[i] = null;
             activeTarget = null;
             activeStep = null;
+        }
+
+        private void EnsureTopmostSortingOrder()
+        {
+            if (overlayCanvas == null)
+                return;
+
+            int requiredOrder = minimumSortingOrder;
+            Canvas[] canvases = UnityEngine.Object.FindObjectsByType<Canvas>(
+                FindObjectsInactive.Include,
+                FindObjectsSortMode.None);
+
+            for (int i = 0; i < canvases.Length; i++)
+            {
+                Canvas other = canvases[i];
+                if (other == null ||
+                    other == overlayCanvas ||
+                    other.transform.IsChildOf(overlayRoot))
+                {
+                    continue;
+                }
+
+                if (other.sortingOrder >= requiredOrder)
+                {
+                    requiredOrder = Mathf.Min(other.sortingOrder + 1, 32767);
+                }
+            }
+
+            overlayCanvas.sortingOrder = requiredOrder;
         }
 
         private void CreateFocusTarget()
@@ -456,6 +535,35 @@ namespace OzGameLab01.Controllers
         {
             if (inputBlocker != null)
                 inputBlocker.SetActive(visible);
+        }
+
+        /// <summary>
+        /// 비활성 상태로 씬에 배치된 Guide가 처음 켜질 때 CanvasScaler의
+        /// 초기 갱신보다 먼저 표시되더라도 자식 그래픽이 올바른 Rect를 받도록 합니다.
+        /// 씬 인스턴스의 직렬화 값이나 프리팹 원본은 변경하지 않습니다.
+        /// </summary>
+        private void RefreshGuideLayout()
+        {
+            if (overlayRoot == null || guideView == null)
+                return;
+
+            RectTransform guideRect = guideView.transform as RectTransform;
+            if (guideRect == null)
+                return;
+
+            StretchToParent(guideRect);
+            guideRect.localRotation = Quaternion.identity;
+            guideRect.localScale = Vector3.one;
+
+            Canvas.ForceUpdateCanvases();
+            LayoutRebuilder.ForceRebuildLayoutImmediate(overlayRoot);
+            LayoutRebuilder.ForceRebuildLayoutImmediate(guideRect);
+
+            Graphic[] graphics = guideView.GetComponentsInChildren<Graphic>(true);
+            for (int i = 0; i < graphics.Length; i++)
+                graphics[i].SetAllDirty();
+
+            Canvas.ForceUpdateCanvases();
         }
 
         private static GameObject CreateGraphicObject(

@@ -15,13 +15,13 @@ namespace OzGameLab01.Data
     public static class TempRosterSeed
     {
         /// <summary>
-        /// 실제 21종 유닛(UnitJSON)이 아직 고유 액티브 스킬을 갖지 못해 임시로 부여하는 공용 기본공격.
-        /// TempUnitData.json(21종 임시 유닛)의 0번 스킬로도 재사용합니다.
+        /// 현재 지원하는 유닛 데이터가 고유 액티브 스킬을 갖지 못한 경우 사용하는 공용 기본공격.
+        /// 기본공격 정의 자체는 SkillData.json의 900번 항목이 정본입니다.
         /// </summary>
         public const int UNIT_BASIC_ATTACK_SKILL_ID = 900;
 
         /// <summary>
-        /// TempUnitData.json의 21종 임시 유닛이 4개씩 순환으로 나눠 갖는, 도트/기절/그을림/침묵
+        /// 테스트 전용 임시 유닛이 4개씩 순환으로 나눠 갖는, 도트/기절/그을림/침묵
         /// 디버프를 하나씩 검증하기 위한 임시 액티브 스킬 id입니다.
         /// </summary>
         public const int DOT_SKILL_ID = 910;

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "001] \uC544\uAD70 \uBC30\uCE58 \uADF8\uB9AC\uB4DC"
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.Controllers.CombatTutorialStepData
   stepName: Enemy HP
-  trigger: 0
+  trigger: 5
   manualTriggerKey: 
   showDelay: 0
   showGuide: 1

@@ -102,6 +102,7 @@ namespace OzGameLab01.Player
             {
                 id = source.id,
                 name = source.name,
+                iconAddress = source.iconAddress,
                 spriteAddress = source.spriteAddress,
                 prefabAddress = source.prefabAddress,
                 healthPoint = source.healthPoint,

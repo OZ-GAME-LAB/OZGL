@@ -4,6 +4,7 @@ using OzGameLab01.Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using OzGameLab01.Common;
+using OzGameLab01.GameFlow.Views;
 using System.Threading.Tasks;
 
 namespace OzGameLab01.Managers
@@ -21,6 +22,10 @@ namespace OzGameLab01.Managers
         [Header("초기화 대상 매니저")]
         [SerializeField] private List<MonoBehaviour> _managerComponents = new();
         [SerializeField] private OzGameLab01.Events.EventDB _eventContent;
+
+        [Header("Boot Intro")]
+        [SerializeField] private BootLogoView _bootLogoView;
+
         private static GameBootstrapper _instance;
         private bool _isRootObjectValid;
         private OzGameLab01.Controllers.ManagerInitializationController _initialization;
@@ -170,6 +175,11 @@ namespace OzGameLab01.Managers
             if (SceneManager.GetActiveScene().name != SceneNames.Boot)
             {
                 yield break;
+            }
+
+            if (_bootLogoView != null)
+            {
+                yield return _bootLogoView.PlayAndWait();
             }
 
             // SceneTransitioner 준비 여부 확인

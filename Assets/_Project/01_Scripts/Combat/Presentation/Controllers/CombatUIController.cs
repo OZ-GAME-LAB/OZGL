@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using OzGameLab01.UI;
@@ -9,6 +11,8 @@ using OzGameLab01.Data;
 using OzGameLab01.Managers;
 using OzGameLab01.Save;
 using OzGameLab01.Common;
+using OzGameLab01.Effects.Models;
+using OzGameLab01.Player;
 
 namespace OzGameLab01.Controllers
 {
@@ -28,11 +32,19 @@ namespace OzGameLab01.Controllers
         private CombatInfoView _infoView;
         private GameObject _infoPanel;
         private CombatSession _combatSession;
+        private RunResultAnimationView _runResultView;
+        private RunResultContentView _runResultContentView;
         private bool _isBattleInfoBinding;
         
-        private float _battleTimer = 0f;
-        private bool _rewardApplied;
         private bool _isFastForward = false; // 배속 상태 저장용 변수
+
+        private enum SurrenderTarget
+        {
+            Board,
+            Title
+        }
+
+        private SurrenderTarget _surrenderTarget;
 
         private void Awake()
         {
@@ -48,6 +60,8 @@ namespace OzGameLab01.Controllers
             if (surrenderPopup == null) surrenderPopup = FindFirstObjectByType<ConfirmPopupView>(FindObjectsInactive.Include);
             if (combatSceneController == null) combatSceneController = FindFirstObjectByType<CombatSceneController>(FindObjectsInactive.Include);
             _combatSession = FindFirstObjectByType<CombatSession>(FindObjectsInactive.Include);
+            _runResultView = FindFirstObjectByType<RunResultAnimationView>(FindObjectsInactive.Include);
+            _runResultContentView = FindFirstObjectByType<RunResultContentView>(FindObjectsInactive.Include);
             _infoView = FindFirstObjectByType<CombatInfoView>(FindObjectsInactive.Include);
             _infoPanel = FindBattleInfoPanel(_infoView);
 
@@ -62,7 +76,6 @@ namespace OzGameLab01.Controllers
         // 전투 진입 시 마지막 저장 배속 및 버튼 표시 복원
         private void Start()
         {
-            _rewardApplied = false;
             _isFastForward = SystemBus.Get<SaveFacade>()?.CurrentData?.combatFastForward ?? false;
             combatSceneController?.SetFastForward(_isFastForward);
             UpdateSpeedDisplay(_controlView);
@@ -94,9 +107,10 @@ namespace OzGameLab01.Controllers
             {
                 settingsView.CloseRequested += HandleSettingsBackClicked;
 
-                // 전투에서는 타이틀로 돌아가기 버튼만 노출(튜토리얼/데이터 초기화는 타이틀 전용)
+                // 전투에서는 보드 복귀와 체크포인트를 유지하는 타이틀 복귀를 제공합니다.
                 settingsView.ClearGameButtons();
-                settingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToMainClicked);
+                settingsView.AddGameButton("보드로 돌아가기", HandleReturnToBoardClicked);
+                settingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToTitleClicked);
             }
 
             if (surrenderPopup != null)
@@ -113,6 +127,11 @@ namespace OzGameLab01.Controllers
             if (_combatSession != null)
             {
                 _combatSession.BattleReady += HandleBattleReady;
+            }
+
+            if (_runResultView != null)
+            {
+                _runResultView.MainButtonClicked += HandleRunResultMainButtonClicked;
             }
         }
 
@@ -150,6 +169,11 @@ namespace OzGameLab01.Controllers
             {
                 _combatSession.BattleReady -= HandleBattleReady;
             }
+
+            if (_runResultView != null)
+            {
+                _runResultView.MainButtonClicked -= HandleRunResultMainButtonClicked;
+            }
         }
 
         private void Update()
@@ -162,16 +186,30 @@ namespace OzGameLab01.Controllers
             {
                 // UnscaledDeltaTime을 쓰면 배속에 무관하게 흐르는 현실 시간을 잴 수 있고,
                 // DeltaTime을 쓰면 배속 시 게임 시간도 빨리 흐릅니다. (보통 전투 타이머는 배속 시 빨리 흐릅니다)
-                _battleTimer += Time.deltaTime;
-
                 if (_timerView != null)
                 {
-                    TimeSpan time = TimeSpan.FromSeconds(_battleTimer);
+                    TimeSpan time = TimeSpan.FromSeconds(_combatSession.BattleElapsedSeconds);
                     // mm:ss (예: 01:23) 형식으로 텍스트 업데이트
                     _timerView.SetTimeText(time.ToString(@"mm\:ss"));
                 }
             }
         }
+
+#if UNITY_EDITOR
+        private void OnGUI()
+        {
+            if (combatSceneController == null || combatSceneController.IsResolved)
+            {
+                return;
+            }
+
+            Rect buttonRect = new Rect(20f, 20f, 190f, 44f);
+            if (GUI.Button(buttonRect, "DEBUG: Boss Victory"))
+            {
+                combatSceneController.DebugResolveBossVictory();
+            }
+        }
+#endif
 
         #region 버튼 클릭 이벤트 처리
 
@@ -232,9 +270,22 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void HandleReturnToMainClicked()
+        /// <summary>
+        /// 보드로 돌아가기 버튼 클릭 처리
+        /// </summary>
+        private void HandleReturnToBoardClicked()
         {
+            _surrenderTarget = SurrenderTarget.Board;
             surrenderPopup?.Show("Would you like to surrender and return to the board?");
+        }
+
+        /// <summary>
+        /// 타이틀로 돌아가기 버튼 클릭 처리
+        /// </summary>
+        private void HandleReturnToTitleClicked()
+        {
+            _surrenderTarget = SurrenderTarget.Title;
+            surrenderPopup?.Show("Would you like to surrender and return to the title?");
         }
 
         private void HandleSurrenderConfirmClicked(ConfirmPopupView popup)
@@ -242,9 +293,20 @@ namespace OzGameLab01.Controllers
             surrenderPopup?.Hide();
             settingsView?.Hide();
 
-            if (combatSceneController != null)
+            if (combatSceneController == null)
             {
-                combatSceneController.ReturnToBoard();
+                return;
+            }
+
+            switch (_surrenderTarget)
+            {
+                case SurrenderTarget.Board:
+                    combatSceneController.ReturnToBoard();
+                    break;
+
+                case SurrenderTarget.Title:
+                    combatSceneController.ReturnToTitleFromCombat();
+                    break;
             }
         }
 
@@ -291,6 +353,25 @@ namespace OzGameLab01.Controllers
 
             SpriteRenderer enemyRenderer = enemyUnit.GetComponentInChildren<SpriteRenderer>(true);
             Sprite enemySprite = enemyRenderer != null ? enemyRenderer.sprite : null;
+            string enemyIconAddress = enemyData.species != null && enemyData.species.Count > 0
+                ? enemyData.species[0]?.iconAddress
+                : null;
+            if (!string.IsNullOrWhiteSpace(enemyIconAddress))
+            {
+                try
+                {
+                    enemySprite = await SpriteManager.GetSpriteAsync(enemyIconAddress) ?? enemySprite;
+                }
+                catch (System.Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
+            }
+            if (_infoView == null)
+            {
+                _isBattleInfoBinding = false;
+                return;
+            }
             _infoView.Clear();
             _infoView.SetEnemy(enemyUnit.DisplayName, enemySprite);
             BindEnemyStats(enemyData);
@@ -303,7 +384,16 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                Sprite icon = await SpriteManager.GetSpriteAsync(skill.iconAddress);
+
+                Sprite icon = null;
+
+                // 스킬 아이콘 주소가 있는 경우에만 SpriteManager에 로드를 요청합니다.
+                // 주소가 비어 있으면 아이콘 없이 스킬 정보만 표시합니다.
+                if (!string.IsNullOrWhiteSpace(skill.iconAddress))
+                {
+                    icon = await SpriteManager.GetSpriteAsync(skill.iconAddress);
+                }
+
                 if (_infoView == null)
                 {
                     _isBattleInfoBinding = false;
@@ -321,13 +411,12 @@ namespace OzGameLab01.Controllers
 
         private void BindEnemyStats(MonsterData enemyData)
         {
-            _infoView.AddStat(null, enemyData.healthPoint.ToString(), "체력", "적의 최대 체력");
-            _infoView.AddStat(null, enemyData.attackPoint.ToString(), "공격력", "적의 기본 공격력");
-            _infoView.AddStat(null, enemyData.defensePoint.ToString("0.##"), "방어력", "적의 피해 감소 수치");
-            _infoView.AddStat(null, enemyData.attackSpeed.ToString("0.##"), "공격속도", "적의 기본 공격 간격");
-            _infoView.AddStat(null, $"{enemyData.criticalRate}%", "치명타 확률", "적의 치명타 발생 확률");
-            _infoView.AddStat(null, $"{enemyData.criticalMult}%", "치명타 피해", "적의 치명타 피해 배율");
-            _infoView.AddStat(null, $"{enemyData.dodgeRate}%", "회피율", "적의 공격 회피 확률");
+            if (_infoView == null || enemyData == null)
+            {
+                return;
+            }
+
+            _infoView.BindStats(enemyData);
         }
 
         private void SetBattleInfoVisible(bool visible)
@@ -364,21 +453,15 @@ namespace OzGameLab01.Controllers
 
         private void HandleBattleResolved(bool victory)
         {
+            _ = PopulateDpsListAsync();
+
             if (battleUIView != null)
             {
                 if (victory)
                 {
                     if (combatSceneController != null && combatSceneController.IsBossVictory)
                     {
-                        if (battleUIView.ResultView != null)
-                        {
-                            battleUIView.ResultView.SetResultText("승리");
-                            battleUIView.ResultView.SetOptionalMessage(string.Empty);
-                            battleUIView.ResultView.SetEndBattleButtonText("타이틀로 돌아가기");
-                            battleUIView.ResultView.SetRewardIcon(null);
-                        }
-
-                        battleUIView.ShowResultView();
+                        ShowRunResult();
                         return;
                     }
 
@@ -387,11 +470,6 @@ namespace OzGameLab01.Controllers
                         // 일반 전투는 승리 시 무작위 유물 1개를 자동으로 지급합니다
                         // (dropWeight 가중치, RelicFacade.AcquireRandomRelic).
                         RelicData grantedRelic = BattleRewardService.ApplyAutomaticVictoryReward(this);
-
-                        if (grantedRelic != null)
-                        {
-                            _rewardApplied = true;
-                        }
 
                         battleUIView.ResultView.SetResultText("승리!");
                         battleUIView.ResultView.SetOptionalMessage(
@@ -415,6 +493,190 @@ namespace OzGameLab01.Controllers
                     battleUIView.ShowResultView();
                 }
             }
+        }
+
+        private async Task PopulateDpsListAsync()
+        {
+            CombatResultView resultView = battleUIView?.ResultView;
+            if (resultView == null)
+            {
+                Debug.LogError("[CombatUIController] CombatResultView 참조가 없습니다.", this);
+                return;
+            }
+
+            resultView.ClearDpsInfoItems();
+            if (_combatSession == null)
+            {
+                Debug.LogError("[CombatUIController] CombatSession 참조가 없습니다.", this);
+                return;
+            }
+
+            float elapsedSeconds = _combatSession.BattleElapsedSeconds;
+            if (elapsedSeconds <= 0f)
+            {
+                Debug.LogWarning("[CombatUIController] 전투 시간이 없어 DPS를 계산할 수 없습니다.", this);
+                return;
+            }
+
+            List<DpsResultData> results = BuildDpsResults(elapsedSeconds);
+            results.Sort(CompareDpsResults);
+            for (int index = 0; index < results.Count; index++)
+            {
+                DpsResultData result = results[index];
+                Sprite icon = null;
+                if (!string.IsNullOrWhiteSpace(result.IconAddress))
+                {
+                    icon = await SpriteManager.GetSpriteAsync(result.IconAddress);
+                }
+
+                if (this == null || resultView == null)
+                {
+                    return;
+                }
+
+                DpsInfoItemView item = resultView.CreateDpsInfoItem();
+                if (item == null)
+                {
+                    return;
+                }
+
+                item.SetData(icon, result.UnitName, result.Dps);
+            }
+        }
+
+        private List<DpsResultData> BuildDpsResults(float elapsedSeconds)
+        {
+            List<DpsResultData> results = new List<DpsResultData>();
+            foreach (KeyValuePair<CombatManager.SlotKey, int> entry in
+                _combatSession.State.SpawnedFormation)
+            {
+                Unit unit = _combatSession.State.SlotUnits[
+                    entry.Key.column,
+                    (int)entry.Key.row];
+                if (unit == null)
+                {
+                    Debug.LogWarning($"[CombatUIController] 출전 유닛 참조가 없습니다. ID: {entry.Value}", this);
+                    continue;
+                }
+
+                if (!_combatSession.State.UnitDataById.TryGetValue(
+                    entry.Value,
+                    out UnitData unitData))
+                {
+                    Debug.LogWarning($"[CombatUIController] 유닛 데이터가 없습니다. ID: {entry.Value}", this);
+                    continue;
+                }
+
+                results.Add(new DpsResultData(
+                    unitData.id,
+                    unitData.name,
+                    unitData.iconAddress,
+                    unit.TotalDamageDealt / elapsedSeconds));
+            }
+
+            return results;
+        }
+
+        private static int CompareDpsResults(DpsResultData left, DpsResultData right)
+        {
+            int dpsComparison = right.Dps.CompareTo(left.Dps);
+            return dpsComparison != 0 ? dpsComparison : left.UnitId.CompareTo(right.UnitId);
+        }
+
+        private readonly struct DpsResultData
+        {
+            public DpsResultData(int unitId, string unitName, string iconAddress, float dps)
+            {
+                UnitId = unitId;
+                UnitName = unitName;
+                IconAddress = iconAddress;
+                Dps = dps;
+            }
+
+            public int UnitId { get; }
+            public string UnitName { get; }
+            public string IconAddress { get; }
+            public float Dps { get; }
+        }
+
+        private void ShowRunResult()
+        {
+            if (_runResultView == null || _runResultContentView == null)
+            {
+                Debug.LogError("[CombatUIController] ResultCanvas 연결을 찾을 수 없습니다.", this);
+                return;
+            }
+
+            battleUIView?.HideAllOverlayViews();
+            _runResultContentView.ClearAllItems();
+            _runResultContentView.CreateStatItem("지나간 턴", BoardRunData.DiceRollCount.ToString());
+            _runResultContentView.CreateStatItem("움직인 칸", BoardRunData.MovedNodeCount.ToString());
+            _runResultContentView.CreateStatItem("승리한 배틀", BoardRunData.VictoryBattleCount.ToString());
+
+            CreateSynergyIcons(_combatSession?.ActiveSynergies);
+            CreateUnitIcons(SystemBus.Get<PlayerFacade>()?.OwnedUnits);
+            CreateRelicIcons(SystemBus.Get<RelicFacade>()?.OwnedRelics);
+
+            _runResultContentView.RefreshLayout();
+            bool wasActive = _runResultView.gameObject.activeSelf;
+            _runResultView.gameObject.SetActive(true);
+            if (wasActive)
+            {
+                _runResultView.Replay();
+            }
+        }
+
+        private void CreateSynergyIcons(IReadOnlyList<SynergyData> synergies)
+        {
+            if (synergies == null)
+            {
+                return;
+            }
+
+            foreach (SynergyData synergy in synergies)
+            {
+                CreateIcon(RunResultContentView.IconSection.Synergies, synergy?.iconAddress);
+            }
+        }
+
+        private void CreateUnitIcons(IReadOnlyList<UnitData> units)
+        {
+            if (units == null)
+            {
+                return;
+            }
+
+            foreach (UnitData unit in units)
+            {
+                CreateIcon(RunResultContentView.IconSection.Units, unit?.iconAddress);
+            }
+        }
+
+        private void CreateRelicIcons(IReadOnlyList<RelicData> relics)
+        {
+            if (relics == null)
+            {
+                return;
+            }
+
+            foreach (RelicData relic in relics)
+            {
+                CreateIcon(RunResultContentView.IconSection.Relics, relic?.iconAddress);
+            }
+        }
+
+        private void CreateIcon(RunResultContentView.IconSection section, string iconAddress)
+        {
+            ResultIconItemView item = _runResultContentView.CreateIconItem(section, null);
+            if (item != null)
+            {
+                _ = item.SetIconAsync(iconAddress);
+            }
+        }
+
+        private void HandleRunResultMainButtonClicked(RunResultAnimationView view)
+        {
+            combatSceneController?.ReturnToTitle();
         }
 
         #endregion

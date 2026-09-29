@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
@@ -84,6 +85,7 @@ namespace OzGameLab01.Tests.EditMode
             var counts = new Dictionary<SynergyDefinition, int> { { definition, 2 } };
             List<SynergyPanelUtility.DisplayItem> items = SynergyPanelUtility.BuildDisplayItems(new List<SynergyDefinition> { definition }, counts);
             Assert.AreEqual(1, items.Count);
+            Assert.AreEqual(2, items[0].Count);
             Assert.IsTrue(items[0].IsActive);
             Assert.AreEqual("2/4", items[0].StackText);
         }
@@ -97,6 +99,24 @@ namespace OzGameLab01.Tests.EditMode
             Assert.AreEqual(1, items.Count);
             Assert.IsFalse(items[0].IsActive);
             Assert.AreEqual("1/3", items[0].StackText);
+        }
+
+        [Test]
+        public void GetIconAddress_ResolvesEveryRosterSynergyIncludingSubtitle()
+        {
+            UnitRosterData roster = Resources.Load<UnitRosterData>("UnitRosterData");
+            Assert.That(roster, Is.Not.Null);
+            Assert.That(roster.SynergyDefinitions, Has.Count.EqualTo(12));
+
+            foreach (SynergyDefinition definition in roster.SynergyDefinitions)
+            {
+                string iconAddress = SynergyPanelUtility.GetIconAddress(definition);
+                Assert.That(iconAddress, Does.StartWith("I_Sy_"), definition.DisplayName);
+            }
+
+            SynergyDefinition trickster = roster.SynergyDefinitions.FirstOrDefault(
+                definition => definition.DisplayName == "재간둥이");
+            Assert.That(SynergyPanelUtility.GetIconAddress(trickster), Is.EqualTo("I_Sy_201"));
         }
     }
 }

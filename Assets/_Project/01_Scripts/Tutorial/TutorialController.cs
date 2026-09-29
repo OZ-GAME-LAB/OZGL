@@ -46,6 +46,21 @@ namespace OzGameLab01.Controllers
                 BindGuideView();
         }
 
+        public void ConfigureSceneViews(
+            RectTransform runtimeViewRoot,
+            TutorialGuideView sceneGuideView,
+            TutorialHintView sceneHintView = null)
+        {
+            UnbindGuideView();
+
+            viewRoot = runtimeViewRoot;
+            guideView = sceneGuideView;
+            hintView = sceneHintView;
+
+            if (isActiveAndEnabled)
+                BindGuideView();
+        }
+
         public void SetGuideDismissEnabled(bool enabled)
         {
             guideDismissEnabled = enabled;
@@ -129,7 +144,11 @@ namespace OzGameLab01.Controllers
         {
             isGuideDismissing = false;
 
-            if (guideView != null)
+            // 씬에 비활성 상태로 배치된 View는 아직 Awake가 호출되지 않아
+            // 기본 Transform 값이 캐시되지 않았을 수 있습니다. 이 상태에서
+            // HideImmediate를 호출하면 ContentRoot의 scale이 Vector3.zero로
+            // 덮일 수 있으므로 실제로 활성화된 View만 초기화합니다.
+            if (guideView != null && guideView.gameObject.activeSelf)
                 guideView.HideImmediate();
 
             if (hintView != null)

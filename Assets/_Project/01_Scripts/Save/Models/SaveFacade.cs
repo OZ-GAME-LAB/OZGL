@@ -92,11 +92,39 @@ namespace OzGameLab01.Save
 
             PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
             playerFacade?.ClearInventory();
-            GrantStarterUnit(playerFacade);
+            //GrantStarterUnit(playerFacade);
 
             _state.CurrentData = SaveData.CreateDefault();
             CaptureCurrentRun();
             _state.IsInventoryRestorePending = false;
+        }
+
+        /// <summary>
+        /// 저장된 메인 런은 유지하고 튜토리얼에서만 사용할 임시 런을 새로 시작합니다.
+        /// 호출할 때마다 새 맵 시드와 초기화된 주사위 상태를 사용합니다.
+        /// </summary>
+        public void BeginTutorialRun()
+        {
+            BoardRunData.BeginNewRun();
+            UnitFormationCombatLink.ClearSavedFormation();
+            ResetLegacyBoardTransitionState();
+            ResetPersistentRunManagers();
+
+            SystemBus.Get<PlayerFacade>()?.ClearInventory();
+        }
+
+        /// <summary>
+        /// 튜토리얼 임시 런타임만 제거합니다.
+        /// CurrentData와 저장 파일은 수정하지 않아 기존 Continue 데이터를 보존합니다.
+        /// </summary>
+        public void EndTutorialRun()
+        {
+            BoardRunData.Clear();
+            UnitFormationCombatLink.ClearSavedFormation();
+            ResetLegacyBoardTransitionState();
+            ResetPersistentRunManagers();
+
+            SystemBus.Get<PlayerFacade>()?.ClearInventory();
         }
 
         /// <summary>
@@ -207,6 +235,9 @@ namespace OzGameLab01.Save
 
             // 현재 구현된 사용자 설정 초기화
             soundManager.ResetVolumeSettings();
+
+            // 최초 1회 튜토리얼 완료 이력도 함께 초기화
+            TutorialProgress.Reset();
 
             Debug.Log("[SaveFacade] 게임 데이터 공장 초기화 완료");
             return true;

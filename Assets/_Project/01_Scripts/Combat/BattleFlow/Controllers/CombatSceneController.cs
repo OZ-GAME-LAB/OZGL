@@ -144,14 +144,16 @@ namespace OzGameLab01.Controllers
         /// <summary>
         /// 승패를 판정하고 전투를 종료시킵니다.
         /// </summary>
-        private void ResolveBattle(bool victory)
+        private void ResolveBattle(bool victory, bool forceBossVictory = false)
         {
             if (_resolved) return;
 
             _resolved = true;
-            _wasBossBattle = BoardRunData.HasCurrentBattle && BoardRunData.IsBossBattle;
+            _wasBossBattle = forceBossVictory ||
+                (BoardRunData.HasCurrentBattle && BoardRunData.IsBossBattle);
             _victory = victory;
             CurrentState = BattleState.Resolved;
+            _combatSession?.CompleteBattle();
             ApplyTimeScale();
 
             foreach (Unit deadUnit in _pendingDeadUnits)
@@ -175,6 +177,13 @@ namespace OzGameLab01.Controllers
             PassiveEventBus.RaiseBattleEnd(victory);
             OnBattleResolved?.Invoke(victory);
         }
+
+#if UNITY_EDITOR
+        public void DebugResolveBossVictory()
+        {
+            ResolveBattle(true, true);
+        }
+#endif
 
         /// <summary>
         /// 항복했거나 결과창에서 확인을 누르면 보드 씬으로 이동합니다.
@@ -228,6 +237,15 @@ namespace OzGameLab01.Controllers
 
             ResetTimeScale();
 
+            // 튜토리얼 전투는 저장된 메인 런과 분리된 임시 런입니다.
+            // 튜토리얼에서 타이틀로 나갈 때 기존 Continue 데이터를 삭제하지 않습니다.
+            if (TutorialSessionState.IsActive)
+            {
+                transitioner.LoadTitleScene();
+                _isReturningToTitle = false;
+                return;
+            }
+
             // [수정] 런타임 상태와 저장 파일의 Continue 데이터를 함께 초기화 (BoardRunData.Clear()를 포함)
             SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
             if (saveFacade == null)
@@ -246,6 +264,50 @@ namespace OzGameLab01.Controllers
 
             transitioner.LoadTitleScene();
             _isReturningToTitle = false;
+        }
+        /// <summary>
+        /// 전투 도중 설정창에서 타이틀로 돌아갑니다.
+        /// 전투 중 변경된 상태는 저장하지 않고,
+        /// 전투 진입 직전에 저장한 보드 체크포인트를 유지합니다.
+        /// </summary>
+        public void ReturnToTitleFromCombat()
+        {
+            if (_isReturningToTitle)
+            {
+                return;
+            }
+
+            SceneTransitioner transitioner = SceneTransitioner.Instance;
+
+            if (transitioner == null)
+            {
+                Debug.LogError("[CombatSceneController] SceneTransitioner를 찾을 수 없습니다.", this);
+                return;
+            }
+
+            if (transitioner.IsTransitioning)
+            {
+                Debug.LogWarning("[CombatSceneController] 이미 씬 전환 중입니다.", this);
+                return;
+            }
+
+            _isReturningToTitle = true;
+            ResetTimeScale();
+
+            if (!TutorialSessionState.IsActive)
+            {
+                SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+                if (saveFacade == null || !saveFacade.RestoreCurrentRun())
+                {
+                    Debug.LogError(
+                        "[CombatSceneController] 전투 진입 전 체크포인트를 복원할 수 없습니다.",
+                        this);
+                    _isReturningToTitle = false;
+                    return;
+                }
+            }
+
+            transitioner.LoadTitleScene();
         }
 
         private void ResetTimeScale()

@@ -19,6 +19,8 @@ namespace OzGameLab01.Managers
         private const int WindowedModeIndex = 1;    // 창 모드 - 해상도 드롭다운으로 크기 지정
 
         private const int DefaultScreenModeIndex = FullscreenModeIndex;
+        // 모니터 주사율(120Hz 이상)로 그리면 프레임 이득 없이 GPU 사용률만 두 배 이상 올라가 60으로 고정합니다.
+        private const int TargetFrameRate = 60;
         private const int MinResolutionWidth = 1280;
         private const int MinResolutionHeight = 720;
 
@@ -78,6 +80,10 @@ namespace OzGameLab01.Managers
                 PlayerPrefs.GetInt(ResolutionIndexKey, NativeResolutionIndex), 0, _resolutions.Count - 1);
             ScreenModeIndex = Mathf.Clamp(
                 PlayerPrefs.GetInt(ScreenModeIndexKey, DefaultScreenModeIndex), 0, ScreenModes.Length - 1);
+
+            // vSync가 켜져 있으면 targetFrameRate가 무시되므로 함께 끕니다.
+            QualitySettings.vSyncCount = 0;
+            Application.targetFrameRate = TargetFrameRate;
 
             ApplyDisplaySettings();
 

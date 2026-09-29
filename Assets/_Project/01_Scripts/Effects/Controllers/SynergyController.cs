@@ -32,6 +32,32 @@ namespace OzGameLab01.Controllers
         private readonly List<RuntimeEffectManager.EffectSource> _activeSharedEffects = new List<RuntimeEffectManager.EffectSource>();
         public IReadOnlyList<RuntimeEffectManager.EffectSource> ActiveSharedEffects => _activeSharedEffects;
 
+        public IReadOnlyList<SynergyData> GetActiveSynergies()
+        {
+            List<SynergyData> activeSynergies = new List<SynergyData>();
+            if (_rosterData == null || _traitCounts == null)
+            {
+                return activeSynergies;
+            }
+
+            foreach (SynergyDefinition definition in _rosterData.SynergyDefinitions)
+            {
+                if (definition == null)
+                {
+                    continue;
+                }
+
+                _traitCounts.TryGetValue(definition, out int count);
+                SynergyData data = FindSynergyData(definition.DisplayName);
+                if (data != null && FindActiveTier(data, count) != null)
+                {
+                    activeSynergies.Add(data);
+                }
+            }
+
+            return activeSynergies;
+        }
+
         public SynergyController(
             UnitRosterData rosterData,
             Transform synergyPanelRoot,

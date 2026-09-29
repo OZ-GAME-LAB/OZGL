@@ -17,9 +17,11 @@ namespace OzGameLab01.Controllers
         [SerializeField] private CombatSceneController combatSceneController;
         [SerializeField] private CombatSession combatSession;
         [SerializeField] private CombatUIView combatUIView;
+        [SerializeField] private CombatInfoView combatInfoView;
 
         [Header("Presentation")]
-        [SerializeField] private TutorialGuideView guidePrefab;
+        [SerializeField] private RectTransform tutorialCanvasRoot;
+        [SerializeField] private TutorialGuideView guideView;
         [SerializeField] private int overlaySortingOrder = 30000;
 
         [Header("Sequence")]
@@ -35,6 +37,7 @@ namespace OzGameLab01.Controllers
         private bool combatEventsBound;
         private bool tutorialPauseHeld;
         private bool targetCompletionRequested;
+        private bool battleButtonInvocationRequested;
         private bool combatEntryEvaluated;
         private bool enteredFromTutorial;
         private bool formationGridVisibilityOverridden;
@@ -61,7 +64,10 @@ namespace OzGameLab01.Controllers
             }
 
             overlayPresenter = new CombatTutorialOverlayPresenter();
-            overlayPresenter.Initialize(transform, guidePrefab, overlaySortingOrder);
+            overlayPresenter.Initialize(
+                tutorialCanvasRoot,
+                guideView,
+                overlaySortingOrder);
             TryAcquireInitialPause();
         }
 
@@ -69,6 +75,7 @@ namespace OzGameLab01.Controllers
         {
             ResolveReferences();
             BindBattleReady();
+            BindBattleInfoEvents();
 
             if (overlayPresenter != null)
             {
@@ -91,6 +98,7 @@ namespace OzGameLab01.Controllers
         private void OnDisable()
         {
             UnbindBattleReady();
+            UnbindBattleInfoEvents();
             UnbindCombatEvents();
 
             if (overlayPresenter != null)
@@ -121,7 +129,12 @@ namespace OzGameLab01.Controllers
             BindCombatEvents();
 
             if (combatSession != null && combatSession.IsBattleReady)
-                TryScheduleNextStep(CombatTutorialStepTrigger.BattleReady);
+            {
+                if (combatInfoView != null && combatInfoView.IsBattleButtonReady)
+                    TryScheduleNextStep(CombatTutorialStepTrigger.BattleInfoReady);
+                else
+                    TryScheduleNextStep(CombatTutorialStepTrigger.BattleReady);
+            }
         }
 
         [ContextMenu("Stop Combat Tutorial")]
@@ -161,6 +174,16 @@ namespace OzGameLab01.Controllers
                 PlaySequence();
             else
                 TryScheduleNextStep(CombatTutorialStepTrigger.BattleReady);
+        }
+
+        private void HandleBattleInfoReady()
+        {
+            TryScheduleNextStep(CombatTutorialStepTrigger.BattleInfoReady);
+        }
+
+        private void HandleBattleButtonClicked()
+        {
+            TryScheduleNextStep(CombatTutorialStepTrigger.BattleButtonClicked);
         }
 
         private void HandleEnemySkillUsed(Unit _, OzGameLab01.Data.SkillData __)
@@ -255,6 +278,15 @@ namespace OzGameLab01.Controllers
             if (step == null || !step.AllowsTargetClick)
                 return;
 
+            if (step.Target == CombatTutorialTarget.BattleButton)
+            {
+                ResolveReferences();
+                if (combatInfoView == null || !combatInfoView.IsBattleButtonReady)
+                    return;
+
+                battleButtonInvocationRequested = true;
+            }
+
             targetCompletionRequested = true;
 
             if (step.ShowGuide &&
@@ -275,7 +307,9 @@ namespace OzGameLab01.Controllers
 
             CombatTutorialStepData completedStep =
                 sequenceState.ClearActive();
+            bool invokeBattleButton = battleButtonInvocationRequested;
             targetCompletionRequested = false;
+            battleButtonInvocationRequested = false;
 
             overlayPresenter?.HideStep();
             RestoreFormationGridVisibility();
@@ -293,21 +327,20 @@ namespace OzGameLab01.Controllers
             if (nextStartsImmediately)
             {
                 ScheduleStep(nextStep);
-                return;
             }
-
-            if (nextStep == null)
+            else if (nextStep == null)
             {
                 CompleteSequence();
-                return;
             }
-
-            if (tutorialPauseHeld)
+            else if (tutorialPauseHeld)
             {
                 Debug.LogWarning(
                     $"[CombatTutorialSequenceController] 다음 Step이 이벤트를 기다리는 동안 전투가 정지 상태입니다. 이전 Step의 Resume Combat On Complete 설정을 확인하세요. Step: {completedStep.StepName}",
                     this);
             }
+
+            if (invokeBattleButton)
+                combatInfoView?.TryInvokeBattleButton();
         }
 
         private void CompleteSequence()
@@ -336,6 +369,15 @@ namespace OzGameLab01.Controllers
             formationSlots = null;
 
             ResolveReferences();
+
+            if (targetType == CombatTutorialTarget.BattleButton)
+            {
+                target = combatInfoView != null
+                    ? combatInfoView.BattleButtonHighlightTarget
+                    : null;
+                return target != null;
+            }
+
             CombatMainView mainView = combatUIView != null
                 ? combatUIView.MainView
                 : null;
@@ -364,6 +406,7 @@ namespace OzGameLab01.Controllers
                         ? mainView.FormationGrid.transform as RectTransform
                         : null;
                     return formationSlots.Count > 0;
+
             }
 
             return target != null;
@@ -430,6 +473,12 @@ namespace OzGameLab01.Controllers
                 combatUIView = FindFirstObjectByType<CombatUIView>(
                     FindObjectsInactive.Include);
             }
+
+            if (combatInfoView == null)
+            {
+                combatInfoView = FindFirstObjectByType<CombatInfoView>(
+                    FindObjectsInactive.Include);
+            }
         }
 
         private bool CanPlaySequence()
@@ -448,14 +497,23 @@ namespace OzGameLab01.Controllers
                 return false;
             }
 
-            if (guidePrefab == null)
+            if (tutorialCanvasRoot == null ||
+                tutorialCanvasRoot.GetComponent<Canvas>() == null)
+            {
+                Debug.LogError(
+                    "[CombatTutorialSequenceController] Combat 씬의 CombatTutorialCanvas가 연결되지 않았거나 Canvas 컴포넌트가 없습니다.",
+                    this);
+                return false;
+            }
+
+            if (guideView == null)
             {
                 for (int i = 0; i < steps.Count; i++)
                 {
                     if (steps[i] != null && steps[i].ShowGuide)
                     {
                         Debug.LogError(
-                            "[CombatTutorialSequenceController] Guide Prefab이 연결되지 않았습니다.",
+                            "[CombatTutorialSequenceController] Combat 씬의 TutorialGuideView가 연결되지 않았습니다.",
                             this);
                         return false;
                     }
@@ -537,6 +595,26 @@ namespace OzGameLab01.Controllers
                 combatSession.BattleReady -= HandleBattleReady;
         }
 
+        private void BindBattleInfoEvents()
+        {
+            if (combatInfoView == null)
+                return;
+
+            combatInfoView.BattleButtonReady -= HandleBattleInfoReady;
+            combatInfoView.BattleButtonReady += HandleBattleInfoReady;
+            combatInfoView.BattleButtonClicked -= HandleBattleButtonClicked;
+            combatInfoView.BattleButtonClicked += HandleBattleButtonClicked;
+        }
+
+        private void UnbindBattleInfoEvents()
+        {
+            if (combatInfoView == null)
+                return;
+
+            combatInfoView.BattleButtonReady -= HandleBattleInfoReady;
+            combatInfoView.BattleButtonClicked -= HandleBattleButtonClicked;
+        }
+
         private void BindCombatEvents()
         {
             if (combatEventsBound)
@@ -559,6 +637,7 @@ namespace OzGameLab01.Controllers
         {
             sequenceState?.Stop();
             targetCompletionRequested = false;
+            battleButtonInvocationRequested = false;
 
             if (pendingShowTween != null)
             {

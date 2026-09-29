@@ -23,6 +23,7 @@ namespace OzGameLab01.UI
 
         [Header("Skills")]
         [SerializeField] private Image[] skillIcons;
+        [SerializeField] private TMP_Text[] skillNameTexts;
         [SerializeField] private TMP_Text[] skillDescriptionTexts;
 
         [Header("Description")]
@@ -73,8 +74,8 @@ namespace OzGameLab01.UI
             }
             SetUnitName(data.name);
             SetSynergies(synergyNames);
-            SetSkill(0, activeSkillIcon, FormatSkill(activeSkill));
-            SetSkill(1, passiveSkillIcon, FormatSkill(passiveSkill));
+            SetSkill(0,activeSkillIcon,activeSkill?.name,activeSkill?.description);
+            SetSkill(1,passiveSkillIcon,passiveSkill?.name,passiveSkill?.description);
             SetConceptDescription(data.flavorText);
             BindStats(data);
             ResetStatsScroll();
@@ -204,7 +205,7 @@ namespace OzGameLab01.UI
         /// 지정한 슬롯의 스킬 아이콘과 설명을 갱신합니다.
         /// 아이콘이 null이면 해당 Image만 숨깁니다.
         /// </summary>
-        public void SetSkill(int skillIndex,Sprite icon,string description)
+        public void SetSkill(int skillIndex,Sprite icon,string skillName,string description)
         {
             if (skillIndex < 0)
                 return;
@@ -220,12 +221,20 @@ namespace OzGameLab01.UI
                 }
             }
 
+            if (skillNameTexts != null && skillIndex < skillNameTexts.Length)
+            {
+                TMP_Text targetNameText = skillNameTexts[skillIndex];
+
+                if (targetNameText != null)
+                    targetNameText.text = skillName ?? string.Empty;
+            }
+
             if (skillDescriptionTexts != null && skillIndex < skillDescriptionTexts.Length)
             {
-                TMP_Text targetText = skillDescriptionTexts[skillIndex];
+                TMP_Text targetDescriptionText = skillDescriptionTexts[skillIndex];
 
-                if (targetText != null)
-                    targetText.text = description ?? string.Empty;
+                if (targetDescriptionText != null)
+                    targetDescriptionText.text = description ?? string.Empty;
             }
         }
 
@@ -249,7 +258,7 @@ namespace OzGameLab01.UI
             int count = Mathf.Max(iconCount, descriptionCount);
 
             for (int index = 0; index < count; index++)
-                SetSkill(index, null, string.Empty);
+                SetSkill(index, null, string.Empty, string.Empty);
 
             SetConceptDescription(string.Empty);
             ClearStats();

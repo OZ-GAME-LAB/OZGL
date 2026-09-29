@@ -38,6 +38,8 @@ namespace OzGameLab01.Combat
         public Team TeamValue => team;
         public float CurrentHp => _currentHP;
         public float MaxHp => maxHP;
+        public int UnitId { get; private set; }
+        public float TotalDamageDealt { get; private set; }
         public RectTransform CombatAnchor => _presenter?.CombatAnchor;
         public string DisplayName { get; private set; }
         /// <summary>표시 이름만 바꿉니다(적: 계층 스탯 행 이름 대신 스폰된 종 이름, MonsterData.species).</summary>
@@ -219,6 +221,7 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            UnitId = data.id;
             DisplayName = data.name;
             maxHP = data.healthPoint;
             attackPoint = data.attackPoint;
@@ -254,6 +257,7 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            team = Team.Enemy;
             DisplayName = data.name;
             // data는 EnemyManager.BuildCombatSpec()이 턴 성장 배율과 훔친 액티브 스킬까지 반영해
             // 이미 확정한 전투용 스펙입니다. Unit은 그 값을 그대로 받아 런타임 상태(쿨타임/체력
@@ -305,6 +309,7 @@ namespace OzGameLab01.Combat
         private void InitializeRuntimeState()
         {
             CaptureBaseStats();
+            TotalDamageDealt = 0f;
             _isDead = false;
             _shields.Clear();
             _status.Clear();
@@ -580,7 +585,7 @@ namespace OzGameLab01.Combat
                     // 최종 데미지 = 공격력 - 방어력, 소수 둘째자리 반올림, 최소 1.0(UnitData.xlsx 규칙).
                     effectiveDamage = Mathf.Max(1f, effectiveDamage - target.defensePoint);
                     effectiveDamage = Mathf.Round(effectiveDamage * 100f) / 100f;
-                    target.TakeDamage(effectiveDamage, isBasicAttack: true);
+                    TotalDamageDealt += target.TakeDamage(effectiveDamage, isBasicAttack: true);
                 }
             }
 
@@ -595,9 +600,19 @@ namespace OzGameLab01.Combat
 
         private IEnumerator CastSkill(Unit target, UnitSkillRuntime skill, bool isBasicAttack)
         {
+            if (_isDead)
+            {
+                yield break;
+            }
+
             int useCount = !isBasicAttack && _useSkillTwice ? 2 : 1;
             for (int useIndex = 0; useIndex < useCount; useIndex++)
             {
+                if (_isDead)
+                {
+                    yield break;
+                }
+
                 if (!isBasicAttack)
                 {
                     // 스킬은 발동 즉시 시전 VFX를 띄웁니다(유닛 아이콘은 시전 VFX에 포함).
@@ -641,7 +656,7 @@ namespace OzGameLab01.Combat
                             _presenter.FireProjectile(skillTarget, skillTarget._presenter, UnitPresenter.GetVisualCenter(transform),
                                 () =>
                                 {
-                                    if (!_isDead) ExecuteActiveEffects(data, skillTarget);
+                                    ExecuteActiveEffects(data, skillTarget);
                                     return false;
                                 }, data.projectileScale);
                         }
@@ -666,6 +681,11 @@ namespace OzGameLab01.Combat
                     // 기본공격은 "스킬 사용" 트리거의 대상이 아닙니다(패시브 기획 기준).
                     if (!isBasicAttack)
                     {
+                        if (_isDead)
+                        {
+                            yield break;
+                        }
+
                         CombatManager.Instance?.Facade.ReportFeedback(new CombatFeedback(
                             CombatFeedbackKind.Skill, skill.data.name,
                             $"{DisplayName ?? name} → {target.DisplayName ?? target.name}", this));
@@ -774,7 +794,9 @@ namespace OzGameLab01.Combat
             if (_random.NextDouble() < Mathf.Min(target.dodgeRate, 60f) / 100f) return false;
             if (_random.NextDouble() < criticalRate / 100f) effectiveDamage *= criticalMult / 100f;
             effectiveDamage = Mathf.Max(1f, effectiveDamage - (ignoreDefense ? 0f : target.defensePoint));
-            target.TakeDamage(Mathf.Round(effectiveDamage * 100f) / 100f, isBasicAttack: false);
+            TotalDamageDealt += target.TakeDamage(
+                Mathf.Round(effectiveDamage * 100f) / 100f,
+                isBasicAttack: false);
             PassiveEventBus.RaiseAttackLanded(this, target);
             TryApplyRandomStatusEffect(target);
             return true;
@@ -988,12 +1010,15 @@ namespace OzGameLab01.Combat
             return true;
         }
 
-        public void TakeDamage(float dmg, bool isBasicAttack = true)
+        public float TakeDamage(float dmg, bool isBasicAttack = true)
         {
             if (_isDead)
             {
-                return;
+                return 0f;
             }
+
+            float healthBefore = _currentHP;
+            float shieldBefore = Shield;
 
             if (_damageReductionDefenseStep > 0f && dmg > 0f)
             {
@@ -1006,7 +1031,7 @@ namespace OzGameLab01.Combat
                 dmg *= Mathf.Clamp01(1f - reduction);
             }
             dmg = _shields.Absorb(dmg);
-            if (dmg <= 0f) return;
+            if (dmg <= 0f) return Mathf.Max(0f, shieldBefore - Shield);
             float previousRatio = maxHP > 0f ? _currentHP / maxHP : 0f;
             _currentHP = Mathf.Max(0f, _currentHP - dmg);
             _presenter.SetHP(_currentHP);
@@ -1024,6 +1049,10 @@ namespace OzGameLab01.Combat
             {
                 StartCoroutine(_presenter.HitFlash());
             }
+
+            float healthDamage = Mathf.Max(0f, healthBefore - _currentHP);
+            float shieldDamage = Mathf.Max(0f, shieldBefore - Shield);
+            return healthDamage + shieldDamage;
         }
 
         private void Die()
