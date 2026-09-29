@@ -77,6 +77,9 @@ namespace OzGameLab01.Combat
         private float _damageReductionPercent;
         private float _shieldBonusDamagePerDefensePercent;
         private float _shieldDamageReductionPerDefensePercent;
+        // 이 유닛이 받는 디버프 지속시간 보정: (원래 시간 × 배율) + 추가 초. DebuffDurationModifier 효과가 설정합니다.
+        private float _receivedDebuffDurationMultiplier = 1f;
+        private float _receivedDebuffDurationBonus;
 
         public bool HasAnyDebuff => _status != null && _status.HasAnyDebuff;
         public bool AreActiveSkillsDisabled => _activeSkillsDisabled;
@@ -311,6 +314,8 @@ namespace OzGameLab01.Combat
             _shieldBonusDamagePerDefensePercent = 0f;
             _shieldDamageReductionPerDefensePercent = 0f;
             _tauntRemaining = 0f;
+            _receivedDebuffDurationMultiplier = 1f;
+            _receivedDebuffDurationBonus = 0f;
             _genieWishStacks = 0;
             _currentHP = maxHP;
             _presenter.InitHealthBar(maxHP);
@@ -473,6 +478,19 @@ namespace OzGameLab01.Combat
                     _presenter.PlayEffect(CombatVfxLibrary.Instance?.GetStatEffect(statType, percentValue >= 0f), transform,
                         CombatVfxLibrary.Instance?.StatEffectScale ?? 1f);
                 }
+                return true;
+            }
+            // 액티브 스킬(1번 이후) 쿨타임을 전투 끝까지 줄입니다. 이미 흐르고 있는 타이머도 새 쿨타임을 넘지 않게 맞춥니다.
+            if (statType == EffectStatType.SkillCooldownReduction)
+            {
+                if (_skills.Count < 2 || !untilBattleEnd) return false;
+                for (int i = 1; i < _skills.Count; i++)
+                {
+                    float reduced = Mathf.Max(0.01f, GetSkillCooldown(_skills[i]) * (1 - percentValue / 100f));
+                    _skills[i].cooldownOverride = reduced;
+                    _skills[i].timer = Mathf.Min(_skills[i].timer, reduced);
+                }
+                PassiveEventBus.RaiseBuffed(this);
                 return true;
             }
             if (!_stats.Add(statType, percentValue, operation, durationSeconds, untilBattleEnd)) return false;
@@ -937,6 +955,7 @@ namespace OzGameLab01.Combat
 
         public void ApplyDebuff(DebuffProfile profile)
         {
+            profile.duration = Mathf.Max(0f, profile.duration * _receivedDebuffDurationMultiplier + _receivedDebuffDurationBonus);
             if (_status.Apply(profile))
             {
                 _presenter.SetStatusEffectActive(profile.type, true, transform);
@@ -1001,6 +1020,41 @@ namespace OzGameLab01.Combat
             if (_isDead || seconds <= 0f || _skills.Count < 2) return false;
             for (int i = 1; i < _skills.Count; i++) _skills[i].timer = Mathf.Max(0f, _skills[i].timer - seconds);
             return true;
+        }
+
+        /// <summary>액티브 스킬의 남은 쿨타임을 각 스킬 쿨타임의 percent%만큼 줄입니다(CooldownModifier).</summary>
+        public bool RecoverSkillCooldownPercent(float percent)
+        {
+            if (_isDead || percent <= 0f || _skills.Count < 2) return false;
+            for (int i = 1; i < _skills.Count; i++)
+            {
+                _skills[i].timer = Mathf.Max(0f, _skills[i].timer - GetSkillCooldown(_skills[i]) * percent / 100f);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 이 유닛이 받는 디버프 지속시간을 조정합니다(DebuffDurationModifier).
+        /// Add는 초 단위 추가, Multiply는 퍼센트 증감(-50이면 절반)입니다.
+        /// </summary>
+        public bool ModifyReceivedDebuffDuration(EffectOperation operation, float value)
+        {
+            if (_isDead || value == 0f) return false;
+            if (operation == EffectOperation.Add) _receivedDebuffDurationBonus += value;
+            else _receivedDebuffDurationMultiplier = Mathf.Max(0f, _receivedDebuffDurationMultiplier * (1f + value / 100f));
+            return true;
+        }
+
+        /// <summary>
+        /// 기본공격 빈도(초당 공격 횟수)를 extraAttacksPerSecond만큼 늘립니다(유물 726 보조칸 공속 전달).
+        /// 쿨다운 기반이라 빈도 증가를 동일한 쿨다운 감소율로 바꿔 적용합니다.
+        /// </summary>
+        public bool AddBasicAttackRate(float extraAttacksPerSecond)
+        {
+            if (_isDead || extraAttacksPerSecond <= 0f || _skills.Count == 0) return false;
+            float rate = 1f / Mathf.Max(0.01f, GetSkillCooldown(_skills[0]));
+            float reductionPercent = (1f - rate / (rate + extraAttacksPerSecond)) * 100f;
+            return ApplyStatEffect(EffectStatType.AttackInterval, reductionPercent, EffectOperation.Add, 0f, true);
         }
 
         public float TakeDamage(float dmg, bool isBasicAttack = true)

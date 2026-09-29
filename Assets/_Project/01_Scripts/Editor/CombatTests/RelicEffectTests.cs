@@ -11,19 +11,110 @@ namespace OzGameLab01.Tests.EditMode
 {
     public class RelicEffectTests
     {
-        // 효과 연결이 보류된 유물(Docs/RELIC_EFFECT_STATUS.md 3절).
-        private static readonly HashSet<int> PendingRelicIds = new HashSet<int> { 718, 726, 727 };
-
         [Test]
-        public void EveryRelicExceptPendingHasEffects()
+        public void EveryRelicHasEffects()
         {
             TextAsset json = Resources.Load<TextAsset>("RelicData");
             List<RelicData> relics = JsonDataParser.Parse<RelicData, RelicDataList>(json.text);
 
             foreach (RelicData relic in relics)
             {
-                if (PendingRelicIds.Contains(relic.id)) continue;
                 Assert.That(relic.effects, Is.Not.Empty, $"RelicData.id={relic.id} ({relic.name}) effects가 비어 있습니다.");
+            }
+        }
+
+        [Test]
+        public void UnitPassiveValuesUsePercentScale()
+        {
+            TextAsset json = Resources.Load<TextAsset>("SkillData");
+            List<SkillData> skills = JsonDataParser.Parse<SkillData, SkillDataList>(json.text);
+
+            foreach (SkillData skill in skills)
+            {
+                if (skill.passiveEffects == null) continue;
+                foreach (EffectInstance effect in skill.passiveEffects)
+                {
+                    Assert.That(effect.chance == 0f || effect.chance > 1f, Is.True,
+                        $"SkillData.id={skill.id} chance={effect.chance}는 0~100 퍼센트여야 합니다.");
+                }
+            }
+        }
+
+        [Test]
+        public void CooldownModifierRecoversPercentOfActiveSkillCooldown()
+        {
+            Unit unit = CreateSkilledUnit();
+            try
+            {
+                unit.TryGetActiveSkillCooldown(out float before, out float duration);
+                Assert.That(unit.RecoverSkillCooldownPercent(10f), Is.True);
+                unit.TryGetActiveSkillCooldown(out float after, out _);
+                Assert.That(after, Is.EqualTo(before - duration * 0.1f).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(unit.gameObject);
+            }
+        }
+
+        [Test]
+        public void SkillCooldownReductionShortensActiveSkillCooldown()
+        {
+            Unit unit = CreateSkilledUnit();
+            try
+            {
+                unit.TryGetActiveSkillCooldown(out _, out float before);
+                Assert.That(unit.ApplyStatEffect(EffectStatType.SkillCooldownReduction, 10f, EffectOperation.Multiply, 0f, true), Is.True);
+                unit.TryGetActiveSkillCooldown(out float remaining, out float after);
+                Assert.That(after, Is.EqualTo(before * 0.9f).Within(0.001f));
+                Assert.That(remaining, Is.LessThanOrEqualTo(after + 0.0001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(unit.gameObject);
+            }
+        }
+
+        [Test]
+        public void ReceivedDebuffDurationAddsSecondsAndScalesByPercent()
+        {
+            Unit addUnit = CreateUnit("Debuff add", 100f);
+            Unit halfUnit = CreateUnit("Debuff half", 100f);
+            try
+            {
+                addUnit.ModifyReceivedDebuffDuration(EffectOperation.Add, 1f);
+                addUnit.ApplyDebuff(new DebuffProfile { type = DebuffType.Stun, duration = 1f });
+                addUnit.TryGetPrimaryDebuff(out _, out _, out float added);
+                Assert.That(added, Is.EqualTo(2f).Within(0.001f));
+
+                halfUnit.ModifyReceivedDebuffDuration(EffectOperation.Multiply, -50f);
+                halfUnit.ApplyDebuff(new DebuffProfile { type = DebuffType.Stun, duration = 1f });
+                halfUnit.TryGetPrimaryDebuff(out _, out _, out float halved);
+                Assert.That(halved, Is.EqualTo(0.5f).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(addUnit.gameObject);
+                Object.DestroyImmediate(halfUnit.gameObject);
+            }
+        }
+
+        [Test]
+        public void AddBasicAttackRateConvertsRateIncreaseIntoShorterCooldown()
+        {
+            Unit unit = CreateUnit("Attack rate", 100f, attackSpeed: 1f);
+            try
+            {
+                // 초당 1회 + 0.25회 = 1.25회 → 쿨다운 0.8초
+                Assert.That(unit.AddBasicAttackRate(0.25f), Is.True);
+                var skills = (System.Collections.IList)typeof(Unit)
+                    .GetField("_skills", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+                    .GetValue(unit);
+                Assert.That(((UnitSkillRuntime)skills[0]).Cooldown, Is.EqualTo(0.8f).Within(0.001f));
+            }
+            finally
+            {
+                Object.DestroyImmediate(unit.gameObject);
             }
         }
 
@@ -167,15 +258,29 @@ namespace OzGameLab01.Tests.EditMode
             return catalog;
         }
 
-        private static Unit CreateUnit(string name, float maxHp)
+        // 기본공격(900)과 액티브 스킬(51001)을 가진 유닛. 스킬 정의는 Resources 카탈로그에서 읽습니다.
+        private static Unit CreateSkilledUnit()
+        {
+            var unit = new GameObject("Skilled unit").AddComponent<Unit>();
+            unit.Configure(new UnitData { healthPoint = 100f, attackSpeed = 1f, skillIds = new List<int> { 900, 51001 } });
+            InitializeUnit(unit);
+            return unit;
+        }
+
+        private static Unit CreateUnit(string name, float maxHp, float attackSpeed = 0f)
         {
             var unit = new GameObject(name).AddComponent<Unit>();
-            unit.Configure(new UnitData { healthPoint = maxHp });
+            unit.Configure(new UnitData { healthPoint = maxHp, attackSpeed = attackSpeed, skillIds = attackSpeed > 0f ? new List<int> { 900 } : new List<int>() });
+            InitializeUnit(unit);
+            return unit;
+        }
+
+        private static void InitializeUnit(Unit unit)
+        {
             typeof(Unit).GetMethod("EnsureRuntimeComponents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .Invoke(unit, null);
             typeof(Unit).GetMethod("InitializeRuntimeState", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
                 .Invoke(unit, null);
-            return unit;
         }
     }
 }

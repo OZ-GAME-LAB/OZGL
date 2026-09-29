@@ -12,11 +12,10 @@ namespace OzGameLab01.Combat
     /// RelicManager를 직접 참조하지 않습니다(그 둘의 보유 목록 취합은 RuntimeEffectManager가
     /// 이미 담당).
     ///
-    /// 스탯, 고정 피해, 회복, 보호막, 디버프 해제를 지원합니다. Revive/
-    /// DebuffImmunity/DebuffDurationModifier/CooldownModifier/
-    /// NullifyNextSkill/SynergyModifier는 대응하는 메커니즘이 Unit에 아직 없어 조용히
-    /// 건너뜁니다 — Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md의 권고(메커니즘이 생길 때 그
-    /// 효과의 실행 로직도 같이 만들기)를 따릅니다.
+    /// 스탯, 고정 피해, 회복, 보호막, 디버프 해제, 부활, 쿨타임 회복, 디버프 지속시간 조정,
+    /// 보조칸 공속 전달을 지원합니다. DebuffImmunity/NullifyNextSkill은 대응하는 메커니즘이
+    /// Unit에 아직 없어 조용히 건너뜁니다 — Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md의 권고(메커니즘이
+    /// 생길 때 그 효과의 실행 로직도 같이 만들기)를 따릅니다.
     /// </summary>
     public sealed class CombatEffectExecutor : System.IDisposable
     {
@@ -367,7 +366,7 @@ namespace OzGameLab01.Combat
             return alive;
         }
 
-        private static bool ApplyEffect(EffectInstance effect, Unit target)
+        private bool ApplyEffect(EffectInstance effect, Unit target)
         {
             if (target == null) return false;
             switch (effect.effect)
@@ -408,10 +407,15 @@ namespace OzGameLab01.Combat
                     return true;
                 case EffectType.Revive:
                     return target.Revive(effect.effectParam > 0f ? effect.effectParam : 100f);
+                case EffectType.CooldownModifier:
+                    return target.RecoverSkillCooldownPercent(effect.effectParam);
+                case EffectType.DebuffDurationModifier:
+                    return target.ModifyReceivedDebuffDuration(effect.operation, effect.effectParam);
+                case EffectType.SupportAttackSpeedShare:
+                    return target.AddBasicAttackRate(_facade.SupportAttackRate * effect.effectParam / 100f);
 
-                // Revive/DebuffImmunity/DebuffDurationModifier/
-                // CooldownModifier/NullifyNextSkill/SynergyModifier: 대응 메커니즘이 아직 없어
-                // 의도적으로 건너뜁니다(Docs/PASSIVE_TRIGGER_EFFECT_SCHEMA.md 참고).
+                // DebuffImmunity/NullifyNextSkill: 대응 메커니즘이 아직 없어 의도적으로 건너뜁니다.
+                // SynergyModifier는 SynergyController가 시너지 단계 계산에서 처리합니다.
             }
             return false;
         }

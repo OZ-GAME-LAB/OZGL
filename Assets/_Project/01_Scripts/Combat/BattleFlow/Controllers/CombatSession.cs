@@ -63,6 +63,33 @@ namespace OzGameLab01.Combat
         public bool IsBattleRunning { get; private set; }
         // 전투 종료 처리에서 BoardRunData의 전투 정보가 먼저 초기화되므로 시작 시점에 기억해 둡니다.
         public bool IsNightBattle { get; private set; }
+
+        /// <summary>
+        /// 보조칸 아군의 기본공격 빈도 합(초당 공격 수, 1 / attackSpeed). 보조칸 유닛은 전투에 스폰되지
+        /// 않으므로 편성 데이터(편성 화면을 거치지 않았으면 저장된 편성 id)에서 계산합니다.
+        /// </summary>
+        public float SupportAttackRate
+        {
+            get
+            {
+                float total = 0f;
+                IReadOnlyList<UnitFormationCombatLink.TransferredUnit> units = UnitFormationCombatLink.SupportUnitList;
+                IReadOnlyList<int> savedIds = UnitFormationCombatLink.SavedSupportUnitIdList;
+                for (int i = 0; i < units.Count; i++)
+                {
+                    UnitData data = units[i]?.Data;
+                    if (data == null && i < savedIds.Count && savedIds[i] > 0)
+                    {
+                        data = RuntimeContent.Catalog.GetUnit(savedIds[i]);
+                    }
+                    if (data != null && data.attackSpeed > 0f)
+                    {
+                        total += 1f / data.attackSpeed;
+                    }
+                }
+                return total;
+            }
+        }
         public float BattleElapsedSeconds { get; private set; }
         public IReadOnlyList<SynergyData> ActiveSynergies =>
             _synergyController?.GetActiveSynergies() ?? Array.Empty<SynergyData>();

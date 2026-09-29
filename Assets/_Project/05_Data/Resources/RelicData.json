@@ -130,7 +130,7 @@
           "triggerParam": 0,
           "target": "FrontRow",
           "effect": "StatModifier",
-          "statType": "AttackInterval",
+          "statType": "SkillCooldownReduction",
           "operation": "Multiply",
           "effectParam": 10,
           "chance": 0,
@@ -245,7 +245,7 @@
           "triggerParam": 0,
           "target": "MidRow",
           "effect": "StatModifier",
-          "statType": "AttackInterval",
+          "statType": "SkillCooldownReduction",
           "operation": "Multiply",
           "effectParam": 10,
           "chance": 0,
@@ -360,7 +360,7 @@
           "triggerParam": 0,
           "target": "BackRow",
           "effect": "StatModifier",
-          "statType": "AttackInterval",
+          "statType": "SkillCooldownReduction",
           "operation": "Multiply",
           "effectParam": 10,
           "chance": 0,
@@ -426,7 +426,19 @@
       "baseValue": 1,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "Enemy",
+          "effect": "DebuffDurationModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 1,
+          "chance": 0,
+          "once": false
+        }
+      ]
     },
     {
       "id": 719,
@@ -660,7 +672,19 @@
       "baseValue": 0,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "BackRow",
+          "effect": "SupportAttackSpeedShare",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
     },
     {
       "id": 727,
@@ -671,7 +695,19 @@
       "baseValue": 10,
       "dropWeight": 3,
       "targetScene": "전투씬",
-      "effects": []
+      "effects": [
+        {
+          "trigger": "OnBattleStart",
+          "triggerParam": 0,
+          "target": "AllAllies",
+          "effect": "CooldownModifier",
+          "statType": "Unknown",
+          "operation": "Add",
+          "effectParam": 10,
+          "chance": 0,
+          "once": false
+        }
+      ]
     },
     {
       "id": 728,

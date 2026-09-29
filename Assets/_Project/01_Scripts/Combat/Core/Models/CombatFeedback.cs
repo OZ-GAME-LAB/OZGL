@@ -45,6 +45,7 @@ namespace OzGameLab01.Combat
                 EffectStatType.Attack => "공격력",
                 EffectStatType.Defense => "방어력",
                 EffectStatType.AttackInterval => "기본공격 쿨다운 감소",
+                EffectStatType.SkillCooldownReduction => "스킬 쿨타임 감소",
                 EffectStatType.CriticalChance => "치명타 확률",
                 EffectStatType.CriticalMultiplier => "치명타 배율",
                 EffectStatType.DodgeChance => "회피율",

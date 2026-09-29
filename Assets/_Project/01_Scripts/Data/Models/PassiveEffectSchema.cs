@@ -61,7 +61,8 @@ namespace OzGameLab01.Data
         DebuffDurationModifier,
         CooldownModifier,
         NullifyNextSkill,
-        SynergyModifier
+        SynergyModifier,
+        SupportAttackSpeedShare     // 보조칸 아군 공격 빈도의 effectParam%를 대상에게 더함 (유물 726)
     }
 
     /// <summary>
@@ -83,7 +84,8 @@ namespace OzGameLab01.Data
         RecoveryAmount,
         CurrentDiceValue,
         TurnRecovery,
-        NightSightStep              // 보드 밤 시야를 몇 단계 넓힐지 (유물 717)
+        NightSightStep,             // 보드 밤 시야를 몇 단계 넓힐지 (유물 717)
+        SkillCooldownReduction      // 액티브 스킬 쿨타임 감소율 % (유물 705/710/715)
     }
 
     /// <summary>
