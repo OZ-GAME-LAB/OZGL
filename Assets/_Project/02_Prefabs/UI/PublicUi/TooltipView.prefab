@@ -159,6 +159,8 @@ MonoBehaviour:
   contentTopPadding: 8
   contentBottomPadding: 12
   sectionSpacing: 6
+  minimumPanelWidth: 600
+  maximumPanelWidth: 1200
   minimumPanelHeight: 80
 --- !u!1 &2554969402397866876
 GameObject:

@@ -55,6 +55,8 @@ namespace OzGameLab01.UI
         [SerializeField, Min(0f)] private float contentTopPadding = 8f;
         [SerializeField, Min(0f)] private float contentBottomPadding = 12f;
         [SerializeField, Min(0f)] private float sectionSpacing = 6f;
+        [SerializeField, Min(1f)] private float minimumPanelWidth = 600f;
+        [SerializeField, Min(1f)] private float maximumPanelWidth = 1200f;
         [SerializeField, Min(1f)] private float minimumPanelHeight = 80f;
 
         private readonly List<EffectRowView> effectRows = new();
@@ -285,7 +287,11 @@ namespace OzGameLab01.UI
             if (tooltipPanel == null)
                 return;
 
-            float panelWidth = Mathf.Max(1f, tooltipPanel.rect.width);
+            float panelWidth = GetPreferredPanelWidth();
+            tooltipPanel.SetSizeWithCurrentAnchors(
+                RectTransform.Axis.Horizontal,
+                panelWidth);
+
             float contentWidth = Mathf.Max(1f, panelWidth - contentHorizontalPadding * 2f);
             float cursor = contentTopPadding;
 
@@ -487,6 +493,50 @@ namespace OzGameLab01.UI
             return height;
         }
 
+        private float GetPreferredPanelWidth()
+        {
+            float preferredContentWidth = 0f;
+
+            if (IsTextVisible(titleText))
+                preferredContentWidth = Mathf.Max(preferredContentWidth, GetPreferredTextWidth(titleText));
+
+            if (IsTextVisible(descriptionText))
+                preferredContentWidth = Mathf.Max(preferredContentWidth, GetPreferredTextWidth(descriptionText));
+
+            foreach (EffectRowView row in effectRows)
+            {
+                if (row == null || !row.gameObject.activeSelf)
+                    continue;
+
+                preferredContentWidth = Mathf.Max(preferredContentWidth, row.GetPreferredWidth());
+            }
+
+            float availableCanvasWidth = GetAvailableCanvasWidth();
+            float maximumWidth = Mathf.Max(minimumPanelWidth, maximumPanelWidth);
+
+            if (availableCanvasWidth > 0f)
+                maximumWidth = Mathf.Min(maximumWidth, availableCanvasWidth);
+
+            float minimumWidth = Mathf.Min(minimumPanelWidth, maximumWidth);
+            float preferredWidth = Mathf.Ceil(
+                preferredContentWidth + contentHorizontalPadding * 2f);
+
+            return Mathf.Clamp(preferredWidth, minimumWidth, maximumWidth);
+        }
+
+        private float GetAvailableCanvasWidth()
+        {
+            Canvas canvas = ResolveCanvas();
+            RectTransform canvasRect = canvas != null
+                ? canvas.transform as RectTransform
+                : null;
+
+            if (canvasRect == null)
+                return -1f;
+
+            return Mathf.Max(1f, canvasRect.rect.width - edgePadding * 2f);
+        }
+
         private void ConfigureSection(TMP_Text text, float top, float height)
         {
             if (text == null)
@@ -532,6 +582,16 @@ namespace OzGameLab01.UI
                     text.text ?? string.Empty,
                     width,
                     Mathf.Infinity).y));
+        }
+
+        private static float GetPreferredTextWidth(TMP_Text text)
+        {
+            return Mathf.Max(
+                1f,
+                Mathf.Ceil(text.GetPreferredValues(
+                    text.text ?? string.Empty,
+                    Mathf.Infinity,
+                    Mathf.Infinity).x));
         }
 
         private static void DisableRaycasts(GameObject target)

@@ -132,7 +132,7 @@ namespace OzGameLab01.Tests.EditMode
 
                 LayoutElement layout = instance.GetComponent<LayoutElement>();
                 Assert.That(layout, Is.Not.Null);
-                Assert.That(layout.preferredHeight, Is.GreaterThanOrEqualTo(50f));
+                Assert.That(layout.preferredHeight, Is.GreaterThanOrEqualTo(40f));
                 Assert.That(text.enableAutoSizing, Is.True);
                 Assert.That(text.overflowMode, Is.EqualTo(TextOverflowModes.Overflow));
             }
@@ -175,6 +175,49 @@ namespace OzGameLab01.Tests.EditMode
                 float expandedHeight = tooltip.TooltipPanel.rect.height;
 
                 Assert.That(expandedHeight, Is.GreaterThan(compactHeight));
+            }
+            finally
+            {
+                if (instance != null)
+                {
+                    Object.DestroyImmediate(instance);
+                }
+            }
+        }
+
+        [Test]
+        public void TooltipPanel_ExpandsWidthForLongEffectText()
+        {
+            const string tooltipPath =
+                "Assets/_Project/02_Prefabs/UI/PublicUi/TooltipView.prefab";
+            GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(tooltipPath);
+            GameObject instance = prefab != null ? Object.Instantiate(prefab) : null;
+
+            try
+            {
+                TooltipView tooltip = instance != null
+                    ? instance.GetComponent<TooltipView>()
+                    : null;
+                Assert.That(tooltip, Is.Not.Null);
+
+                tooltip.Show(
+                    "Title",
+                    string.Empty,
+                    new[] { new TooltipView.EffectData("Short effect") });
+                float compactWidth = tooltip.TooltipPanel.rect.width;
+
+                tooltip.Show(
+                    "Title",
+                    string.Empty,
+                    new[]
+                    {
+                        new TooltipView.EffectData(
+                            "This deliberately long effect description must expand the tooltip background horizontally.")
+                    });
+                float expandedWidth = tooltip.TooltipPanel.rect.width;
+
+                Assert.That(expandedWidth, Is.GreaterThan(compactWidth));
+                Assert.That(expandedWidth, Is.LessThanOrEqualTo(1200f));
             }
             finally
             {

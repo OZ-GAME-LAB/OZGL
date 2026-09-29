@@ -68,6 +68,24 @@ namespace OzGameLab01.UI
             _layoutElement.flexibleHeight = 0f;
         }
 
+        /// <summary>
+        /// 효과 텍스트와 좌우 여백을 포함한 권장 너비를 반환합니다.
+        /// </summary>
+        public float GetPreferredWidth()
+        {
+            ConfigureLayout();
+
+            if (_effectText == null)
+                return 0f;
+
+            float textWidth = _effectText.GetPreferredValues(
+                _effectText.text ?? string.Empty,
+                Mathf.Infinity,
+                Mathf.Infinity).x;
+
+            return Mathf.Ceil(textWidth + _horizontalPadding * 2f);
+        }
+
         private void ConfigureLayout()
         {
             if (_layoutElement == null)
