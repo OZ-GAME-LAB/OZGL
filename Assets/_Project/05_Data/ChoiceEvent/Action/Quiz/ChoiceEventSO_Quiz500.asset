@@ -20,20 +20,20 @@ MonoBehaviour:
     \uBC31\uC124\uACF5\uC8FC\uC5D0\uAC8C \uC811\uADFC\uD560 \uB54C \uC0AC\uC6A9\uD55C
     \uBB3C\uAC74\uC740 \uBB34\uC5C7\uC778\uAC00?"
   eventCategory: 1
-  choiceCategory: 5
+  choiceCategory: 6
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 0}
     choiceDialog: "\uB3C5\uC774 \uB4E0 \uC0AC\uACFC"
-    choiceCategory: 3
+    choiceCategory: 4
     resultTargetID: 401
   - choiceIndex: 1
     choiceSprite: {fileID: 0}
     choiceDialog: "\uB3C5\uC774 \uB4E0 \uBE57"
-    choiceCategory: 3
+    choiceCategory: 4
     resultTargetID: 200
   - choiceIndex: 2
     choiceSprite: {fileID: 0}
     choiceDialog: "\uB3C5\uC774 \uB4E0 \uBC18\uC9C0"
-    choiceCategory: 3
+    choiceCategory: 4
     resultTargetID: 401

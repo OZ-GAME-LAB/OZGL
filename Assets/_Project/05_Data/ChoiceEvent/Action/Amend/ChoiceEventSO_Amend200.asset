@@ -16,20 +16,20 @@ MonoBehaviour:
   eventTitle: "\uC720\uBB3C \uBCF4\uC0C1"
   eventDialog: "\uBCF4\uC0C1\uC744 \uC120\uD0DD\uD558\uC138\uC694."
   eventCategory: 1
-  choiceCategory: 0
+  choiceCategory: 1
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 0}
     choiceDialog: 
-    choiceCategory: 0
+    choiceCategory: 1
     resultTargetID: 0
   - choiceIndex: 1
     choiceSprite: {fileID: 0}
     choiceDialog: 
-    choiceCategory: 0
+    choiceCategory: 1
     resultTargetID: 1
   - choiceIndex: 2
     choiceSprite: {fileID: 0}
     choiceDialog: 
-    choiceCategory: 0
+    choiceCategory: 1
     resultTargetID: 2

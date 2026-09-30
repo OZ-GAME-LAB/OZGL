@@ -168,9 +168,18 @@ namespace OzGameLab01.Events
                     Debug.Log($"Get [{selectedChoice.ResultTargetID}] Relic");
                     CloseCanvas();
                     break;
-                case EventChoiceCategory.Unit:
-                    Debug.Log($"Get [{selectedChoice.ResultTargetID}] Unit");
-                    CloseCanvas();
+                case EventChoiceCategory.Random:
+                    if (eventDB != null)
+                    {
+                        var randoms = new List<EventContent>();
+                        foreach (var row in eventDB.Events) {
+                            if (row.pool == EventChoiceCategory.Battle) randoms.Add(row);
+                            if (row.pool == EventChoiceCategory.Heal) randoms.Add(row);
+                            if (row.pool == EventChoiceCategory.Exit) randoms.Add(row);
+                        }
+                            
+                        if (randoms.Count > 0) OpenChoiceEvent(randoms[UnityEngine.Random.Range(0, randoms.Count)]);
+                    }
                     break;
                 case EventChoiceCategory.Battle:
 

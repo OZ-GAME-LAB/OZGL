@@ -16,10 +16,10 @@ MonoBehaviour:
   eventTitle: "\uC815\uB2F5\uC774 \uC544\uB2C8\uC57C!"
   eventDialog: "\uD2C0\uB9B0 \uB140\uC11D\uC5D0\uAC8C\uB294 \uBC8C\uC744 \uC918\uC57C\uACA0\uC9C0!"
   eventCategory: 1
-  choiceCategory: 2
+  choiceCategory: 0
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 0}
     choiceDialog: "\uC801\uACFC \uC2F8\uC6B4\uB2E4."
-    choiceCategory: 2
+    choiceCategory: 3
     resultTargetID: '-'
