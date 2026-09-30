@@ -1550,13 +1550,13 @@ MonoBehaviour:
   _currentTheme: {fileID: 11400000, guid: e133a67e099fa81468db8371e2ad60ac, type: 2}
   _generationProfile: {fileID: 11400000, guid: d5d75eb854bc47eeac91e1c55eb1be31, type: 2}
   totalNodeCount: 650
-  maxRadius: 400
+  maxRadius: 25
   tileSpacing: 3.125
   tileScaleMultiplier: 1.25
   animationDuration: 3
   noiseScale: 0.1
-  edgeFalloffStrength: 0.8
-  coreRadius: 4
+  edgeFalloffStrength: 1.3
+  coreRadius: 12
   enableInteractionCoverage: 1
   maximumStepsWithoutInteraction: 8
   minimumBranchDepth: 10

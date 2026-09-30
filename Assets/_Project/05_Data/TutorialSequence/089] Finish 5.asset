@@ -34,8 +34,8 @@ MonoBehaviour:
   tileType: 13
   tileTypeOccurrence: 0
   showGuideAfterLocate: 1
-  requireMoveToTargetTile: 1
-  useSeparateMoveTarget: 0
+  requireMoveToTargetTile: 0
+  useSeparateMoveTarget: 1
   moveTargetMode: 1
   moveTilePosition: {x: 0, y: 0}
   moveTileType: 6

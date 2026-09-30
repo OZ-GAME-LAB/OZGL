@@ -35,10 +35,10 @@ MonoBehaviour:
   tileTypeOccurrence: 0
   showGuideAfterLocate: 1
   requireMoveToTargetTile: 0
-  useSeparateMoveTarget: 0
+  useSeparateMoveTarget: 1
   moveTargetMode: 1
   moveTilePosition: {x: 0, y: 0}
-  moveTileType: 13
+  moveTileType: 6
   moveTileTypeOccurrence: 0
   invalidMoveFeedback: "\uC9C0\uC815\uB41C \uD0C0\uC77C\uB85C \uC774\uB3D9\uD574\uC8FC\uC138\uC694."
   invalidMoveFeedbackDuration: 2
@@ -57,6 +57,9 @@ MonoBehaviour:
   highlightColor: {r: 1, g: 0.8, b: 0.2, a: 1}
   highlightEase: 4
   ignoreTimeScale: 1
+  blockOtherInteractionsUntilButtonClicked: 0
+  requiredInteractionButtonKey: 
+  requiredButtonFeedback: 
   outlineHighlight: 0
   outlineTargetKey: 
   formationSlotHighlightGroup: 0
