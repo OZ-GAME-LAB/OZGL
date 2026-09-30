@@ -58,6 +58,9 @@ MonoBehaviour:
   highlightColor: {r: 1, g: 0.8, b: 0.2, a: 1}
   highlightEase: 4
   ignoreTimeScale: 1
+  blockOtherInteractionsUntilButtonClicked: 1
+  requiredInteractionButtonKey: EndTurnButton
+  requiredButtonFeedback: "\uD134 \uC885\uB8CC\uBC84\uD2BC\uC744 \uB20C\uB7EC\uC8FC\uC138\uC694."
   outlineHighlight: 0
   outlineTargetKey: 
   formationSlotHighlightGroup: 0
