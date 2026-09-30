@@ -19,7 +19,8 @@
     {
       "id": 201,
       "unitId": 0,
-      "name": "Enemy_Basic",
+      "iconAddress": "I_SA_Basic",
+      "name": "적 기본 공격",
       "description": "적 기본 공격",
       "damage": 10.0,
       "cooldown": 1.2,
