@@ -185,8 +185,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
-  clickSound: 7
-  hoverSound: 8
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &7048869715060410081
 GameObject:
   m_ObjectHideFlags: 0

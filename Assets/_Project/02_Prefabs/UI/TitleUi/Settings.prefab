@@ -2580,8 +2580,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
-  clickSound: 7
-  hoverSound: 8
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &3164326608589652972
 GameObject:
   m_ObjectHideFlags: 0
@@ -3039,8 +3039,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
-  clickSound: 13
-  hoverSound: 8
+  clickSound: 14
+  hoverSound: 9
 --- !u!1 &3588920027832690186
 GameObject:
   m_ObjectHideFlags: 0
@@ -4917,8 +4917,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
-  clickSound: 7
-  hoverSound: 8
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &5742386472079583731
 GameObject:
   m_ObjectHideFlags: 0
@@ -5194,8 +5194,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9ab9df64a527433ba8a36e43c5b892d4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::OzGameLab01.UI.UIButtonSound
-  clickSound: 7
-  hoverSound: 8
+  clickSound: 8
+  hoverSound: 9
 --- !u!1 &6008129239998205712
 GameObject:
   m_ObjectHideFlags: 0
