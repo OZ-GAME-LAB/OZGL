@@ -39,13 +39,19 @@ namespace OzGameLab01.Tests.EditMode
         {
             EventSO battle = CreateEvent("battle");
             EventSO quiz = CreateEvent("quiz");
+            EventSO etc = CreateEvent("etc");
+            
             _database.EventList_Battle.Add(battle);
             _database.EventList_Quiz.Add(quiz);
+            _database.EventList_Etc.Add(etc);
 
             Assert.That(_database.SetDictionary(), Is.True);
             Assert.That(_database.SetDictionary(), Is.True);
+            Assert.That(_database.SetDictionary(), Is.True);
+
             Assert.That(_database.GetEventById("battle"), Is.SameAs(battle));
             Assert.That(_database.GetEventById("quiz"), Is.SameAs(quiz));
+            Assert.That(_database.GetEventById("etc"), Is.SameAs(etc));
         }
 
         [Test]

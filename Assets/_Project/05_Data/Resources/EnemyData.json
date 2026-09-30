@@ -5,9 +5,11 @@
       "name": "일반",
       "healthPoint": 100,
       "attackPoint": 5,
-      "criticalRate": 150,
+      "defensePoint": 2,
+      "criticalMult": 150,
+      "criticalRate": 10,
       "dodgeRate": 10,
-      "attackSpeed": 1.0,
+      "attackSpeed": 2.3,
       "skillCooldown": 4,
       "skillIds": [
         201,
@@ -16,12 +18,30 @@
       ],
       "type": "normal",
       "species": [
-        {"name": "까마귀", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Crow_Vanilla"},
-        {"name": "장난감 병정", "prefabAddress": "Characters/EnemyPrefabs/Enemy_ToySoldier_Vanilla"},
-        {"name": "과자 괴물", "prefabAddress": "Characters/EnemyPrefabs/Enemy_CandyMonster_Vanilla"},
-        {"name": "늑대", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Wolf_Vanilla"},
-        {"name": "책", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Book_Vanilla"},
-        {"name": "사냥꾼", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Hunter_Vanilla"}
+        {
+          "name": "까마귀",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_Crow_Vanilla"
+        },
+        {
+          "name": "장난감 병정",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_ToySoldier_Vanilla"
+        },
+        {
+          "name": "과자 괴물",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_CandyMonster_Vanilla"
+        },
+        {
+          "name": "늑대",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_Wolf_Vanilla"
+        },
+        {
+          "name": "책",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_Book_Vanilla"
+        },
+        {
+          "name": "사냥꾼",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_Hunter_Vanilla"
+        }
       ]
     },
     {
@@ -29,9 +49,11 @@
       "name": "밤",
       "healthPoint": 160,
       "attackPoint": 8,
-      "criticalRate": 150,
+      "defensePoint": 3.5,
+      "criticalMult": 150,
+      "criticalRate": 15,
       "dodgeRate": 15,
-      "attackSpeed": 1.0,
+      "attackSpeed": 2.3,
       "skillCooldown": 4,
       "skillIds": [
         201,
@@ -40,12 +62,30 @@
       ],
       "type": "night",
       "species": [
-        {"name": "까마귀", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Crow_Vanilla"},
-        {"name": "장난감 병정", "prefabAddress": "Characters/EnemyPrefabs/Enemy_ToySoldier_Vanilla"},
-        {"name": "과자 괴물", "prefabAddress": "Characters/EnemyPrefabs/Enemy_CandyMonster_Vanilla"},
-        {"name": "늑대", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Wolf_Vanilla"},
-        {"name": "책", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Book_Vanilla"},
-        {"name": "사냥꾼", "prefabAddress": "Characters/EnemyPrefabs/Enemy_Hunter_Vanilla"}
+        {
+          "name": "까마귀",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_Crow_Vanilla"
+        },
+        {
+          "name": "장난감 병정",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_ToySoldier_Vanilla"
+        },
+        {
+          "name": "과자 괴물",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_CandyMonster_Vanilla"
+        },
+        {
+          "name": "늑대",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_Wolf_Vanilla"
+        },
+        {
+          "name": "책",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_Book_Vanilla"
+        },
+        {
+          "name": "사냥꾼",
+          "prefabAddress": "Characters/EnemyPrefabs/Enemy_Hunter_Vanilla"
+        }
       ]
     },
     {
@@ -54,9 +94,11 @@
       "prefabAddress": "Characters/EnemyPrefabs/Enemy_Witch_Vanilla",
       "healthPoint": 350,
       "attackPoint": 20,
-      "criticalRate": 175,
+      "defensePoint": 8.5,
+      "criticalMult": 175,
+      "criticalRate": 15,
       "dodgeRate": 15,
-      "attackSpeed": 0.8,
+      "attackSpeed": 1.7,
       "skillCooldown": 4,
       "skillIds": [
         201,
@@ -65,18 +107,66 @@
       ],
       "type": "semiboss",
       "species": [
-        {"name": "앨리스", "prefabAddress": "Characters/AllyPrefabs/Ally_Alice_Vanilla", "iconAddress": "I_Un_100"},
-        {"name": "흰토끼", "prefabAddress": "Characters/AllyPrefabs/Ally_Rabbit_Vanilla", "iconAddress": "I_Un_101"},
-        {"name": "체셔캣", "prefabAddress": "Characters/AllyPrefabs/Ally_CheshireCat_Vanilla", "iconAddress": "I_Un_102"},
-        {"name": "지니", "prefabAddress": "Characters/AllyPrefabs/Ally_Genie_Vanilla", "iconAddress": "I_Un_105"},
-        {"name": "사자", "prefabAddress": "Characters/AllyPrefabs/Ally_Lion_Vanilla", "iconAddress": "I_Un_106"},
-        {"name": "허수아비", "prefabAddress": "Characters/AllyPrefabs/Ally_Scarecrow_Vanilla", "iconAddress": "I_Un_108"},
-        {"name": "도로시", "prefabAddress": "Characters/AllyPrefabs/Ally_Dorothy_Vanilla", "iconAddress": "I_Un_109"},
-        {"name": "인어공주", "prefabAddress": "Characters/AllyPrefabs/Ally_Mermaid_Vanilla", "iconAddress": "I_Un_110"},
-        {"name": "백설공주", "prefabAddress": "Characters/AllyPrefabs/Ally_Snowwhite_Vanilla", "iconAddress": "I_Un_111"},
-        {"name": "피터팬", "prefabAddress": "Characters/AllyPrefabs/Ally_PeterPan_Vanilla", "iconAddress": "I_Un_114"},
-        {"name": "팅커벨", "prefabAddress": "Characters/AllyPrefabs/Ally_Tinkerbell_Vanilla", "iconAddress": "I_Un_115"},
-        {"name": "제페토", "prefabAddress": "Characters/AllyPrefabs/Ally_Zepeto_Vanilla", "iconAddress": "I_Un_120"}
+        {
+          "name": "앨리스",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Alice_Vanilla",
+          "iconAddress": "I_Un_100"
+        },
+        {
+          "name": "흰토끼",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Rabbit_Vanilla",
+          "iconAddress": "I_Un_101"
+        },
+        {
+          "name": "체셔캣",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_CheshireCat_Vanilla",
+          "iconAddress": "I_Un_102"
+        },
+        {
+          "name": "지니",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Genie_Vanilla",
+          "iconAddress": "I_Un_105"
+        },
+        {
+          "name": "사자",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Lion_Vanilla",
+          "iconAddress": "I_Un_106"
+        },
+        {
+          "name": "허수아비",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Scarecrow_Vanilla",
+          "iconAddress": "I_Un_108"
+        },
+        {
+          "name": "도로시",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Dorothy_Vanilla",
+          "iconAddress": "I_Un_109"
+        },
+        {
+          "name": "인어공주",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Mermaid_Vanilla",
+          "iconAddress": "I_Un_110"
+        },
+        {
+          "name": "백설공주",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Snowwhite_Vanilla",
+          "iconAddress": "I_Un_111"
+        },
+        {
+          "name": "피터팬",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_PeterPan_Vanilla",
+          "iconAddress": "I_Un_114"
+        },
+        {
+          "name": "팅커벨",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Tinkerbell_Vanilla",
+          "iconAddress": "I_Un_115"
+        },
+        {
+          "name": "제페토",
+          "prefabAddress": "Characters/AllyPrefabs/Ally_Zepeto_Vanilla",
+          "iconAddress": "I_Un_120"
+        }
       ]
     },
     {
@@ -89,7 +179,7 @@
       "criticalMult": 185,
       "criticalRate": 50,
       "dodgeRate": 35,
-      "attackSpeed": 0.5,
+      "attackSpeed": 1.2,
       "skillCooldown": 4,
       "skillIds": [
         201,

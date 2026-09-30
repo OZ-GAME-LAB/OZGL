@@ -133,6 +133,14 @@ namespace OzGameLab01.Controllers
         [SerializeField] private Ease highlightEase = Ease.InOutSine;
         [SerializeField] private bool ignoreTimeScale = true;
 
+        [Header("Button Interaction Rule")]
+        [Tooltip("Guide Step이면 안내를 닫은 뒤, 동작 전용 Step이면 실행 즉시 지정 버튼 외의 화면 상호작용을 모두 차단합니다. 지정 버튼을 실제로 클릭하면 자동 해제됩니다.")]
+        [SerializeField] private bool blockOtherInteractionsUntilButtonClicked;
+        [Tooltip("TutorialTargetRegistry에 등록한 버튼 키입니다. Button Highlight 사용 여부와 관계없이 지정할 수 있습니다.")]
+        [SerializeField] private string requiredInteractionButtonKey;
+        [Tooltip("입력 차단이 활성화된 동안 FeedbackView에 표시할 안내입니다. 비워두면 버튼 키를 사용해 자동으로 생성합니다.")]
+        [SerializeField, TextArea(2,4)] private string requiredButtonFeedback;
+
         [Header("UI Outline Highlight")]
         [SerializeField] private bool outlineHighlight;
         [Tooltip("TutorialTargetRegistry의 Outline Targets에 등록한 키입니다.")]
@@ -205,6 +213,11 @@ namespace OzGameLab01.Controllers
         public Color HighlightColor => highlightColor;
         public Ease HighlightEase => highlightEase;
         public bool IgnoreTimeScale => ignoreTimeScale;
+        public bool BlockOtherInteractionsUntilButtonClicked =>
+            blockOtherInteractionsUntilButtonClicked;
+        public string RequiredInteractionButtonKey =>
+            requiredInteractionButtonKey;
+        public string RequiredButtonFeedback => requiredButtonFeedback;
         public bool OutlineHighlight => outlineHighlight;
         public string OutlineTargetKey => outlineTargetKey;
         public TutorialFormationSlotHighlightGroup FormationSlotHighlightGroup =>

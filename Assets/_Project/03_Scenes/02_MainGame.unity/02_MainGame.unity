@@ -482,6 +482,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4204531332030608713, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4256933414490043909, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -528,6 +532,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5637049103017085592, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6334254686894981231, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6387362790092948723, guid: a2f42aece3e2c454faea6aa3f7aeddb4, type: 3}
@@ -909,6 +917,7 @@ MonoBehaviour:
   shootEase: 27
   rollViewCloseDelay: 1
   warningTextDuration: 2
+  tooltipScreenOffset: 12
 --- !u!4 &865562948
 Transform:
   m_ObjectHideFlags: 0
@@ -1200,6 +1209,7 @@ MonoBehaviour:
   _useFixedUnitAcquisition: 0
   _fixedUnitAcquisitionId: 111
   _eventUIPanel: {fileID: 815757260}
+  _tutorialEvent: {fileID: 0}
 --- !u!4 &1575848855
 Transform:
   m_ObjectHideFlags: 0
@@ -1263,7 +1273,7 @@ MonoBehaviour:
   routeProfile: {fileID: 11400000, guid: 1a5c47a0d5934e30b2469d3da8ae58c2, type: 2}
   boardSceneController: {fileID: 0}
   boardCameraController: {fileID: 0}
-  highlightPrefab: {fileID: 5675414566698002851, guid: 68df69805251f07498868acad49980fc, type: 3}
+  highlightPrefab: {fileID: 0}
   objectiveSpawnDelay: 0.5
   highlightHeight: 2
 --- !u!1 &1666192460

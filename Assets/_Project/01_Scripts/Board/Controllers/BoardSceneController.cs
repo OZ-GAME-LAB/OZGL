@@ -222,7 +222,7 @@ namespace OzGameLab01.Controllers
             TurnEnded?.Invoke(BoardRunData.UnusedActionPoints);
 
             int healthRecoveryPerActionPoint =
-                TutorialSessionState.IsActive ? 100 : 1;
+                TutorialSessionState.IsActive ? 100 : 10;
             BoardRunData.RecoverBattleUnitHealth(
                 BoardRunData.UnusedActionPoints * healthRecoveryPerActionPoint);
 
