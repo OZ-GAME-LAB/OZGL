@@ -5612,6 +5612,10 @@ PrefabInstance:
       propertyPath: rectTransform
       value: 
       objectReference: {fileID: 2997361080268677765}
+    - target: {fileID: 8947282679958517412, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_text
+      value: "\uD6C4\uC5F4"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -5930,6 +5934,10 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8947282679958517412, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_text
+      value: "\uBCF4\uC870"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6055,6 +6063,10 @@ PrefabInstance:
       propertyPath: rectTransform
       value: 
       objectReference: {fileID: 1899171581204336143}
+    - target: {fileID: 8947282679958517412, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_text
+      value: "\uC911\uC5F4"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6180,6 +6192,10 @@ PrefabInstance:
       propertyPath: rectTransform
       value: 
       objectReference: {fileID: 1993878624939063406}
+    - target: {fileID: 8947282679958517412, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_text
+      value: "\uD6C4\uC5F4"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7499,6 +7515,10 @@ PrefabInstance:
       propertyPath: m_Color.r
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 8947282679958517412, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_text
+      value: "\uBCF4\uC870"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -7801,6 +7821,10 @@ PrefabInstance:
       propertyPath: rectTransform
       value: 
       objectReference: {fileID: 6026367171845107266}
+    - target: {fileID: 8947282679958517412, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_text
+      value: "\uD6C4\uC5F4"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8228,6 +8252,10 @@ PrefabInstance:
       propertyPath: rectTransform
       value: 
       objectReference: {fileID: 5513564385023909146}
+    - target: {fileID: 8947282679958517412, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_text
+      value: "\uC911\uC5F4"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -8353,6 +8381,10 @@ PrefabInstance:
       propertyPath: rectTransform
       value: 
       objectReference: {fileID: 5486148232507234625}
+    - target: {fileID: 8947282679958517412, guid: ad64e5bc7ee4cb84ebb625547f925a66, type: 3}
+      propertyPath: m_text
+      value: "\uC911\uC5F4"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
