@@ -31,6 +31,15 @@ namespace OzGameLab01.Managers
         private OzGameLab01.Controllers.ManagerInitializationController _initialization;
         public bool IsInitializationComplete => _initialization != null && _initialization.IsInitializationComplete;
 
+#if !UNITY_EDITOR && !DEVELOPMENT_BUILD
+        // 릴리스 빌드에서는 일반 Debug.Log를 끄고 Warning/Error/Exception만 남깁니다.
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+        private static void FilterReleaseLogs()
+        {
+            Debug.unityLogger.filterLogType = LogType.Warning;
+        }
+#endif
+
         private void InitializeManagers()
         {
             if (IsInitializationComplete) return;
