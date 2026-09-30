@@ -57,6 +57,10 @@ namespace OzGameLab01.Editor
                     case EventChoiceCategory.Exit:
                         eventDB.EventList_Finish.Add(tempSO);
                         break;
+                    case EventChoiceCategory.None:
+                    case EventChoiceCategory.Heal:
+                        eventDB.EventList_Etc.Add(tempSO);
+                        break;
                     default:
                         break;
                 }
