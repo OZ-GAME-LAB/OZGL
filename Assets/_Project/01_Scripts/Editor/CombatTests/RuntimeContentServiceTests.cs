@@ -110,7 +110,7 @@ namespace OzGameLab01.Tests.EditMode
             ContentCatalog catalog = DataManagerContentLoader.Load();
             Assert.That(DataManager.IsInitialized, Is.True);
             Assert.That(DataManager.Units.Count, Is.EqualTo(12));
-            Assert.That(DataManager.Monsters.Count, Is.EqualTo(5));
+            Assert.That(DataManager.Monsters.Count, Is.EqualTo(6));
             Assert.That(DataManager.Skills.Count, Is.EqualTo(28));
             Assert.That(DataManager.Synergies.Count, Is.EqualTo(12));
             Assert.That(DataManager.Relics.Count, Is.EqualTo(41));
