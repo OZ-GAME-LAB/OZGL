@@ -57,6 +57,14 @@ namespace OzGameLab01.Controllers
         private bool tutorialLocateInProgress;
         private bool tutorialTileFocusVisible;
         private GameObject locateInputBlocker;
+        private GameObject buttonInteractionBlocker;
+        private RectTransform allowedButtonProxyRect;
+        private Image allowedButtonProxyImage;
+        private Button allowedButtonProxy;
+        private Button requiredInteractionButton;
+        private TutorialSequenceStepData pendingButtonInteractionStep;
+        private GameObject previousSelectedObject;
+        private string activeButtonInteractionFeedback;
         private bool hasReservedDiceRoll;
         private int reservedDiceRollValue;
         private MapNode requiredMoveTarget;
@@ -86,6 +94,7 @@ namespace OzGameLab01.Controllers
             ResolveEventSession();
             ResolveRunResultView();
             CreateLocateInputBlocker();
+            CreateButtonInteractionBlocker();
         }
 
         private void OnEnable()
@@ -139,6 +148,17 @@ namespace OzGameLab01.Controllers
                     PlaySequence();
                 }
             }
+        }
+
+        private void LateUpdate()
+        {
+            if (buttonInteractionBlocker == null ||
+                !buttonInteractionBlocker.activeSelf)
+            {
+                return;
+            }
+
+            SyncAllowedButtonProxy();
         }
 
         private void OnDisable()
@@ -298,6 +318,7 @@ namespace OzGameLab01.Controllers
             TutorialSequenceStepData dismissedStep =
                 sequenceState.ClearActive();
             highlightPresenter?.HandleGuideDismissed(dismissedStep);
+            ActivatePendingButtonInteractionRule(dismissedStep);
 
             if (dismissedStep.ShowRunResultOnComplete)
             {
@@ -974,6 +995,280 @@ namespace OzGameLab01.Controllers
             locateInputBlocker.SetActive(blocked);
         }
 
+        private void CreateButtonInteractionBlocker()
+        {
+            if (buttonInteractionBlocker != null)
+                return;
+
+            buttonInteractionBlocker = new GameObject(
+                "TutorialButtonInteractionBlocker",
+                typeof(RectTransform),
+                typeof(Canvas),
+                typeof(GraphicRaycaster));
+
+            Canvas blockerCanvas =
+                buttonInteractionBlocker.GetComponent<Canvas>();
+            blockerCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            blockerCanvas.overrideSorting = true;
+            blockerCanvas.sortingOrder = short.MaxValue;
+
+            GameObject raycastBlocker = new GameObject(
+                "RaycastBlocker",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image));
+            raycastBlocker.transform.SetParent(
+                buttonInteractionBlocker.transform,
+                false);
+
+            RectTransform blockerRect =
+                raycastBlocker.GetComponent<RectTransform>();
+            blockerRect.anchorMin = Vector2.zero;
+            blockerRect.anchorMax = Vector2.one;
+            blockerRect.offsetMin = Vector2.zero;
+            blockerRect.offsetMax = Vector2.zero;
+
+            Image blockerImage = raycastBlocker.GetComponent<Image>();
+            blockerImage.color = Color.clear;
+            blockerImage.raycastTarget = true;
+
+            GameObject allowedButtonObject = new GameObject(
+                "AllowedButtonProxy",
+                typeof(RectTransform),
+                typeof(CanvasRenderer),
+                typeof(Image),
+                typeof(Button));
+            allowedButtonObject.transform.SetParent(
+                buttonInteractionBlocker.transform,
+                false);
+
+            allowedButtonProxyRect =
+                allowedButtonObject.GetComponent<RectTransform>();
+            allowedButtonProxyRect.anchorMin = new Vector2(0.5f,0.5f);
+            allowedButtonProxyRect.anchorMax = new Vector2(0.5f,0.5f);
+            allowedButtonProxyRect.pivot = new Vector2(0.5f,0.5f);
+
+            allowedButtonProxyImage =
+                allowedButtonObject.GetComponent<Image>();
+            allowedButtonProxyImage.color = Color.clear;
+            allowedButtonProxyImage.raycastTarget = true;
+
+            allowedButtonProxy = allowedButtonObject.GetComponent<Button>();
+            allowedButtonProxy.transition = Selectable.Transition.None;
+            allowedButtonProxy.targetGraphic = allowedButtonProxyImage;
+            Navigation navigation = allowedButtonProxy.navigation;
+            navigation.mode = Navigation.Mode.None;
+            allowedButtonProxy.navigation = navigation;
+            allowedButtonProxy.onClick.AddListener(
+                HandleAllowedButtonProxyClicked);
+
+            buttonInteractionBlocker.SetActive(false);
+        }
+
+        private void PrepareButtonInteractionRule(
+            TutorialSequenceStepData step)
+        {
+            if (!step.BlockOtherInteractionsUntilButtonClicked)
+                return;
+
+            if (step.ShowGuide)
+            {
+                pendingButtonInteractionStep = step;
+                return;
+            }
+
+            TryActivateButtonInteractionRule(step);
+        }
+
+        private void ActivatePendingButtonInteractionRule(
+            TutorialSequenceStepData dismissedStep)
+        {
+            if (dismissedStep == null ||
+                pendingButtonInteractionStep != dismissedStep)
+            {
+                return;
+            }
+
+            pendingButtonInteractionStep = null;
+            TryActivateButtonInteractionRule(dismissedStep);
+        }
+
+        private bool TryActivateButtonInteractionRule(
+            TutorialSequenceStepData step)
+        {
+            if (targetRegistry == null ||
+                !targetRegistry.TryGetButton(
+                    step.RequiredInteractionButtonKey,
+                    out Button targetButton))
+            {
+                Debug.LogWarning(
+                    $"[TutorialSequenceController] 입력 제한 대상 버튼을 찾지 못했습니다. " +
+                    $"Step: {step.StepName}, Key: {step.RequiredInteractionButtonKey}",
+                    this);
+                return false;
+            }
+
+            if (buttonInteractionBlocker == null)
+                CreateButtonInteractionBlocker();
+
+            requiredInteractionButton = targetButton;
+            BoardPlayerController.Instance?.ClearHover();
+
+            EventSystem eventSystem = EventSystem.current;
+            if (eventSystem != null)
+                previousSelectedObject = eventSystem.currentSelectedGameObject;
+
+            buttonInteractionBlocker.SetActive(true);
+            SyncAllowedButtonProxy();
+            ShowButtonInteractionFeedback(step);
+            return true;
+        }
+
+        private void ShowButtonInteractionFeedback(
+            TutorialSequenceStepData step)
+        {
+            FeedbackView feedbackView = readySceneView != null
+                ? readySceneView.FeedbackView
+                : null;
+            if (feedbackView == null)
+                return;
+
+            activeButtonInteractionFeedback =
+                step.RequiredButtonFeedback;
+            if (string.IsNullOrWhiteSpace(activeButtonInteractionFeedback))
+            {
+                activeButtonInteractionFeedback =
+                    $"{step.RequiredInteractionButtonKey} 버튼을 눌러주세요.";
+            }
+
+            feedbackView.Show(activeButtonInteractionFeedback);
+        }
+
+        private void HideButtonInteractionFeedback()
+        {
+            FeedbackView feedbackView = readySceneView != null
+                ? readySceneView.FeedbackView
+                : null;
+            if (feedbackView != null &&
+                !string.IsNullOrWhiteSpace(activeButtonInteractionFeedback) &&
+                string.Equals(
+                    feedbackView.Message,
+                    activeButtonInteractionFeedback,
+                    StringComparison.Ordinal))
+            {
+                feedbackView.Hide();
+            }
+
+            activeButtonInteractionFeedback = string.Empty;
+        }
+
+        private void SyncAllowedButtonProxy()
+        {
+            if (allowedButtonProxyRect == null ||
+                allowedButtonProxy == null ||
+                requiredInteractionButton == null)
+            {
+                ReleaseButtonInteractionRule();
+                return;
+            }
+
+            RectTransform targetRect =
+                requiredInteractionButton.transform as RectTransform;
+            bool targetVisible = targetRect != null &&
+                                 requiredInteractionButton.gameObject
+                                     .activeInHierarchy;
+            allowedButtonProxyRect.gameObject.SetActive(targetVisible);
+            if (!targetVisible)
+            {
+                LockEventSystemSelection(null);
+                return;
+            }
+
+            allowedButtonProxy.interactable =
+                requiredInteractionButton.IsInteractable();
+
+            Vector3[] worldCorners = new Vector3[4];
+            targetRect.GetWorldCorners(worldCorners);
+
+            Canvas targetCanvas = targetRect.GetComponentInParent<Canvas>();
+            Camera targetCamera = targetCanvas != null &&
+                                  targetCanvas.renderMode !=
+                                  RenderMode.ScreenSpaceOverlay
+                ? targetCanvas.worldCamera
+                : null;
+            RectTransform blockerRoot =
+                buttonInteractionBlocker.transform as RectTransform;
+
+            Vector2 min = new(float.PositiveInfinity,float.PositiveInfinity);
+            Vector2 max = new(float.NegativeInfinity,float.NegativeInfinity);
+            for (int i = 0; i < worldCorners.Length; i++)
+            {
+                Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(
+                    targetCamera,
+                    worldCorners[i]);
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                    blockerRoot,
+                    screenPoint,
+                    null,
+                    out Vector2 localPoint);
+
+                min = Vector2.Min(min,localPoint);
+                max = Vector2.Max(max,localPoint);
+            }
+
+            allowedButtonProxyRect.anchoredPosition = (min + max) * 0.5f;
+            allowedButtonProxyRect.sizeDelta = max - min;
+            allowedButtonProxyRect.SetAsLastSibling();
+            LockEventSystemSelection(allowedButtonProxy.gameObject);
+        }
+
+        private static void LockEventSystemSelection(GameObject selection)
+        {
+            EventSystem eventSystem = EventSystem.current;
+            if (eventSystem != null &&
+                eventSystem.currentSelectedGameObject != selection)
+            {
+                eventSystem.SetSelectedGameObject(selection);
+            }
+        }
+
+        private void HandleAllowedButtonProxyClicked()
+        {
+            Button targetButton = requiredInteractionButton;
+            if (targetButton == null ||
+                !targetButton.gameObject.activeInHierarchy ||
+                !targetButton.IsInteractable())
+            {
+                return;
+            }
+
+            ReleaseButtonInteractionRule();
+            targetButton.onClick.Invoke();
+        }
+
+        private void ReleaseButtonInteractionRule()
+        {
+            requiredInteractionButton = null;
+            HideButtonInteractionFeedback();
+
+            if (buttonInteractionBlocker != null)
+                buttonInteractionBlocker.SetActive(false);
+
+            EventSystem eventSystem = EventSystem.current;
+            if (eventSystem != null &&
+                eventSystem.currentSelectedGameObject ==
+                allowedButtonProxy?.gameObject)
+            {
+                GameObject selection = previousSelectedObject != null &&
+                                       previousSelectedObject.activeInHierarchy
+                    ? previousSelectedObject
+                    : null;
+                eventSystem.SetSelectedGameObject(selection);
+            }
+
+            previousSelectedObject = null;
+        }
+
         private void OnDestroy()
         {
             if (Active == this)
@@ -983,6 +1278,9 @@ namespace OzGameLab01.Controllers
 
             if (locateInputBlocker != null)
                 Destroy(locateInputBlocker);
+
+            if (buttonInteractionBlocker != null)
+                Destroy(buttonInteractionBlocker);
         }
 
         private void ResolveRunResultView()
@@ -1065,6 +1363,8 @@ namespace OzGameLab01.Controllers
 
         private void ApplyRuntimeRules(TutorialSequenceStepData step)
         {
+            PrepareButtonInteractionRule(step);
+
             if (step.SetNextDiceRoll)
             {
                 reservedDiceRollValue = Mathf.Clamp(step.NextDiceRollValue,1,6);
@@ -1147,6 +1447,8 @@ namespace OzGameLab01.Controllers
             reservedDiceRollValue = 0;
             runtimeBoardTileTargetStep = null;
             runtimeBoardTileTarget = null;
+            pendingButtonInteractionStep = null;
+            ReleaseButtonInteractionRule();
             ClearRequiredMoveRule();
         }
 

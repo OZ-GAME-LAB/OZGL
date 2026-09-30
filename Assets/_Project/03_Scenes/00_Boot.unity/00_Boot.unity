@@ -518,6 +518,14 @@ PrefabInstance:
       propertyPath: sounds.Array.data[6].clip
       value: 
       objectReference: {fileID: 0}
+    - target: {fileID: 6211868172338176540, guid: 8195829e9d519794ca2949457a54fec9, type: 3}
+      propertyPath: sounds.Array.data[7].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: f86359cb5d869684fa8a0f7565e8535b, type: 3}
+    - target: {fileID: 6211868172338176540, guid: 8195829e9d519794ca2949457a54fec9, type: 3}
+      propertyPath: sounds.Array.data[8].clip
+      value: 
+      objectReference: {fileID: 8300000, guid: c140c3a6419399e4aa261cd1aeb9c0d1, type: 3}
     - target: {fileID: 6345539135225865412, guid: 8195829e9d519794ca2949457a54fec9, type: 3}
       propertyPath: m_Sprite
       value: 
