@@ -207,7 +207,7 @@ namespace OzGameLab01.Events
                     Debug.Log($"다음 선택지로 이동[{selectedChoice.ResultTargetID}]");
                     break;
                 case EventChoiceCategory.Heal:
-                    BoardRunData.RecoverBattleUnitHealth(10);
+                    BoardRunData.RecoverBattleUnitHealth(100);
                     CloseCanvas();
                     break;
                 case EventChoiceCategory.Exit:
