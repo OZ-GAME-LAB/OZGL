@@ -21,8 +21,8 @@ namespace OzGameLab01.Tests.EditMode
             Assert.AreEqual(12, data.unitList.Count);
             Assert.AreEqual(100, data.unitList[0].id);
             Assert.AreEqual(120, data.unitList[11].id);
-            Assert.AreEqual(92f, data.unitList[0].healthPoint);
-            Assert.AreEqual(10.3f, data.unitList[0].attackPoint);
+            Assert.AreEqual(211.5f, data.unitList[0].healthPoint);
+            Assert.AreEqual(15.5f, data.unitList[0].attackPoint);
             Assert.AreEqual(UnitTypeJob.Assasin, data.unitList[0].jobType);
             Assert.AreEqual(UnitTypeTribe.Human, data.unitList[0].tribeType);
         }

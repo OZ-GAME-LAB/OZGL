@@ -29,7 +29,7 @@ namespace OzGameLab01.Tests.EditMode
             first.skillIds.Clear();
             Assert.That(catalog.GetUnit(1).healthPoint, Is.EqualTo(100));
             Assert.That(catalog.GetUnit(1).skillIds, Is.EqualTo(new[] { 9 }));
-            Assert.That(catalog.GetUnit(1).color.r, Is.EqualTo(0.75f));
+            Assert.That(catalog.GetUnit(1).color.r, Is.EqualTo(1f));
         }
 
         [Test]
@@ -115,7 +115,7 @@ namespace OzGameLab01.Tests.EditMode
             Assert.That(DataManager.Synergies.Count, Is.EqualTo(12));
             Assert.That(DataManager.Relics.Count, Is.EqualTo(41));
             Assert.That(catalog.Skills.Count, Is.EqualTo(41));
-            Assert.That(catalog.GetUnit(100).healthPoint, Is.EqualTo(92f));
+            Assert.That(catalog.GetUnit(100).healthPoint, Is.EqualTo(211.5f));
             Assert.That(catalog.GetSkill(900).damage, Is.EqualTo(10f));
             Assert.That(catalog.GetEnemy(1).healthPoint, Is.EqualTo(100));
 
