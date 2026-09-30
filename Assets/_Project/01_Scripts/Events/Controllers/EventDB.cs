@@ -13,12 +13,14 @@ namespace OzGameLab01.Events
         [SerializeField] private List<EventSO> _eventList_Relic = new List<EventSO>();
         [SerializeField] private List<EventSO> _eventList_Finish = new List<EventSO>();
         [SerializeField] private List<EventSO> _eventList_Event = new List<EventSO>();
+        [SerializeField] private List<EventSO> _eventList_Etc = new List<EventSO>();
 
         public List<EventSO> EventList_Event => _eventList_Event;
         public List<EventSO> EventList_Finish => _eventList_Finish;
         public List<EventSO> EventList_Quiz => _eventList_Quiz;
         public List<EventSO> EventList_Relic => _eventList_Relic;
         public List<EventSO> EventList_Battle => _eventList_Battle;
+        public List<EventSO> EventList_Etc => _eventList_Etc;
 
         public bool SetEvent(Dictionary<string, EventSO> eventList)
         {
@@ -56,6 +58,10 @@ namespace OzGameLab01.Events
             {
                 AddToDictionary(_eventList_Event[i]);
             }
+            for (int i = 0; i < _eventList_Etc.Count; i++)
+            {
+                AddToDictionary(_eventList_Etc[i]);
+            }
 
             return true;
         }
@@ -84,6 +90,10 @@ namespace OzGameLab01.Events
                 case EventChoiceCategory.Battle:
                     if (_eventList_Battle == null || _eventList_Battle.Count == 0) return null;
                     tempSO = _eventList_Battle[Random.Range(0, _eventList_Battle.Count)];
+                    break;
+                case EventChoiceCategory.None:
+                    if (_eventList_Battle == null || _eventList_Battle.Count == 0) return null;
+                    tempSO = _eventList_Etc[Random.Range(0, _eventList_Etc.Count)];
                     break;
                 default:
                     Debug.LogError("[EventDB] 타겟의 카테고리가 잘못되었습니다.");
