@@ -169,9 +169,9 @@ MonoBehaviour:
   instant: 1
   worldRenderer: {fileID: 9202127842289236601}
   uiRenderer: {fileID: 992030566842314466}
-  worldSpeed: 8
+  worldSpeed: 30
   uiSpeed: 900
-  worldScale: 0.35
+  worldScale: 0.4
   uiSize: {x: 36, y: 36}
   worldTravelEffectScale: 0.3
   uiTravelEffectScale: 3.6000001
