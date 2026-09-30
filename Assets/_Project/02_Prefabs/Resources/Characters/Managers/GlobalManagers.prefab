@@ -219,11 +219,11 @@ MonoBehaviour:
     volume: 1
   - id: 13
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: d378bb00bdb51944e954d0c048a6b36e, type: 3}
     volume: 1
   - id: 14
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: d378bb00bdb51944e954d0c048a6b36e, type: 3}
     volume: 1
   - id: 15
     channel: 1
@@ -239,11 +239,11 @@ MonoBehaviour:
     volume: 1
   - id: 18
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: bc3948a6055badd43a007362506dd0b8, type: 3}
     volume: 1
   - id: 19
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: bc3948a6055badd43a007362506dd0b8, type: 3}
     volume: 1
   - id: 20
     channel: 1
@@ -271,7 +271,7 @@ MonoBehaviour:
     volume: 1
   - id: 26
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: ad63ada7032b5994fb03a6c7b80b05b8, type: 3}
     volume: 1
   - id: 27
     channel: 1
@@ -279,15 +279,15 @@ MonoBehaviour:
     volume: 1
   - id: 28
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 81689a273ed76ab47bfdc016ffdbe62c, type: 3}
     volume: 1
   - id: 29
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 791f0f6de93439f4ebffa42a544a01f6, type: 3}
     volume: 1
   - id: 30
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: aec23dd76f25b624398c273c951d8e3f, type: 3}
     volume: 1
   - id: 31
     channel: 1
@@ -336,6 +336,30 @@ MonoBehaviour:
   - id: 53
     channel: 1
     clip: {fileID: 8300000, guid: 2798109f5a20f864b8199ec730d283a0, type: 3}
+    volume: 1
+  - id: 32
+    channel: 1
+    clip: {fileID: 8300000, guid: ad63ada7032b5994fb03a6c7b80b05b8, type: 3}
+    volume: 1
+  - id: 33
+    channel: 1
+    clip: {fileID: 8300000, guid: 6dcf61c8d3e2c1145b9c7679d200f006, type: 3}
+    volume: 1
+  - id: 34
+    channel: 1
+    clip: {fileID: 8300000, guid: 0ed65ebc6265afc4f84e072a62e01302, type: 3}
+    volume: 1
+  - id: 38
+    channel: 1
+    clip: {fileID: 8300000, guid: bc4f53bbfad8ff447865d262b2bde2b7, type: 3}
+    volume: 1
+  - id: 39
+    channel: 1
+    clip: {fileID: 8300000, guid: adacc5ea264c8bc42b6a5d6309a1c976, type: 3}
+    volume: 1
+  - id: 40
+    channel: 1
+    clip: {fileID: 8300000, guid: 3ddeb01d73b067c4e965c6f6de8687c7, type: 3}
     volume: 1
   bgmSource: {fileID: 0}
   sfxSource: {fileID: 0}
