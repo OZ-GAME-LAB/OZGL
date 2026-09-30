@@ -128,7 +128,7 @@ namespace OzGameLab01.Board.Models
             PlaceObstacleClusters(availableNodes, startNode);
 
             // [추가됨] 강제 시작 동선 셋팅 (시작 타일 3면 차단, 1면 유닛 확정 획득)
-            if (_settings.forceUnitAtStart)
+            if (_settings.allowUnitAcquisition && _settings.forceUnitAtStart)
             {
                 ConfigureForcedStartPath(startNode, availableNodes);
             }
@@ -139,7 +139,13 @@ namespace OzGameLab01.Board.Models
 
             // 3. 일반 상호작용 타일을 배치합니다.
             // Elite와 Boss 목표는 MapRouteDirector가 진행 상태에 맞춰 별도로 배치합니다.
-            PlaceNodesOfType(NodeType.UnitAcquisition, _settings.unitAcquisitionCount, _settings.minUnitAcquisitionDistance, availableNodes, _settings.minUnitAcquisitionDistFromStart, _settings.maxUnitAcquisitionDistFromStart, false);
+            if (_settings.allowUnitAcquisition)
+            {
+                PlaceNodesOfType(NodeType.UnitAcquisition, _settings.unitAcquisitionCount,
+                    _settings.minUnitAcquisitionDistance, availableNodes,
+                    _settings.minUnitAcquisitionDistFromStart,
+                    _settings.maxUnitAcquisitionDistFromStart, false);
+            }
 
             PlaceNodesOfType(NodeType.Shop, _settings.shopCount, _settings.minShopDistance, availableNodes, _settings.minShopDistFromStart, _settings.maxShopDistFromStart, false);
             PlaceNodesOfType(NodeType.Event, _settings.eventCount, _settings.minEventDistance, availableNodes, _settings.minEventDistFromStart, _settings.maxEventDistFromStart, false);

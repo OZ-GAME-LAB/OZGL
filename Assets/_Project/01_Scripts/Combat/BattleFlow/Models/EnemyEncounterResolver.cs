@@ -15,6 +15,7 @@ namespace OzGameLab01.Combat
         private const int NightEnemyMonsterId = 2;
         private const int SemibossEnemyMonsterId = 3;
         private const int FinalBossEnemyMonsterId = 4;
+        private const int TutorialNormalEnemyMonsterId = 6;
 
         /// <summary>
         /// 현재 BoardRunData에 기록된 전투 조건으로 최종 전투 스펙을 반환합니다.
@@ -82,6 +83,11 @@ namespace OzGameLab01.Combat
             if (isElite)
             {
                 return SemibossEnemyMonsterId;
+            }
+
+            if (TutorialSessionState.IsActive)
+            {
+                return TutorialNormalEnemyMonsterId;
             }
 
             return isNightEncounter

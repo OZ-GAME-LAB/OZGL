@@ -24,17 +24,50 @@ namespace OzGameLab01.Player
         /// </summary>
         public IReadOnlyList<UnitData> OwnedUnits => _state.OwnedUnits;
 
+        public IReadOnlyList<UnitData> GetAvailableUnitCandidates(IReadOnlyList<UnitData> candidates)
+        {
+            List<UnitData> availableUnits = new List<UnitData>();
+            if (candidates == null)
+            {
+                return availableUnits;
+            }
+
+            HashSet<int> ownedUnitIds = new HashSet<int>();
+            for (int unitIndex = 0; unitIndex < _state.OwnedUnits.Count; unitIndex++)
+            {
+                UnitData ownedUnit = _state.OwnedUnits[unitIndex];
+                if (ownedUnit != null)
+                {
+                    ownedUnitIds.Add(ownedUnit.id);
+                }
+            }
+
+            for (int candidateIndex = 0; candidateIndex < candidates.Count; candidateIndex++)
+            {
+                UnitData candidate = candidates[candidateIndex];
+                if (candidate != null && !ownedUnitIds.Contains(candidate.id))
+                {
+                    availableUnits.Add(candidate);
+                }
+            }
+
+            return availableUnits;
+        }
+
         /// <summary>
         /// 새 유닛을 인벤토리에 추가합니다. (나중에 맵 타일 이벤트에서 호출할 함수)
         /// </summary>
-        public void AddUnit(UnitData unit)
+        public bool AddUnit(UnitData unit)
         {
-            if (unit == null) return;
+            if (!_state.TryAddUnit(unit))
+            {
+                return false;
+            }
 
-            _state.AddUnit(unit);
             SystemBus.Messages.Publish(new PlayerUnitAdded(unit));
             SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState();
             Debug.Log($"[PlayerFacade] 유닛 획득 성공! : {unit.name} (현재 총 {_state.OwnedUnits.Count}명 보유 중)");
+            return true;
         }
 
         /// <summary>
@@ -76,7 +109,7 @@ namespace OzGameLab01.Player
 
                 for (int amountIndex = 0; amountIndex < savedUnit.amount; amountIndex++)
                 {
-                    _state.AddUnit(CloneUnitData(rosterUnit));
+                    _state.TryAddUnit(CloneUnitData(rosterUnit));
                 }
             }
 

@@ -10,6 +10,7 @@ using OzGameLab01.UI;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using OzGameLab01.Common;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.Controllers
 {
@@ -18,6 +19,14 @@ namespace OzGameLab01.Controllers
     /// </summary>
     public class BoardPlayerController : MonoBehaviour, IBoardTileInput
     {
+        private static readonly SoundId[] PlayerMoveSounds =
+        {
+            SoundId.BoardPlayerMove_0,
+            SoundId.BoardPlayerMove_1,
+            SoundId.BoardPlayerMove_2,
+            SoundId.BoardPlayerMove_3
+        };
+
         public static BoardPlayerController Instance { get; private set; }
 
         [Header("Player Visuals")]
@@ -271,6 +280,7 @@ namespace OzGameLab01.Controllers
                         yield break;
                     }
                     BoardRunData.RecordMovedNode();
+                    SoundConnector.RequestRandomSfx(PlayerMoveSounds);
                     RefreshActionPowerHud();
                     OnPlayerStepCompleted?.Invoke();
 

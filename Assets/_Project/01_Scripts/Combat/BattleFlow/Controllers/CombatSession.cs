@@ -297,7 +297,6 @@ namespace OzGameLab01.Combat
                 UnitData data = formationData[placementIndex];
                 if (data == null ||
                     !BoardRunData.TryGetBattleUnitHealthRate(
-                        placementIndex,
                         data.id,
                         out float healthRate))
                 {

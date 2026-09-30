@@ -47,8 +47,9 @@ namespace OzGameLab01.Events
     }
     public enum EventChoiceCategory
     {
+        None,
         Relic,
-        Unit,
+        Random,
         Battle,
         Event,
         Heal,

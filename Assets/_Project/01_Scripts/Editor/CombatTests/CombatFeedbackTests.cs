@@ -87,7 +87,7 @@ namespace OzGameLab01.Tests.EditMode
         [Test]
         public void BattleUi_EnemyNameFontSupportsKoreanSpeciesNames()
         {
-            const string battleUiPath = "Assets/_Project/02_Prefabs/UI/BattleUI.prefab";
+            const string battleUiPath = "Assets/_Project/02_Prefabs/UI/BattleUi/BattleUI.prefab";
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(battleUiPath);
 
             Assert.That(prefab, Is.Not.Null);
@@ -106,7 +106,7 @@ namespace OzGameLab01.Tests.EditMode
         [Test]
         public void BattleUi_ResultTextsSupportLocalizedCopy()
         {
-            const string battleUiPath = "Assets/_Project/02_Prefabs/UI/BattleUI.prefab";
+            const string battleUiPath = "Assets/_Project/02_Prefabs/UI/BattleUi/BattleUI.prefab";
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(battleUiPath);
             CombatResultView resultView = prefab != null
                 ? prefab.GetComponentInChildren<CombatResultView>(true)
@@ -132,7 +132,7 @@ namespace OzGameLab01.Tests.EditMode
         [Test]
         public void BattleUi_EmptyDpsAreaIsHiddenWhenResultIsShown()
         {
-            const string battleUiPath = "Assets/_Project/02_Prefabs/UI/BattleUI.prefab";
+            const string battleUiPath = "Assets/_Project/02_Prefabs/UI/BattleUi/BattleUI.prefab";
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(battleUiPath);
             GameObject instance = prefab != null ? Object.Instantiate(prefab) : null;
 

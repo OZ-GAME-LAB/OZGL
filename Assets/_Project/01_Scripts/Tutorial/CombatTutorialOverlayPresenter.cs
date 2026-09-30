@@ -28,7 +28,10 @@ namespace OzGameLab01.Controllers
         private readonly Image[] focusBorders = new Image[4];
         private Tween focusBorderTween;
         private RectTransform activeTarget;
+        private RectTransform stepTarget;
         private CombatTutorialStepData activeStep;
+        private IReadOnlyList<PlayerSlotItemView> activeFormationSlots;
+        private bool targetPresentationDeferred;
         private readonly List<TutorialOutlinePulseView> formationSlotHighlights =
             new();
 
@@ -127,14 +130,22 @@ namespace OzGameLab01.Controllers
             EnsureTopmostSortingOrder();
 
             activeStep = step;
-            activeTarget = target;
+            stepTarget = target;
+            activeFormationSlots = formationSlots;
 
             bool hasFormationSlots =
                 formationSlots != null && formationSlots.Count > 0;
             bool hasTarget = target != null || hasFormationSlots;
-            bool needsTarget = step.HighlightTarget || step.AllowsTargetClick;
+            // TargetClicked 전용 단계는 가이드를 먼저 읽고 닫은 뒤에만
+            // 타깃 강조와 클릭 영역을 노출합니다.
+            targetPresentationDeferred =
+                step.ShowGuide &&
+                step.AllowsTargetClick &&
+                !step.AllowsGuideDismiss &&
+                hasTarget;
             bool allowGuideDismiss =
                 step.AllowsGuideDismiss ||
+                targetPresentationDeferred ||
                 (step.AllowsTargetClick && !hasTarget);
 
             if (guidePresenter != null)
@@ -155,6 +166,26 @@ namespace OzGameLab01.Controllers
                     SetInputBlockerVisible(true);
                 }
             }
+
+            if (targetPresentationDeferred)
+            {
+                HideFocus();
+                StopFormationSlotHighlights();
+                return;
+            }
+
+            ShowTargetPresentation(step, target, formationSlots);
+        }
+
+        private void ShowTargetPresentation(
+            CombatTutorialStepData step,
+            RectTransform target,
+            IReadOnlyList<PlayerSlotItemView> formationSlots)
+        {
+            bool hasFormationSlots =
+                formationSlots != null && formationSlots.Count > 0;
+            bool hasTarget = target != null || hasFormationSlots;
+            bool needsTarget = step.HighlightTarget || step.AllowsTargetClick;
 
             if (hasFormationSlots)
             {
@@ -196,6 +227,9 @@ namespace OzGameLab01.Controllers
         public void HideStep()
         {
             activeStep = null;
+            stepTarget = null;
+            activeFormationSlots = null;
+            targetPresentationDeferred = false;
             HideFocus();
             StopFormationSlotHighlights();
             SetInputBlockerVisible(false);
@@ -240,7 +274,10 @@ namespace OzGameLab01.Controllers
             for (int i = 0; i < focusBorders.Length; i++)
                 focusBorders[i] = null;
             activeTarget = null;
+            stepTarget = null;
             activeStep = null;
+            activeFormationSlots = null;
+            targetPresentationDeferred = false;
         }
 
         private void EnsureTopmostSortingOrder()
@@ -523,6 +560,16 @@ namespace OzGameLab01.Controllers
 
         private void HandleGuideDismissed()
         {
+            if (targetPresentationDeferred && activeStep != null)
+            {
+                targetPresentationDeferred = false;
+                SetInputBlockerVisible(true);
+                ShowTargetPresentation(
+                    activeStep,
+                    stepTarget,
+                    activeFormationSlots);
+            }
+
             GuideDismissed?.Invoke();
         }
 

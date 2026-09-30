@@ -16,10 +16,10 @@ MonoBehaviour:
   eventTitle: "\uACB0\uACFC"
   eventDialog: "\uAC00\uB358\uAE38\uC744 \uAC04\uB2E4."
   eventCategory: 1
-  choiceCategory: 6
+  choiceCategory: 7
   choices:
   - choiceIndex: 0
     choiceSprite: {fileID: 0}
     choiceDialog: "\uD655\uC778."
-    choiceCategory: 6
+    choiceCategory: 7
     resultTargetID: '-'

@@ -205,8 +205,17 @@ namespace OzGameLab01.Combat
                 return null;
             }
 
-            bool isBossTier = _enemyMonsterData != null &&
-                (_enemyMonsterData.type == MonsterType.semiboss || _enemyMonsterData.type == MonsterType.boss);
+            if (_enemyMonsterData == null)
+            {
+                Debug.LogError(
+                    "[AllySpawner] 전투에 사용할 MonsterData가 없습니다. " +
+                    "EnemyData.json과 EnemyEncounterResolver의 적 ID를 확인해주세요.");
+                return null;
+            }
+
+            bool isBossTier =
+                _enemyMonsterData.type == MonsterType.semiboss ||
+                _enemyMonsterData.type == MonsterType.boss;
             MonsterSpecies species = PickEnemySpecies();
             string resourceName = species != null ? species.prefabAddress : ResolveEnemyPrefabResourceName(isBossTier);
 
