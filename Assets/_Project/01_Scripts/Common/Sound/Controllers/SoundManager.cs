@@ -10,64 +10,64 @@ namespace OzGameLab01.Managers
     {
         None = 0, // 사운드 없음
 
-        BgmTitle, // 타이틀 씬 BGM
-        BgmBoardDay, // 보드 씬 낮 BGM
-        BgmBoardNight, // 보드 씬 밤 BGM
-        BgmCombat, // 일반 전투 씬 BGM
-        BgmVictory, // 승리 화면 BGM
-        BgmDefeat, // 패배 화면 BGM
+        BgmTitle = 1, // 타이틀 씬 BGM
+        BgmBoardDay = 2, // 보드 씬 낮 BGM
+        BgmBoardNight = 3, // 보드 씬 밤 BGM
+        BgmCombat = 4, // 일반 전투 씬 BGM
+        BgmVictory = 5, // 승리 화면 BGM
+        BgmDefeat = 6, // 패배 화면 BGM
 
-        UiMouseClick, // 마우스 클릭
-        UiButtonClick, // UI 버튼 클릭
-        UiButtonHover, // UI 버튼 마우스 오버
-        UiConfirm, // 확인 선택
-        UiCancel, // 취소 선택
-        UiError, // 잘못된 선택 또는 오류 알림
-        UiSettingsOpen, // 설정 창 열기
-        UiSettingsClose, // 설정 창 닫기
+        UiMouseClick = 7, // 마우스 클릭
+        UiButtonClick = 8, // UI 버튼 클릭
+        UiButtonHover = 9, // UI 버튼 마우스 오버
+        UiConfirm = 10, // 확인 선택
+        UiCancel = 11, // 취소 선택
+        UiError = 12, // 잘못된 선택 또는 오류 알림
+        UiSettingsOpen = 13, // 설정 창 열기
+        UiSettingsClose = 14, // 설정 창 닫기
 
-        DiceRoll, // 주사위 굴리기
-        PlayerMove, // 플레이어 이동
-        MapNodeSelect, // 맵 노드 선택
-        UnitPlaced, // 유닛 배치
-        UnitRemoved, // 배치한 유닛 회수
-        UnitAttack_01, // 아군 유닛 공격
-        UnitAttack_02, // 아군 유닛 공격
-        UnitAttack_03, // 아군 유닛 공격
-        UnitAttack_04, // 아군 유닛 공격
-        UnitAttack_05, // 아군 유닛 공격
-        UnitUseSkill,  // 아군 유닛 스킬 사용
-        UnitHit, // 아군 유닛 피격
-        UnitDeath, // 아군 유닛 사망
-        UnitHeal, // 아군 유닛 회복
-        UnitStatModify, // 아군 스탯 버프
-        UnitDebuff, // 아군 디버프 스킬
+        DiceRoll = 15, // 주사위 굴리기
+        PlayerMove = 16, // 플레이어 이동
+        MapNodeSelect = 17, // 맵 노드 선택
+        UnitPlaced = 18, // 유닛 배치
+        UnitRemoved = 19, // 배치한 유닛 회수
+        UnitAttack_01 = 20, // 아군 유닛 공격
+        UnitAttack_02 = 21, // 아군 유닛 공격
+        UnitAttack_03 = 22, // 아군 유닛 공격
+        UnitAttack_04 = 23, // 아군 유닛 공격
+        UnitAttack_05 = 24, // 아군 유닛 공격
+        UnitUseSkill = 25,  // 아군 유닛 스킬 사용
+        UnitHit = 26, // 아군 유닛 피격
+        UnitDeath = 27, // 아군 유닛 사망
+        UnitHeal = 28, // 아군 유닛 회복
+        UnitStatModify = 29, // 아군 스탯 버프
+        UnitDebuff = 30, // 아군 디버프 스킬
 
-        EnemyAttack, // 적 유닛 공격
-        EnemyHit_01, // 적 유닛 피격
-        EnemyHit_02, // 적 유닛 피격
-        EnemyHit_03, // 적 유닛 피격
-        EnemyDeath, // 적 유닛 사망
+        EnemyAttack = 31, // 적 유닛 공격
+        EnemyHit_01 = 32, // 적 유닛 피격
+        EnemyHit_02 = 33, // 적 유닛 피격
+        EnemyHit_03 = 34, // 적 유닛 피격
+        EnemyDeath = 35, // 적 유닛 사망
 
-        RoundStart, // 전투 라운드 시작
-        RoundEnd, // 전투 라운드 종료
-        CombatVictory, // 전투 승리 효과음
-        CombatDefeat, // 전투 패배 효과음
-        RelicGain, // 유물 획득
-        ItemGain, // 아이템 획득
-        SceneTransition, // 씬 전환
+        RoundStart = 36, // 전투 라운드 시작
+        RoundEnd = 37, // 전투 라운드 종료
+        CombatVictory = 38, // 전투 승리 효과음
+        CombatDefeat = 39, // 전투 패배 효과음
+        RelicGain = 40, // 유물 획득
+        ItemGain = 41, // 아이템 획득
+        SceneTransition = 42, // 씬 전환
 
-        BoardTurnEnd, // 보드 턴 종료
-        BoardPlayerMove_0, // 보드 플레이어 한 칸 이동 0
-        BoardPlayerMove_1, // 보드 플레이어 한 칸 이동 1
-        BoardPlayerMove_2, // 보드 플레이어 한 칸 이동 2
-        BoardPlayerMove_3, // 보드 플레이어 한 칸 이동 3
-        BoardDayChange, // 보드 낮/밤 전환
-        BoardDiceRoll_0, // 보드 주사위 굴리기 0
-        BoardDiceRoll_1, // 보드 주사위 굴리기 1
-        BoardDiceRoll_2, // 보드 주사위 굴리기 2
-        BoardDiceRoll_3, // 보드 주사위 굴리기 3
-        BoardGetUnit // 보드 유닛 획득
+        BoardTurnEnd = 43, // 보드 턴 종료
+        BoardPlayerMove_0 = 44, // 보드 플레이어 한 칸 이동 0
+        BoardPlayerMove_1 = 45, // 보드 플레이어 한 칸 이동 1
+        BoardPlayerMove_2 = 46, // 보드 플레이어 한 칸 이동 2
+        BoardPlayerMove_3 = 47, // 보드 플레이어 한 칸 이동 3
+        BoardDayChange = 48, // 보드 낮/밤 전환
+        BoardDiceRoll_0 = 49, // 보드 주사위 굴리기 0
+        BoardDiceRoll_1 = 50, // 보드 주사위 굴리기 1
+        BoardDiceRoll_2 = 51, // 보드 주사위 굴리기 2
+        BoardDiceRoll_3 = 52, // 보드 주사위 굴리기 3
+        BoardGetUnit = 53 // 보드 유닛 획득
     }
 
     public enum SoundChannel
