@@ -1353,6 +1353,7 @@ namespace OzGameLab01.Controllers
             UnitData newData = PlayerFacade.CloneUnitData(source);
             int handle = testUnitDataList.Count;
             testUnitDataList.Add(newData);
+            BuildUnitTraitLookup();
             // 2. UI 아이템(프리팹) 1개 새로 생성 후 셋팅
             UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
             unitItem.name = $"Unit_Item_{testUnitDataList.Count:00}";
