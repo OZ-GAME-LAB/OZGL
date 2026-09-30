@@ -42,7 +42,13 @@ namespace OzGameLab01.Board.Models
             Vector2Int position = hasPlayerPosition ? playerPosition : start.Position;
             if (!_nodes.TryGetValue(position, out MapNode current) || !IsWalkable(current)) { current = start; }
             NodeType type = _defeatedCount >= _settings.requiredEliteCount ? NodeType.Boss : NodeType.Elite;
-            MapNode target = type == NodeType.Boss ? SelectBossForCurrentPosition(current, boss) : SelectEliteNode(current, start, boss, distances);
+            MapNode bossOrigin = _settings.finalBossSpawnOrigin ==
+                                 FinalBossSpawnOrigin.CurrentPlayerPosition
+                ? current
+                : start;
+            MapNode target = type == NodeType.Boss
+                ? SelectBossForCurrentPosition(bossOrigin, boss)
+                : SelectEliteNode(current, start, boss, distances);
             return new BoardRouteDecision(target != null ? BoardRouteStatus.Ready : BoardRouteStatus.MissingTarget, boss, target, type);
         }
 
@@ -110,27 +116,38 @@ namespace OzGameLab01.Board.Models
             return best;
         }
 
-        public MapNode SelectBossForCurrentPosition(MapNode currentNode, MapNode plannedBossNode)
+        public MapNode SelectBossForCurrentPosition(
+            MapNode originNode,
+            MapNode plannedBossNode)
         {
+            Dictionary<MapNode, int> fromOrigin = BuildDistanceMap(originNode);
+            int minimumDistance = Mathf.Max(1, _settings.minimumBossLegDistance);
+            int maximumDistance = Mathf.Max(
+                minimumDistance,
+                _settings.maximumBossLegDistance);
+
             if (IsAvailableObjectiveNode(plannedBossNode))
             {
-                Dictionary<MapNode, int> distances = BuildDistanceMap(currentNode);
-                if (distances.TryGetValue(plannedBossNode, out int bossDistance) &&
-                    bossDistance >= _settings.minimumBossLegDistance)
+                if (fromOrigin.TryGetValue(
+                        plannedBossNode,
+                        out int bossDistance) &&
+                    bossDistance >= minimumDistance &&
+                    bossDistance <= maximumDistance)
                 {
                     return plannedBossNode;
                 }
             }
 
-            // 최종 보스 예약 타일이 너무 가까워졌거나 다른 타입으로 사용된 경우,
-            // 현재 위치에서 충분히 떨어진 가장 먼 Normal 타일을 대체 목표로 사용합니다.
-            Dictionary<MapNode, int> fromCurrent = BuildDistanceMap(currentNode);
+            // 예약 타일이 설정 범위를 벗어났거나 다른 타입으로 사용된 경우,
+            // 선택한 기준 위치에서 구간 안에 있는 가장 먼 Normal 타일을 사용합니다.
             MapNode fallback = null;
             int furthestDistance = -1;
 
-            foreach (KeyValuePair<MapNode, int> pair in fromCurrent)
+            foreach (KeyValuePair<MapNode, int> pair in fromOrigin)
             {
-                if (!IsAvailableObjectiveNode(pair.Key) || pair.Value < _settings.minimumBossLegDistance)
+                if (!IsAvailableObjectiveNode(pair.Key) ||
+                    pair.Value < minimumDistance ||
+                    pair.Value > maximumDistance)
                 {
                     continue;
                 }
@@ -143,7 +160,26 @@ namespace OzGameLab01.Board.Models
                 }
             }
 
-            return fallback ?? (IsAvailableObjectiveNode(plannedBossNode) ? plannedBossNode : null);
+            if (fallback != null)
+                return fallback;
+
+            // 작은 맵처럼 지정 구간에 후보가 하나도 없으면 중간 보스와 동일하게
+            // 거리 제한을 완화하되, 기준 위치에서 가장 먼 사용 가능한 타일을 선택합니다.
+            foreach (KeyValuePair<MapNode, int> pair in fromOrigin)
+            {
+                if (!IsAvailableObjectiveNode(pair.Key) || pair.Value < 1)
+                    continue;
+
+                if (pair.Value > furthestDistance ||
+                    (pair.Value == furthestDistance &&
+                     IsLowerPosition(pair.Key, fallback)))
+                {
+                    fallback = pair.Key;
+                    furthestDistance = pair.Value;
+                }
+            }
+
+            return fallback;
         }
 
         public MapNode SelectEliteNode(
