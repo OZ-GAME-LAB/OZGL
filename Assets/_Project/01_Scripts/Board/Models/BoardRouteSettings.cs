@@ -9,6 +9,8 @@ namespace OzGameLab01.Board.Models
         public int minimumEliteLegDistance;
         public int maximumEliteLegDistance;
         public int minimumBossLegDistance;
+        public int maximumBossLegDistance;
+        public FinalBossSpawnOrigin finalBossSpawnOrigin;
         public float futureRouteReserveRatio;
         public float forwardProgressWeight;
         public float explorationOpportunityWeight;

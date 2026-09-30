@@ -8,6 +8,12 @@ namespace OzGameLab01.Board.Models
         StartNode
     }
 
+    public enum FinalBossSpawnOrigin
+    {
+        CurrentPlayerPosition,
+        StartNode
+    }
+
     /// <summary>
     /// 중간 보스와 최종 보스 목표를 선정하는 경로 디렉팅 규칙입니다.
     /// </summary>
@@ -22,6 +28,10 @@ namespace OzGameLab01.Board.Models
         [SerializeField] private FirstEliteSpawnOrigin firstEliteSpawnOrigin =
             FirstEliteSpawnOrigin.CurrentPlayerPosition;
 
+        [Tooltip("최종 보스의 거리 계산 기준을 현재 플레이어 위치 또는 시작 노드 중에서 선택합니다.")]
+        [SerializeField] private FinalBossSpawnOrigin finalBossSpawnOrigin =
+            FinalBossSpawnOrigin.CurrentPlayerPosition;
+
         [Header("구간 거리 (연결 타일 수)")]
         [Tooltip("현재 기준 위치에서 다음 중간 보스 후보까지 필요한 최소 거리입니다. 연결된 타일 한 칸을 거리 1로 계산합니다.")]
         [Min(1)] [SerializeField] private int minimumEliteLegDistance = 10;
@@ -29,8 +39,11 @@ namespace OzGameLab01.Board.Models
         [Tooltip("현재 기준 위치에서 다음 중간 보스 후보까지 허용할 최대 거리입니다. 연결된 타일 한 칸을 거리 1로 계산합니다.")]
         [Min(1)] [SerializeField] private int maximumEliteLegDistance = 18;
 
-        [Tooltip("마지막 중간 보스 위치에서 최종 보스 후보까지 확보할 최소 거리입니다. 연결된 타일 한 칸을 거리 1로 계산합니다.")]
+        [Tooltip("선택한 최종 보스 생성 기준 위치에서 최종 보스 후보까지 필요한 최소 거리입니다. 연결된 타일 한 칸을 거리 1로 계산합니다.")]
         [Min(1)] [SerializeField] private int minimumBossLegDistance = 10;
+
+        [Tooltip("선택한 최종 보스 생성 기준 위치에서 최종 보스 후보까지 허용할 최대 거리입니다. 연결된 타일 한 칸을 거리 1로 계산합니다.")]
+        [Min(1)] [SerializeField] private int maximumBossLegDistance = 18;
 
         [Tooltip("남은 중간 보스와 최종 보스를 배치할 구간이 부족한 후보를 피하기 위해 확보할 거리의 비율입니다.")]
         [Range(0f, 1f)] [SerializeField] private float futureRouteReserveRatio = 0.6f;
@@ -51,6 +64,7 @@ namespace OzGameLab01.Board.Models
 
         public int RequiredEliteCount => requiredEliteCount;
         public FirstEliteSpawnOrigin FirstEliteSpawnOrigin => firstEliteSpawnOrigin;
+        public FinalBossSpawnOrigin FinalBossSpawnOrigin => finalBossSpawnOrigin;
 
         public BoardRouteSettings CreateSettings()
         {
@@ -60,6 +74,8 @@ namespace OzGameLab01.Board.Models
                 minimumEliteLegDistance = minimumEliteLegDistance,
                 maximumEliteLegDistance = Mathf.Max(minimumEliteLegDistance, maximumEliteLegDistance),
                 minimumBossLegDistance = minimumBossLegDistance,
+                maximumBossLegDistance = Mathf.Max(minimumBossLegDistance, maximumBossLegDistance),
+                finalBossSpawnOrigin = finalBossSpawnOrigin,
                 futureRouteReserveRatio = futureRouteReserveRatio,
                 forwardProgressWeight = forwardProgressWeight,
                 explorationOpportunityWeight = explorationOpportunityWeight,

@@ -1379,7 +1379,7 @@ MonoBehaviour:
   defaultOffset: {x: 0, y: 15, z: 0}
   zoomSpeed: 1
   minZoomMultiplier: 0.3
-  maxZoomMultiplier: 2.5
+  maxZoomMultiplier: 1
   locateMoveDuration: 0.75
   locateHoldDuration: 1.5
 --- !u!81 &1701331398
