@@ -92,13 +92,15 @@ namespace OzGameLab01.Controllers
             _unitTraitsById = OzGameLab01.Effects.Models.SynergyModel.BuildTraitLookup(unitDataById, _rosterData.GetJobTrait, _rosterData.GetTribeTrait);
         }
 
-        public void ApplySynergies(Dictionary<CombatManager.SlotKey, int> spawnedFormation, Unit[,] slotUnits)
+        public void ApplySynergies(Dictionary<CombatManager.SlotKey, int>
+            spawnedFormation, Unit[,] slotUnits, IReadOnlyList<int> supportUnitIds)
         {
             _activeSharedEffects.Clear();
-            // 팀 전체에서 각 트레이트를 보유한 유닛 수를 센다 (시너지 발동 여부 판정용).
-            // 인스펙터 폴백 편성이 아니라 실제로 스폰된 편성(spawnedFormation)을 기준으로 삼아야
-            // 배치 화면에서 넘어온 편성에도 시너지가 정상 반영된다.
-            _traitCounts = SynergyPanelUtility.CountTraits(spawnedFormation.Values, _unitTraitsById);
+
+            // 전투 슬롯과 서포트 슬롯을 모두 포함하여 시너지 발동 수를 계산
+            List<int> synergyUnitIds = BuildSynergyUnitIds(spawnedFormation, supportUnitIds);
+
+            _traitCounts = SynergyPanelUtility.CountTraits(synergyUnitIds, _unitTraitsById);
             CollectRelicTierBonuses(RelicManager.Instance?.Facade?.OwnedRelics, spawnedFormation.Count);
 
             // SelfSynergy 대상 효과: 해당 트레이트를 실제로 보유한 유닛에게만 적용한다.
@@ -145,6 +147,39 @@ namespace OzGameLab01.Controllers
                 }
             }
             _notifications.Publish(OzGameLab01.Effects.Models.EffectsNotificationKind.SynergiesEvaluated, 0, _traitCounts.Count);
+        }
+
+        /// <summary>
+        /// 시너지 발동 수 계산에 사용할 유닛 ID 목록을 생성합니다.
+        /// 전투 슬롯과 서포트 슬롯을 모두 포함합니다.
+        /// </summary>
+        private static List<int> BuildSynergyUnitIds(
+            Dictionary<CombatManager.SlotKey, int> spawnedFormation,
+            IReadOnlyList<int> supportUnitIds)
+        {
+            List<int> synergyUnitIds = new List<int>();
+
+            foreach (int unitId in spawnedFormation.Values)
+            {
+                synergyUnitIds.Add(unitId);
+            }
+
+            if (supportUnitIds == null)
+            {
+                return synergyUnitIds;
+            }
+
+            foreach (int unitId in supportUnitIds)
+            {
+                if (unitId < 0)
+                {
+                    continue;
+                }
+
+                synergyUnitIds.Add(unitId);
+            }
+
+            return synergyUnitIds;
         }
 
         private void CollectSharedTierEffects(SynergyDefinition definition, int count)

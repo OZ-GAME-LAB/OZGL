@@ -44,6 +44,21 @@ namespace OzGameLab01.Effects.Models
         }
 
         /// <summary>
+        /// 이번 전투의 패시브 소유 유닛과 추가 효과를 기준으로 효과 캐시를 재생성합니다.
+        /// </summary>
+        public void RefreshForCombat(
+            IReadOnlyList<UnitData> passiveOwners,
+            IEnumerable<RuntimeEffectManager.EffectSource> extraSources = null)
+        {
+            _cache.Rebuild(
+                RuntimeContent.Catalog,
+                passiveOwners,
+                RelicManager.Instance.Facade.OwnedRelics,
+                extraSources);
+            _notifications.Publish(EffectsNotificationKind.CacheRebuilt, 0, CachedEffectCount);
+        }
+
+        /// <summary>
         /// 특정 트리거에 연결된 효과만 반환합니다. 반환 리스트는 내부 캐시이므로 수정하지 않습니다.
         /// </summary>
         public IReadOnlyList<RuntimeEffectManager.EffectSource> GetEffects(TriggerType trigger)

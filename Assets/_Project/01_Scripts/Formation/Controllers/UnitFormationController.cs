@@ -1123,7 +1123,7 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 현재 전투 슬롯에 배치된 유닛 기준으로 시너지 보유 현황을 다시 계산해 표시합니다.
+        /// 현재 전투 및 서포트 슬롯에 배치된 유닛 기준으로 시너지 보유 현황을 다시 계산해 표시합니다.
         /// 발동 수가 높은 시너지가 먼저 오도록 정렬합니다.
         /// </summary>
         private void RefreshSynergyPanel()
@@ -1179,16 +1179,37 @@ namespace OzGameLab01.Controllers
         }
 
         /// <summary>
-        /// 현재 전투 슬롯에 배치된 유닛들의 트레이트 보유 수를 센다.
-        /// (서브 슬롯 유닛은 CombatManager와 마찬가지로 시너지 계산에서 제외한다.)
+        /// 현재 전투 슬롯과 서포트 슬롯에 배치된 유닛들의
+        /// 시너지 트레이트 보유 수를 계산합니다.
         /// </summary>
         private Dictionary<SynergyDefinition, int> BuildTraitCounts()
         {
             Dictionary<SynergyDefinition, int> traitCounts = new Dictionary<SynergyDefinition, int>();
 
-            foreach (UnitData data in battleUnitData)
+            AddTraitCounts(battleUnitData, traitCounts);
+            AddTraitCounts(supportUnitData, traitCounts);
+
+            return traitCounts;
+        }
+
+        /// <summary>
+        /// 지정한 유닛 목록의 시너지 트레이트를 집계합니다.
+        /// </summary>
+        private void AddTraitCounts(UnitData[] unitDataList, Dictionary<SynergyDefinition, int> traitCounts)
+        {
+            foreach (UnitData data in unitDataList)
             {
-                if (data == null || !unitTraitsById.TryGetValue(data.id, out List<SynergyDefinition> traits) || traits == null)
+                if (data == null)
+                {
+                    continue;
+                }
+
+                if (!unitTraitsById.TryGetValue(data.id, out List<SynergyDefinition> traits))
+                {
+                    continue;
+                }
+
+                if (traits == null)
                 {
                     continue;
                 }
@@ -1204,8 +1225,6 @@ namespace OzGameLab01.Controllers
                     traitCounts[trait] = count + 1;
                 }
             }
-
-            return traitCounts;
         }
 
         private static int GetTraitCount(Dictionary<SynergyDefinition, int> traitCounts, SynergyDefinition definition)

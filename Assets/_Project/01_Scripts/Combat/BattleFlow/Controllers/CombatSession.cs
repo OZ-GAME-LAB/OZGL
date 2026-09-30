@@ -221,7 +221,8 @@ namespace OzGameLab01.Combat
                 return;
             }
 
-            _synergyController.ApplySynergies(_state.SpawnedFormation, _state.SlotUnits);
+            _synergyController.ApplySynergies(_state.SpawnedFormation, _state.SlotUnits,
+                UnitFormationCombatLink.SavedSupportUnitIdList);
             ApplySavedAllyHealth(formationData);
             _synergyController.PopulateSynergyPanel();
 
@@ -235,11 +236,22 @@ namespace OzGameLab01.Combat
 
             // 전투 시작 이벤트보다 먼저 현재 보유 유닛/유물의 효과 순서를 확정합니다.
             // 유닛 패시브는 이번 전투에 출전한 유닛과 보조칸 유닛 것만 넣습니다.
-            var passiveOwners = new List<UnitData>(formationData);
+            List<UnitData> passiveOwners = new List<UnitData>(formationData);
             passiveOwners.AddRange(GetSupportUnitData());
-            var extraSources = new List<RuntimeEffectManager.EffectSource>(_synergyController.ActiveSharedEffects);
-            extraSources.AddRange(UnitPassiveSources.Build(passiveOwners, RuntimeContent.Catalog));
-            SystemBus.Get<EffectsFacade>()?.RefreshFromPlayerState(extraSources);
+            List<RuntimeEffectManager.EffectSource> extraSources =
+                new List<RuntimeEffectManager.EffectSource>(_synergyController.ActiveSharedEffects);
+            extraSources.AddRange(
+                UnitPassiveSources.Build(
+                    passiveOwners,
+                    RuntimeContent.Catalog));
+
+            EffectsFacade effectsFacade = SystemBus.Get<EffectsFacade>();
+            if (effectsFacade != null)
+            {
+                effectsFacade.RefreshForCombat(
+                    passiveOwners,
+                    extraSources);
+            }
 
             // 전투 시작 전 패시브 이벤트 구독 준비
             _combatEffectExecutor = new CombatEffectExecutor(CombatManager.Instance.Facade);
