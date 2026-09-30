@@ -127,7 +127,7 @@ namespace OzGameLab01.Events
             _eventList_Quiz.Clear();
             _eventList_Relic.Clear();
             _eventList_Finish.Clear();
-
+            _eventList_Etc.Clear();
             return true;
         }
     }
