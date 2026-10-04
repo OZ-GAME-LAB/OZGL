@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using OzGameLab01.Data;
 using OzGameLab01.UI.Battle;
 using UnityEngine;
 
@@ -78,6 +79,12 @@ namespace OzGameLab01.Controllers
 
             for (int slotIndex = 0; slotIndex < SupportSlotCount; slotIndex++)
             {
+                UnitFormationCombatLink.TransferredUnit unit = supportUnits[slotIndex];
+                if (unit?.Data == null)
+                {
+                    continue;
+                }
+
                 CombatUnitInfoItemView card = unitInfoView.CreateSupportUnitInfoItem();
 
                 if (card == null)
@@ -87,8 +94,7 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                UnitFormationCombatLink.TransferredUnit unit = supportUnits[slotIndex];
-                SetUnitInfoCard(card, unit);
+                SetUnitInfoCard(card, unit, unit.Data.passiveSkillId);
             }
         }
 
@@ -105,7 +111,7 @@ namespace OzGameLab01.Controllers
             for (int slotIndex = 0; slotIndex < BattleSlotCount && createdBattleCardCount < MaxBattleUnitCount; slotIndex++)
             {
                 UnitFormationCombatLink.TransferredUnit unit = battleUnits[slotIndex];
-                if (unit == null)
+                if (unit?.Data == null)
                 {
                     continue;
                 }
@@ -116,37 +122,33 @@ namespace OzGameLab01.Controllers
                     continue;
                 }
 
-                SetUnitInfoCard(card, unit);
-                createdBattleCardCount++;
-            }
-
-            while (createdBattleCardCount < MaxBattleUnitCount)
-            {
-                CombatUnitInfoItemView emptyCard = unitInfoView.CreateBattleUnitInfoItem();
-                if (emptyCard == null)
-                {
-                    break;
-                }
-
-                SetUnitInfoCard(emptyCard, null);
+                SetUnitInfoCard(card, unit, unit.Data.activeSkillId);
                 createdBattleCardCount++;
             }
         }
 
         /// <summary>
-        /// 전투/서브 카드 공용 표시 로직입니다. unit이 null이면 빈 카드로 표시합니다.
+        /// 전투/서포트 카드에 배치 유닛 정보와 역할에 맞는 스킬 아이콘을 표시합니다.
         /// </summary>
-        private void SetUnitInfoCard(CombatUnitInfoItemView card, UnitFormationCombatLink.TransferredUnit unit)
+        private void SetUnitInfoCard(
+            CombatUnitInfoItemView card,
+            UnitFormationCombatLink.TransferredUnit unit,
+            int displaySkillId)
         {
-            card.SetPortrait(unit?.Sprite);
+            card.SetPortrait(unit.Sprite);
 
-            if (unit != null && card.PortraitImage != null)
+            if (card.PortraitImage != null)
             {
                 card.PortraitImage.color = unit.Color;
             }
 
-            card.SetUnitName(unit != null ? unit.Data.name : string.Empty);
-            card.SetSkillVisible(false);
+            card.SetUnitName(unit.Data.name);
+
+            SkillData displaySkill = displaySkillId > 0
+                ? RuntimeContent.Catalog.GetSkill(displaySkillId)
+                : null;
+            _ = card.SetSkillIconAsync(displaySkill?.iconAddress);
+
             card.SetGraveVisible(false);
             card.Show();
         }

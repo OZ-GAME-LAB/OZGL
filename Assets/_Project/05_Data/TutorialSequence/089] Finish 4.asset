@@ -22,6 +22,7 @@ MonoBehaviour:
   targetOwnedUnitId: 0
   openRollView: 0
   showGuide: 1
+  playEmphasizeSound: 0
   setNextDiceRoll: 0
   nextDiceRollValue: 2
   spawnBossTileNearPlayer: 0
@@ -57,6 +58,9 @@ MonoBehaviour:
   highlightColor: {r: 1, g: 0.8, b: 0.2, a: 1}
   highlightEase: 4
   ignoreTimeScale: 1
+  blockOtherInteractionsUntilButtonClicked: 0
+  requiredInteractionButtonKey: 
+  requiredButtonFeedback: 
   outlineHighlight: 0
   outlineTargetKey: 
   formationSlotHighlightGroup: 0

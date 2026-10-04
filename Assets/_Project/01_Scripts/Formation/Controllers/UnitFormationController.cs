@@ -608,8 +608,12 @@ namespace OzGameLab01.Controllers
             {
                 if (RemoveUnit(FormationSlotKind.Battle, battleSlotIndex))
                 {
-                    SoundConnector.RequestSfx(SoundId.UnitPlaced);
+                    PlayFormationMoveSucceededSound();
                     SaveFormation();
+                }
+                else
+                {
+                    PlayFormationMoveFailedSound();
                 }
 
                 return;
@@ -621,8 +625,12 @@ namespace OzGameLab01.Controllers
             {
                 if (RemoveUnit(FormationSlotKind.Support, supportSlotIndex))
                 {
-                    SoundConnector.RequestSfx(SoundId.UnitRemoved);
+                    PlayFormationMoveSucceededSound();
                     SaveFormation();
+                }
+                else
+                {
+                    PlayFormationMoveFailedSound();
                 }
 
                 return;
@@ -630,7 +638,12 @@ namespace OzGameLab01.Controllers
 
             if (PlaceUnitInFirstEmptyBattleSlot(unitItem))
             {
+                PlayFormationMoveSucceededSound();
                 SaveFormation();
+            }
+            else
+            {
+                PlayFormationMoveFailedSound();
             }
         }
 
@@ -686,6 +699,7 @@ namespace OzGameLab01.Controllers
             if (!dragDropHandled)
             {
                 ReturnDraggedUnitToOrigin();
+                PlayFormationMoveFailedSound();
             }
 
             ClearDragState();
@@ -712,6 +726,7 @@ namespace OzGameLab01.Controllers
 
             if (dragDropHandled)
             {
+                PlayFormationMoveSucceededSound();
                 SaveFormation();
             }
         }
@@ -730,7 +745,18 @@ namespace OzGameLab01.Controllers
                 return;
 
             dragDropHandled = true;
+            PlayFormationMoveSucceededSound();
             SaveFormation();
+        }
+
+        private static void PlayFormationMoveSucceededSound()
+        {
+            SoundConnector.RequestSfx(SoundId.UnitPositionMoveSucceeded);
+        }
+
+        private static void PlayFormationMoveFailedSound()
+        {
+            SoundConnector.RequestSfx(SoundId.UnitPositionMoveFailed);
         }
 
         /// <summary>

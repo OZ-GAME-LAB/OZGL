@@ -476,6 +476,7 @@ namespace OzGameLab01.Controllers
 
         private void HandleRollButtonClicked(DiceRollView view)
         {
+            SoundConnector.RequestSfx(SoundId.BoardDiceButton);
             SystemBus.Messages.Request<DiceRollRequested, DiceRollResult>(default);
         }
 

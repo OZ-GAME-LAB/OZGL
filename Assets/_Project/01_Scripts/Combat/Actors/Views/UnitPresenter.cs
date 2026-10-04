@@ -130,7 +130,6 @@ namespace OzGameLab01.Combat
         public void FireProjectile(Unit target, UnitPresenter targetPresenter, Vector3 worldPosition, Func<bool> resolveHit,
             float scaleMultiplier = 1f)
         {
-            // 월드와 UI 모두 동일한 Addressable 프리팹을 생성하고 표시 방식만 Projectile이 선택합니다.
             if (projectilePrefabReference == null || !projectilePrefabReference.RuntimeKeyIsValid())
             {
                 Debug.LogError("[UnitPresenter] Addressable 투사체 프리팹 주소가 비어 있습니다.");
@@ -138,6 +137,30 @@ namespace OzGameLab01.Combat
                 return;
             }
 
+            CombatPoolContext pool = CombatPoolContext.Current;
+            if (pool != null)
+            {
+                pool.RentAddressable(
+                    projectilePrefabReference.RuntimeKey,
+                    worldPosition,
+                    Quaternion.identity,
+                    null,
+                    projectileObject => ConfigureProjectile(
+                        projectileObject,
+                        target,
+                        targetPresenter,
+                        resolveHit,
+                        scaleMultiplier,
+                        pooled: true),
+                    () =>
+                    {
+                        Debug.LogError($"[UnitPresenter] 풀용 투사체 생성 실패: {projectilePrefabReference.RuntimeKey}");
+                        ResolveProjectileFailure(target, resolveHit);
+                    });
+                return;
+            }
+
+            // CombatPoolContext가 없는 테스트 환경에서는 기존 Addressables 수명 방식을 사용합니다.
             AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(
                 projectilePrefabReference, worldPosition, Quaternion.identity);
             handle.Completed += operation =>
@@ -150,27 +173,56 @@ namespace OzGameLab01.Combat
                     return;
                 }
 
-                GameObject projectileObject = operation.Result;
-                Projectile projectile = projectileObject.GetComponent<Projectile>();
-                if (projectile == null)
-                {
-                    Debug.LogError("[UnitPresenter] 투사체 프리팹에 Projectile 컴포넌트가 없습니다.", projectileObject);
-                    Addressables.ReleaseInstance(projectileObject);
-                    ResolveProjectileFailure(target, resolveHit);
-                    return;
-                }
-
-                projectile.MarkAddressableInstance();
-                if (_uiProjectilePool != null && _combatAnchor != null && targetPresenter?._combatAnchor != null)
-                {
-                    projectile.InitUi(_uiProjectilePool.transform, _combatAnchor, targetPresenter._combatAnchor,
-                        target, resolveHit);
-                }
-                else
-                {
-                    projectile.Init(target, resolveHit, scaleMultiplier: scaleMultiplier);
-                }
+                ConfigureProjectile(
+                    operation.Result,
+                    target,
+                    targetPresenter,
+                    resolveHit,
+                    scaleMultiplier,
+                    pooled: false);
             };
+        }
+
+        private void ConfigureProjectile(
+            GameObject projectileObject,
+            Unit target,
+            UnitPresenter targetPresenter,
+            Func<bool> resolveHit,
+            float scaleMultiplier,
+            bool pooled)
+        {
+            Projectile projectile = projectileObject != null
+                ? projectileObject.GetComponent<Projectile>()
+                : null;
+            if (projectile == null)
+            {
+                Debug.LogError("[UnitPresenter] 투사체 프리팹에 Projectile 컴포넌트가 없습니다.", projectileObject);
+                if (pooled)
+                    CombatPoolContext.TryReturn(projectileObject);
+                else if (projectileObject != null)
+                    Addressables.ReleaseInstance(projectileObject);
+                ResolveProjectileFailure(target, resolveHit);
+                return;
+            }
+
+            if (!pooled)
+            {
+                projectile.MarkAddressableInstance();
+            }
+
+            if (_uiProjectilePool != null && _combatAnchor != null && targetPresenter?._combatAnchor != null)
+            {
+                projectile.InitUi(
+                    _uiProjectilePool.transform,
+                    _combatAnchor,
+                    targetPresenter._combatAnchor,
+                    target,
+                    resolveHit);
+            }
+            else
+            {
+                projectile.Init(target, resolveHit, scaleMultiplier: scaleMultiplier);
+            }
         }
 
         private static void ResolveProjectileFailure(Unit target, Func<bool> resolveHit)
@@ -188,6 +240,24 @@ namespace OzGameLab01.Combat
             if (string.IsNullOrEmpty(address) || caster == null) return;
             // 발동 이펙트(빛기둥 + 원점 위 3에 유닛 아이콘)는 몸 중앙(Body 앵커)에 두어야 아이콘이 머리와 겹치지 않습니다.
             Vector3 worldPosition = GetVisualCenter(caster);
+            CombatPoolContext pool = CombatPoolContext.Current;
+            if (pool != null)
+            {
+                pool.RentAddressable(
+                    address,
+                    worldPosition,
+                    Quaternion.identity,
+                    null,
+                    fx =>
+                    {
+                        if (scale > 0f) fx.transform.localScale = Vector3.one * scale;
+                        DisableLooping(fx);
+                        pool.ReturnAfter(fx, EffectAutoDestroySeconds);
+                    },
+                    () => Debug.LogWarning($"[UnitPresenter] 풀용 스킬 시전 VFX 로드 실패: {address}"));
+                return;
+            }
+
             Addressables.InstantiateAsync(address, worldPosition, Quaternion.identity).Completed += operation =>
             {
                 if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
@@ -215,6 +285,30 @@ namespace OzGameLab01.Combat
             if (string.IsNullOrEmpty(address) || target == null) return;
             bool attach = attachSeconds > 0f;
             Vector3 center = GetAnchorPosition(target, anchor);
+
+            CombatPoolContext pool = CombatPoolContext.Current;
+            if (!attach && pool != null)
+            {
+                pool.RentAddressable(
+                    address,
+                    center,
+                    Quaternion.identity,
+                    null,
+                    fx =>
+                    {
+                        fx.transform.position = target != null
+                            ? GetAnchorPosition(target, anchor)
+                            : center;
+                        if (target != null) RenderAboveUnit(fx, target);
+                        fx.transform.localScale = Vector3.one *
+                            (scale > 0f ? scale : DefaultSkillVfxScale);
+                        DisableLooping(fx);
+                        pool.ReturnAfter(fx, EffectAutoDestroySeconds);
+                    },
+                    () => Debug.LogWarning($"[UnitPresenter] 풀용 스킬 VFX 로드 실패: {address}"));
+                return;
+            }
+
             Addressables.InstantiateAsync(address, center, Quaternion.identity, attach ? target : null).Completed += operation =>
             {
                 if (operation.Status != AsyncOperationStatus.Succeeded || operation.Result == null)
@@ -242,11 +336,24 @@ namespace OzGameLab01.Combat
         {
             if (prefab == null) return;
             // 스탯 증감·회복 이펙트는 바닥에서 올라오는 구조라 발밑(Ground 앵커)에 둡니다.
-            GameObject fx = UnityEngine.Object.Instantiate(prefab, GetAnchorPosition(unit, GroundAnchorName), Quaternion.identity);
+            CombatPoolContext pool = CombatPoolContext.Current;
+            GameObject fx = pool != null
+                ? pool.RentPrefab(
+                    prefab,
+                    GetAnchorPosition(unit, GroundAnchorName),
+                    Quaternion.identity)
+                : UnityEngine.Object.Instantiate(
+                    prefab,
+                    GetAnchorPosition(unit, GroundAnchorName),
+                    Quaternion.identity);
+            if (fx == null) return;
             fx.transform.localScale = Vector3.one * scale;
             DisableLooping(fx);
             RenderAboveUnit(fx, unit);
-            DestroySafely(fx, EffectAutoDestroySeconds);
+            if (pool != null)
+                pool.ReturnAfter(fx, EffectAutoDestroySeconds);
+            else
+                DestroySafely(fx, EffectAutoDestroySeconds);
         }
 
         /// <summary>

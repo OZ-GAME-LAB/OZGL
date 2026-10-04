@@ -169,7 +169,6 @@ namespace OzGameLab01.Controllers
             {
                 _combatSession?.SaveAllyHealthToRunData();
                 BoardRunData.CompleteCurrentBattle();
-                SoundConnector.RequestSfx(SoundId.CombatVictory);
             }
             else
             {

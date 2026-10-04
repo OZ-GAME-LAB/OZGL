@@ -1,6 +1,8 @@
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI.Battle
 {
@@ -23,6 +25,8 @@ namespace OzGameLab01.UI.Battle
 
         [Header("State")]
         [SerializeField] private GameObject gravePortraitObject;
+
+        private string currentSkillIconAddress;
 
         #region Properties
 
@@ -116,6 +120,31 @@ namespace OzGameLab01.UI.Battle
 
             skillIconImage.sprite = sprite;
             skillIconImage.enabled = sprite != null;
+        }
+
+        /// <summary>
+        /// Addressable 주소로 스킬 아이콘을 불러와 표시합니다.
+        /// 주소가 없거나 로드 결과가 없으면 스킬 영역을 숨깁니다.
+        /// </summary>
+        public async Task SetSkillIconAsync(string iconAddress)
+        {
+            currentSkillIconAddress = iconAddress;
+            SetSkillIcon(null);
+            SetSkillVisible(false);
+
+            if (string.IsNullOrWhiteSpace(iconAddress))
+            {
+                return;
+            }
+
+            Sprite sprite = await SpriteManager.GetSpriteAsync(iconAddress);
+            if (this == null || currentSkillIconAddress != iconAddress)
+            {
+                return;
+            }
+
+            SetSkillIcon(sprite);
+            SetSkillVisible(sprite != null);
         }
 
         /// <summary>

@@ -51,6 +51,10 @@ namespace OzGameLab01.Controllers
         [SerializeField, TextArea(2, 6)] private string dialogue;
         [SerializeField] private bool showCharacter = true;
 
+        [Header("Highlight Sound")]
+        [Tooltip("이 Step의 전투 UI 강조가 실제로 시작될 때 Tutorial Emphasize 효과음을 재생합니다.")]
+        [SerializeField] private bool playEmphasizeSound = true;
+
         [Header("Combat Control")]
         [SerializeField] private bool pauseCombat = true;
         [Tooltip("이 Step이 끝날 때 Tutorial 일시정지 사유를 해제합니다. 바로 이어지는 Pause Step이 있으면 정지 상태를 유지합니다.")]
@@ -82,6 +86,7 @@ namespace OzGameLab01.Controllers
         public string CharacterName => characterName;
         public string Dialogue => dialogue;
         public bool ShowCharacter => showCharacter;
+        public bool PlayEmphasizeSound => playEmphasizeSound;
         public bool PauseCombat => pauseCombat;
         public bool ResumeCombatOnComplete => resumeCombatOnComplete;
         public CombatTutorialTarget Target => target;

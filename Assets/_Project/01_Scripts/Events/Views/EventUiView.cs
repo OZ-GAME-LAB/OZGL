@@ -26,9 +26,17 @@ namespace OzGameLab01.UI
 
         private readonly List<EventChoiceButtonView> _choiceButtons = new();
         private readonly List<EventActionButtonView> _actionButtons = new();
+        private TooltipView _tooltipView;
 
         private void Awake()
         {
+            ReadySceneView readySceneView = FindFirstObjectByType<ReadySceneView>(FindObjectsInactive.Include);
+            _tooltipView = readySceneView?.TooltipView;
+            if (_tooltipView == null)
+            {
+                _tooltipView = FindFirstObjectByType<TooltipView>(FindObjectsInactive.Include);
+            }
+
             HideAction();
             SetInteractionEnabled(true);
         }
@@ -97,7 +105,7 @@ namespace OzGameLab01.UI
             {
                 EventActionButtonView actionButton = Instantiate(actionButtonPrefab, actionRoot);
 
-                actionButton.Bind(i, choices[i], onActionClicked);
+                actionButton.Bind(i, choices[i], onActionClicked, _tooltipView);
                 _actionButtons.Add(actionButton);
             }
         }

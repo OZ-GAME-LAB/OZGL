@@ -24,6 +24,7 @@ namespace OzGameLab01.UI
         [SerializeField]
         private int _choiceIndex;
         private string _currentIconAddress;
+        private RelicTooltipTrigger _tooltipTrigger;
 
         #region Unity Lifecycle
 
@@ -48,21 +49,9 @@ namespace OzGameLab01.UI
 
         #region Public API
 
-        public string GetAddressableIcon(int choiceInde, EventChoice eventChoice)
+        public string GetAddressableIcon(int choiceIndex, EventChoice eventChoice)
         {
-            string addressableString = null;
-
-            switch(eventChoice.ChoiceCategory)
-            {
-                case EventChoiceCategory.Relic:
-                    RelicData tempRelicData;
-                    DataManager.Relics.TryGet(int.Parse(eventChoice.ResultTargetID), out tempRelicData);
-
-                    addressableString = tempRelicData.iconAddress;
-                    break;
-            }
-
-            return addressableString;
+            return ResolveRelicData(eventChoice)?.iconAddress;
         }
 
         /// <summary>
@@ -71,10 +60,16 @@ namespace OzGameLab01.UI
         /// </summary>
         /// <param name="label">버튼에 표시할 액션 이름입니다.</param>
         /// <param name="onClick">액션 선택 시 호출되는 단발성 콜백입니다.</param>
-        public void Bind(int choiceIndex, EventChoice eventChoice, Action<int> onClick)
+        public void Bind(
+            int choiceIndex,
+            EventChoice eventChoice,
+            Action<int> onClick,
+            TooltipView tooltipView = null)
         {
-            string iconAddress = GetAddressableIcon(choiceIndex, eventChoice);
-            Bind(choiceIndex, eventChoice.ChoiceDialog, iconAddress, onClick);
+            RelicData relicData = ResolveRelicData(eventChoice);
+            string iconAddress = relicData?.iconAddress;
+            Bind(choiceIndex, eventChoice?.ChoiceDialog, iconAddress, onClick);
+            BindRelicTooltip(tooltipView, relicData);
         }
 
         /// <summary>
@@ -88,22 +83,35 @@ namespace OzGameLab01.UI
         /// <param name="onClick">액션 선택 시 호출되는 단발성 콜백입니다.</param>
         public async void Bind(int choiceIndex, string label, string iconAddress ,Action<int> onClick)
         {
+            BindRelicTooltip(null, null);
             gameObject.SetActive(true);
             _choiceIndex= choiceIndex;
             _onClick = onClick;
+            _currentIconAddress = iconAddress;
 
             if (labelText != null)
             {
                 labelText.text = label ?? string.Empty;
             }
-            Sprite icon = await SpriteManager.GetSpriteAsync(iconAddress);
-
-            SetIcon(icon);
 
             if (button != null)
             {
                 button.interactable = true;
             }
+
+            if (string.IsNullOrEmpty(iconAddress))
+            {
+                SetIcon(null);
+                return;
+            }
+
+            Sprite icon = await SpriteManager.GetSpriteAsync(iconAddress);
+
+            if (_currentIconAddress == iconAddress)
+            {
+                SetIcon(icon);
+            }
+
         }
 
         /// <summary>
@@ -111,6 +119,7 @@ namespace OzGameLab01.UI
         /// </summary>
         public async Task BindAsync(int choiceIndex, string label, string iconAddress, Action<int> onClick)
         {
+            BindRelicTooltip(null, null);
             gameObject.SetActive(true);
             _choiceIndex = choiceIndex;
             _onClick = onClick;
@@ -161,6 +170,7 @@ namespace OzGameLab01.UI
         public void Clear()
         {
             _onClick = null;
+            BindRelicTooltip(null, null);
 
             if (labelText != null)
             {
@@ -202,6 +212,39 @@ namespace OzGameLab01.UI
             {
                 iconImage.sprite = icon;
             }
+        }
+
+        private void BindRelicTooltip(TooltipView tooltipView, RelicData relicData)
+        {
+            if (iconImage == null)
+            {
+                return;
+            }
+
+            if (_tooltipTrigger == null)
+            {
+                _tooltipTrigger = iconImage.GetComponent<RelicTooltipTrigger>();
+                if (_tooltipTrigger == null)
+                {
+                    _tooltipTrigger = iconImage.gameObject.AddComponent<RelicTooltipTrigger>();
+                }
+            }
+
+            _tooltipTrigger.Bind(tooltipView, relicData, iconImage.rectTransform);
+        }
+
+        private static RelicData ResolveRelicData(EventChoice eventChoice)
+        {
+            if (eventChoice == null ||
+                eventChoice.ChoiceCategory != EventChoiceCategory.Relic ||
+                !int.TryParse(eventChoice.ResultTargetID, out int relicId))
+            {
+                return null;
+            }
+
+            return DataManager.Relics.TryGet(relicId, out RelicData relicData)
+                ? relicData
+                : RuntimeContent.Catalog.GetRelic(relicId);
         }
 
         #endregion

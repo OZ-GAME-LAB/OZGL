@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 using System.Collections.Generic;
 using OzGameLab01.Combat;
 using UnityEngine;
@@ -235,3 +236,4 @@ namespace OzGameLab01.UI.Battle
         }
     }
 }
+#endif

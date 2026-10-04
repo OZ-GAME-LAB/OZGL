@@ -60,6 +60,10 @@ namespace OzGameLab01.Controllers
         [Tooltip("UI 동작 실행 후 TutorialGuideView도 함께 표시합니다. 끄면 Guide 해제를 기다리지 않는 동작 전용 Step이 됩니다.")]
         [SerializeField] private bool showGuide = true;
 
+        [Header("Highlight Sound")]
+        [Tooltip("이 Step에서 버튼, UI 외곽선 또는 편성 슬롯 강조가 실제로 시작될 때 Tutorial Emphasize 효과음을 재생합니다.")]
+        [SerializeField] private bool playEmphasizeSound = true;
+
         [Header("Tutorial Dice Rule")]
         [Tooltip("체크해야 Next Dice Roll Value가 적용됩니다. 끄면 아래 값과 관계없이 TutorialSequenceController의 기본 주사위 값을 사용합니다.")]
         [SerializeField] private bool setNextDiceRoll;
@@ -179,6 +183,7 @@ namespace OzGameLab01.Controllers
         public int TargetOwnedUnitId => targetOwnedUnitId;
         public bool OpenRollView => openRollView;
         public bool ShowGuide => showGuide;
+        public bool PlayEmphasizeSound => playEmphasizeSound;
         public bool SetNextDiceRoll => setNextDiceRoll;
         public int NextDiceRollValue => nextDiceRollValue;
         public bool SpawnBossTileNearPlayer => spawnBossTileNearPlayer;
