@@ -12,7 +12,7 @@ namespace OzGameLab01.Combat
     /// 월드 전투와 Screen Space UI 전투가 같은 프리팹/이동 로직을 사용합니다.
     /// instant가 켜지면 날아가지 않고 대상 위치에서 공격/피격 VFX만 재생한 뒤 즉시 명중합니다(즉발형 기본공격).
     /// </summary>
-    public sealed class Projectile : MonoBehaviour
+    public sealed class Projectile : MonoBehaviour, ICombatPoolable
     {
         [SerializeField] private AssetReferenceSprite spriteReference;
         [SerializeField] private AssetReferenceGameObject travelEffectReference;
@@ -44,6 +44,7 @@ namespace OzGameLab01.Combat
         private bool _releasing;
         private AsyncOperationHandle<Sprite> _spriteHandle;
         private bool _ownsSpriteHandle;
+        private Sprite _cachedSprite;
         private GameObject _travelEffectInstance;
 
         public AssetReferenceSprite SpriteReference => spriteReference;
@@ -118,15 +119,23 @@ namespace OzGameLab01.Combat
                 yield break;
             }
 
-            _spriteHandle = spriteReference.LoadAssetAsync<Sprite>();
-            _ownsSpriteHandle = true;
-            yield return _spriteHandle;
-
-            if (_spriteHandle.Status != AsyncOperationStatus.Succeeded || _spriteHandle.Result == null)
+            if (_cachedSprite == null)
             {
-                Debug.LogError($"[Projectile] Sprite 로드 실패: {spriteReference.RuntimeKey}", this);
-                ResolveWithoutVisual();
-                yield break;
+                if (!_ownsSpriteHandle || !_spriteHandle.IsValid())
+                {
+                    _spriteHandle = spriteReference.LoadAssetAsync<Sprite>();
+                    _ownsSpriteHandle = true;
+                }
+                yield return _spriteHandle;
+
+                if (_spriteHandle.Status != AsyncOperationStatus.Succeeded || _spriteHandle.Result == null)
+                {
+                    Debug.LogError($"[Projectile] Sprite 로드 실패: {spriteReference.RuntimeKey}", this);
+                    ResolveWithoutVisual();
+                    yield break;
+                }
+
+                _cachedSprite = _spriteHandle.Result;
             }
 
             if (_isUiProjectile)
@@ -138,7 +147,7 @@ namespace OzGameLab01.Combat
                     yield break;
                 }
 
-                uiRenderer.sprite = _spriteHandle.Result;
+                uiRenderer.sprite = _cachedSprite;
                 uiRenderer.color = Color.white;
                 uiRenderer.preserveAspect = true;
                 uiRenderer.raycastTarget = false;
@@ -152,7 +161,7 @@ namespace OzGameLab01.Combat
                     yield break;
                 }
 
-                worldRenderer.sprite = _spriteHandle.Result;
+                worldRenderer.sprite = _cachedSprite;
                 worldRenderer.color = Color.white;
             }
 
@@ -190,6 +199,31 @@ namespace OzGameLab01.Combat
         {
             if (travelEffectReference == null || !travelEffectReference.RuntimeKeyIsValid()) return;
 
+            CombatPoolContext pool = CombatPoolContext.Current;
+            if (pool != null)
+            {
+                pool.RentAddressable(
+                    travelEffectReference.RuntimeKey,
+                    transform.position,
+                    Quaternion.identity,
+                    transform,
+                    effect =>
+                    {
+                        if (_releasing || this == null)
+                        {
+                            CombatPoolContext.TryReturn(effect);
+                            return;
+                        }
+
+                        _travelEffectInstance = effect;
+                        ConfigureTravelEffect(effect);
+                    },
+                    () => Debug.LogWarning(
+                        $"[Projectile] Pooled travel VFX load failed: {travelEffectReference.RuntimeKey}",
+                        this));
+                return;
+            }
+
             AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(
                 travelEffectReference, transform.position, Quaternion.identity, transform);
             handle.Completed += operation =>
@@ -208,14 +242,19 @@ namespace OzGameLab01.Combat
                 }
 
                 _travelEffectInstance = operation.Result;
-                Transform effectTransform = _travelEffectInstance.transform;
-                effectTransform.SetParent(transform, false);
-                effectTransform.localPosition = Vector3.zero;
-                effectTransform.localRotation = Quaternion.identity;
-                effectTransform.localScale = Vector3.one * (_isUiProjectile
-                    ? uiTravelEffectScale
-                    : worldTravelEffectScale);
+                ConfigureTravelEffect(_travelEffectInstance);
             };
+        }
+
+        private void ConfigureTravelEffect(GameObject effect)
+        {
+            Transform effectTransform = effect.transform;
+            effectTransform.SetParent(transform, false);
+            effectTransform.localPosition = Vector3.zero;
+            effectTransform.localRotation = Quaternion.identity;
+            effectTransform.localScale = Vector3.one * (_isUiProjectile
+                ? uiTravelEffectScale
+                : worldTravelEffectScale);
         }
 
         /// <summary>
@@ -251,6 +290,29 @@ namespace OzGameLab01.Combat
             Vector3 position = transform.position;
             float lifetime = impactEffectLifetime;
             Transform targetUnit = _target != null ? _target.transform : null;
+
+            CombatPoolContext pool = CombatPoolContext.Current;
+            if (pool != null)
+            {
+                pool.RentAddressable(
+                    reference.RuntimeKey,
+                    position,
+                    Quaternion.identity,
+                    parent,
+                    effect =>
+                    {
+                        effect.transform.position = position;
+                        effect.transform.localScale = Vector3.one * scale;
+                        UnitPresenter.DisableLooping(effect);
+                        if (!isUiEffect && targetUnit != null)
+                            UnitPresenter.RenderAboveUnit(effect, targetUnit);
+                        pool.ReturnAfter(effect, lifetime);
+                    },
+                    () => Debug.LogWarning(
+                        $"[Projectile] Pooled one-shot VFX load failed: {reference.RuntimeKey}"));
+                return;
+            }
+
             AsyncOperationHandle<GameObject> handle = Addressables.InstantiateAsync(
                 reference, position, Quaternion.identity, parent);
             handle.Completed += operation =>
@@ -295,13 +357,53 @@ namespace OzGameLab01.Combat
         {
             if (_releasing) return;
             _releasing = true;
+            if (CombatPoolContext.TryReturn(gameObject)) return;
             if (_addressableInstance && Addressables.ReleaseInstance(gameObject)) return;
             Destroy(gameObject);
         }
 
+        public void OnRentFromCombatPool()
+        {
+            StopAllCoroutines();
+            _target = null;
+            _targetAnchor = null;
+            _resolveHit = null;
+            _isUiProjectile = false;
+            _launched = false;
+            _releasing = false;
+            _hitOffset = Vector3.zero;
+            SetVisualEnabled(false);
+        }
+
+        public void OnReturnToCombatPool()
+        {
+            StopAllCoroutines();
+            _target = null;
+            _targetAnchor = null;
+            _resolveHit = null;
+            _launched = false;
+            SetVisualEnabled(false);
+            ReleaseTravelEffect();
+        }
+
+        private void ReleaseTravelEffect()
+        {
+            if (_travelEffectInstance == null)
+            {
+                return;
+            }
+
+            if (!CombatPoolContext.TryReturn(_travelEffectInstance))
+            {
+                Addressables.ReleaseInstance(_travelEffectInstance);
+            }
+
+            _travelEffectInstance = null;
+        }
+
         private void OnDestroy()
         {
-            if (_travelEffectInstance != null) Addressables.ReleaseInstance(_travelEffectInstance);
+            ReleaseTravelEffect();
             if (_ownsSpriteHandle && _spriteHandle.IsValid()) Addressables.Release(_spriteHandle);
         }
 

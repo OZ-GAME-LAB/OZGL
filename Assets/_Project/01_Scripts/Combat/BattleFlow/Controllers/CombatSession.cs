@@ -54,7 +54,10 @@ namespace OzGameLab01.Combat
         private SynergyController _synergyController;
         private CombatEffectExecutor _combatEffectExecutor;
         private readonly CombatAssetPreloader _assetPreloader = new CombatAssetPreloader();
+        private CombatPoolContext _poolContext;
+#if UNITY_EDITOR
         private CombatEffectFeedbackView _feedbackView;
+#endif
         private EnemyHeaderController _enemyHeaderController;
 
         public CombatState State => _state;
@@ -129,7 +132,9 @@ namespace OzGameLab01.Combat
 
         public void ReportFeedback(CombatFeedback feedback)
         {
+#if UNITY_EDITOR
             _feedbackView?.Show(feedback);
+#endif
         }
 
         private async void Awake()
@@ -143,6 +148,7 @@ namespace OzGameLab01.Combat
             // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.
             CombatUnitRegistry.Clear();
             PassiveEventBus.ResetRunState();
+            _poolContext = CombatPoolContext.Ensure(this);
             //  씬/프리팹에서 직접 연결하지 못한 경우 비활성 BattleUI까지 포함해 자동으로 찾기
             if (battleMainView == null)
             {
@@ -165,10 +171,12 @@ namespace OzGameLab01.Combat
                 Debug.LogError("[CombatSession] BattleMap 프리팹 참조가 없어 월드 전투 배치를 구성할 수 없습니다.", this);
             }
 
+#if UNITY_EDITOR
             if (battleMainView != null)
             {
                 _feedbackView = CombatEffectFeedbackView.Create(battleMainView);
             }
+#endif
 
             // 스폰/시너지 책임은 별도 클래스로 분리되어 있다. Inspector 참조는 CombatSession이
             // 그대로 들고 있고, 생성자로 넘겨주기만 한다(씬/프리팹 재배선 불필요).
@@ -338,6 +346,7 @@ namespace OzGameLab01.Combat
             _combatEffectExecutor?.Dispose();
             _allySpawner?.Dispose();
             _assetPreloader.Dispose();
+            _poolContext?.Dispose();
         }
 
         private void BuildUnitStatLookup()
