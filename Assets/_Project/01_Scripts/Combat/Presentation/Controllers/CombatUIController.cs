@@ -70,6 +70,8 @@ namespace OzGameLab01.Controllers
             {
                 _controlView = battleUIView.GetComponentInChildren<CombatControlView>(true);
                 _timerView = battleUIView.GetComponentInChildren<CombatTimerView>(true);
+                TooltipView tooltipView = battleUIView.GetComponentInChildren<TooltipView>(true);
+                battleUIView.ResultView?.BindTooltipView(tooltipView);
             }
         }
 
@@ -222,6 +224,7 @@ namespace OzGameLab01.Controllers
 
             _infoView?.SetBattleInteractable(false);
             SetBattleInfoVisible(false);
+            SoundConnector.RequestSfx(SoundId.CombatBattleBegin);
             _combatSession.StartBattle();
             combatSceneController?.BeginBattle();
         }
@@ -475,10 +478,14 @@ namespace OzGameLab01.Controllers
                         battleUIView.ResultView.SetOptionalMessage(
                             grantedRelic != null ? $"유물 획득: {grantedRelic.name}" : string.Empty);
                         battleUIView.ResultView.SetEndBattleButtonText("보드로 돌아가기");
-                        _ = battleUIView.ResultView.SetRewardIconAsync(grantedRelic?.iconAddress);
+                        battleUIView.ResultView.SetRewardRelic(grantedRelic);
                     }
 
                     battleUIView.ShowResultView();
+                    if (battleUIView.ResultView != null)
+                    {
+                        SoundConnector.RequestSfx(SoundId.CombatVictory);
+                    }
                 }
                 else
                 {
@@ -488,7 +495,7 @@ namespace OzGameLab01.Controllers
                         battleUIView.ResultView.SetResultText("패배...");
                         battleUIView.ResultView.SetOptionalMessage("다음 기회에 다시 도전해 보세요.");
                         battleUIView.ResultView.SetEndBattleButtonText("보드로 돌아가기");
-                        battleUIView.ResultView.SetRewardIcon(null);
+                        battleUIView.ResultView.SetRewardRelic(null);
                     }
                     battleUIView.ShowResultView();
                 }
@@ -624,6 +631,8 @@ namespace OzGameLab01.Controllers
             {
                 _runResultView.Replay();
             }
+
+            SoundConnector.RequestSfx(SoundId.UiGameClear);
         }
 
         private void CreateSynergyIcons(IReadOnlyList<SynergyData> synergies)

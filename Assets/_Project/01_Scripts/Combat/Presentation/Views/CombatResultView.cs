@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using OzGameLab01.Managers;
+using OzGameLab01.Data;
 
 namespace OzGameLab01.UI.Battle
 {
@@ -24,6 +25,9 @@ namespace OzGameLab01.UI.Battle
 
         private readonly List<DpsInfoItemView> dpsInfoItems = new ();
         private string _currentRewardIconAddress;
+        private TooltipView _tooltipView;
+        private RelicData _rewardRelic;
+        private RelicTooltipTrigger _rewardTooltipTrigger;
 
         #region Properties
 
@@ -132,6 +136,19 @@ namespace OzGameLab01.UI.Battle
             rewardIconImage.enabled = icon != null;
         }
 
+        public void BindTooltipView(TooltipView tooltipView)
+        {
+            _tooltipView = tooltipView;
+            RefreshRewardTooltipBinding();
+        }
+
+        public void SetRewardRelic(RelicData relicData)
+        {
+            _rewardRelic = relicData;
+            RefreshRewardTooltipBinding();
+            _ = SetRewardIconAsync(relicData?.iconAddress);
+        }
+
         /// <summary>
         /// 어드레서블 주소를 기반 전투 결과 보상 아이콘 설정
         /// </summary>
@@ -139,13 +156,13 @@ namespace OzGameLab01.UI.Battle
         {
             if (rewardIconImage == null) return;
 
+            _currentRewardIconAddress = iconAddress;
             if (string.IsNullOrEmpty(iconAddress))
             {
                 SetRewardIcon(null);
                 return;
             }
 
-            _currentRewardIconAddress = iconAddress;
             Sprite sprite = await SpriteManager.GetSpriteAsync(iconAddress);
 
             if (_currentRewardIconAddress == iconAddress && rewardIconImage != null)
@@ -220,6 +237,28 @@ namespace OzGameLab01.UI.Battle
         private void HandleEndBattleButtonClick()
         {
             EndBattleClicked?.Invoke(this);
+        }
+
+        private void RefreshRewardTooltipBinding()
+        {
+            if (rewardIconImage == null)
+            {
+                return;
+            }
+
+            if (_rewardTooltipTrigger == null)
+            {
+                _rewardTooltipTrigger = rewardIconImage.GetComponent<RelicTooltipTrigger>();
+                if (_rewardTooltipTrigger == null)
+                {
+                    _rewardTooltipTrigger = rewardIconImage.gameObject.AddComponent<RelicTooltipTrigger>();
+                }
+            }
+
+            _rewardTooltipTrigger.Bind(
+                _tooltipView,
+                _rewardRelic,
+                rewardIconImage.rectTransform);
         }
 
         private void RefreshDpsListVisibility()
