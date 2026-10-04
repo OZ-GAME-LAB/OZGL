@@ -23,6 +23,7 @@ MonoBehaviour:
     \uACF3\uC5D0 \uBC30\uCE58\uB41C \uCE90\uB9AD\uD130\uB97C \uD1B5\uD574 \uC54C
     \uC218 \uC788\uC9C0."
   showCharacter: 1
+  playEmphasizeSound: 0
   pauseCombat: 1
   resumeCombatOnComplete: 1
   target: 4

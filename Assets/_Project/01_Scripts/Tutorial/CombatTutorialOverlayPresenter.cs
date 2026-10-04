@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DG.Tweening;
+using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using OzGameLab01.UI.Battle;
 using UnityEngine;
@@ -186,11 +187,16 @@ namespace OzGameLab01.Controllers
                 formationSlots != null && formationSlots.Count > 0;
             bool hasTarget = target != null || hasFormationSlots;
             bool needsTarget = step.HighlightTarget || step.AllowsTargetClick;
+            bool highlightStarted = false;
 
             if (hasFormationSlots)
             {
                 if (step.HighlightTarget)
-                    ShowFormationSlotHighlights(step, formationSlots);
+                {
+                    highlightStarted = ShowFormationSlotHighlights(
+                        step,
+                        formationSlots);
+                }
 
                 // 슬롯 전체 영역을 투명 클릭 대상으로 사용합니다. 각 슬롯의 강조는
                 // SlotVisual에 별도로 적용하므로 큰 사각형 테두리는 표시하지 않습니다.
@@ -202,11 +208,15 @@ namespace OzGameLab01.Controllers
             else if (hasTarget && needsTarget)
             {
                 ShowFocus(step, target);
+                highlightStarted = step.HighlightTarget;
             }
             else
             {
                 HideFocus();
             }
+
+            if (highlightStarted && step.PlayEmphasizeSound)
+                SoundConnector.RequestSfx(SoundId.TutorialEmphasize);
         }
 
         public void Tick()
@@ -361,7 +371,7 @@ namespace OzGameLab01.Controllers
             }
         }
 
-        private void ShowFormationSlotHighlights(
+        private bool ShowFormationSlotHighlights(
             CombatTutorialStepData step,
             IReadOnlyList<PlayerSlotItemView> formationSlots)
         {
@@ -393,6 +403,8 @@ namespace OzGameLab01.Controllers
                     ignoreTimeScale: true);
                 formationSlotHighlights.Add(highlight);
             }
+
+            return formationSlotHighlights.Count > 0;
         }
 
         private void StopFormationSlotHighlights()

@@ -23,6 +23,7 @@ MonoBehaviour:
     \uD655\uC778\uD560 \uC218 \uC788\uC5B4.\n\uCFE8\uD0C0\uC784\uC774 \uAC00\uB4DD
     \uCC28\uBA74 \uC801\uC774 \uC2A4\uD0AC\uC744 \uC0AC\uC6A9\uD574."
   showCharacter: 1
+  playEmphasizeSound: 0
   pauseCombat: 1
   resumeCombatOnComplete: 1
   target: 3

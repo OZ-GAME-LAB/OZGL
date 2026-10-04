@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using UnityEngine;
 using UnityEngine.UI;
@@ -54,10 +55,12 @@ namespace OzGameLab01.Controllers
             if (step == null)
                 return;
 
+            bool highlightStarted = false;
             if (step.HighlightButton)
-                StartButtonHighlight(step);
+                highlightStarted = StartButtonHighlight(step);
 
-            ShowActionStep(step);
+            highlightStarted |= StartActionHighlights(step);
+            PlayEmphasizeSoundIfNeeded(step, highlightStarted);
         }
 
         public void ShowActionStep(TutorialSequenceStepData step)
@@ -65,11 +68,29 @@ namespace OzGameLab01.Controllers
             if (step == null)
                 return;
 
+            bool highlightStarted = StartActionHighlights(step);
+            PlayEmphasizeSoundIfNeeded(step, highlightStarted);
+        }
+
+        private bool StartActionHighlights(TutorialSequenceStepData step)
+        {
+            bool highlightStarted = false;
+
             if (step.OutlineHighlight)
-                StartOutlineHighlight(step);
+                highlightStarted = StartOutlineHighlight(step);
 
             if (step.HighlightFormationSlots)
-                StartFormationSlotHighlight(step);
+                highlightStarted |= StartFormationSlotHighlight(step);
+
+            return highlightStarted;
+        }
+
+        private static void PlayEmphasizeSoundIfNeeded(
+            TutorialSequenceStepData step,
+            bool highlightStarted)
+        {
+            if (highlightStarted && step.PlayEmphasizeSound)
+                SoundConnector.RequestSfx(SoundId.TutorialEmphasize);
         }
 
         public void HandleGuideDismissed(TutorialSequenceStepData step)
@@ -117,7 +138,7 @@ namespace OzGameLab01.Controllers
             StopFormationSlotHighlight();
         }
 
-        private void StartButtonHighlight(TutorialSequenceStepData step)
+        private bool StartButtonHighlight(TutorialSequenceStepData step)
         {
             StopButtonHighlight();
 
@@ -125,12 +146,12 @@ namespace OzGameLab01.Controllers
                 !targetRegistry.TryGetButton(
                     step.HighlightButtonKey,
                     out Button button))
-                return;
+                return false;
 
             highlightedRect = button.transform as RectTransform;
             highlightedGraphic = button.targetGraphic;
             if (highlightedRect == null)
-                return;
+                return false;
 
             highlightedButton = button;
             buttonOwnerStep = step;
@@ -175,6 +196,7 @@ namespace OzGameLab01.Controllers
             }
 
             buttonSequence.SetLoops(-1, LoopType.Restart);
+            return true;
         }
 
         private void HandleButtonClicked()
@@ -202,7 +224,7 @@ namespace OzGameLab01.Controllers
             highlightedGraphic = null;
         }
 
-        private void StartOutlineHighlight(TutorialSequenceStepData step)
+        private bool StartOutlineHighlight(TutorialSequenceStepData step)
         {
             StopOutlineHighlight();
 
@@ -210,11 +232,12 @@ namespace OzGameLab01.Controllers
                 !targetRegistry.TryGetOutline(
                     step.OutlineTargetKey,
                     out TutorialOutlinePulseView highlightView))
-                return;
+                return false;
 
             outlineHighlight = highlightView;
             outlineOwnerStep = step;
             PlayOutline(outlineHighlight, step);
+            return true;
         }
 
         private void StopOutlineHighlight()
@@ -224,7 +247,7 @@ namespace OzGameLab01.Controllers
             outlineOwnerStep = null;
         }
 
-        private void StartFormationSlotHighlight(
+        private bool StartFormationSlotHighlight(
             TutorialSequenceStepData step)
         {
             StopFormationSlotHighlight();
@@ -237,12 +260,12 @@ namespace OzGameLab01.Controllers
                 Debug.LogWarning(
                     $"[TutorialHighlightPresenter] UnitView를 찾지 못해 슬롯 그룹 강조를 시작할 수 없습니다. Step: {step.StepName}",
                     logContext);
-                return;
+                return false;
             }
 
             Transform slotRoot = unitView.SlotContentRoot;
             if (slotRoot == null)
-                return;
+                return false;
 
             UnitSlotItemView[] slots =
                 slotRoot.GetComponentsInChildren<UnitSlotItemView>(true);
@@ -273,10 +296,11 @@ namespace OzGameLab01.Controllers
                 Debug.LogWarning(
                     $"[TutorialHighlightPresenter] 강조할 {step.FormationSlotHighlightGroup} 슬롯을 찾지 못했습니다. Step: {step.StepName}",
                     logContext);
-                return;
+                return false;
             }
 
             formationOwnerStep = step;
+            return true;
         }
 
         private void StopFormationSlotHighlight()

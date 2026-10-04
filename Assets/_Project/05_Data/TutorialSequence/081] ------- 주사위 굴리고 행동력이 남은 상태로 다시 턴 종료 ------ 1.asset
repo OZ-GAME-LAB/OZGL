@@ -23,6 +23,7 @@ MonoBehaviour:
   targetOwnedUnitId: 0
   openRollView: 0
   showGuide: 0
+  playEmphasizeSound: 0
   setNextDiceRoll: 0
   nextDiceRollValue: 4
   spawnBossTileNearPlayer: 0
