@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using OzGameLab01.Events;
+using OzGameLab01.Managers;
 
 namespace OzGameLab01.UI
 {
@@ -202,6 +203,7 @@ namespace OzGameLab01.UI
                 return;
             }
             _onClickBeforeBurn?.Invoke(_choiceId);
+            SoundConnector.RequestSfx(SoundId.EventChoice);
             burnEffect.Play(()=> _onClickAfterBurn?.Invoke(_choiceId));
             //_onClick?.Invoke(_choiceId);
         }

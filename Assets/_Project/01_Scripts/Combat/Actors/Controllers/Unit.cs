@@ -650,9 +650,26 @@ namespace OzGameLab01.Combat
             PassiveEventBus.RaiseAttackLanded(this, target);
             if (!landed) return false;
 
+            SoundConnector.RequestSfx(GetBasicAttackImpactSound());
             if (applyDamage) TryApplyRandomStatusEffect(target);
             onImpact?.Invoke();
             return true;
+        }
+
+        private SoundId GetBasicAttackImpactSound()
+        {
+            switch (UnitId)
+            {
+                case 100: // 앨리스
+                case 105: // 지니
+                case 106: // 사자
+                case 108: // 허수아비
+                    return SoundId.UnitPublicHit_2;
+                case 114: // 피터팬
+                    return SoundId.UnitPublicHit_0;
+                default:
+                    return SoundId.UnitPublicHit_1;
+            }
         }
 
         private IEnumerator CastSkill(Unit target, UnitSkillRuntime skill, bool isBasicAttack)
@@ -674,6 +691,9 @@ namespace OzGameLab01.Combat
                 {
                     // 스킬은 발동 즉시 시전 VFX를 띄웁니다(유닛 아이콘은 시전 VFX에 포함).
                     _presenter.PlaySkillCastEffect(skill.data.castVfxAddress, transform, skill.data.castVfxScale);
+
+                    if (UsesNonStatStatusEffect(skill.data))
+                        SoundConnector.RequestSfx(SoundId.CombatStatusEffect);
                 }
 
                 // 기본 공격의 Attack 모션 중간 발사 시점
@@ -765,10 +785,13 @@ namespace OzGameLab01.Combat
         private void ExecuteSkillEffects(IReadOnlyList<EffectInstance> effects, Unit defaultTarget, float multiplier)
         {
             SoundConnector.RequestSfx(SoundId.UnitUseSkill);
+            bool statIncreaseApplied = false;
+            bool statDecreaseApplied = false;
 
             for (int i = 0; i < effects.Count; i++)
             {
                 EffectInstance effect = effects[i];
+                bool statModifierApplied = false;
                 foreach (Unit target in ResolveSkillTargets(effect, defaultTarget))
                 {
                     if (target == null || target.IsDead) continue;
@@ -785,9 +808,12 @@ namespace OzGameLab01.Combat
                             target.GrantShield(effect.effectParam, effect.durationSeconds, effect.untilBattleEnd);
                             break;
                         case EffectType.StatModifier:
-                            target.ApplyStatEffect(effect.statType, effect.effectParam, effect.operation,
-                                effect.durationSeconds, effect.untilBattleEnd || effect.durationSeconds <= 0);
-                            SoundConnector.RequestSfx(SoundId.UnitStatModify);
+                            statModifierApplied |= target.ApplyStatEffect(
+                                effect.statType,
+                                effect.effectParam,
+                                effect.operation,
+                                effect.durationSeconds,
+                                effect.untilBattleEnd || effect.durationSeconds <= 0);
                             break;
                         case EffectType.CleanseDebuffs:
                             target.CleanseDebuffs();
@@ -795,7 +821,21 @@ namespace OzGameLab01.Combat
                             break;
                     }
                 }
+
+                if (statModifierApplied)
+                {
+                    if (effect.effectParam >= 0f)
+                        statIncreaseApplied = true;
+                    else
+                        statDecreaseApplied = true;
+                }
             }
+
+            if (statDecreaseApplied)
+                SoundConnector.RequestSfx(SoundId.CombatStatDecrease);
+
+            if (statIncreaseApplied)
+                SoundConnector.RequestSfx(SoundId.CombatStatIncrease);
         }
 
         private IEnumerable<Unit> ResolveSkillTargets(EffectInstance effect, Unit defaultTarget)
@@ -1016,6 +1056,30 @@ namespace OzGameLab01.Combat
             {
                 _presenter.SetStatusEffectActive(profile.type, true, transform);
                 _animationController?.PlayCrowdControl();
+                PlayAppliedStatusSound(profile.type);
+            }
+        }
+
+        private static bool IsNonStatStatusEffect(DebuffType type)
+        {
+            return type == DebuffType.DamageOverTime
+                   || type == DebuffType.Stun
+                   || type == DebuffType.Silence;
+        }
+
+        private static void PlayAppliedStatusSound(DebuffType type)
+        {
+            switch (type)
+            {
+                case DebuffType.DamageOverTime:
+                    SoundConnector.RequestSfx(SoundId.UnitStatusDot);
+                    break;
+                case DebuffType.Silence:
+                    SoundConnector.RequestSfx(SoundId.UnitStatusSilence);
+                    break;
+                case DebuffType.Stun:
+                    SoundConnector.RequestSfx(SoundId.UnitStatusStun);
+                    break;
             }
         }
 

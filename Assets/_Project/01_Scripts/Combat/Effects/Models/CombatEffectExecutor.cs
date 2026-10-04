@@ -159,6 +159,8 @@ namespace OzGameLab01.Combat
             IReadOnlyList<RuntimeEffectManager.EffectSource> sources =
                 OzGameLab01.Common.SystemBus.Get<CombatEffectCatalog>()?.GetEffects(trigger)
                 ?? System.Array.Empty<RuntimeEffectManager.EffectSource>();
+            bool passiveStatIncreaseApplied = false;
+            bool passiveStatDecreaseApplied = false;
 
             for (int i = 0; i < sources.Count; i++)
             {
@@ -197,10 +199,12 @@ namespace OzGameLab01.Combat
                     continue;
                 }
 
+                bool anyApplied = false;
                 foreach (Unit target in ResolveTargets(source, effect, triggeringUnit))
                 {
                     if (ApplyEffect(effect, target))
                     {
+                        anyApplied = true;
                         string sourceName = source.Kind == RuntimeEffectManager.EffectSourceKind.Relic
                             ? OzGameLab01.Data.RuntimeContent.Catalog.GetRelic(source.SourceId)?.name
                             : source.Kind == RuntimeEffectManager.EffectSourceKind.Synergy
@@ -215,11 +219,27 @@ namespace OzGameLab01.Combat
                     }
                 }
 
+                if (anyApplied &&
+                    source.Kind == RuntimeEffectManager.EffectSourceKind.UnitPassive &&
+                    effect.effect == EffectType.StatModifier)
+                {
+                    if (effect.effectParam >= 0f)
+                        passiveStatIncreaseApplied = true;
+                    else
+                        passiveStatDecreaseApplied = true;
+                }
+
                 if (effect.once)
                 {
                     _firedOnce.Add(onceKey);
                 }
             }
+
+            if (passiveStatDecreaseApplied)
+                SoundConnector.RequestSfx(SoundId.CombatStatDecrease);
+
+            if (passiveStatIncreaseApplied)
+                SoundConnector.RequestSfx(SoundId.CombatStatIncrease);
         }
 
         private OzGameLab01.Effects.Models.EffectConditionContext BuildConditionContext()

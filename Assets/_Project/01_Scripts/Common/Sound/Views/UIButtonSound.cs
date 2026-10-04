@@ -12,6 +12,12 @@ namespace OzGameLab01.UI
     [RequireComponent(typeof(Button))]
     public sealed class UIButtonSound : MonoBehaviour, IPointerEnterHandler
     {
+        private static readonly SoundId[] CommonClickSounds =
+        {
+            SoundId.UiButtonClick,
+            SoundId.UiButtonClickAlt
+        };
+
         [Header("Sound")]
         [SerializeField] private SoundId clickSound = SoundId.UiButtonClick;
         [SerializeField] private SoundId hoverSound = SoundId.UiButtonHover;
@@ -59,6 +65,12 @@ namespace OzGameLab01.UI
         {
             if (id == SoundId.None)
             {
+                return;
+            }
+
+            if (id == SoundId.UiButtonClick)
+            {
+                SoundConnector.RequestRandomSfx(CommonClickSounds);
                 return;
             }
 

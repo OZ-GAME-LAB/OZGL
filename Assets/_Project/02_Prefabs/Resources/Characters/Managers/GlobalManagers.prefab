@@ -199,11 +199,11 @@ MonoBehaviour:
     volume: 1
   - id: 8
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: f86359cb5d869684fa8a0f7565e8535b, type: 3}
     volume: 1
   - id: 9
     channel: 1
-    clip: {fileID: 0}
+    clip: {fileID: 8300000, guid: 6800958c6494d4d49a46eca972f17e12, type: 3}
     volume: 1
   - id: 10
     channel: 1
@@ -360,6 +360,102 @@ MonoBehaviour:
   - id: 40
     channel: 1
     clip: {fileID: 8300000, guid: 3ddeb01d73b067c4e965c6f6de8687c7, type: 3}
+    volume: 1
+  - id: 54
+    channel: 1
+    clip: {fileID: 8300000, guid: 794072f8a44db564a9ea4b340c8a84fe, type: 3}
+    volume: 1
+  - id: 55
+    channel: 1
+    clip: {fileID: 8300000, guid: c6903fec2aaafb2439e622f3df8f57ae, type: 3}
+    volume: 1
+  - id: 56
+    channel: 1
+    clip: {fileID: 8300000, guid: bc3948a6055badd43a007362506dd0b8, type: 3}
+    volume: 1
+  - id: 57
+    channel: 1
+    clip: {fileID: 8300000, guid: f01495e2611a53641a838d0e92279153, type: 3}
+    volume: 1
+  - id: 58
+    channel: 1
+    clip: {fileID: 8300000, guid: 5588b82de8f3b9946a8802fecbfd97af, type: 3}
+    volume: 1
+  - id: 59
+    channel: 1
+    clip: {fileID: 8300000, guid: 791f0f6de93439f4ebffa42a544a01f6, type: 3}
+    volume: 1
+  - id: 60
+    channel: 1
+    clip: {fileID: 8300000, guid: bd949f0e6d6b3de40894180607543cba, type: 3}
+    volume: 1
+  - id: 61
+    channel: 1
+    clip: {fileID: 8300000, guid: aec23dd76f25b624398c273c951d8e3f, type: 3}
+    volume: 1
+  - id: 62
+    channel: 1
+    clip: {fileID: 8300000, guid: 630e905b11448f648b4583f51b991d8c, type: 3}
+    volume: 1
+  - id: 63
+    channel: 1
+    clip: {fileID: 8300000, guid: 3ae7bc7e80765d54285fab97419cb05b, type: 3}
+    volume: 1
+  - id: 64
+    channel: 1
+    clip: {fileID: 8300000, guid: 22c2ad5a10e3424448740ceb69860342, type: 3}
+    volume: 1
+  - id: 65
+    channel: 1
+    clip: {fileID: 8300000, guid: ad63ada7032b5994fb03a6c7b80b05b8, type: 3}
+    volume: 1
+  - id: 66
+    channel: 1
+    clip: {fileID: 8300000, guid: 6dcf61c8d3e2c1145b9c7679d200f006, type: 3}
+    volume: 1
+  - id: 67
+    channel: 1
+    clip: {fileID: 8300000, guid: 0ed65ebc6265afc4f84e072a62e01302, type: 3}
+    volume: 1
+  - id: 68
+    channel: 1
+    clip: {fileID: 8300000, guid: 2762c359afe0a60418490f3543fed170, type: 3}
+    volume: 1
+  - id: 69
+    channel: 1
+    clip: {fileID: 8300000, guid: 9b2608d38313baa45832a3e48437e0bc, type: 3}
+    volume: 1
+  - id: 70
+    channel: 1
+    clip: {fileID: 8300000, guid: 120bc5c8a2741e04190da6c457c90164, type: 3}
+    volume: 1
+  - id: 71
+    channel: 1
+    clip: {fileID: 8300000, guid: 0645e6fa468afd24db83f4cd5a324b1d, type: 3}
+    volume: 1
+  - id: 72
+    channel: 1
+    clip: {fileID: 8300000, guid: 13f250d224931c644a5133f27c0b56db, type: 3}
+    volume: 1
+  - id: 73
+    channel: 1
+    clip: {fileID: 8300000, guid: 0a908178ae407ee4f9a26f73fdcfd90d, type: 3}
+    volume: 1
+  - id: 74
+    channel: 1
+    clip: {fileID: 8300000, guid: 8780c343ece72cd42965189dd4186fce, type: 3}
+    volume: 1
+  - id: 75
+    channel: 1
+    clip: {fileID: 8300000, guid: cbc1e99c028608948b6187c525667a24, type: 3}
+    volume: 1
+  - id: 76
+    channel: 1
+    clip: {fileID: 8300000, guid: d378bb00bdb51944e954d0c048a6b36e, type: 3}
+    volume: 1
+  - id: 77
+    channel: 1
+    clip: {fileID: 8300000, guid: 2e8a86cbc29d05f4eb519f91a37b4162, type: 3}
     volume: 1
   bgmSource: {fileID: 0}
   sfxSource: {fileID: 0}

@@ -67,7 +67,32 @@ namespace OzGameLab01.Managers
         BoardDiceRoll_1 = 50, // 보드 주사위 굴리기 1
         BoardDiceRoll_2 = 51, // 보드 주사위 굴리기 2
         BoardDiceRoll_3 = 52, // 보드 주사위 굴리기 3
-        BoardGetUnit = 53 // 보드 유닛 획득
+        BoardGetUnit = 53, // 보드 유닛 획득
+
+        TutorialDialog = 54, // 튜토리얼 가이드 닫기
+        TutorialEmphasize = 55, // 튜토리얼 강조 시작
+        UnitPositionMoveSucceeded = 56, // 유닛 배치/배치 해제 성공
+        UnitPositionMoveFailed = 57, // 유닛 배치/배치 해제 실패
+        CombatBattleBegin = 58, // 전투 정보 UI가 닫히고 실제 전투 시작
+        CombatStatIncrease = 59, // 스킬로 인한 스탯 증가
+        CombatStatDecrease = 60, // 스킬로 인한 스탯 감소
+        CombatStatusEffect = 61, // 비능력치 상태이상 스킬 사용
+        BoardDiceButton = 62, // 보드 주사위 버튼 클릭
+        EventOpen = 63, // 이벤트 UI 열기
+        EventChoice = 64, // 이벤트 선택지 Burn 연출 시작
+        UnitPublicHit_0 = 65, // 피터팬 기본공격 명중
+        UnitPublicHit_1 = 66, // 기본 유닛 기본공격 명중
+        UnitPublicHit_2 = 67, // 앨리스/지니/사자/허수아비 기본공격 명중
+        UnitSkillAlice = 68, // 앨리스 액티브 스킬 적중
+        UnitSkillDorothy = 69, // 도로시 액티브 스킬 적중
+        UnitSkillLionBarrier = 70, // 사자 보호막 스킬 발동
+        UnitSkillLionTaunt = 71, // 사자 도발 스킬 발동
+        UnitSkillScarecrow = 72, // 허수아비 액티브 스킬 적중
+        UnitStatusDot = 73, // 지속 피해 상태이상 적용
+        UnitStatusSilence = 74, // 침묵 상태이상 적용
+        UnitStatusStun = 75, // 기절 상태이상 적용
+        UiButtonClickAlt = 76, // 공용 UI 버튼 클릭 대체음
+        UiGameClear = 77 // 최종 게임 클리어 결과 UI
     }
 
     public enum SoundChannel

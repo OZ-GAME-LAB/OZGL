@@ -1,4 +1,5 @@
 using System;
+using OzGameLab01.Managers;
 using OzGameLab01.UI;
 using UnityEngine;
 
@@ -108,6 +109,7 @@ namespace OzGameLab01.Controllers
                 return;
 
             isGuideDismissing = true;
+            SoundConnector.RequestSfx(SoundId.TutorialDialog);
             guideView.Hide(CompleteGuideDismissal);
         }
 

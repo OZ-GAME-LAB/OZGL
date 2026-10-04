@@ -14,8 +14,11 @@ namespace OzGameLab01.Combat
     /// </summary>
     public partial class Unit
     {
+        private const int AliceSkillId = 51001;      // 내 기분은 내가 정해
         private const int GenieWishSkillId = 51051;   // 세가지 소원: 첫 2회는 스택만, 3회째부터 데미지
         private const int LionTauntSkillId = 51061;   // 내가 겁쟁이라고!?: 보호막 = 최대HP × (최대HP / 현재HP)
+        private const int ScarecrowSkillId = 51081;   // 깜짝 놀래키기
+        private const int DorothySkillId = 51091;     // 부끄러운 줄 알아야지!
         private const int PeterPanSkillId = 51141;    // 어른이 되기 싫었어: 시전 전 공격력·공격 간격 기준 상호 증가
         private const int TinkerBellSkillId = 51151;  // 광기의 집착: 무작위 상태이상 1종을 적과 자신에게
         private const int GenieWishStacksToFire = 3;
@@ -34,6 +37,15 @@ namespace OzGameLab01.Combat
             DebuffProfile? sharedRandomDebuff = null;
             // 제페토: "임의의 아군"과 "같은 대상"이 이어지도록 무작위 아군은 한 번만 뽑는다.
             Unit sharedRandomAlly = null;
+            bool statIncreaseApplied = false;
+            bool statDecreaseApplied = false;
+            bool enemyEffectApplied = false;
+
+            if (data.id == LionTauntSkillId)
+            {
+                SoundConnector.RequestSfx(SoundId.UnitSkillLionTaunt);
+                SoundConnector.RequestSfx(SoundId.UnitSkillLionBarrier);
+            }
 
             if (data.id == GenieWishSkillId)
             {
@@ -52,11 +64,115 @@ namespace OzGameLab01.Combat
                     if (target == null || target.IsDead) continue;
                     if (!ApplyActiveEffect(data, node, target, attackBefore, intervalBefore, ref sharedRandomDebuff)) continue;
                     anyApplied = true;
+                    if (target.TeamValue != team) enemyEffectApplied = true;
                     PlayEffectCues(node, target, onCaster: false);
                 }
 
-                if (anyApplied) PlayEffectCues(node, this, onCaster: true);
+                if (anyApplied)
+                {
+                    CollectActiveStatChange(
+                        data,
+                        node,
+                        sharedRandomDebuff,
+                        ref statIncreaseApplied,
+                        ref statDecreaseApplied);
+                    PlayEffectCues(node, this, onCaster: true);
+                }
             }
+
+            PlayCollectedStatChangeSounds(
+                statIncreaseApplied,
+                statDecreaseApplied);
+
+            if (enemyEffectApplied)
+                PlayUnitSkillImpactSound(data.id);
+        }
+
+        private static void PlayUnitSkillImpactSound(int skillId)
+        {
+            switch (skillId)
+            {
+                case AliceSkillId:
+                    SoundConnector.RequestSfx(SoundId.UnitSkillAlice);
+                    break;
+                case DorothySkillId:
+                    SoundConnector.RequestSfx(SoundId.UnitSkillDorothy);
+                    break;
+                case ScarecrowSkillId:
+                    SoundConnector.RequestSfx(SoundId.UnitSkillScarecrow);
+                    break;
+            }
+        }
+
+        private static bool UsesNonStatStatusEffect(SkillData data)
+        {
+            if (data == null) return false;
+
+            if (IsNonStatStatusEffect(data.debuff.type) || data.id == TinkerBellSkillId)
+                return true;
+
+            if (data.activeEffects == null) return false;
+
+            foreach (ActiveSkillEffectNode node in data.activeEffects)
+            {
+                if (node == null) continue;
+                if (node.effectType == ActiveEffectType.DotDamage
+                    || node.effectType == ActiveEffectType.Silence
+                    || node.effectType == ActiveEffectType.Stun)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static void CollectActiveStatChange(
+            SkillData data,
+            ActiveSkillEffectNode node,
+            DebuffProfile? sharedRandomDebuff,
+            ref bool statIncreaseApplied,
+            ref bool statDecreaseApplied)
+        {
+            if (node.effectType == ActiveEffectType.StealStat)
+            {
+                statDecreaseApplied = true;
+                statIncreaseApplied = true;
+                return;
+            }
+
+            if (node.effectType != ActiveEffectType.StatModifier)
+                return;
+
+            if (data.id == TinkerBellSkillId)
+            {
+                if (sharedRandomDebuff?.type == DebuffType.AttackDown)
+                    statDecreaseApplied = true;
+
+                return;
+            }
+
+            if (node.statType == EffectStatType.Unknown)
+                return;
+
+            // 피터팬의 특수 계산은 데이터의 부호 대신 런타임에서 양수 보정값을
+            // 만들어 적용하므로 실제 적용 결과와 같은 증가음으로 처리합니다.
+            bool isIncrease = data.id == PeterPanSkillId || node.value >= 0f;
+            if (isIncrease)
+                statIncreaseApplied = true;
+            else
+                statDecreaseApplied = true;
+        }
+
+        private static void PlayCollectedStatChangeSounds(
+            bool statIncreaseApplied,
+            bool statDecreaseApplied)
+        {
+            if (statDecreaseApplied)
+                SoundConnector.RequestSfx(SoundId.CombatStatDecrease);
+
+            if (statIncreaseApplied)
+                SoundConnector.RequestSfx(SoundId.CombatStatIncrease);
         }
 
         /// <summary>효과 노드 하나를 대상에게 적용합니다. 실제로 적용됐으면 true(연출 재생 기준).</summary>

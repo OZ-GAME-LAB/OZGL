@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using OzGameLab01.Managers;
 using OzGameLab01.UI;
 
 namespace OzGameLab01.Events
@@ -64,6 +65,7 @@ namespace OzGameLab01.Events
                 eventUIView.ShowAction(choiceEvent.choices, onChoiceSelected);
             }
 
+            SoundConnector.RequestSfx(SoundId.EventOpen);
             return true;
         }
         public void ButtonDisabled(int selectedButtonIndex)
