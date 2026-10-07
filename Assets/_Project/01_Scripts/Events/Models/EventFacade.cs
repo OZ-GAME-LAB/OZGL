@@ -1,0 +1,225 @@
+using OzGameLab01.Common;
+using OzGameLab01.Controllers;
+using OzGameLab01.Data;
+using OzGameLab01.Effects.Models;
+using OzGameLab01.Events.Contracts;
+using OzGameLab01.Managers;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace OzGameLab01.Events
+{
+    /// <summary>
+    /// Events 시스템 외부(BoardSceneController 등)가 호출하는 유일한 진입점입니다.
+    /// 이 클래스는 게임 부팅 후 계속 살아있는 EventManager가 들고 있는 반면,
+    /// 실제로 조작할 UI/데이터는 씬에 배치된 EventSession이 갖고 있으므로
+    /// 필요할 때마다 EventSession을 찾아 사용합니다(EventSession의 GameObject가
+    /// 비활성 상태로 시작해도 Awake 시점에 의존하지 않도록). 유효성 검사와 선택지
+    /// 상태(EventState) 조율만 담당하고, 실제 표시는 EventSession.ShowEvent/CloseEvent에
+    /// 위임합니다 — Facade는 View 타입을 직접 참조하지 않습니다. 완료 알림은 전역
+    /// 버스로 EventChoiceCompleted를 발행합니다.
+    /// </summary>
+    public class EventFacade
+    {
+        private readonly EventState _state = new EventState();
+        private EventSession _session;
+
+        private EventSession GetSession()
+        {
+            if (_session == null)
+            {
+                _session = UnityEngine.Object.FindFirstObjectByType<EventSession>(FindObjectsInactive.Include);
+            }
+
+            if (_session != null) RuntimeContent.BindEvents(_session.EventDB);
+
+            return _session;
+        }
+
+        public bool OpenRandomEvent()
+        {
+            EventSession session = GetSession();
+            if (session == null)
+            {
+                Debug.LogWarning("[EventFacade] 씬에서 EventSession을 찾을 수 없습니다.");
+                return false;
+            }
+
+            ContentCatalog eventDB = RuntimeContent.Catalog;
+            if (eventDB == null || eventDB.EventCount == 0)
+            {
+                Debug.LogWarning("[EventFacade] 등록된 런타임 이벤트 데이터가 없습니다.", session.PanelObject);
+                return false;
+            }
+
+            List<EventContent> validEvents = new();
+
+            foreach (EventContent choiceEvent in eventDB.Events)
+            {
+                if (choiceEvent.pool == EventChoiceCategory.Event && choiceEvent.choices != null && choiceEvent.choices.Count > 0)
+                {
+                    validEvents.Add(choiceEvent);
+                }
+            }
+
+            if (validEvents.Count == 0)
+            {
+                Debug.LogWarning("[EventFacade] 유효한 런타임 이벤트 데이터가 없습니다.", session.PanelObject);
+                return false;
+            }
+
+            return OpenChoiceEvent(validEvents[UnityEngine.Random.Range(0, validEvents.Count)]);
+        }
+
+        public bool OpenChoiceEvent(EventSO choiceEvent)
+            => OpenChoiceEvent(EventContent.FromAsset(choiceEvent, choiceEvent != null ? choiceEvent.choiceCategory : EventChoiceCategory.Event));
+
+        public bool OpenChoiceEvent(EventContent choiceEvent)
+        {
+            EventSession session = GetSession();
+            if (session == null)
+            {
+                Debug.LogWarning("[EventFacade] 씬에서 EventSession을 찾을 수 없습니다.");
+                return false;
+            }
+
+            if (choiceEvent == null || choiceEvent.choices == null || choiceEvent.choices.Count == 0)
+            {
+                Debug.LogWarning("[EventFacade] 유효한 이벤트 데이터가 없어 이벤트를 열 수 없습니다.", session.PanelObject);
+                return false;
+            }
+
+            if (choiceEvent.eventCategory == EventCategory.Action)
+            {
+                PrepareRelicChoices(choiceEvent.choices);
+            }
+
+            if (!session.ShowEvent(choiceEvent, ChoiceResult , AnotherButtonDisable))
+            {
+                return false;
+            }
+
+            _state.SetChoiceList(choiceEvent.choices);
+            return true;
+        }
+
+        /// <summary>
+        /// 유물 획득 선택지는 열리는 시점에 선택지마다 서로 다른 유물을 뽑아 표시용 이름/타겟 ID만
+        /// 채웁니다. 실제 지급은 플레이어가 고른 선택지 하나에 대해서만 ExecuteChoice에서 합니다.
+        /// </summary>
+        private void PrepareRelicChoices(List<EventChoice> choices)
+        {
+            RelicFacade relicFacade = SystemBus.Get<RelicFacade>();
+            if (relicFacade == null)
+            {
+                return;
+            }
+
+            var pickedIds = new List<int>();
+            for (int i = 0; i < choices.Count; i++)
+            {
+                if (choices[i].ChoiceCategory != EventChoiceCategory.Relic)
+                {
+                    continue;
+                }
+
+                RelicData relic = relicFacade.PickRandomRelic(pickedIds);
+                if (relic == null)
+                {
+                    continue;
+                }
+
+                pickedIds.Add(relic.id);
+                choices[i].SetEventChoice(relic.name, relic.id.ToString(), null);
+            }
+        }
+        public void AnotherButtonDisable(int choiceIndex)
+        {
+            _session.ButtonDisabled(choiceIndex);
+        }
+        public void ChoiceResult(int choiceIndex)
+        {
+            EventChoice selected = _state.GetChoice(choiceIndex);
+            if (selected == null)
+            {
+                Debug.LogWarning($"[EventFacade] 잘못된 선택 인덱스입니다: {choiceIndex} ChoiceCount : {_state.ChoiceCount}");
+                return;
+            }
+
+            ExecuteChoice(selected);
+
+
+            SystemBus.Messages.Publish(new EventChoiceCompleted());
+        }
+
+        private void ExecuteChoice(EventChoice selectedChoice)
+        {
+            ContentCatalog eventDB = RuntimeContent.Catalog;
+
+            switch (selectedChoice.ChoiceCategory)
+            {
+                case EventChoiceCategory.Relic:
+                    if (int.TryParse(selectedChoice.ResultTargetID, out int relicId))
+                    {
+                        SystemBus.Get<RelicFacade>()?.AcquireRelic(relicId);
+                    }
+                    SoundConnector.RequestSfx(SoundId.RelicGain);
+                    Debug.Log($"Get [{selectedChoice.ResultTargetID}] Relic");
+                    CloseCanvas();
+                    break;
+                case EventChoiceCategory.Random:
+                    if (eventDB != null)
+                    {
+                        var randoms = new List<EventContent>();
+                        foreach (var row in eventDB.Events) {
+                            if (row.pool == EventChoiceCategory.Battle) randoms.Add(row);
+                            if (row.pool == EventChoiceCategory.Heal) randoms.Add(row);
+                            if (row.pool == EventChoiceCategory.Exit) randoms.Add(row);
+                        }
+                            
+                        if (randoms.Count > 0) OpenChoiceEvent(randoms[UnityEngine.Random.Range(0, randoms.Count)]);
+                    }
+                    break;
+                case EventChoiceCategory.Battle:
+
+                    BoardSceneController controller = UnityEngine.Object.FindFirstObjectByType<BoardSceneController>();
+
+                    controller.TryRequestEventBattle();
+
+                    Debug.Log("Go To Battle Scene");
+                    CloseCanvas();
+                    break;
+                case EventChoiceCategory.Quiz:
+                    if (eventDB != null)
+                    {
+                        var quizzes = new List<EventContent>();
+                        foreach (var row in eventDB.Events)
+                            if (row.pool == EventChoiceCategory.Quiz) quizzes.Add(row);
+                        if (quizzes.Count > 0) OpenChoiceEvent(quizzes[UnityEngine.Random.Range(0, quizzes.Count)]);
+                    }
+                    break;
+                case EventChoiceCategory.Event:
+                    if (eventDB != null)
+                    {
+                        OpenChoiceEvent(eventDB.GetEvent(selectedChoice.ResultTargetID));
+                    }
+                    Debug.Log($"다음 선택지로 이동[{selectedChoice.ResultTargetID}]");
+                    break;
+                case EventChoiceCategory.Heal:
+                    BoardRunData.RecoverBattleUnitHealth(100);
+                    CloseCanvas();
+                    break;
+                case EventChoiceCategory.Exit:
+                    Debug.Log("Event Exit");
+                    CloseCanvas();
+                    break;
+            }
+        }
+
+        private void CloseCanvas()
+        {
+            GetSession()?.CloseEvent();
+        }
+    }
+}

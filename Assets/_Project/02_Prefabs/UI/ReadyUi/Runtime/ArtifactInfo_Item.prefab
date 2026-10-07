@@ -35,7 +35,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 80, y: 80}
+  m_SizeDelta: {x: 60, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &392946268796309386
 CanvasRenderer:
@@ -204,8 +204,6 @@ MonoBehaviour:
   rectTransform: {fileID: 1874980782046394495}
   background: {fileID: 6584486632271796997}
   icon: {fileID: 2523226867809370390}
-  titleText: {fileID: 0}
-  descriptionText: {fileID: 0}
 --- !u!1 &8487444812649121689
 GameObject:
   m_ObjectHideFlags: 0

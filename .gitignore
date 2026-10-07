@@ -14,7 +14,10 @@
 /[Bb]uilds/
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
-/[Ii]mported[Aa]ssets/
+[Ii]mported[Aa]ssets/
+ImportedAssets.meta
+[Pp]rivate[Aa]ssets/
+PrivateAssets.meta
 *.log
 
 # By default unity supports Blender asset imports, *.blend1 blender files do not need to be commited to version control.
@@ -109,3 +112,11 @@ InitTestScene*.unity*
 
 # Auto-generated cache in Assets folder
 /[Aa]ssets/[Ss]ceneDependencyCache*
+
+/Assets/_Project/04_Art/Fonts/MalgunGothic SDF.asset
+/Assets/_Project/04_Art/Fonts/MalgunGothic SDF.asset.meta
+
+/_SharedPackages/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/

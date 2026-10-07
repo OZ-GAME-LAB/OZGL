@@ -1,0 +1,223 @@
+namespace OzGameLab01.Board.Models
+{
+    public enum BoardTimeOfDay
+    {
+        Day,    // 아침
+        Noon,   // 점심
+        Night   // 저녁
+    }
+
+    public static class BoardTurnRules
+    {
+        public static BoardTimeOfDay GetTimeOfDay(
+            int turnCount,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            morningTurns = NormalizeDuration(morningTurns);
+            lunchTurns = NormalizeDuration(lunchTurns);
+            eveningTurns = NormalizeDuration(eveningTurns);
+
+            int cycleLength = morningTurns + lunchTurns + eveningTurns;
+            if (cycleLength <= 0)
+            {
+                return BoardTimeOfDay.Day;
+            }
+
+            // TurnCount 0이 사용자에게 표시되는 첫 번째 턴입니다.
+            int cycleTurn = turnCount % cycleLength;
+            if (cycleTurn < 0)
+            {
+                cycleTurn += cycleLength;
+            }
+
+            if (cycleTurn < morningTurns)
+            {
+                return BoardTimeOfDay.Day;
+            }
+
+            if (cycleTurn < morningTurns + lunchTurns)
+            {
+                return BoardTimeOfDay.Noon;
+            }
+
+            return BoardTimeOfDay.Night;
+        }
+
+        public static BoardTimeOfDay GetRunTimeOfDay(
+            int turnCount,
+            int cycleStartTurn,
+            bool isNightLocked,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            if (isNightLocked)
+            {
+                return BoardTimeOfDay.Night;
+            }
+
+            int elapsedTurns = System.Math.Max(0, turnCount - cycleStartTurn);
+            return GetTimeOfDay(elapsedTurns, morningTurns, lunchTurns, eveningTurns);
+        }
+
+        public static bool ChangesPhase(
+            int turnCount,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            if (turnCount <= 0)
+            {
+                return false;
+            }
+
+            BoardTimeOfDay previous = GetTimeOfDay(
+                turnCount - 1,
+                morningTurns,
+                lunchTurns,
+                eveningTurns);
+
+            BoardTimeOfDay current = GetTimeOfDay(
+                turnCount,
+                morningTurns,
+                lunchTurns,
+                eveningTurns);
+
+            return previous != current;
+        }
+
+        public static bool IsNight(
+            int turnCount,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            return GetTimeOfDay(
+                turnCount,
+                morningTurns,
+                lunchTurns,
+                eveningTurns) == BoardTimeOfDay.Night;
+        }
+
+        public static int TurnsUntilPhase(
+            int turnCount,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            morningTurns = NormalizeDuration(morningTurns);
+            lunchTurns = NormalizeDuration(lunchTurns);
+            eveningTurns = NormalizeDuration(eveningTurns);
+
+            int cycleLength = morningTurns + lunchTurns + eveningTurns;
+            if (cycleLength <= 0)
+            {
+                return 0;
+            }
+
+            int cycleTurn = turnCount % cycleLength;
+            if (cycleTurn < 0)
+            {
+                cycleTurn += cycleLength;
+            }
+
+            if (cycleTurn < morningTurns)
+            {
+                return morningTurns - cycleTurn;
+            }
+
+            int lunchEnd = morningTurns + lunchTurns;
+            if (cycleTurn < lunchEnd)
+            {
+                return lunchEnd - cycleTurn;
+            }
+
+            return cycleLength - cycleTurn;
+        }
+
+        public static int TurnsUntilRunPhase(
+            int turnCount,
+            int cycleStartTurn,
+            bool isNightLocked,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            int elapsedTurns = System.Math.Max(0, turnCount - cycleStartTurn);
+            if (isNightLocked)
+            {
+                int scheduledMorningTurn =
+                    NormalizeDuration(morningTurns) +
+                    NormalizeDuration(lunchTurns) +
+                    NormalizeDuration(eveningTurns);
+
+                return System.Math.Max(0, scheduledMorningTurn - elapsedTurns);
+            }
+
+            return TurnsUntilPhase(elapsedTurns, morningTurns, lunchTurns, eveningTurns);
+        }
+
+        /// <summary>
+        /// 현재 런 주기를 기준으로 다음 밤, 즉 다음 중간보스 또는 보스가
+        /// 등장할 시점까지 남은 총 턴 수를 반환합니다.
+        /// 이미 밤이거나 밤 고정 상태라면 0을 반환합니다.
+        /// </summary>
+        public static int TurnsUntilRunNight(
+            int turnCount,
+            int cycleStartTurn,
+            bool isNightLocked,
+            int morningTurns,
+            int lunchTurns,
+            int eveningTurns)
+        {
+            if (isNightLocked)
+            {
+                return 0;
+            }
+
+            morningTurns = NormalizeDuration(morningTurns);
+            lunchTurns = NormalizeDuration(lunchTurns);
+            eveningTurns = NormalizeDuration(eveningTurns);
+
+            int nightStartTurn = morningTurns + lunchTurns;
+            int cycleLength = nightStartTurn + eveningTurns;
+            if (cycleLength <= 0)
+            {
+                return 0;
+            }
+
+            int elapsedTurns = System.Math.Max(0, turnCount - cycleStartTurn);
+            int cycleTurn = elapsedTurns % cycleLength;
+
+            return cycleTurn < nightStartTurn
+                ? nightStartTurn - cycleTurn
+                : 0;
+        }
+
+        public static int DisplayTurn(int turnCount)
+        {
+            return turnCount + 1;
+        }
+
+        public static float ClockAngle(int turnCount)
+        {
+            return DisplayTurn(turnCount) * -30f;
+        }
+
+        public static bool CanOpenRoll(
+            bool hasDice,
+            bool rolled,
+            bool moving,
+            int remainingDice)
+        {
+            return hasDice && !rolled && !moving && remainingDice <= 0;
+        }
+
+        private static int NormalizeDuration(int duration)
+        {
+            return duration > 0 ? duration : 0;
+        }
+    }
+}

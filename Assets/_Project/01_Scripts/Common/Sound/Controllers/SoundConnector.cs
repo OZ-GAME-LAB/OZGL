@@ -1,0 +1,191 @@
+using System;
+using UnityEngine;
+
+namespace OzGameLab01.Managers
+{
+    /// <summary>
+    /// UI와 게임 로직의 사운드 요청을 이벤트로 받아 SoundManager에 전달합니다.
+    /// </summary>
+    [DisallowMultipleComponent]
+    public sealed class SoundConnector : MonoBehaviour
+    {
+        private static readonly System.Random SfxRandom = new System.Random();
+        private static SoundConnector _global;
+        private SoundManager _soundManager;
+
+        /// <summary>
+        /// UI와 게임 로직에서 발행한 사운드 요청 이벤트
+        /// </summary>
+        public event Action<SoundRequest> SoundRequested;
+
+        /// <summary>
+        /// 전역 SoundManager에 연결된 사운드 요청 지점
+        /// </summary>
+        public static SoundConnector Global
+        {
+            get
+            {
+                if (_global == null)
+                {
+                    SoundManager manager = FindFirstObjectByType<SoundManager>();
+                    if (manager == null)
+                    {
+                        return null;
+                    }
+
+                    _global = manager.GetComponent<SoundConnector>();
+                    if (_global == null)
+                    {
+                        _global = manager.gameObject.AddComponent<SoundConnector>();
+                    }
+                }
+
+                return _global;
+            }
+        }
+
+        /// <summary>
+        /// 공격, 피격, UI 클릭 시점의 효과음 요청
+        /// </summary>
+        public static void RequestSfx(SoundId id)
+        {
+            SoundConnector connector = Global;
+            if (connector == null)
+            {
+                return;
+            }
+
+            connector.Publish(new SoundRequest(id, SoundChannel.Sfx));
+        }
+
+        /// <summary>
+        /// Inspector에서 지정한 효과음 클립의 재생 요청
+        /// </summary>
+        public static void RequestSfx(AudioClip clip, float volume = 1f)
+        {
+            if (clip == null)
+            {
+                return;
+            }
+
+            SoundConnector connector = Global;
+            if (connector == null)
+            {
+                return;
+            }
+
+            connector.Publish(new SoundRequest(clip, volume));
+        }
+
+        /// <summary>
+        /// 효과음 Id 배열 중 하나 랜덤 재생 요청
+        /// </summary>
+        /// <param name="ids"></param>
+        public static void RequestRandomSfx(params SoundId[] ids)
+        {
+            if (ids == null || ids.Length == 0)
+            {
+                return;
+            }
+
+            // 사운드 선택이 주사위나 전투처럼 UnityEngine.Random을 사용하는
+            // 게임 플레이 난수 순서에 영향을 주지 않도록 별도 난수원을 사용합니다.
+            SoundId picked = ids[SfxRandom.Next(ids.Length)];
+            RequestSfx(picked);
+        }
+
+        /// <summary>
+        /// 씬 전환과 결과 화면 시점의 BGM 요청
+        /// </summary>
+        public static void RequestBgm(SoundId id, bool restart = false)
+        {
+            SoundConnector connector = Global;
+            if (connector == null)
+            {
+                return;
+            }
+
+            connector.Publish(new SoundRequest(id, SoundChannel.Bgm, restart));
+        }
+
+        private void Awake()
+        {
+            _soundManager = GetComponent<SoundManager>();
+        }
+
+        private void OnEnable()
+        {
+            // SoundManager 재생 구독
+            SoundRequested += OnSoundRequested;
+        }
+
+        private void OnDisable()
+        {
+            // SoundManager 재생 구독 해제
+            SoundRequested -= OnSoundRequested;
+            if (_global == this)
+            {
+                _global = null;
+            }
+        }
+
+        /// <summary>
+        /// 사운드 요청 이벤트의 구독자 전달
+        /// </summary>
+        public void Publish(SoundRequest request)
+        {
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
+
+            if (request.Id == SoundId.None && request.Clip == null)
+            {
+                return;
+            }
+
+            Action<SoundRequest> handlers = SoundRequested;
+            if (handlers == null)
+            {
+                return;
+            }
+
+            foreach (Action<SoundRequest> handler in handlers.GetInvocationList())
+            {
+                try
+                {
+                    handler(request);
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception, this);
+                }
+            }
+        }
+
+        /// <summary>
+        /// SoundManager에 등록된 SoundId와 채널의 실제 재생
+        /// </summary>
+        private void OnSoundRequested(SoundRequest request)
+        {
+            if (_soundManager == null)
+            {
+                return;
+            }
+
+            if (request.Clip != null)
+            {
+                _soundManager.PlaySfx(request.Clip, request.Volume);
+                return;
+            }
+
+            if (request.Channel == SoundChannel.Bgm)
+            {
+                _soundManager.PlayBgm(request.Id, request.Restart);
+                return;
+            }
+
+            _soundManager.PlaySfx(request.Id);
+        }
+    }
+}

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdaac6197b15a3841aa800100e7065d8, type: 3}
+  m_Name: ChoiceEventSO_Quiz505
+  m_EditorClassIdentifier: Assembly-CSharp::ChoiceEventSO
+  id: 505
+  eventTitle: "\uD034\uC988"
+  eventDialog: "\uC6D0\uC791 \uC18C\uC124 '\uC624\uC988\uC758 \uB9C8\uBC95\uC0AC'
+    \uC5D0\uC11C \uB3C4\uB85C\uC2DC\uAC00 \uC2E0\uC740 \uB9C8\uBC95 \uC2E0\uBC1C\uC758
+    \uC6D0\uB798 \uC0C9\uC0C1\uC740 \uBB34\uC5C7\uC778\uAC00\uC694?"
+  eventCategory: 1
+  choiceCategory: 6
+  choices:
+  - choiceIndex: 0
+    choiceSprite: {fileID: 0}
+    choiceDialog: "\uB8E8\uBE44\uC0C9"
+    choiceCategory: 4
+    resultTargetID: 401
+  - choiceIndex: 1
+    choiceSprite: {fileID: 0}
+    choiceDialog: "\uC740\uC0C9"
+    choiceCategory: 4
+    resultTargetID: 200
+  - choiceIndex: 2
+    choiceSprite: {fileID: 0}
+    choiceDialog: "\uD669\uAE08\uC0C9"
+    choiceCategory: 4
+    resultTargetID: 401

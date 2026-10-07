@@ -1,0 +1,664 @@
+using System;
+using System.Collections.Generic;
+using DG.Tweening;
+using OzGameLab01.Combat;
+using OzGameLab01.Managers;
+using OzGameLab01.UI;
+using OzGameLab01.UI.Battle;
+using UnityEngine;
+
+namespace OzGameLab01.Controllers
+{
+    [DefaultExecutionOrder(-500)]
+    [DisallowMultipleComponent]
+    public sealed class CombatTutorialSequenceController : MonoBehaviour
+    {
+        [Header("Scene References (Optional)")]
+        [SerializeField] private CombatSceneController combatSceneController;
+        [SerializeField] private CombatSession combatSession;
+        [SerializeField] private CombatUIView combatUIView;
+        [SerializeField] private CombatInfoView combatInfoView;
+
+        [Header("Presentation")]
+        [SerializeField] private RectTransform tutorialCanvasRoot;
+        [SerializeField] private TutorialGuideView guideView;
+        [SerializeField] private int overlaySortingOrder = 30000;
+
+        [Header("Sequence")]
+        [SerializeField] private bool playAutomatically = true;
+        [SerializeField] private bool playOnce = true;
+        [SerializeField] private bool ignoreCompletedProgress;
+        [SerializeField] private string progressKey = "Tutorial.CombatIntro.v1";
+        [SerializeField] private List<CombatTutorialStepData> steps = new();
+
+        private CombatTutorialOverlayPresenter overlayPresenter;
+        private TutorialSequenceState<CombatTutorialStepData> sequenceState;
+        private Tween pendingShowTween;
+        private bool combatEventsBound;
+        private bool tutorialPauseHeld;
+        private bool targetCompletionRequested;
+        private bool battleButtonInvocationRequested;
+        private bool combatEntryEvaluated;
+        private bool enteredFromTutorial;
+        private bool formationGridVisibilityOverridden;
+        private bool formationGridWasVisible;
+
+        public bool IsPlaying => sequenceState != null && sequenceState.IsPlaying;
+        public string ActiveStepName => sequenceState?.ActiveStep != null
+            ? sequenceState.ActiveStep.StepName
+            : string.Empty;
+
+        public event Action SequenceCompleted;
+
+        private void Awake()
+        {
+            EnsureSequenceState();
+            ResolveReferences();
+
+            // 일반 전투에서는 튜토리얼용 Canvas와 GuideView 자체를 생성하지 않습니다.
+            // 전투 진입 컨텍스트는 이 시점에 한 번 소비되고 현재 컨트롤러에 캐시됩니다.
+            if (!CanPlaySequence())
+            {
+                enabled = false;
+                return;
+            }
+
+            overlayPresenter = new CombatTutorialOverlayPresenter();
+            overlayPresenter.Initialize(
+                tutorialCanvasRoot,
+                guideView,
+                overlaySortingOrder);
+            TryAcquireInitialPause();
+        }
+
+        private void OnEnable()
+        {
+            ResolveReferences();
+            BindBattleReady();
+            BindBattleInfoEvents();
+
+            if (overlayPresenter != null)
+            {
+                overlayPresenter.GuideDismissed += HandleGuideDismissed;
+                overlayPresenter.TargetClicked += HandleFocusClicked;
+            }
+        }
+
+        private void Start()
+        {
+            if (combatSession != null && combatSession.IsBattleReady)
+                HandleBattleReady();
+        }
+
+        private void LateUpdate()
+        {
+            overlayPresenter?.Tick();
+        }
+
+        private void OnDisable()
+        {
+            UnbindBattleReady();
+            UnbindBattleInfoEvents();
+            UnbindCombatEvents();
+
+            if (overlayPresenter != null)
+            {
+                overlayPresenter.GuideDismissed -= HandleGuideDismissed;
+                overlayPresenter.TargetClicked -= HandleFocusClicked;
+            }
+
+            StopSequenceInternal(hideGuide: true);
+        }
+
+        private void OnDestroy()
+        {
+            overlayPresenter?.Dispose();
+            overlayPresenter = null;
+        }
+
+        [ContextMenu("Play Combat Tutorial")]
+        public void PlaySequence()
+        {
+            EnsureSequenceState();
+            if (!CanPlaySequence())
+                return;
+
+            StopSequenceInternal(hideGuide: true);
+
+            sequenceState.Start();
+            BindCombatEvents();
+
+            if (combatSession != null && combatSession.IsBattleReady)
+            {
+                if (combatInfoView != null && combatInfoView.IsBattleButtonReady)
+                    TryScheduleNextStep(CombatTutorialStepTrigger.BattleInfoReady);
+                else
+                    TryScheduleNextStep(CombatTutorialStepTrigger.BattleReady);
+            }
+        }
+
+        [ContextMenu("Stop Combat Tutorial")]
+        public void StopSequence()
+        {
+            StopSequenceInternal(hideGuide: true);
+        }
+
+        [ContextMenu("Reset Combat Tutorial Progress")]
+        public void ResetProgress()
+        {
+            TutorialProgress.ResetFor(progressKey);
+            TutorialSessionState.ResetCombatTutorial();
+        }
+
+        public void NotifyManualTrigger(string triggerKey)
+        {
+            CombatTutorialStepData step = GetNextStep();
+            if (step == null ||
+                step.Trigger != CombatTutorialStepTrigger.Manual ||
+                !string.Equals(
+                    step.ManualTriggerKey,
+                    triggerKey,
+                    StringComparison.Ordinal))
+            {
+                return;
+            }
+
+            ScheduleStep(step);
+        }
+
+        private void HandleBattleReady()
+        {
+            BindCombatEvents();
+
+            if (playAutomatically && !IsPlaying)
+                PlaySequence();
+            else
+                TryScheduleNextStep(CombatTutorialStepTrigger.BattleReady);
+        }
+
+        private void HandleBattleInfoReady()
+        {
+            TryScheduleNextStep(CombatTutorialStepTrigger.BattleInfoReady);
+        }
+
+        private void HandleBattleButtonClicked()
+        {
+            TryScheduleNextStep(CombatTutorialStepTrigger.BattleButtonClicked);
+        }
+
+        private void HandleEnemySkillUsed(Unit _, OzGameLab01.Data.SkillData __)
+        {
+            TryScheduleNextStep(CombatTutorialStepTrigger.EnemySkillUsed);
+        }
+
+        private void TryScheduleNextStep(CombatTutorialStepTrigger trigger)
+        {
+            CombatTutorialStepData step = GetNextStep();
+            if (step == null || step.Trigger != trigger)
+                return;
+
+            ScheduleStep(step);
+        }
+
+        private CombatTutorialStepData GetNextStep()
+        {
+            return sequenceState?.PeekNext();
+        }
+
+        private void ScheduleStep(CombatTutorialStepData step)
+        {
+            if (step == null)
+                return;
+
+            if (!sequenceState.TryQueue(step))
+                return;
+
+            if (step.PauseCombat)
+                AcquireTutorialPause();
+
+            if (step.ShowDelay <= 0f)
+            {
+                ShowPendingStep();
+                return;
+            }
+
+            pendingShowTween = DOVirtual.DelayedCall(
+                step.ShowDelay,
+                ShowPendingStep,
+                ignoreTimeScale: true);
+        }
+
+        private void ShowPendingStep()
+        {
+            if (!IsPlaying || sequenceState.PendingStep == null)
+                return;
+
+            pendingShowTween = null;
+            CombatTutorialStepData step = sequenceState.ActivatePending();
+            if (step == null)
+                return;
+
+            targetCompletionRequested = false;
+
+            bool hasTarget = TryResolveTarget(
+                step.Target,
+                out RectTransform target,
+                out List<PlayerSlotItemView> formationSlots);
+            bool needsTarget = step.HighlightTarget || step.AllowsTargetClick;
+
+            if (needsTarget && !hasTarget)
+            {
+                Debug.LogWarning(
+                    $"[CombatTutorialSequenceController] 전투 튜토리얼 대상을 찾지 못했습니다. Step: {step.StepName}, Target: {step.Target}",
+                    this);
+            }
+
+            overlayPresenter?.ShowStep(
+                step,
+                hasTarget ? target : null,
+                formationSlots);
+
+            if (!step.ShowGuide && !step.AllowsTargetClick)
+                CompleteActiveStep();
+        }
+
+        private void HandleGuideDismissed()
+        {
+            CombatTutorialStepData step = sequenceState.ActiveStep;
+            if (step == null)
+                return;
+
+            if (targetCompletionRequested || step.AllowsGuideDismiss)
+                CompleteActiveStep();
+        }
+
+        private void HandleFocusClicked()
+        {
+            CombatTutorialStepData step = sequenceState.ActiveStep;
+            if (step == null || !step.AllowsTargetClick)
+                return;
+
+            if (step.Target == CombatTutorialTarget.BattleButton)
+            {
+                ResolveReferences();
+                if (combatInfoView == null || !combatInfoView.IsBattleButtonReady)
+                    return;
+
+                battleButtonInvocationRequested = true;
+            }
+
+            targetCompletionRequested = true;
+
+            if (step.ShowGuide &&
+                overlayPresenter != null &&
+                overlayPresenter.IsGuideVisible)
+            {
+                overlayPresenter.DismissGuide();
+                return;
+            }
+
+            CompleteActiveStep();
+        }
+
+        private void CompleteActiveStep()
+        {
+            if (sequenceState.ActiveStep == null)
+                return;
+
+            CombatTutorialStepData completedStep =
+                sequenceState.ClearActive();
+            bool invokeBattleButton = battleButtonInvocationRequested;
+            targetCompletionRequested = false;
+            battleButtonInvocationRequested = false;
+
+            overlayPresenter?.HideStep();
+            RestoreFormationGridVisibility();
+
+            CombatTutorialStepData nextStep = sequenceState.PeekNext();
+            bool nextStartsImmediately = nextStep != null &&
+                                         nextStep.Trigger ==
+                                         CombatTutorialStepTrigger.PreviousStepCompleted;
+            bool keepPausedForNext = nextStartsImmediately &&
+                                     nextStep.PauseCombat;
+
+            if (completedStep.ResumeCombatOnComplete && !keepPausedForNext)
+                ReleaseTutorialPause();
+
+            if (nextStartsImmediately)
+            {
+                ScheduleStep(nextStep);
+            }
+            else if (nextStep == null)
+            {
+                CompleteSequence();
+            }
+            else if (tutorialPauseHeld)
+            {
+                Debug.LogWarning(
+                    $"[CombatTutorialSequenceController] 다음 Step이 이벤트를 기다리는 동안 전투가 정지 상태입니다. 이전 Step의 Resume Combat On Complete 설정을 확인하세요. Step: {completedStep.StepName}",
+                    this);
+            }
+
+            if (invokeBattleButton)
+                combatInfoView?.TryInvokeBattleButton();
+        }
+
+        private void CompleteSequence()
+        {
+            sequenceState.Complete();
+            ReleaseTutorialPause();
+            UnbindCombatEvents();
+
+            if (playOnce)
+            {
+                TutorialSessionState.MarkCombatTutorialCompleted();
+
+                if (!string.IsNullOrWhiteSpace(progressKey))
+                    TutorialProgress.MarkCompletedFor(progressKey);
+            }
+
+            SequenceCompleted?.Invoke();
+        }
+
+        private bool TryResolveTarget(
+            CombatTutorialTarget targetType,
+            out RectTransform target,
+            out List<PlayerSlotItemView> formationSlots)
+        {
+            target = null;
+            formationSlots = null;
+
+            ResolveReferences();
+
+            if (targetType == CombatTutorialTarget.BattleButton)
+            {
+                target = combatInfoView != null
+                    ? combatInfoView.BattleButtonHighlightTarget
+                    : null;
+                return target != null;
+            }
+
+            CombatMainView mainView = combatUIView != null
+                ? combatUIView.MainView
+                : null;
+            if (mainView == null)
+                return false;
+
+            switch (targetType)
+            {
+                case CombatTutorialTarget.EnemyHpUI:
+                    target = mainView.EnemyHeaderView != null
+                        ? mainView.EnemyHeaderView.HealthHighlightTarget
+                        : null;
+                    break;
+
+                case CombatTutorialTarget.EnemyCombatArea:
+                    target = mainView.EnemyCombatArea;
+                    break;
+
+                case CombatTutorialTarget.EnemySkillArea:
+                    target = mainView.EnemySkillArea;
+                    break;
+
+                case CombatTutorialTarget.PlayerFormationSlots:
+                    formationSlots = ResolveFormationSlots(mainView);
+                    target = mainView.FormationGrid != null
+                        ? mainView.FormationGrid.transform as RectTransform
+                        : null;
+                    return formationSlots.Count > 0;
+
+            }
+
+            return target != null;
+        }
+
+        private List<PlayerSlotItemView> ResolveFormationSlots(
+            CombatMainView mainView)
+        {
+            var result = new List<PlayerSlotItemView>();
+            if (mainView == null || mainView.FormationGrid == null)
+                return result;
+
+            if (!formationGridVisibilityOverridden)
+            {
+                formationGridWasVisible = mainView.IsFormationGridVisible;
+                formationGridVisibilityOverridden = true;
+            }
+
+            mainView.SetFormationGridVisible(true);
+
+            PlayerSlotItemView[] slots = mainView.GetFormationSlots();
+            for (int i = 0; i < slots.Length; i++)
+            {
+                PlayerSlotItemView slot = slots[i];
+                if (slot != null && slot.SlotVisualImage != null)
+                    result.Add(slot);
+            }
+
+            return result;
+        }
+
+        private void RestoreFormationGridVisibility()
+        {
+            if (!formationGridVisibilityOverridden)
+                return;
+
+            ResolveReferences();
+            CombatMainView mainView = combatUIView != null
+                ? combatUIView.MainView
+                : null;
+            mainView?.SetFormationGridVisible(formationGridWasVisible);
+
+            formationGridVisibilityOverridden = false;
+            formationGridWasVisible = false;
+        }
+
+        private void ResolveReferences()
+        {
+            if (combatSceneController == null)
+            {
+                combatSceneController =
+                    FindFirstObjectByType<CombatSceneController>(
+                        FindObjectsInactive.Include);
+            }
+
+            if (combatSession == null)
+            {
+                combatSession = FindFirstObjectByType<CombatSession>(
+                    FindObjectsInactive.Include);
+            }
+
+            if (combatUIView == null)
+            {
+                combatUIView = FindFirstObjectByType<CombatUIView>(
+                    FindObjectsInactive.Include);
+            }
+
+            if (combatInfoView == null)
+            {
+                combatInfoView = FindFirstObjectByType<CombatInfoView>(
+                    FindObjectsInactive.Include);
+            }
+        }
+
+        private bool CanPlaySequence()
+        {
+            if (!IsTutorialCombatEntry())
+                return false;
+
+            EnsureSequenceState();
+            if (!sequenceState.HasConfiguredSteps)
+                return false;
+
+            if (playOnce &&
+                !ignoreCompletedProgress &&
+                TutorialSessionState.IsCombatTutorialCompleted)
+            {
+                return false;
+            }
+
+            if (tutorialCanvasRoot == null ||
+                tutorialCanvasRoot.GetComponent<Canvas>() == null)
+            {
+                Debug.LogError(
+                    "[CombatTutorialSequenceController] Combat 씬의 CombatTutorialCanvas가 연결되지 않았거나 Canvas 컴포넌트가 없습니다.",
+                    this);
+                return false;
+            }
+
+            if (guideView == null)
+            {
+                for (int i = 0; i < steps.Count; i++)
+                {
+                    if (steps[i] != null && steps[i].ShowGuide)
+                    {
+                        Debug.LogError(
+                            "[CombatTutorialSequenceController] Combat 씬의 TutorialGuideView가 연결되지 않았습니다.",
+                            this);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        private bool IsTutorialCombatEntry()
+        {
+            if (combatEntryEvaluated)
+                return enteredFromTutorial;
+
+            combatEntryEvaluated = true;
+            SceneTransitioner transitioner = SceneTransitioner.Instance;
+            enteredFromTutorial =
+                transitioner != null &&
+                transitioner.TryConsumeTutorialCombatEntry();
+
+            return enteredFromTutorial;
+        }
+
+        private void TryAcquireInitialPause()
+        {
+            if (!playAutomatically || !CanPlaySequence())
+                return;
+
+            CombatTutorialStepData firstStep =
+                sequenceState.GetFirstConfiguredStep();
+
+            if (firstStep != null &&
+                firstStep.Trigger == CombatTutorialStepTrigger.BattleReady &&
+                firstStep.PauseCombat)
+            {
+                AcquireTutorialPause();
+            }
+        }
+
+        private void AcquireTutorialPause()
+        {
+            ResolveReferences();
+            if (combatSceneController == null)
+                return;
+
+            combatSceneController.SetPauseReason(
+                CombatSceneController.PauseReason.Tutorial,
+                true);
+            tutorialPauseHeld = true;
+        }
+
+        private void ReleaseTutorialPause()
+        {
+            if (!tutorialPauseHeld)
+                return;
+
+            if (combatSceneController != null)
+            {
+                combatSceneController.SetPauseReason(
+                    CombatSceneController.PauseReason.Tutorial,
+                    false);
+            }
+
+            tutorialPauseHeld = false;
+        }
+
+        private void BindBattleReady()
+        {
+            if (combatSession == null)
+                return;
+
+            combatSession.BattleReady -= HandleBattleReady;
+            combatSession.BattleReady += HandleBattleReady;
+        }
+
+        private void UnbindBattleReady()
+        {
+            if (combatSession != null)
+                combatSession.BattleReady -= HandleBattleReady;
+        }
+
+        private void BindBattleInfoEvents()
+        {
+            if (combatInfoView == null)
+                return;
+
+            combatInfoView.BattleButtonReady -= HandleBattleInfoReady;
+            combatInfoView.BattleButtonReady += HandleBattleInfoReady;
+            combatInfoView.BattleButtonClicked -= HandleBattleButtonClicked;
+            combatInfoView.BattleButtonClicked += HandleBattleButtonClicked;
+        }
+
+        private void UnbindBattleInfoEvents()
+        {
+            if (combatInfoView == null)
+                return;
+
+            combatInfoView.BattleButtonReady -= HandleBattleInfoReady;
+            combatInfoView.BattleButtonClicked -= HandleBattleButtonClicked;
+        }
+
+        private void BindCombatEvents()
+        {
+            if (combatEventsBound)
+                return;
+
+            PassiveEventBus.OnEnemySkillUsed += HandleEnemySkillUsed;
+            combatEventsBound = true;
+        }
+
+        private void UnbindCombatEvents()
+        {
+            if (!combatEventsBound)
+                return;
+
+            PassiveEventBus.OnEnemySkillUsed -= HandleEnemySkillUsed;
+            combatEventsBound = false;
+        }
+
+        private void StopSequenceInternal(bool hideGuide)
+        {
+            sequenceState?.Stop();
+            targetCompletionRequested = false;
+            battleButtonInvocationRequested = false;
+
+            if (pendingShowTween != null)
+            {
+                pendingShowTween.Kill();
+                pendingShowTween = null;
+            }
+
+            if (hideGuide)
+                overlayPresenter?.HideAllImmediate();
+            else
+                overlayPresenter?.HideStep();
+
+            RestoreFormationGridVisibility();
+            ReleaseTutorialPause();
+            UnbindCombatEvents();
+        }
+
+        private void EnsureSequenceState()
+        {
+            sequenceState ??=
+                new TutorialSequenceState<CombatTutorialStepData>(steps);
+        }
+    }
+}

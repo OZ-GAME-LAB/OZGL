@@ -1,0 +1,1251 @@
+using System;
+using System.Collections.Generic;
+using DG.Tweening;
+using UnityEngine;
+using OzGameLab01.Dice.Contracts;
+using OzGameLab01.Board.Models;
+using OzGameLab01.Board.Views;
+using TMPro;
+using OzGameLab01.UI;
+using OzGameLab01.Data;
+using OzGameLab01.Map;
+using OzGameLab01.Common;
+using OzGameLab01.Board.Contracts;
+using OzGameLab01.Effects.Models;
+using OzGameLab01.Effects.Views;
+using OzGameLab01.Managers;
+
+namespace OzGameLab01.Controllers
+{
+    public class BoardUIController : MonoBehaviour
+    {
+        [Header("Master View")]
+        public ReadySceneView readySceneView;
+
+        [Header("Scene Controller")]
+        public BoardSceneController boardSceneController;
+
+        [Header("UI Dependencies")]
+        public TextMeshProUGUI resultText;
+        public TextMeshProUGUI warningText;
+
+        [Header("Boss Battle Preview")]
+        [Tooltip("Battle_Info_Ui 프리팹 안의 CombatInfoView입니다. 비워두면 비활성 오브젝트를 포함해 자동으로 찾습니다.")]
+        [SerializeField] private CombatInfoView battleInfoView;
+
+        [Header("Locate")]
+        public MapRouteDirector mapRouteDirector;
+        public BoardCameraController boardCameraController;
+
+        [Header("Turn Sequence")]
+        [Tooltip("끄면 턴 시작 시 RollView를 자동으로 열지 않습니다. 튜토리얼 Step 등에서 RequestRollViewOpen을 호출해 열 수 있습니다.")]
+        [SerializeField] private bool automaticRollViewEnabled = true;
+        [Min(0f)][SerializeField] private float initialAutoRollViewDelay = 0.5f;
+        [Min(0f)][SerializeField] private float turnAutoRollViewDelay = 0.5f;
+        [Min(0f)][SerializeField] private float timeOfDayFeedbackDuration = 1.5f;
+        [SerializeField] private string nightMessage = "Night Has Come";
+        [SerializeField] private string dayMessage = "Day Has Come";
+
+        private const float FormationFeedbackDuration = 1.5f;
+
+        [Header("Clock Rotation (Bow String Anim)")]
+        [Tooltip("비워두면 MainView 하위에서 RotatingVisual 오브젝트를 자동으로 찾습니다.")]
+        [SerializeField] private RectTransform clockRotatingVisual;
+        [SerializeField] private float dayClockAngle = 45f;
+        [SerializeField] private float nightClockAngle = 220f;
+        
+        [Header("1. Catch (덜컥)")]
+        [SerializeField] private float catchAngleOffset = 15f;
+        [SerializeField, Min(0f)] private float catchDuration = 0.1f;
+        [SerializeField] private Ease catchEase = Ease.OutQuint;
+
+        [Header("2. Pullback (시위 당김)")]
+        [SerializeField] private float pullbackAngleOffset = -30f;
+        [SerializeField, Min(0f)] private float pullbackDuration = 0.6f;
+        [SerializeField] private Ease pullbackEase = Ease.InOutSine;
+
+        [Header("3. Shoot (발사)")]
+        [SerializeField, Min(0f)] private float shootDuration = 0.4f;
+        [SerializeField] private Ease shootEase = Ease.OutBack;
+
+        [Header("Settings")]
+        public float rollViewCloseDelay = 1.0f;
+        public float warningTextDuration = 2.0f;
+
+        [Header("Tooltip")]
+        [SerializeField, Min(0f)] private float tooltipScreenOffset = 12f;
+
+        private Coroutine _automaticRollViewRoutine;
+        private Coroutine _timeOfDayFeedbackRoutine;
+        private Coroutine _formationFeedbackRoutine;
+        private BoardFeedbackView _feedbackView;
+        private System.IDisposable _diceSubscription;
+        private Sequence _clockRotationSequence;
+        private RelicFacade _relicFacade;
+        private UnitFormationController _formationController;
+        private CombatInfoPresenter _battleInfoPresenter;
+        private bool _started;
+        private bool _actionPointUiRefreshPending;
+        private int _unitAcquireIconRequestVersion;
+        private ReadySidePanelView _sidePanelView;
+        private object _tooltipOwner;
+        private readonly Vector3[] _tooltipAnchorCorners = new Vector3[4];
+
+
+        public static event Action OnRollViewClosed;
+        private void Awake()
+        {
+            _feedbackView = new BoardFeedbackView(resultText, warningText);
+
+            if (battleInfoView == null)
+            {
+                battleInfoView = FindFirstObjectByType<CombatInfoView>(FindObjectsInactive.Include);
+            }
+
+            _battleInfoPresenter = new CombatInfoPresenter(battleInfoView);
+            _battleInfoPresenter.Hide();
+        }
+
+        private void Start()
+        {
+            _started = true;
+            BindEvents();
+            ScheduleAutomaticRollView(initialAutoRollViewDelay);
+        }
+
+        private void OnEnable()
+        {
+            if (_started)
+            {
+                BindEvents();
+                ScheduleAutomaticRollView(initialAutoRollViewDelay);
+            }
+        }
+
+        private void BindEvents()
+        {
+            if (mapRouteDirector == null) mapRouteDirector = FindFirstObjectByType<MapRouteDirector>();
+            if (boardCameraController == null) boardCameraController = FindFirstObjectByType<BoardCameraController>();
+            if (_formationController == null) _formationController = FindFirstObjectByType<UnitFormationController>(FindObjectsInactive.Include);
+
+            _ = Managers.DiceManager.Instance.Facade; // 씬 직접 실행 시 시스템 구성
+            _diceSubscription?.Dispose();
+            _diceSubscription = SystemBus.Messages.Subscribe<DiceRolled>(message => HandleDiceRolled(message.Value));
+            if (_relicFacade != null)
+            {
+                _relicFacade.Notification -= HandleRelicNotification;
+            }
+            _relicFacade = SystemBus.Get<RelicFacade>();
+            if (_relicFacade != null)
+            {
+                _relicFacade.Notification += HandleRelicNotification;
+            }
+            BoardPlayerController.OnPlayerFinishedMoving -= HandlePlayerFinishedMoving;
+            BoardPlayerController.OnPlayerFinishedMoving += HandlePlayerFinishedMoving;
+            BoardPlayerController.OnPlayerStepCompleted -= HandlePlayerStepCompleted;
+            BoardPlayerController.OnPlayerStepCompleted += HandlePlayerStepCompleted;
+
+            if (readySceneView != null)
+            {
+                readySceneView.ViewVisibilityChanged -= HandleReadyViewVisibilityChanged;
+                readySceneView.ViewVisibilityChanged += HandleReadyViewVisibilityChanged;
+
+                if (readySceneView.RollView != null)
+                    readySceneView.RollView.RollClicked += HandleRollButtonClicked;
+
+                if (readySceneView.MainView != null)
+                {
+                    readySceneView.MainView.UnitClicked += HandleUnitButtonClicked;
+                    readySceneView.MainView.SettingsClicked += HandleSettingsButtonClicked;
+                    readySceneView.MainView.LocateClicked += HandleLocateButtonClicked;
+                    readySceneView.MainView.EndTurnClicked += HandleEndTurnButtonClicked;
+                    readySceneView.MainView.SynergyPointerEntered += HandleSynergyPointerEntered;
+                    readySceneView.MainView.SynergyPointerExited += HandleSynergyPointerExited;
+                    readySceneView.MainView.ArtifactPointerEntered += HandleArtifactPointerEntered;
+                    readySceneView.MainView.ArtifactPointerExited += HandleArtifactPointerExited;
+
+                    BindSidePanel(readySceneView.MainView);
+
+                    RefreshTurnInfo();
+
+                    RefreshEndTurnFeedback(true);
+                    RefreshArtifactItems();
+                    StartCoroutine(RefreshSynergyItemsNextFrame());
+                }
+
+                if (readySceneView.SettingsView != null)
+                {
+                    readySceneView.SettingsView.CloseRequested += HandleSettingsBackClicked;
+
+                    // 보드에서는 타이틀로 돌아가기 버튼만 노출(튜토리얼/데이터 초기화는 타이틀 전용)
+                    readySceneView.SettingsView.ClearGameButtons();
+                    readySceneView.SettingsView.AddGameButton("타이틀로 돌아가기", HandleReturnToTitleClicked);
+                }
+
+                if (readySceneView.UnitView != null)
+                {
+                    readySceneView.UnitView.CloseClicked += HandleUnitCloseClicked;
+                }
+
+            }
+
+            if (boardSceneController != null)
+            {
+                boardSceneController.TurnEnded += HandleTurnEnded;
+                boardSceneController.NightReached += HandleNightReached;
+                boardSceneController.DayReached += HandleDayReached;
+                boardSceneController.PlayerTurnReady += HandlePlayerTurnReady;
+                boardSceneController.UnitAcquired += HandleUnitAcquired;
+                boardSceneController.ForcedFormationRequested += HandleForcedFormationRequested;
+                boardSceneController.BattlePreviewRequested += HandleBattlePreviewRequested;
+            }
+
+        }
+
+        private void OnDisable()
+        {
+            _unitAcquireIconRequestVersion++;
+            if (_actionPointUiRefreshPending)
+            {
+                RefreshActionPointUi(immediate: true);
+            }
+
+            StopAllCoroutines();
+            StopClockRotation();
+            _automaticRollViewRoutine = null;
+            readySceneView?.MainView?.SetInteractable(true);
+            _timeOfDayFeedbackRoutine = null;
+            _formationFeedbackRoutine = null;
+            _feedbackView?.HideWarning();
+            _battleInfoPresenter?.Hide();
+
+            _diceSubscription?.Dispose();
+            _diceSubscription = null;
+            if (_relicFacade != null)
+            {
+                _relicFacade.Notification -= HandleRelicNotification;
+                _relicFacade = null;
+            }
+            BoardPlayerController.OnPlayerFinishedMoving -= HandlePlayerFinishedMoving;
+            BoardPlayerController.OnPlayerStepCompleted -= HandlePlayerStepCompleted;
+
+            if (readySceneView != null)
+            {
+                readySceneView.ViewVisibilityChanged -= HandleReadyViewVisibilityChanged;
+
+                if (readySceneView.RollView != null)
+                    readySceneView.RollView.RollClicked -= HandleRollButtonClicked;
+
+                if (readySceneView.MainView != null)
+                {
+                    readySceneView.MainView.UnitClicked -= HandleUnitButtonClicked;
+                    readySceneView.MainView.SettingsClicked -= HandleSettingsButtonClicked;
+                    readySceneView.MainView.LocateClicked -= HandleLocateButtonClicked;
+                    readySceneView.MainView.EndTurnClicked -= HandleEndTurnButtonClicked;
+                    readySceneView.MainView.SynergyPointerEntered -= HandleSynergyPointerEntered;
+                    readySceneView.MainView.SynergyPointerExited -= HandleSynergyPointerExited;
+                    readySceneView.MainView.ArtifactPointerEntered -= HandleArtifactPointerEntered;
+                    readySceneView.MainView.ArtifactPointerExited -= HandleArtifactPointerExited;
+                }
+
+                UnbindSidePanel();
+
+                if (readySceneView.SettingsView != null)
+                {
+                    readySceneView.SettingsView.CloseRequested -= HandleSettingsBackClicked;
+                    readySceneView.SettingsView.ClearGameButtons();
+                }
+
+                if (readySceneView.UnitView != null)
+                {
+                    readySceneView.UnitView.CloseClicked -= HandleUnitCloseClicked;
+                }
+
+            }
+
+            HideTooltip();
+
+            if (boardSceneController != null)
+            {
+                boardSceneController.TurnEnded -= HandleTurnEnded;
+                boardSceneController.NightReached -= HandleNightReached;
+                boardSceneController.DayReached -= HandleDayReached;
+                boardSceneController.PlayerTurnReady -= HandlePlayerTurnReady;
+                boardSceneController.UnitAcquired -= HandleUnitAcquired;
+                boardSceneController.ForcedFormationRequested -= HandleForcedFormationRequested;
+                boardSceneController.BattlePreviewRequested -= HandleBattlePreviewRequested;
+            }
+        }
+
+        public void ToggleRollView()
+        {
+            if (readySceneView == null || readySceneView.RollView == null) return;
+
+            bool isActive = !readySceneView.RollView.IsVisible;
+            if (isActive)
+            {
+                if (_timeOfDayFeedbackRoutine != null)
+                {
+                    return;
+                }
+
+                if (!TryOpenRollView())
+                {
+                    if (SystemBus.Messages.Request<DiceSnapshotRequested, DiceSnapshot>(default).HasRolledThisTurn)
+                    {
+                        ShowWarning("Please end the turn first!!");
+                    }
+                }
+            }
+            else
+            {
+                readySceneView.HideRollView();
+            }
+        }
+
+        /// <summary>
+        /// 자동 표시 설정과 무관하게 RollView 표시를 요청합니다.
+        /// 플레이어 등장·이동 연출 중이면 입력 가능한 상태가 될 때까지 기다립니다.
+        /// </summary>
+        public void RequestRollViewOpen(Action onOpened = null)
+        {
+            CancelAutomaticRollView();
+
+            if (!isActiveAndEnabled)
+            {
+                return;
+            }
+
+            RollViewOpenResult immediateResult = TryOpenRollViewInternal();
+
+            if (immediateResult == RollViewOpenResult.Opened)
+            {
+                onOpened?.Invoke();
+                return;
+            }
+
+            if (immediateResult == RollViewOpenResult.Blocked)
+            {
+                return;
+            }
+
+            _automaticRollViewRoutine =
+                StartCoroutine(OpenRollViewWhenAvailableRoutine(0f, onOpened));
+        }
+
+        private void HandleUnitButtonClicked(ReadyMainView view)
+        {
+            if (readySceneView == null) return;
+            readySceneView.HideAllOverlayViews();
+            readySceneView.ShowUnitView();
+        }
+
+        private void HandleSettingsButtonClicked(ReadyMainView view)
+        {
+            if (readySceneView == null) return;
+            readySceneView.HideAllOverlayViews();
+            readySceneView.ShowSettingsView();
+        }
+
+        private void HandleLocateButtonClicked(ReadyMainView view)
+        {
+            if (mapRouteDirector == null)
+            {
+                mapRouteDirector = FindFirstObjectByType<MapRouteDirector>();
+            }
+
+            if (boardCameraController == null)
+            {
+                boardCameraController = FindFirstObjectByType<BoardCameraController>();
+            }
+
+            GameObject objectiveView = mapRouteDirector != null
+                ? mapRouteDirector.CurrentObjectiveView
+                : null;
+
+            if (objectiveView == null || boardCameraController == null)
+            {
+                return;
+            }
+
+            boardCameraController.Locate(objectiveView.transform);
+        }
+
+        private void HandleEndTurnButtonClicked(ReadyMainView view)
+        {
+            if (!SystemBus.Messages.Request<DiceSnapshotRequested, DiceSnapshot>(default).HasRolledThisTurn)
+            {
+                ShowWarning("Please roll the dice first!");
+                return;
+            }
+
+            if (boardSceneController != null)
+            {
+                boardSceneController.EndTurn();
+            }
+        }
+
+        private void HandleSettingsBackClicked()
+        {
+            if (readySceneView != null) readySceneView.HideSettingsView();
+        }
+
+        private void HandleReturnToTitleClicked()
+        {
+            // 설정창이 열린 채로 씬 전환되면 전환 연출 동안 그대로 보이는 문제가 있어 먼저 닫음
+            readySceneView?.HideSettingsView();
+            boardSceneController?.ReturnToTitle();
+        }
+
+        private void HandleUnitCloseClicked(UnitView view)
+        {
+            if (boardSceneController != null && boardSceneController.HasPendingBattleFormation)
+            {
+                if (!boardSceneController.TryCompletePendingBattleFormation())
+                {
+                    return;
+                }
+            }
+
+            if (readySceneView != null) readySceneView.HideUnitView();
+            RefreshSynergyItems();
+        }
+
+        // 전투 타일 전용 유닛 배치 안내 및 화면 표시
+        private void HandleForcedFormationRequested()
+        {
+            if (readySceneView == null)
+            {
+                return;
+            }
+
+            if (_formationFeedbackRoutine != null)
+            {
+                StopCoroutine(_formationFeedbackRoutine);
+            }
+
+            _formationFeedbackRoutine = StartCoroutine(ShowFormationFeedbackRoutine());
+        }
+
+        private void HandleBattlePreviewRequested(MonsterData enemy)
+        {
+            CancelAutomaticRollView();
+
+            if (_battleInfoPresenter == null || !_battleInfoPresenter.IsAvailable)
+            {
+                //Debug.LogWarning(
+                //    "[BoardUIController] CombatInfoView가 연결되지 않아 전투 정보 화면을 건너뜁니다.",
+                //    this);
+                boardSceneController?.ConfirmPendingBattlePreview();
+                return;
+            }
+
+            readySceneView?.HideAllOverlayViews();
+            readySceneView?.MainView?.SetInteractable(false);
+            _battleInfoPresenter.Show(enemy, HandleBattlePreviewConfirmed);
+        }
+
+        private bool HandleBattlePreviewConfirmed()
+        {
+            if (boardSceneController == null ||
+                !boardSceneController.ConfirmPendingBattlePreview())
+            {
+                return false;
+            }
+
+            readySceneView?.MainView?.SetInteractable(true);
+            return true;
+        }
+
+        // 강제 유닛 배치 피드백 표시 시간 관리
+        private System.Collections.IEnumerator ShowFormationFeedbackRoutine()
+        {
+            readySceneView.HideAllOverlayViews();
+            readySceneView.ShowUnitView();
+            readySceneView.ShowFeedbackView("유닛을 배치해주세요!");
+
+            yield return new WaitForSecondsRealtime(FormationFeedbackDuration);
+
+            if (readySceneView != null)
+            {
+                readySceneView.HideFeedbackView();
+            }
+
+            _formationFeedbackRoutine = null;
+        }
+
+        private void HandleRollButtonClicked(DiceRollView view)
+        {
+            SoundConnector.RequestSfx(SoundId.BoardDiceButton);
+            SystemBus.Messages.Request<DiceRollRequested, DiceRollResult>(default);
+        }
+
+        private void HandleDiceRolled(int diceValue)
+        {
+            CancelAutomaticRollView();
+            _actionPointUiRefreshPending = true;
+
+            if (readySceneView == null)
+            {
+                RefreshActionPointUi();
+                return;
+            }
+
+            DiceRollView view = readySceneView.RollView;
+
+            if (!isActiveAndEnabled || view == null || !view.IsVisible)
+            {
+                RefreshActionPointUi();
+                return;
+            }
+
+            _feedbackView.SetDiceResult("?");
+
+            view.SetInteractable(false);
+
+            bool started = view.PlayRoll(diceValue, result =>
+            {
+                RefreshActionPointUi();
+
+                if (!isActiveAndEnabled || view == null || !view.IsVisible)
+                    return;
+
+                _feedbackView.SetDiceResult(result.ToString());
+
+                StartCoroutine(CloseRollViewRoutine());
+            });
+
+            if (!started)
+            {
+                RefreshActionPointUi();
+                _feedbackView.SetDiceResult(diceValue.ToString());
+
+                StartCoroutine(CloseRollViewRoutine());
+            }
+        }
+
+        private void HandleReadyViewVisibilityChanged(ReadySceneViewType viewType, bool isVisible)
+        {
+            if (viewType == ReadySceneViewType.Roll && !isVisible && _actionPointUiRefreshPending)
+            {
+                RefreshActionPointUi(immediate: true);
+            }
+        }
+
+        // [수정됨] 턴이 종료되면 코루틴을 통해 1프레임 대기 후 UI를 업데이트합니다.
+        private void HandleTurnEnded(int unusedActionPoints)
+        {
+            readySceneView?.MainView?.SetActionPointState(
+                EndTurnButtonFeedbackView.TurnActionPointState.Waiting,
+                0,
+                true);
+            StartCoroutine(UpdateTurnUIRoutine());
+        }
+
+        private void HandlePlayerFinishedMoving()
+        {
+            RefreshEndTurnFeedback();
+        }
+
+        private void HandlePlayerStepCompleted()
+        {
+            RefreshEndTurnFeedback(true);
+        }
+
+        private System.Collections.IEnumerator UpdateTurnUIRoutine()
+        {
+            // BoardSceneController 내부에서 TurnCount를 올릴 때까지 아주 잠깐(1프레임) 기다려줍니다.
+            yield return null;
+
+            if (readySceneView != null && readySceneView.MainView != null)
+            {
+                RefreshTurnInfo();
+            }
+        }
+
+        private void RefreshTurnInfo()
+        {
+            ReadyMainView mainView = readySceneView?.MainView;
+            if (mainView == null)
+            {
+                return;
+            }
+
+            int displayTurn = BoardTurnRules.DisplayTurn(BoardRunData.TurnCount);
+            int bossRemainingTurn = boardSceneController != null
+                ? boardSceneController.TurnsUntilBossAppearance
+                : 0;
+
+            mainView.SetCurrentTurn(displayTurn);
+            mainView.SetBossRemainingTurn(bossRemainingTurn);
+        }
+
+        private void HandleNightReached(int turnCount)
+        {
+            RefreshTurnInfo();
+            if (PlayClockTransition(nightClockAngle) != null)
+            {
+                SoundConnector.RequestSfx(SoundId.BoardDayChange);
+            }
+            Debug.Log($"[BoardUIController] {turnCount}턴 째 밤이 되었습니다!");
+            ShowTimeOfDayFeedback(nightMessage);
+        }
+
+        private void HandleDayReached(int turnCount)
+        {
+            RefreshTurnInfo();
+            if (PlayClockTransition(dayClockAngle) != null)
+            {
+                SoundConnector.RequestSfx(SoundId.BoardDayChange);
+            }
+            Debug.Log($"[BoardUIController] {turnCount}턴 째 낮이 되었습니다!");
+            ShowTimeOfDayFeedback(dayMessage);
+        }
+
+        private Sequence PlayClockTransition(float finalTargetAngle)
+        {
+            RectTransform rotatingVisual = ResolveClockRotatingVisual();
+            if (rotatingVisual == null)
+            {
+                return null;
+            }
+
+            StopClockRotation();
+
+            float currentZ = rotatingVisual.localEulerAngles.z;
+            float targetZ = finalTargetAngle;
+
+            // 항상 양수 방향(반시계)으로 쏘아지도록 목표 각도 보정
+            if (targetZ <= currentZ)
+            {
+                targetZ += 360f;
+            }
+
+            float catchZ = currentZ + catchAngleOffset;
+            float pullbackZ = currentZ + pullbackAngleOffset;
+
+            _clockRotationSequence = DOTween.Sequence()
+                .SetUpdate(true)
+                // 1. 양수 방향으로 약간 덜컥
+                .Append(rotatingVisual.DOLocalRotate(
+                        new Vector3(0f, 0f, catchZ),
+                        catchDuration,
+                        RotateMode.FastBeyond360)
+                    .SetEase(catchEase))
+                // 2. 음수 방향으로 천천히 시위 당기기
+                .Append(rotatingVisual.DOLocalRotate(
+                        new Vector3(0f, 0f, pullbackZ),
+                        pullbackDuration,
+                        RotateMode.FastBeyond360)
+                    .SetEase(pullbackEase))
+                // 3. 목표를 향해 빠른 속도로 발사
+                .Append(rotatingVisual.DOLocalRotate(
+                        new Vector3(0f, 0f, targetZ),
+                        shootDuration,
+                        RotateMode.FastBeyond360)
+                    .SetEase(shootEase))
+                .OnComplete(() => _clockRotationSequence = null);
+
+            return _clockRotationSequence;
+        }
+
+        private RectTransform ResolveClockRotatingVisual()
+        {
+            if (clockRotatingVisual != null)
+            {
+                return clockRotatingVisual;
+            }
+
+            if (readySceneView?.MainView == null)
+            {
+                return null;
+            }
+
+            RectTransform[] children =
+                readySceneView.MainView.GetComponentsInChildren<RectTransform>(true);
+
+            foreach (RectTransform child in children)
+            {
+                if (child.name == "RotatingVisual")
+                {
+                    clockRotatingVisual = child;
+                    break;
+                }
+            }
+
+            return clockRotatingVisual;
+        }
+
+        private void StopClockRotation()
+        {
+            _clockRotationSequence?.Kill(false);
+            _clockRotationSequence = null;
+        }
+
+#if UNITY_EDITOR
+        /// <summary>DOTween Editor Preview에서 시계 전환 시퀀스를 재생하기 위한 편집기 전용 진입점입니다.</summary>
+        public Sequence PlayClockTransitionPreview(float finalTargetAngle)
+        {
+            return PlayClockTransition(finalTargetAngle);
+        }
+
+        /// <summary>편집기에서 실행 중인 시계 전환 시퀀스를 정리합니다.</summary>
+        public void StopClockTransitionPreview()
+        {
+            StopClockRotation();
+        }
+#endif
+
+        private void HandlePlayerTurnReady()
+        {
+            ScheduleAutomaticRollView(turnAutoRollViewDelay);
+        }
+
+        private async void HandleUnitAcquired(UnitData unitData)
+        {
+            ReadySceneView view = readySceneView;
+            if (view == null || unitData == null)
+                return;
+
+            UnitAcquirePopupView popup = view.UnitAcquirePopupView;
+            if (popup == null)
+                return;
+
+            SoundConnector.RequestSfx(SoundId.BoardGetUnit);
+            view.PlayUnitAcquirePopup(unitData.name, null);
+            int requestVersion = ++_unitAcquireIconRequestVersion;
+            if (string.IsNullOrWhiteSpace(unitData.iconAddress))
+                return;
+
+            try
+            {
+                Sprite sprite = await OzGameLab01.Managers.SpriteManager.GetSpriteAsync(unitData.iconAddress);
+                if (popup != null && popup.gameObject.activeInHierarchy &&
+                    _unitAcquireIconRequestVersion == requestVersion && popup.UnitName == unitData.name)
+                    popup.SetUnitSprite(sprite);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogException(exception, this);
+            }
+        }
+
+        private void HandleRelicNotification(EffectsNotification notification)
+        {
+            if (notification.Kind == EffectsNotificationKind.RelicAcquired ||
+                notification.Kind == EffectsNotificationKind.RelicsRestored ||
+                notification.Kind == EffectsNotificationKind.RelicsCleared)
+            {
+                RefreshArtifactItems();
+            }
+        }
+
+        private void RefreshArtifactItems()
+        {
+            HideTooltip();
+
+            ReadyMainView mainView = readySceneView?.MainView;
+            if (mainView == null || mainView.ArtifactContentRoot == null || _relicFacade == null)
+            {
+                return;
+            }
+
+            mainView.RefreshArtifactItems();
+            int relicCount = _relicFacade.OwnedRelics.Count;
+
+            for (int i = 0; i < relicCount; i++)
+            {
+                ArtifactInfoItemView item;
+                if (i < mainView.ArtifactItems.Count)
+                {
+                    item = mainView.ArtifactItems[i];
+                }
+                else
+                {
+                    if (mainView.ArtifactItemPrefab == null)
+                    {
+                        Debug.LogWarning("[BoardUIController] 유물 아이템 프리팹이 연결되지 않았습니다.", mainView);
+                        return;
+                    }
+
+                    item = Instantiate(mainView.ArtifactItemPrefab, mainView.ArtifactContentRoot);
+                    mainView.RegisterArtifactItem(item);
+                }
+
+                RelicData relic = _relicFacade.OwnedRelics[i];
+                item.SetRelicData(relic);
+                item.SetVisible(true);
+                _ = item.UpdateRelicIconAsync(relic.iconAddress);
+            }
+
+            for (int i = relicCount; i < mainView.ArtifactItems.Count; i++)
+            {
+                mainView.ArtifactItems[i].SetRelicData(null);
+                mainView.ArtifactItems[i].SetVisible(false);
+            }
+        }
+
+        private System.Collections.IEnumerator RefreshSynergyItemsNextFrame()
+        {
+            yield return null;
+            RefreshSynergyItems();
+        }
+
+        private void RefreshSynergyItems()
+        {
+            HideTooltip();
+
+            ReadyMainView mainView = readySceneView?.MainView;
+            UnitRosterData rosterData = _formationController?.RosterData;
+            if (mainView == null || mainView.SynergyContentRoot == null ||
+                mainView.SynergyItemPrefab == null || rosterData == null ||
+                _formationController == null)
+            {
+                return;
+            }
+
+            var traitsById = new Dictionary<int, List<SynergyDefinition>>();
+            var battleUnitIds = new List<int>();
+            foreach (UnitData unit in _formationController.BattleUnitData)
+            {
+                AddSynergyUnit(unit, rosterData, battleUnitIds, traitsById);
+            }
+
+            if (battleUnitIds.Count == 0)
+            {
+                foreach (int unitId in UnitFormationCombatLink.SavedBattleUnitIdList)
+                {
+                    if (unitId < 0)
+                    {
+                        continue;
+                    }
+
+                    AddSynergyUnit(
+                        RuntimeContent.Catalog.GetUnit(unitId),
+                        rosterData,
+                        battleUnitIds,
+                        traitsById);
+                }
+            }
+
+            Dictionary<SynergyDefinition, int> counts =
+                SynergyPanelUtility.CountTraits(battleUnitIds, traitsById);
+            List<SynergyPanelUtility.DisplayItem> displayItems =
+                SynergyPanelUtility.BuildDisplayItems(rosterData.SynergyDefinitions, counts);
+            var panel = new SynergyPanelView(
+                mainView.SynergyContentRoot,
+                mainView.SynergyItemPrefab,
+                mainView.SynergyActiveColor,
+                mainView.SynergyInactiveColor);
+            panel.Render(displayItems);
+            StartCoroutine(RefreshSynergyItemBindingsNextFrame(mainView));
+        }
+
+        private void BindSidePanel(ReadyMainView mainView)
+        {
+            UnbindSidePanel();
+
+            _sidePanelView = mainView != null
+                ? mainView.GetComponentInChildren<ReadySidePanelView>(true)
+                : null;
+            if (_sidePanelView != null)
+            {
+                _sidePanelView.TabChanged += HandleSidePanelTabChanged;
+            }
+        }
+
+        private void UnbindSidePanel()
+        {
+            if (_sidePanelView != null)
+            {
+                _sidePanelView.TabChanged -= HandleSidePanelTabChanged;
+                _sidePanelView = null;
+            }
+        }
+
+        private void HandleSidePanelTabChanged(ReadySidePanelTab _)
+        {
+            HideTooltip();
+        }
+
+        private void HandleSynergyPointerEntered(
+            SynergyItemView item,
+            UnityEngine.EventSystems.PointerEventData eventData)
+        {
+            if (item == null)
+            {
+                return;
+            }
+
+            SynergyData data = item.SynergyData;
+            string title = data != null && !string.IsNullOrWhiteSpace(data.name)
+                ? data.name
+                : item.Title;
+            string description = data?.subTitle ?? string.Empty;
+            List<TooltipView.EffectData> effects = BuildSynergyTooltipEffects(data, item.CurrentCount);
+
+            ShowTooltip(item, item.TooltipAnchor, eventData, title, description, effects);
+        }
+
+        private void HandleSynergyPointerExited(
+            SynergyItemView item,
+            UnityEngine.EventSystems.PointerEventData _)
+        {
+            HideTooltip(item);
+        }
+
+        private void HandleArtifactPointerEntered(
+            ArtifactInfoItemView item,
+            UnityEngine.EventSystems.PointerEventData eventData)
+        {
+            RelicData relic = item?.RelicData;
+            if (item == null || relic == null)
+            {
+                return;
+            }
+
+            ShowTooltip(
+                item,
+                item.TooltipAnchor,
+                eventData,
+                relic.name,
+                relic.description,
+                null);
+        }
+
+        private void HandleArtifactPointerExited(
+            ArtifactInfoItemView item,
+            UnityEngine.EventSystems.PointerEventData _)
+        {
+            HideTooltip(item);
+        }
+
+        private static List<TooltipView.EffectData> BuildSynergyTooltipEffects(
+            SynergyData data,
+            int currentCount)
+        {
+            var effects = new List<TooltipView.EffectData>();
+            if (data?.tiers == null)
+            {
+                return effects;
+            }
+
+            foreach (SynergyTier tier in data.tiers)
+            {
+                if (tier == null)
+                {
+                    continue;
+                }
+
+                string text = string.IsNullOrWhiteSpace(tier.description)
+                    ? $"{tier.requiredCount}개"
+                    : $"{tier.requiredCount}개  {tier.description}";
+                effects.Add(new TooltipView.EffectData(
+                    text,
+                    currentCount >= tier.requiredCount));
+            }
+
+            return effects;
+        }
+
+        private void ShowTooltip(
+            object owner,
+            RectTransform anchor,
+            UnityEngine.EventSystems.PointerEventData eventData,
+            string title,
+            string description,
+            IReadOnlyList<TooltipView.EffectData> effects)
+        {
+            TooltipView tooltip = readySceneView?.TooltipView;
+            RectTransform placementAnchor = _sidePanelView?.ContentPanelRect ?? anchor;
+            if (tooltip == null || placementAnchor == null)
+            {
+                return;
+            }
+
+            _tooltipOwner = owner;
+            readySceneView.ShowTooltip(title, description, effects);
+
+            Canvas canvas = tooltip.RootCanvas;
+            Camera eventCamera = eventData?.enterEventCamera;
+            if (canvas != null)
+            {
+                eventCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay
+                    ? null
+                    : eventCamera != null ? eventCamera : canvas.worldCamera;
+            }
+
+            placementAnchor.GetWorldCorners(_tooltipAnchorCorners);
+            Vector3 anchorWorldPosition = _tooltipAnchorCorners[2];
+            Vector2 screenPosition = RectTransformUtility.WorldToScreenPoint(
+                eventCamera,
+                anchorWorldPosition);
+
+            tooltip.SetPivot(new Vector2(0f, 1f));
+            tooltip.SetScreenPosition(
+                screenPosition + Vector2.right * tooltipScreenOffset,
+                eventCamera);
+        }
+
+        private void HideTooltip(object owner = null)
+        {
+            if (owner != null && !ReferenceEquals(_tooltipOwner, owner))
+            {
+                return;
+            }
+
+            _tooltipOwner = null;
+            readySceneView?.HideTooltip();
+        }
+
+        private static System.Collections.IEnumerator RefreshSynergyItemBindingsNextFrame(ReadyMainView mainView)
+        {
+            yield return null;
+            mainView?.RefreshSynergyItems();
+        }
+
+        private static void AddSynergyUnit(
+            UnitData unit,
+            UnitRosterData rosterData,
+            List<int> battleUnitIds,
+            Dictionary<int, List<SynergyDefinition>> traitsById)
+        {
+            if (unit == null)
+            {
+                return;
+            }
+
+            battleUnitIds.Add(unit.id);
+            var traits = new List<SynergyDefinition>();
+            SynergyDefinition jobTrait = rosterData.GetJobTrait(unit.jobType);
+            SynergyDefinition tribeTrait = rosterData.GetTribeTrait(unit.tribeType);
+            if (jobTrait != null) traits.Add(jobTrait);
+            if (tribeTrait != null && tribeTrait != jobTrait) traits.Add(tribeTrait);
+            traitsById[unit.id] = traits;
+        }
+
+        private void ShowTimeOfDayFeedback(string message)
+        {
+            CancelAutomaticRollView();
+
+            if (_timeOfDayFeedbackRoutine != null)
+            {
+                StopCoroutine(_timeOfDayFeedbackRoutine);
+            }
+
+            _timeOfDayFeedbackRoutine = StartCoroutine(ShowTimeOfDayFeedbackRoutine(message));
+        }
+
+        private System.Collections.IEnumerator ShowTimeOfDayFeedbackRoutine(string message)
+        {
+            if (readySceneView != null)
+            {
+                readySceneView.HideAllOverlayViews();
+                readySceneView.ShowFeedbackView(message);
+            }
+
+            yield return new WaitForSecondsRealtime(timeOfDayFeedbackDuration);
+
+            if (readySceneView != null)
+            {
+                readySceneView.HideFeedbackView();
+            }
+
+            _timeOfDayFeedbackRoutine = null;
+            ScheduleAutomaticRollView(turnAutoRollViewDelay);
+        }
+
+        private void ScheduleAutomaticRollView(float delay)
+        {
+            CancelAutomaticRollView();
+
+            if (!automaticRollViewEnabled)
+            {
+                return;
+            }
+
+            readySceneView?.MainView?.SetInteractable(false);
+
+            _automaticRollViewRoutine =
+                StartCoroutine(OpenRollViewWhenAvailableRoutine(delay, null));
+        }
+
+        private void CancelAutomaticRollView()
+        {
+            if (_automaticRollViewRoutine == null)
+            {
+                return;
+            }
+
+            StopCoroutine(_automaticRollViewRoutine);
+            _automaticRollViewRoutine = null;
+
+            readySceneView?.MainView?.SetInteractable(true);
+        }
+
+        private System.Collections.IEnumerator OpenRollViewWhenAvailableRoutine(
+            float delay,
+            Action onOpened)
+        {
+            if (delay > 0f)
+            {
+                yield return new WaitForSecondsRealtime(delay);
+            }
+
+            RollViewOpenResult result = RollViewOpenResult.Retry;
+
+            while (isActiveAndEnabled)
+            {
+                result = TryOpenRollViewInternal();
+
+                if (result != RollViewOpenResult.Retry)
+                {
+                    break;
+                }
+
+                yield return null;
+            }
+
+            _automaticRollViewRoutine = null;
+
+            readySceneView?.MainView?.SetInteractable(true);
+
+            if (result == RollViewOpenResult.Opened)
+            {
+                onOpened?.Invoke();
+            }
+        }
+
+        private bool TryOpenRollView()
+        {
+            return TryOpenRollViewInternal() == RollViewOpenResult.Opened;
+        }
+
+        private RollViewOpenResult TryOpenRollViewInternal()
+        {
+            if (_timeOfDayFeedbackRoutine != null)
+            {
+                return RollViewOpenResult.Retry;
+            }
+
+            UnitAcquirePopupView unitAcquirePopup = readySceneView?.UnitAcquirePopupView;
+            if (unitAcquirePopup != null &&
+                (unitAcquirePopup.IsVisible || unitAcquirePopup.IsPlaying))
+            {
+                return RollViewOpenResult.Retry;
+            }
+
+            if (boardCameraController != null && boardCameraController.IsLocating)
+            {
+                return RollViewOpenResult.Retry;
+            }
+
+            if (readySceneView == null || readySceneView.RollView == null)
+            {
+                return RollViewOpenResult.Blocked;
+            }
+
+            if (readySceneView.RollView.IsVisible)
+            {
+                return RollViewOpenResult.Opened;
+            }
+
+            DiceSnapshot diceSnapshot =
+                SystemBus.Messages.Request<DiceSnapshotRequested, DiceSnapshot>(default);
+            BoardDiceSnapshot boardSnapshot =
+                SystemBus.Messages.Request<BoardDiceStateRequested, BoardDiceSnapshot>(default);
+
+            if (!boardSnapshot.Available || boardSnapshot.IsMoving)
+            {
+                return RollViewOpenResult.Retry;
+            }
+
+            if (diceSnapshot.HasRolledThisTurn ||
+                boardSnapshot.RemainingValue > 0)
+            {
+                return RollViewOpenResult.Blocked;
+            }
+
+            readySceneView.HideAllOverlayViews();
+            _feedbackView.SetDiceResult("?");
+            readySceneView.RollView.SetInteractable(true);
+            readySceneView.ShowRollView();
+            return RollViewOpenResult.Opened;
+        }
+
+        private enum RollViewOpenResult
+        {
+            Opened,
+            Retry,
+            Blocked
+        }
+
+        private void ShowWarning(string message)
+        {
+            if (warningText != null)
+            {
+                _feedbackView.ShowWarning(message);
+
+                StopCoroutine("HideWarningRoutine");
+                StartCoroutine("HideWarningRoutine");
+            }
+        }
+
+        private void RefreshEndTurnFeedback(bool immediate = false)
+        {
+            if (readySceneView?.MainView == null)
+            {
+                return;
+            }
+
+            bool hasRolled = BoardRunData.HasRolledThisTurn;
+            int rolledPoints = BoardRunData.RolledDiceValue;
+            int remainingPoints = BoardRunData.RemainingDiceValue;
+
+            EndTurnButtonFeedbackView.TurnActionPointState state;
+
+            if (!hasRolled)
+            {
+                state = EndTurnButtonFeedbackView.TurnActionPointState.Waiting;
+                remainingPoints = 0;
+            }
+            else if (remainingPoints <= 0)
+            {
+                state = EndTurnButtonFeedbackView.TurnActionPointState.Depleted;
+            }
+            else if (remainingPoints == rolledPoints)
+            {
+                state = EndTurnButtonFeedbackView.TurnActionPointState.Unused;
+            }
+            else
+            {
+                state = EndTurnButtonFeedbackView.TurnActionPointState.PartiallyUsed;
+            }
+
+            readySceneView.MainView.SetActionPointState(
+                state,
+                remainingPoints,
+                immediate);
+        }
+
+        private void RefreshActionPointUi(bool immediate = false)
+        {
+            _actionPointUiRefreshPending = false;
+            BoardPlayerController.Instance?.RefreshActionPowerHud();
+            RefreshEndTurnFeedback(immediate);
+        }
+
+        private System.Collections.IEnumerator HideWarningRoutine()
+        {
+            yield return new WaitForSeconds(warningTextDuration);
+            _feedbackView.HideWarning();
+        }
+
+        private System.Collections.IEnumerator CloseRollViewRoutine()
+        {
+            yield return new WaitForSeconds(rollViewCloseDelay);
+            if (readySceneView != null) readySceneView.HideRollView();
+            OnRollViewClosed?.Invoke();
+        }
+    }
+}

@@ -1,0 +1,365 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using OzGameLab01.UI;
+using OzGameLab01.UI.Battle;
+using OzGameLab01.Effects.Models;
+using OzGameLab01.Managers;
+using OzGameLab01.Controllers;
+using OzGameLab01.Data;
+using OzGameLab01.Common;
+using OzGameLab01.Board.Models;
+
+namespace OzGameLab01.Combat
+{
+    /// <summary>
+    /// "이번 전투" 하나에 대한 씬 소속 데이터/배선을 담당합니다. 게임 부팅 후 계속
+    /// 살아있는 <see cref="CombatManager"/>(Facade 보유)와 달리 이 오브젝트는 전투 씬이
+    /// 떠 있는 동안만 존재합니다. <see cref="CombatFacade"/>가 필요할 때 이 컴포넌트를
+    /// 찾아 <see cref="State"/>를 읽고 <see cref="ReportFeedback"/>으로 피드백 표시를
+    /// 위임합니다 — Facade는 View 타입을 직접 참조하지 않습니다.
+    /// </summary>
+    public class CombatSession : MonoBehaviour
+    {
+        private const int BATTLE_FORMATION_SLOT_COUNT = 9;
+        [SerializeField] private CombatMapView battleMapPrefab;
+        [SerializeField] private string enemyPrefabResourceName = "Characters/EnemyTemplate";
+        [SerializeField] private float enemyScale = 3f;
+
+        [Tooltip("아군 유닛마다 월드 캔버스 아래에 생성되는 체력/스킬 쿨다운 HUD입니다. 비워두면 HUD 없이 진행됩니다.")]
+        [SerializeField] private AllyUnitCombatHUDView allyHudPrefab;
+
+        [Header("플레이어 전투 슬롯")]
+        [SerializeField] private CombatMainView battleMainView;
+
+        [Tooltip("유닛 id별 프리팹/트레이트, 시너지 발동 정의. 로스터 준비 화면과 공유하는 데이터입니다.")]
+        [SerializeField] private UnitRosterData rosterData;
+
+        [Tooltip("적 유닛 id별 스탯. 비워두면 enemyPrefabResourceName 프리팹의 기본값을 그대로 사용합니다.")]
+        [SerializeField] private MonsterRosterData monsterRosterData;
+
+        [Header("시너지 UI")]
+        [Tooltip("시너지 표시 아이템이 배치될 부모입니다.")]
+        [SerializeField] private Transform synergyPanelRoot;
+        [Tooltip("시너지 한 개를 표시하는 아이템 원본입니다.")]
+        [SerializeField] private SynergyItemView synergyItemTemplate;
+        [Tooltip("발동 중인 시너지 아이템 색상입니다.")]
+        [SerializeField] private Color synergyActiveColor = Color.white;
+        [Tooltip("보유 중이지만 아직 발동하지 않은 시너지 아이템 색상입니다.")]
+        [SerializeField] private Color synergyInactiveColor = new Color(1f, 1f, 1f, 0.4f);
+
+        private readonly CombatState _state = new CombatState();
+        private CombatMapView _battleMapView;
+        private AllySpawner _allySpawner;
+        private SynergyController _synergyController;
+        private CombatEffectExecutor _combatEffectExecutor;
+        private readonly CombatAssetPreloader _assetPreloader = new CombatAssetPreloader();
+        private CombatPoolContext _poolContext;
+#if UNITY_EDITOR
+        private CombatEffectFeedbackView _feedbackView;
+#endif
+        private EnemyHeaderController _enemyHeaderController;
+
+        public CombatState State => _state;
+        public MonsterData EnemyData { get; private set; }
+        public bool IsBattleReady { get; private set; }
+        public bool IsBattleRunning { get; private set; }
+        // 전투 종료 처리에서 BoardRunData의 전투 정보가 먼저 초기화되므로 시작 시점에 기억해 둡니다.
+        public bool IsNightBattle { get; private set; }
+
+        /// <summary>
+        /// 보조칸 아군의 기본공격 빈도 합(초당 공격 수, 1 / attackSpeed). 보조칸 유닛은 전투에 스폰되지
+        /// 않으므로 편성 데이터(편성 화면을 거치지 않았으면 저장된 편성 id)에서 계산합니다.
+        /// </summary>
+        public float SupportAttackRate
+        {
+            get
+            {
+                float total = 0f;
+                foreach (UnitData data in GetSupportUnitData())
+                {
+                    if (data.attackSpeed > 0f)
+                    {
+                        total += 1f / data.attackSpeed;
+                    }
+                }
+                return total;
+            }
+        }
+
+        /// <summary>보조칸에 편성된 유닛 데이터입니다(편성 화면을 거치지 않았으면 저장된 편성 id로 찾습니다).</summary>
+        private static List<UnitData> GetSupportUnitData()
+        {
+            var result = new List<UnitData>();
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> units = UnitFormationCombatLink.SupportUnitList;
+            IReadOnlyList<int> savedIds = UnitFormationCombatLink.SavedSupportUnitIdList;
+            for (int i = 0; i < units.Count; i++)
+            {
+                UnitData data = units[i]?.Data;
+                if (data == null && i < savedIds.Count && savedIds[i] > 0)
+                {
+                    data = RuntimeContent.Catalog.GetUnit(savedIds[i]);
+                }
+                if (data != null) result.Add(data);
+            }
+            return result;
+        }
+        public float BattleElapsedSeconds { get; private set; }
+        public IReadOnlyList<SynergyData> ActiveSynergies =>
+            _synergyController?.GetActiveSynergies() ?? Array.Empty<SynergyData>();
+
+        public event Action BattleReady;
+
+        /// <summary>
+        /// 준비된 전투의 실행을 시작하고 전투 시작 이벤트를 전달합니다.
+        /// </summary>
+        public void StartBattle()
+        {
+            if (!IsBattleReady || IsBattleRunning)
+            {
+                return;
+            }
+
+            IsBattleRunning = true;
+            BattleElapsedSeconds = 0f;
+            PassiveEventBus.RaiseBattleStart();
+        }
+
+        public void CompleteBattle()
+        {
+            IsBattleRunning = false;
+        }
+
+        public void ReportFeedback(CombatFeedback feedback)
+        {
+#if UNITY_EDITOR
+            _feedbackView?.Show(feedback);
+#endif
+        }
+
+        private async void Awake()
+        {
+            IsBattleReady = false;
+            IsBattleRunning = false;
+            BattleElapsedSeconds = 0f;
+            IsNightBattle = BoardRunData.IsNightEncounter;
+
+            // 정적 상태라 실기기 빌드에서는 씬 전환만으로 비워지지 않는다.
+            // 이전 전투 세션에서 남아있을 수 있는 참조를 새 전투 시작 전에 비운다.
+            CombatUnitRegistry.Clear();
+            PassiveEventBus.ResetRunState();
+            _poolContext = CombatPoolContext.Ensure(this);
+            //  씬/프리팹에서 직접 연결하지 못한 경우 비활성 BattleUI까지 포함해 자동으로 찾기
+            if (battleMainView == null)
+            {
+                battleMainView = FindFirstObjectByType<CombatMainView>(FindObjectsInactive.Include);
+            }
+
+            // 월드 유닛과 중복되는 편성용 UI 그리드 비활성화
+            battleMainView?.SetFormationGridVisible(false);
+
+            // 비활성 오브젝트를 포함한 씬 소속 BattleMap 우선 사용
+            _battleMapView = FindFirstObjectByType<CombatMapView>(FindObjectsInactive.Include);
+            if (_battleMapView == null && battleMapPrefab != null)
+            {
+                _battleMapView = Instantiate(battleMapPrefab, Vector3.zero, Quaternion.identity);
+                _battleMapView.name = battleMapPrefab.name;
+            }
+
+            if (_battleMapView == null)
+            {
+                Debug.LogError("[CombatSession] BattleMap 프리팹 참조가 없어 월드 전투 배치를 구성할 수 없습니다.", this);
+            }
+
+#if UNITY_EDITOR
+            if (battleMainView != null)
+            {
+                _feedbackView = CombatEffectFeedbackView.Create(battleMainView);
+            }
+#endif
+
+            // 스폰/시너지 책임은 별도 클래스로 분리되어 있다. Inspector 참조는 CombatSession이
+            // 그대로 들고 있고, 생성자로 넘겨주기만 한다(씬/프리팹 재배선 불필요).
+            // 보드의 전투 정보 화면과 같은 Resolver를 사용해, 미리 본 적과 실제 전투에
+            // 생성되는 적의 기본 데이터·성장 수치·보유 스킬이 일치하도록 합니다.
+            MonsterData enemyMonsterData = EnemyEncounterResolver.ResolveCurrentEncounter();
+            
+            EnemyData = enemyMonsterData;
+
+            _allySpawner = new AllySpawner(
+                _battleMapView,
+                enemyPrefabResourceName, enemyScale,
+                enemyMonsterData, allyHudPrefab);
+
+            // dev 브랜치 머지로 들어온 전투 UI(적 이름/체력/스킬쿨타임/상태이상)를 실제 수치와
+            // 연동합니다. 아직 이 값들을 갱신하는 코드가 없어 화면에는 붙어 있어도 항상
+            // 초기값(0)만 보이던 상태였습니다.
+            if (battleMainView != null)
+            {
+                CombatEnemyHeaderView enemyHeaderView = battleMainView.EnemyHeaderView;
+                EnemySkillCooldownItemView enemySkillCooldownView =
+                    battleMainView.GetComponentInChildren<EnemySkillCooldownItemView>(true);
+                StatusEffectItemView enemyStatusEffectView =
+                    enemyHeaderView != null && enemyHeaderView.StatusEffectRoot != null
+                        ? enemyHeaderView.StatusEffectRoot.GetComponentInChildren<StatusEffectItemView>(true)
+                        : null;
+                _enemyHeaderController = new EnemyHeaderController(
+                    enemyHeaderView, enemySkillCooldownView, enemyStatusEffectView);
+            }
+            _synergyController = new SynergyController(
+                rosterData, synergyPanelRoot, synergyItemTemplate,
+                synergyActiveColor, synergyInactiveColor, this);
+            _synergyController.OnEffectApplied = CombatManager.Instance.Facade.ReportFeedback;
+
+            BuildUnitStatLookup();
+            _synergyController.BuildUnitTraitLookup(_state.UnitDataById);
+
+            UnitData[] formationData = SceneTransitioner.AllyFormationData;
+            if (formationData == null || formationData.Length == 0)
+            {
+                formationData = UnitFormationCombatLink.BuildCombatFormationFromSavedIds();
+                SceneTransitioner.AllyFormationData = formationData;
+            }
+
+            _state.SpawnedFormation = await _allySpawner.SpawnAlliesAsync(
+                _state.SlotUnits, formationData);
+
+            if (this == null)
+            {
+                return;
+            }
+
+            _synergyController.ApplySynergies(_state.SpawnedFormation, _state.SlotUnits,
+                UnitFormationCombatLink.SavedSupportUnitIdList);
+            ApplySavedAllyHealth(formationData);
+            _synergyController.PopulateSynergyPanel();
+
+            _state.EnemyUnit = _allySpawner.SpawnEnemy();
+            _enemyHeaderController?.SetEnemyName(_state.EnemyUnit != null ? _state.EnemyUnit.DisplayName : string.Empty);
+
+            // 전투 정보 화면이 떠 있는 동안 투사체/스킬 VFX를 미리 로드해 전투 중 첫 사용 멈춤을 없앱니다.
+            List<Unit> participants = _state.GetParticipatingAllyUnits();
+            participants.Add(_state.EnemyUnit);
+            _assetPreloader.Preload(participants);
+
+            // 전투 시작 이벤트보다 먼저 서포트 유닛과 유물의 효과 순서를 확정합니다.
+            List<UnitData> passiveOwners = GetSupportUnitData();
+            List<RuntimeEffectManager.EffectSource> extraSources =
+                new List<RuntimeEffectManager.EffectSource>(_synergyController.ActiveSharedEffects);
+            extraSources.AddRange(
+                UnitPassiveSources.Build(
+                    passiveOwners,
+                    RuntimeContent.Catalog));
+
+            EffectsFacade effectsFacade = SystemBus.Get<EffectsFacade>();
+            if (effectsFacade != null)
+            {
+                effectsFacade.RefreshForCombat(
+                    passiveOwners,
+                    extraSources);
+            }
+
+            // 전투 시작 전 패시브 이벤트 구독 준비
+            _combatEffectExecutor = new CombatEffectExecutor(CombatManager.Instance.Facade);
+
+            IsBattleReady = true;
+            BattleReady?.Invoke();
+        }
+
+        public void SaveAllyHealthToRunData()
+        {
+            List<BattleUnitHealthSnapshot> entries = new List<BattleUnitHealthSnapshot>();
+            for (int placementIndex = 0;
+                placementIndex < BATTLE_FORMATION_SLOT_COUNT;
+                placementIndex++)
+            {
+                CombatManager.SlotKey slot =
+                    FormationPlacementResolver.PlacementIndexToSlotKey(placementIndex);
+                if (!_state.SpawnedFormation.TryGetValue(slot, out int unitId))
+                {
+                    continue;
+                }
+
+                Unit unit = _state.SlotUnits[slot.column, (int)slot.row];
+                if (unit == null || unit.MaxHp <= 0f)
+                {
+                    continue;
+                }
+
+                float healthRate = unit.CurrentHp / unit.MaxHp * 100f;
+                entries.Add(new BattleUnitHealthSnapshot
+                {
+                    slotIndex = placementIndex,
+                    unitId = unitId,
+                    healthRate = healthRate <= 0f ? 1f : Mathf.Clamp(healthRate, 0f, 100f)
+                });
+            }
+
+            BoardRunData.SaveBattleUnitHealth(entries);
+        }
+
+        private void ApplySavedAllyHealth(UnitData[] formationData)
+        {
+            if (formationData == null)
+            {
+                return;
+            }
+
+            int formationSlotCount = Mathf.Min(
+                formationData.Length,
+                BATTLE_FORMATION_SLOT_COUNT);
+            for (int placementIndex = 0;
+                placementIndex < formationSlotCount;
+                placementIndex++)
+            {
+                UnitData data = formationData[placementIndex];
+                if (data == null ||
+                    !BoardRunData.TryGetBattleUnitHealthRate(
+                        data.id,
+                        out float healthRate))
+                {
+                    continue;
+                }
+
+                CombatManager.SlotKey slot =
+                    FormationPlacementResolver.PlacementIndexToSlotKey(placementIndex);
+                Unit unit = _state.SlotUnits[slot.column, (int)slot.row];
+                unit?.ApplyCurrentHealthRate(healthRate);
+            }
+        }
+
+        private void Update()
+        {
+            if (IsBattleRunning)
+            {
+                BattleElapsedSeconds += Time.deltaTime;
+            }
+
+            _enemyHeaderController?.Refresh(_state.EnemyUnit);
+        }
+
+        private void OnDestroy()
+        {
+            IsBattleReady = false;
+            IsBattleRunning = false;
+            EnemyData = null;
+            _combatEffectExecutor?.Dispose();
+            _allySpawner?.Dispose();
+            _assetPreloader.Dispose();
+            _poolContext?.Dispose();
+        }
+
+        private void BuildUnitStatLookup()
+        {
+            if (rosterData != null)
+            {
+                CombatDataValidator.ValidateRoster(rosterData, this);
+                UnitRosterData.RegisterActive(rosterData, this);
+            }
+            foreach (UnitData data in RuntimeContent.Catalog.Units)
+            {
+                _state.UnitDataById[data.id] = data;
+            }
+        }
+    }
+}

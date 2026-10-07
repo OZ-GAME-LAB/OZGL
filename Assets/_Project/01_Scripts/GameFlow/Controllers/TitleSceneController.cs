@@ -1,0 +1,318 @@
+using OzGameLab01.Managers;
+using OzGameLab01.Save;
+using OzGameLab01.UI.Title;
+using UnityEngine;
+using OzGameLab01.Common;
+
+namespace OzGameLab01.Controllers
+{
+    /// <summary>
+    /// 타이틀 UI에서 발생한 요청을 받아
+    /// 게임 시작과 종료 흐름을 처리합니다.
+    ///
+    /// 화면 표시와 버튼 입력 감지는 TitleUIView가 담당하고,
+    /// 실제 씬 전환은 SceneTransitioner가 담당합니다.
+    /// </summary>
+    public sealed class TitleSceneController : MonoBehaviour
+    {
+        [Header("타이틀 UI")]
+        [Tooltip("타이틀 화면과 버튼 이벤트를 제공하는 View입니다.")]
+        [SerializeField] private TitleUIView _titleView;
+        // [추가] 비동기 New Game 저장 중 중복 요청 방지
+        private bool _isStartingGame;
+        private TitleUIView _subscribedTitle;
+        private TitleSettingsView _subscribedSettings;
+        private int _requestVersion;
+
+        #region Unity Lifecycle
+
+        private void OnEnable()
+        {
+            // TitleUIView 참조 검사
+            if (_titleView == null)
+            {
+                Debug.LogError(
+                    "[TitleSceneController] TitleUIView가 등록되지 않았습니다.",
+                    this);
+
+                return;
+            }
+
+            _subscribedTitle = _titleView;
+            // 타이틀 UI 요청 이벤트 구독
+            _subscribedTitle.StartRequested += HandleStartRequested;
+            // [추가] Continue 버튼 요청을 저장 데이터 복원 흐름에 연결
+            _subscribedTitle.ContinueRequested += HandleContinueRequested;
+            _subscribedTitle.ExitConfirmed += HandleExitConfirmed;
+
+            // [추가] 유효한 런 저장 파일이 있을 때만 Continue 버튼 활성화
+            SaveFacade continueCheckFacade = SystemBus.Get<SaveFacade>();
+            _titleView.SetContinueInteractable(continueCheckFacade != null && continueCheckFacade.HasContinueData);
+
+            // 설정 화면(Game 탭)에 타이틀 전용 액션 버튼을 구성
+            // 컷씬 재시청/타이틀로 돌아가기는 타이틀 화면에서 의미가 없어 추가하지 않음
+            TitleSettingsView settingsView = _titleView.Settings;
+            if (settingsView != null)
+            {
+                _subscribedSettings = settingsView;
+                settingsView.ClearGameButtons();
+                settingsView.AddGameButton("튜토리얼 다시보기", HandleReplayTutorialRequested);
+                settingsView.AddGameButton("데이터 초기화", HandleResetRequested);
+            }
+        }
+
+        private void Start()
+        {
+            // 매니저 초기화 이후 Continue 데이터 상태 확인
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            _titleView.SetContinueInteractable(saveFacade != null && saveFacade.HasContinueData);
+
+            SoundConnector.RequestBgm(SoundId.BgmTitle, true);
+        }
+
+#if UNITY_EDITOR
+        private void Update()
+        {
+            UnityEngine.InputSystem.Keyboard keyboard =
+                UnityEngine.InputSystem.Keyboard.current;
+
+            if (keyboard == null || !keyboard.f1Key.wasPressedThisFrame)
+            {
+                return;
+            }
+
+            bool markAsCompleted = !TutorialProgress.IsCompleted;
+            if (markAsCompleted)
+            {
+                TutorialProgress.MarkCompleted();
+            }
+            else
+            {
+                TutorialProgress.Reset();
+            }
+
+            Debug.Log(
+                $"[TitleSceneController] F1 튜토리얼 상태 변경 | " +
+                $"{(markAsCompleted ? "완료" : "미완료")}",
+                this);
+        }
+#endif
+
+        private void OnDisable()
+        {
+            _requestVersion++;
+
+            if (_subscribedSettings != null)
+            {
+                _subscribedSettings.HideResetConfirmation();
+                _subscribedSettings.ClearGameButtons();
+                _subscribedSettings = null;
+            }
+
+            // TitleUIView가 없으면 해제 작업 생략
+            if (_subscribedTitle == null)
+            {
+                return;
+            }
+
+            // 타이틀 UI 요청 이벤트 구독 해제
+            _subscribedTitle.StartRequested -= HandleStartRequested;
+            // [추가] Continue 요청 이벤트 구독 해제
+            _subscribedTitle.ContinueRequested -= HandleContinueRequested;
+            _subscribedTitle.ExitConfirmed -= HandleExitConfirmed;
+            _subscribedTitle = null;
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        // 게임 시작 요청을 받아 최초 1회는 튜토리얼, 이후에는 보드 씬으로 이동합니다.
+        /// <summary>
+        /// 튜토리얼을 완료하지 않았다면 튜토리얼 씬으로 이동합니다.
+        /// 완료한 상태라면 New Game 초기화와 저장이 끝난 뒤 메인보드로 이동합니다.
+        /// </summary>
+        private async void HandleStartRequested()
+        {
+            if (_isStartingGame)
+            {
+                return;
+            }
+
+            if (!TryGetSceneTransitioner(
+                    out SceneTransitioner transitioner))
+            {
+                return;
+            }
+
+            // [추가] New Game 초기화와 저장이 끝날 때까지 중복 입력 방지
+            _isStartingGame = true;
+
+            int version = _requestVersion;
+            try
+            {
+                // 최초 시작에서는 메인 런을 미리 만들지 않습니다.
+                // 튜토리얼 완료 이력과 메인 게임 세이브를 서로 독립적으로 유지합니다.
+                if (!TutorialProgress.IsCompleted)
+                {
+                    Debug.Log(
+                        "[TitleSceneController] 최초 게임 시작 요청 | 튜토리얼 씬 이동",
+                        this);
+                    transitioner.LoadTutorialScene();
+                    return;
+                }
+
+                Debug.Log(
+                    "[TitleSceneController] 새 게임 요청 | 보드 씬 이동",
+                    this);
+                // [수정] 이전 런을 초기화하고 새 Map Seed와 빈 편성을 저장한 뒤 이동
+                SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+                if (saveFacade == null)
+                {
+                    Debug.LogError("[TitleSceneController] SaveFacade를 찾을 수 없어 게임을 시작할 수 없습니다.", this);
+                    return;
+                }
+                saveFacade.BeginNewRun();
+                bool saved = await saveFacade.SaveAsync();
+                if (this == null || !isActiveAndEnabled || version != _requestVersion) return;
+                if (!saved)
+                {
+                    Debug.LogError("[TitleSceneController] New Game 초기 상태 저장에 실패했습니다.", this);
+                    return;
+                }
+
+                _titleView.SetContinueInteractable(false);
+                transitioner.LoadBoardScene();
+            }
+            catch (System.Exception exception) { Debug.LogException(exception); }
+            finally { _isStartingGame = false; }
+        }
+
+        /// <summary>
+        /// Continue 요청 시 저장된 런 상태를 복원하고 메인보드로 이동합니다.
+        /// </summary>
+        private void HandleContinueRequested()
+        {
+            if (_isStartingGame)
+            {
+                return;
+            }
+
+            if (!TryGetSceneTransitioner(out SceneTransitioner transitioner))
+            {
+                return;
+            }
+
+            _isStartingGame = true;
+
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                Debug.LogError("[TitleSceneController] SaveFacade를 찾을 수 없어 Continue를 진행할 수 없습니다.", this);
+                _isStartingGame = false;
+                return;
+            }
+
+            if (!saveFacade.RestoreCurrentRun())
+            {
+                Debug.LogWarning("[TitleSceneController] 복원 가능한 Continue 데이터가 없습니다.", this);
+                _titleView.SetContinueInteractable(false);
+                // 복원 실패 후 New Game을 다시 선택할 수 있도록 입력 잠금 해제
+                _isStartingGame = false;
+                return;
+            }
+
+            Debug.Log("[TitleSceneController] Continue 데이터 복원 완료 | 보드 씬 이동", this);
+            transitioner.LoadBoardScene();
+            _isStartingGame = false;
+        }
+
+        private void HandleResetRequested()
+        {
+            if (_isStartingGame)
+            {
+                return;
+            }
+
+            _titleView.Settings.ShowResetConfirmation(HandleResetConfirmed);
+        }
+
+        private void HandleResetConfirmed()
+        {
+            SaveFacade saveFacade = SystemBus.Get<SaveFacade>();
+            if (saveFacade == null)
+            {
+                return;
+            }
+
+            if (saveFacade.FactoryReset() == false)
+            {
+                return;
+            }
+
+            _titleView.SetContinueInteractable(false);
+            _titleView.Settings.ResetTransientOptions();
+        }
+
+        /// <summary>
+        /// 종료 확인 요청을 받아 애플리케이션을 종료합니다.
+        /// </summary>
+        private void HandleExitConfirmed()
+        {
+            Debug.Log(
+                "[TitleSceneController] 게임 종료 요청",
+                this);
+
+#if UNITY_EDITOR
+            // Unity Editor에서는 Play 모드 종료
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            // 실제 빌드에서는 애플리케이션 종료
+            Application.Quit();
+#endif
+        }
+
+        /// <summary>
+        /// 튜토리얼 재시청 버튼 요청을 받아 튜토리얼 씬으로 이동합니다.
+        /// </summary>
+        private void HandleReplayTutorialRequested()
+        {
+            if (!TryGetSceneTransitioner(out SceneTransitioner transitioner))
+            {
+                return;
+            }
+
+            // 설정창이 열린 채로 씬 전환되면 전환 연출 동안 그대로 보이는 문제가 있어 먼저 닫음
+            _titleView.Settings?.Hide();
+
+            Debug.Log("[TitleSceneController] 튜토리얼 재시청 요청 | 튜토리얼 씬 이동", this);
+            transitioner.LoadTutorialScene();
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        /// <summary>
+        /// 현재 유지 중인 SceneTransitioner를 가져옵니다.
+        /// 사용할 수 없다면 오류를 출력합니다.
+        /// </summary>
+        private bool TryGetSceneTransitioner(
+            out SceneTransitioner transitioner)
+        {
+            transitioner = SceneTransitioner.Instance;
+
+            if (transitioner != null)
+            {
+                return true;
+            }
+
+            Debug.LogError(
+                "[TitleSceneController] SceneTransitioner가 없어 게임 시작 요청을 처리할 수 없습니다.", this);
+
+            return false;
+        }
+
+        #endregion
+    }
+}

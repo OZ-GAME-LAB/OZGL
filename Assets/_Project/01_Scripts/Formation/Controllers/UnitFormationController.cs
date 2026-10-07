@@ -1,0 +1,1420 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using OzGameLab01.Formation;
+using OzGameLab01.Managers;
+using OzGameLab01.Player;
+using OzGameLab01.Player.Contracts;
+using OzGameLab01.UI;
+using OzGameLab01.Data;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using OzGameLab01.Common;
+
+namespace OzGameLab01.Controllers
+{
+    /// <summary>
+    /// 유닛 데이터와 유닛 배치 화면을 연결하고,
+    /// 전투 및 서브 유닛 편성을 관리합니다.
+    /// </summary>
+    public class UnitFormationController : MonoBehaviour
+    {
+        [System.Serializable]
+        private struct UnitIconEntry
+        {
+            public int unitId;
+            public Sprite icon;
+        }
+
+        private const int BATTLE_SLOT_COUNT = 9;
+        private const int MAX_BATTLE_UNIT_COUNT = 4;
+        private const int SUPPORT_SLOT_COUNT = 2;
+
+        private static readonly Vector2 UnitListItemSize = new Vector2(80f, 80f);
+
+        [Header("배치 화면")]
+        [SerializeField]
+        [Tooltip("유닛 배치 화면")]
+        private UnitView unitView;
+
+        [SerializeField]
+        [Tooltip("보유 유닛 목록 생성에 사용할 원본 아이템")]
+        private UnitItemView unitItemTemplate;
+
+        [SerializeField]
+        [Tooltip("보유 유닛 목록의 원본 데이터. CombatManager와 동일한 id 체계를 공유합니다.")]
+        private UnitRosterData rosterData;
+
+        [SerializeField]
+        [Tooltip("보유 유닛 아이콘에 쓰이는 공용 스프라이트. 모든 아군이 같은 스프라이트를 색상만 다르게 사용합니다.")]
+        private Sprite unitIconSprite;
+
+        [SerializeField]
+        private List<UnitIconEntry> unitIcons = new List<UnitIconEntry>();
+
+        [Header("시너지 UI")]
+        [SerializeField]
+        [Tooltip("시너지 한 개를 표시하는 아이템 원본입니다. UnitView.SynergyContentRoot의 비활성 자식(템플릿)을 그대로 연결합니다.")]
+        private SynergyItemView synergyItemTemplate;
+
+        [SerializeField]
+        [Tooltip("발동 중인 시너지 아이템 색상입니다.")]
+        private Color synergyActiveColor = Color.white;
+
+        [SerializeField]
+        [Tooltip("보유 중이지만 아직 발동하지 않은 시너지 아이템 색상입니다.")]
+        private Color synergyInactiveColor = new Color(1f, 1f, 1f, 0.4f);
+
+        private readonly List<UnitData> testUnitDataList = new List<UnitData>();
+
+        private readonly Dictionary<UnitItemView, UnitData> unitDataByItem = new Dictionary<UnitItemView, UnitData>();
+
+        /// <summary>
+        /// 배치 규칙과 슬롯 점유 상태를 담당하는 순수 Model입니다. 여기서 쓰는 handle은
+        /// testUnitDataList의 인덱스(=보유 유닛 인스턴스별 안정적인 ID)이고, 어느 UnitItemView가
+        /// 어느 handle에 대응하는지는 unitHandleByItem이 따로 관리합니다.
+        /// </summary>
+        private readonly FormationSlotState slotState = new FormationSlotState();
+        private readonly Dictionary<UnitItemView, int> unitHandleByItem = new Dictionary<UnitItemView, int>();
+
+        private readonly UnitData[] battleUnitData = new UnitData[BATTLE_SLOT_COUNT];
+
+        private readonly UnitItemView[] battleUnitItems = new UnitItemView[BATTLE_SLOT_COUNT];
+
+        private readonly UnitData[] supportUnitData = new UnitData[SUPPORT_SLOT_COUNT];
+
+        private readonly UnitItemView[] supportUnitItems = new UnitItemView[SUPPORT_SLOT_COUNT];
+
+        private UnitItemView draggingUnitItem;
+        private Transform dragOriginParent;
+        private int dragOriginSiblingIndex = -1;
+        private bool dragDropHandled;
+
+        private UnitFormationCombatLink formationCombatLink;
+        private IDisposable _playerUnitAddedSubscription;
+
+        private Dictionary<int, List<SynergyDefinition>> unitTraitsById;
+
+        // 호버 대상별 진입 상태와 상세 데이터 연결 추가
+        private UnitItemView _hoveredUnit;
+        private UnitSlotItemView _hoveredSlot;
+        private int _detailRequestVersion;
+
+        private void HandleUnitPointerEntered(UnitItemView item, PointerEventData eventData)
+        {
+            _hoveredUnit = item;
+            RefreshHoveredDetail();
+        }
+
+        private void HandleUnitPointerExited(UnitItemView item, PointerEventData eventData)
+        {
+            if (_hoveredUnit == item)
+            {
+                _hoveredUnit = null;
+            }
+            RefreshHoveredDetail();
+        }
+
+        private void HandleSlotPointerEntered(UnitSlotItemView slot, PointerEventData eventData)
+        {
+            _hoveredSlot = slot;
+            RefreshHoveredDetail();
+        }
+
+        private void HandleSlotPointerExited(UnitSlotItemView slot, PointerEventData eventData)
+        {
+            if (_hoveredSlot == slot)
+            {
+                _hoveredSlot = null;
+            }
+            RefreshHoveredDetail();
+        }
+
+        private void ResetHoveredDetail()
+        {
+            _hoveredUnit = null;
+            _hoveredSlot = null;
+            if (unitView != null)
+            {
+                unitView.HideUnitDetail();
+            }
+        }
+
+        private async void RefreshHoveredDetail()
+        {
+            int requestVersion = ++_detailRequestVersion;
+
+            if (unitView == null || unitView.UnitDetailView == null)
+            {
+                return;
+            }
+            UnitData data = null;
+            if (draggingUnitItem == null)
+            {
+                if (_hoveredUnit != null && _hoveredUnit.isActiveAndEnabled)
+                {
+                    unitDataByItem.TryGetValue(_hoveredUnit, out data);
+                }
+                if (data == null && _hoveredSlot != null && _hoveredSlot.isActiveAndEnabled)
+                {
+                    int index = _hoveredSlot.SlotIndex;
+                    if (_hoveredSlot.IsBattleSlot && IsValidBattleSlot(index))
+                    {
+                        data = battleUnitData[index];
+                    }
+                    if (_hoveredSlot.IsSupportSlot && IsValidSupportSlot(index))
+                    {
+                        data = supportUnitData[index];
+                    }
+                }
+            }
+            if (data == null)
+            {
+                unitView.HideUnitDetail();
+                return;
+            }
+
+            unitView.HideUnitDetail();
+
+            UnitDetailData detailData = UnitDetailDataResolver.Resolve(
+                data,
+                RuntimeContent.Catalog.Skills.Values,
+                RuntimeContent.Catalog.Synergies.Values);
+
+            Task<Sprite> activeIconTask = LoadSkillIconAsync(detailData.ActiveSkill);
+            Task<Sprite> passiveIconTask = LoadSkillIconAsync(detailData.PassiveSkill);
+
+            try
+            {
+                await Task.WhenAll(activeIconTask, passiveIconTask);
+            }
+            catch (Exception exception)
+            {
+                Debug.LogError($"[UnitFormationController] 상세 스킬 아이콘 로드 실패: {exception.Message}", this);
+            }
+
+            if (this == null || requestVersion != _detailRequestVersion ||
+                unitView == null || unitView.UnitDetailView == null)
+            {
+                return;
+            }
+
+            var synergyNames = new List<string>(detailData.Synergies.Count);
+            foreach (SynergyData synergy in detailData.Synergies)
+            {
+                if (synergy != null)
+                    synergyNames.Add(UnitDetailDataResolver.GetDisplayName(synergy));
+            }
+
+            unitView.UnitDetailView.LoadUnit(
+                data,
+                GetUnitIcon(data),
+                synergyNames,
+                detailData.ActiveSkill,
+                activeIconTask.Status == TaskStatus.RanToCompletion ? activeIconTask.Result : null,
+                detailData.PassiveSkill,
+                passiveIconTask.Status == TaskStatus.RanToCompletion ? passiveIconTask.Result : null);
+            unitView.ShowUnitDetail();
+        }
+
+        private static Task<Sprite> LoadSkillIconAsync(SkillData skill)
+        {
+            return skill == null || string.IsNullOrWhiteSpace(skill.iconAddress)
+                ? Task.FromResult<Sprite>(null)
+                : SpriteManager.GetSpriteAsync(skill.iconAddress);
+        }
+
+        /// <summary>
+        /// 현재 배치 화면에 연결된 테스트 유닛 데이터를 반환합니다.
+        /// </summary>
+        public IReadOnlyList<UnitData> TestUnitDataList => testUnitDataList;
+
+        /// <summary>
+        /// 3×3 전투 슬롯에 배치된 유닛 데이터를 반환합니다.
+        /// 인덱스는 전투 슬롯의 0~8 위치와 일치합니다.
+        /// </summary>
+        public IReadOnlyList<UnitData> BattleUnitData => battleUnitData;
+
+        /// <summary>
+        /// 서브 슬롯에 배치된 유닛 데이터를 반환합니다.
+        /// 인덱스는 서브 슬롯의 0~1 위치와 일치합니다.
+        /// </summary>
+        public IReadOnlyList<UnitData> SupportUnitData => supportUnitData;
+
+        public UnitRosterData RosterData => rosterData;
+
+        /// <summary>
+        /// 현재 전투 슬롯에 배치된 유닛 수를 반환합니다.
+        /// </summary>
+        public int BattleUnitCount => slotState.BattleUnitCount;
+
+        /// <summary>
+        /// 현재 서브 슬롯에 배치된 유닛 수를 반환합니다.
+        /// </summary>
+        public int SupportUnitCount => slotState.SupportUnitCount;
+
+        /// <summary>
+        /// 전투 유닛이 한 명 이상 배치되었는지 반환합니다.
+        /// </summary>
+        // public bool CanStartBattle => battleUnitCount >= 1;
+
+        // [수정]비활성 UnitView가 아직 초기화되지 않았어도 저장된 전투 편성으로 진입을 허용합니다.
+        public bool CanStartBattle => slotState.BattleUnitCount >= 1 || UnitFormationCombatLink.HasSavedBattleUnit;
+
+        private void Awake()
+        {
+            formationCombatLink = GetComponent<UnitFormationCombatLink>();
+        }
+
+        private void OnEnable()
+        {
+            SubscribeViewEvents();
+        }
+
+        private void Start()
+        {
+            LoadRosterUnitData();
+            BuildUnitTraitLookup();
+            CreateUnitItems();
+            RestorePersistedFormation();
+            UpdateUnitCount();
+
+            _playerUnitAddedSubscription = SystemBus.Messages.Subscribe<PlayerUnitAdded>(
+                message => AddNewUnitItem(message.Unit));
+        }
+
+        private void OnDisable()
+        {
+            // 화면 종료 시 호버 상태 초기화
+            ResetHoveredDetail();
+            UnsubscribeViewEvents();
+            ClearDragState();
+        }
+
+        private void OnDestroy()
+        {
+            _playerUnitAddedSubscription?.Dispose();
+            _playerUnitAddedSubscription = null;
+        }
+
+        /// <summary>
+        /// 유닛 배치 화면의 입력 이벤트를 구독합니다.
+        /// </summary>
+        private void SubscribeViewEvents()
+        {
+            if (unitView == null)
+            {
+                return;
+            }
+
+            unitView.UnitClicked += HandleUnitClicked;
+            // 보유 목록과 전투 및 서브 슬롯 호버 구독 추가
+            unitView.UnitPointerEntered += HandleUnitPointerEntered;
+            unitView.UnitPointerExited += HandleUnitPointerExited;
+            unitView.SlotPointerEntered += HandleSlotPointerEntered;
+            unitView.SlotPointerExited += HandleSlotPointerExited;
+            unitView.UnitBeginDragged += HandleUnitBeginDragged;
+            unitView.UnitDragged += HandleUnitDragged;
+            unitView.UnitEndDragged += HandleUnitEndDragged;
+            unitView.SlotDropped += HandleSlotDropped;
+            unitView.WaitingAreaDropped += HandleWaitingAreaDropped;
+        }
+
+        /// <summary>
+        /// 유닛 배치 화면의 입력 이벤트 구독을 해제합니다.
+        /// </summary>
+        private void UnsubscribeViewEvents()
+        {
+            if (unitView == null)
+            {
+                return;
+            }
+
+            unitView.UnitClicked -= HandleUnitClicked;
+            // 호버 이벤트 구독 해제 추가
+            unitView.UnitPointerEntered -= HandleUnitPointerEntered;
+            unitView.UnitPointerExited -= HandleUnitPointerExited;
+            unitView.SlotPointerEntered -= HandleSlotPointerEntered;
+            unitView.SlotPointerExited -= HandleSlotPointerExited;
+            unitView.UnitBeginDragged -= HandleUnitBeginDragged;
+            unitView.UnitDragged -= HandleUnitDragged;
+            unitView.UnitEndDragged -= HandleUnitEndDragged;
+            unitView.SlotDropped -= HandleSlotDropped;
+            unitView.WaitingAreaDropped -= HandleWaitingAreaDropped;
+        }
+
+        /// <summary>
+        /// UnitRosterData(CombatManager와 공유하는 id 체계)를 기준으로 보유 유닛 데이터를 생성합니다.
+        /// </summary>
+        private void LoadRosterUnitData()
+        {
+            testUnitDataList.Clear();
+            // [수정됨] 이제 씬 전환 시에도 파괴되지 않는 전역 인벤토리에서 유닛 목록을 가져옵니다!
+            PlayerFacade playerFacade = SystemBus.Get<PlayerFacade>();
+            if (playerFacade != null)
+            {
+                foreach (UnitData source in playerFacade.OwnedUnits)
+                {
+                    if (source == null)
+                    {
+                        continue;
+                    }
+                    // testUnitDataList.Add(new UnitData
+                    // {
+                    //     id = source.id,
+                    //     name = source.name,
+                    //     spriteAddress = source.spriteAddress,
+                    //     healthPoint = source.healthPoint,
+                    //     attackPoint = source.attackPoint,
+                    //     criticalRate = source.criticalRate,
+                    //     dodgeRate = source.dodgeRate,
+                    //     bloodDrain = source.bloodDrain,
+                    //     attackSpeed = source.attackSpeed,
+                    //     skillCooldown = source.skillCooldown,
+                    //     attackKey = source.attackKey,
+                    //     skillKey = source.skillKey
+                    // });
+                    // 누락된 필드까지 포함한 로스터 원본 데이터를 id 기준으로 복제
+                    testUnitDataList.Add(CloneCanonicalUnitData(source));
+                }
+            }
+            else
+            {
+                Debug.LogWarning("[UnitFormationController] PlayerInventoryManager를 씬에서 찾을 수 없습니다. " +
+                    "(매니저 오브젝트를 생성해주세요!)", this);
+            }
+        }
+
+        /// <summary>
+        /// 보유 유닛의 id별 시너지 트레이트를 읽어 둡니다. CombatManager(SynergyController)와 동일하게
+        /// jobType/tribeType으로 직접 계산합니다 — 유닛이 placeholder든 실제 DB(JSON)든 동일하게 동작합니다.
+        /// </summary>
+        private void BuildUnitTraitLookup()
+        {
+            unitTraitsById = new Dictionary<int, List<SynergyDefinition>>();
+
+            if (rosterData == null)
+            {
+                return;
+            }
+
+            UnitRosterData.RegisterActive(rosterData, this);
+
+            foreach (UnitData data in testUnitDataList)
+            {
+                if (data == null)
+                {
+                    continue;
+                }
+
+                List<SynergyDefinition> traits = new List<SynergyDefinition>();
+
+                SynergyDefinition jobTrait = rosterData.GetJobTrait(data.jobType);
+                if (jobTrait != null)
+                {
+                    traits.Add(jobTrait);
+                }
+
+                SynergyDefinition tribeTrait = rosterData.GetTribeTrait(data.tribeType);
+                if (tribeTrait != null)
+                {
+                    traits.Add(tribeTrait);
+                }
+
+                unitTraitsById[data.id] = traits;
+            }
+        }
+
+        /// <summary>
+        /// 보유 유닛 데이터에 대응하는 보유 유닛 아이템을 생성합니다.
+        /// </summary>
+        private void CreateUnitItems()
+        {
+            if (unitView == null)
+            {
+                Debug.LogError("[UnitFormationController] UnitView가 연결되지 않았습니다.", this);
+                return;
+            }
+
+            if (unitItemTemplate == null)
+            {
+                Debug.LogError("[UnitFormationController] 유닛 아이템 원본이 연결되지 않았습니다.", this);
+                return;
+            }
+
+            unitDataByItem.Clear();
+            unitHandleByItem.Clear();
+            unitItemTemplate.gameObject.SetActive(false);
+
+            for (int i = 0; i < testUnitDataList.Count; i++)
+            {
+                UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
+
+                unitItem.name = $"Unit_Item_{i + 1:00}";
+
+                // unitItem.SetIcon(unitIconSprite);
+                // UnitData.id에 연결된 PrivateAssets 아이콘을 우선 사용
+                unitItem.SetIcon(GetUnitIcon(testUnitDataList[i]));
+                unitItem.SetIconColor(Color.white);
+                unitItem.SetSelected(false);
+                unitItem.gameObject.SetActive(true);
+
+                unitDataByItem.Add(unitItem, testUnitDataList[i]);
+                // handle = testUnitDataList의 인덱스. 이 루프는 그 리스트를 그대로 순회하므로 i와 동일하다.
+                unitHandleByItem.Add(unitItem, i);
+
+                unitView.RegisterUnitItem(unitItem);
+            }
+        }
+
+        /// <summary>
+        /// 저장된 인벤토리 객체가 일부 필드를 잃었더라도 id 기준 로스터 원본으로 UI/전투 데이터를 복원합니다.
+        /// </summary>
+        private UnitData CloneCanonicalUnitData(UnitData ownedUnit)
+        {
+            if (ownedUnit == null)
+            {
+                return null;
+            }
+
+            UnitData definition = RuntimeContent.Catalog.GetUnit(ownedUnit.id);
+            if (definition != null) return definition;
+
+            // 로스터에 없는 런타임 유닛은 기존 인벤토리 데이터를 복사해 유지
+            return PlayerFacade.CloneUnitData(ownedUnit);
+        }
+
+        /// <summary>
+        /// 씬이 교체되어 UnitFormationController가 다시 생성되어도 정적 전달 데이터에서 UI 배치를 복원합니다.
+        /// </summary>
+        private void RestorePersistedFormation()
+        {
+            if (unitView == null)
+            {
+                return;
+            }
+
+            bool restoredAnyUnit = false;
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> savedBattleUnits =
+                UnitFormationCombatLink.BattleUnitList;
+
+            for (int slotIndex = 0; slotIndex < BATTLE_SLOT_COUNT; slotIndex++)
+            {
+                // UnitData savedData = savedBattleUnits[slotIndex]?.Data;
+                // 저장된 슬롯 ID를 우선 사용하고 구버전 전달 데이터는 폴백으로 유지 
+                int savedUnitId = UnitFormationCombatLink.Has_Saved_Formation
+                    ? UnitFormationCombatLink.SavedBattleUnitIdList[slotIndex]
+                    : savedBattleUnits[slotIndex]?.Data?.id ?? -1;
+                UnitData savedData = savedBattleUnits[slotIndex]?.Data;
+                if (savedData == null && SceneTransitioner.AllyFormationData != null &&
+                    slotIndex < SceneTransitioner.AllyFormationData.Length)
+                {
+                    savedData = SceneTransitioner.AllyFormationData[slotIndex];
+                }
+
+                UnitItemView unitItem = savedUnitId >= 0
+                    ? FindUnplacedUnitItemById(savedUnitId)
+                    : FindUnplacedUnitItem(savedData);
+                UnitSlotItemView slot = FindSlot(UnitSlotType.Battle, slotIndex);
+                if (unitItem != null && slot != null && TryDropOnSlot(FormationSlotKind.Battle, unitItem, slot))
+                {
+                    restoredAnyUnit = true;
+                }
+            }
+
+            IReadOnlyList<UnitFormationCombatLink.TransferredUnit> savedSupportUnits =
+                UnitFormationCombatLink.SupportUnitList;
+
+            for (int slotIndex = 0; slotIndex < SUPPORT_SLOT_COUNT; slotIndex++)
+            {
+                UnitData savedData = savedSupportUnits[slotIndex]?.Data;
+                int savedUnitId = UnitFormationCombatLink.Has_Saved_Formation
+                    ? UnitFormationCombatLink.SavedSupportUnitIdList[slotIndex]
+                    : savedData?.id ?? -1;
+                UnitItemView unitItem = savedUnitId >= 0
+                    ? FindUnplacedUnitItemById(savedUnitId)
+                    : FindUnplacedUnitItem(savedData);
+                UnitSlotItemView slot = FindSlot(UnitSlotType.Support, slotIndex);
+                if (unitItem != null && slot != null && TryDropOnSlot(FormationSlotKind.Support, unitItem, slot))
+                {
+                    restoredAnyUnit = true;
+                }
+            }
+
+            if (restoredAnyUnit)
+            {
+                // 새 씬에서 생성된 UnitItemView와 아이콘 참조까지 최신 전달 데이터로 다시 저장 
+                SaveFormation();
+                Debug.Log("[UnitFormationController] 이전 전투 및 서브 유닛 배치를 복원했습니다.", this);
+            }
+        }
+
+        /// <summary>
+        /// 동일 id 유닛이 여러 개여도 아직 어느 슬롯에도 놓이지 않은 UI 아이템을 하나씩 찾습니다.
+        /// </summary>
+        private UnitItemView FindUnplacedUnitItem(UnitData savedData)
+        {
+            if (savedData == null)
+            {
+                return null;
+            }
+
+            foreach (KeyValuePair<UnitItemView, UnitData> pair in unitDataByItem)
+            {
+                if (pair.Key == null || pair.Value == null || pair.Value.id != savedData.id)
+                {
+                    continue;
+                }
+
+                if (FindBattleSlotIndex(pair.Key) < 0 && FindSupportSlotIndex(pair.Key) < 0)
+                {
+                    return pair.Key;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 저장된 UnitData 참조 대신 불변 ID로 현재 인벤토리의 미배치 아이템을 찾습니다.
+        /// </summary>
+        private UnitItemView FindUnplacedUnitItemById(int unitId)
+        {
+            foreach (KeyValuePair<UnitItemView, UnitData> pair in unitDataByItem)
+            {
+                if (pair.Key != null && pair.Value != null && pair.Value.id == unitId &&
+                    FindBattleSlotIndex(pair.Key) < 0 && FindSupportSlotIndex(pair.Key) < 0)
+                {
+                    return pair.Key;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 유닛을 우클릭하면 배치하거나 보유 목록으로 되돌립니다.
+        /// </summary>
+        private void HandleUnitClicked(UnitItemView unitItem, PointerEventData eventData)
+        {
+            if (eventData.button != PointerEventData.InputButton.Right)
+            {
+                return;
+            }
+
+            int battleSlotIndex = FindBattleSlotIndex(unitItem);
+
+            if (battleSlotIndex >= 0)
+            {
+                if (RemoveUnit(FormationSlotKind.Battle, battleSlotIndex))
+                {
+                    PlayFormationMoveSucceededSound();
+                    SaveFormation();
+                }
+                else
+                {
+                    PlayFormationMoveFailedSound();
+                }
+
+                return;
+            }
+
+            int supportSlotIndex = FindSupportSlotIndex(unitItem);
+
+            if (supportSlotIndex >= 0)
+            {
+                if (RemoveUnit(FormationSlotKind.Support, supportSlotIndex))
+                {
+                    PlayFormationMoveSucceededSound();
+                    SaveFormation();
+                }
+                else
+                {
+                    PlayFormationMoveFailedSound();
+                }
+
+                return;
+            }
+
+            if (PlaceUnitInFirstEmptyBattleSlot(unitItem))
+            {
+                PlayFormationMoveSucceededSound();
+                SaveFormation();
+            }
+            else
+            {
+                PlayFormationMoveFailedSound();
+            }
+        }
+
+        /// <summary>
+        /// 유닛 아이템 드래그를 시작합니다.
+        /// </summary>
+        private void HandleUnitBeginDragged(UnitItemView unitItem, PointerEventData eventData)
+        {
+            // 드래그 중 상세 팝업 숨김 처리
+            ResetHoveredDetail();
+            if (unitItem == null)
+            {
+                return;
+            }
+
+            draggingUnitItem = unitItem;
+            dragOriginParent = unitItem.transform.parent;
+            dragOriginSiblingIndex = unitItem.transform.GetSiblingIndex();
+
+            dragDropHandled = false;
+
+            RectTransform unitRect = unitItem.RectTransform;
+
+            unitRect.SetParent(unitView.transform, true);
+
+            unitRect.SetAsLastSibling();
+            unitRect.position = eventData.position;
+        }
+
+        /// <summary>
+        /// 드래그 중인 유닛 아이템을 마우스 위치로 이동합니다.
+        /// </summary>
+        private void HandleUnitDragged(UnitItemView unitItem, PointerEventData eventData)
+        {
+            if (unitItem == null || unitItem != draggingUnitItem)
+            {
+                return;
+            }
+
+            unitItem.RectTransform.position = eventData.position;
+        }
+
+        /// <summary>
+        /// 드롭 결과에 따라 유닛 아이템 위치를 확정하거나 복구합니다.
+        /// </summary>
+        private void HandleUnitEndDragged(UnitItemView unitItem, PointerEventData eventData)
+        {
+            if (unitItem == null || unitItem != draggingUnitItem)
+            {
+                return;
+            }
+
+            if (!dragDropHandled)
+            {
+                ReturnDraggedUnitToOrigin();
+                PlayFormationMoveFailedSound();
+            }
+
+            ClearDragState();
+        }
+
+        /// <summary>
+        /// 드래그한 유닛을 슬롯 종류에 맞게 배치합니다.
+        /// </summary>
+        private void HandleSlotDropped(UnitSlotItemView targetSlot, PointerEventData eventData)
+        {
+            if (draggingUnitItem == null || targetSlot == null)
+            {
+                return;
+            }
+
+            if (targetSlot.IsBattleSlot)
+            {
+                dragDropHandled = TryDropOnSlot(FormationSlotKind.Battle, draggingUnitItem, targetSlot);
+            }
+            else if (targetSlot.IsSupportSlot)
+            {
+                dragDropHandled = TryDropOnSlot(FormationSlotKind.Support, draggingUnitItem, targetSlot);
+            }
+
+            if (dragDropHandled)
+            {
+                PlayFormationMoveSucceededSound();
+                SaveFormation();
+            }
+        }
+
+        private void HandleWaitingAreaDropped(PointerEventData eventData)
+        {
+            if (draggingUnitItem == null)
+                return;
+
+            int battleIndex = FindBattleSlotIndex(draggingUnitItem);
+            int supportIndex = FindSupportSlotIndex(draggingUnitItem);
+            bool removed = battleIndex >= 0
+                ? RemoveUnit(FormationSlotKind.Battle, battleIndex)
+                : supportIndex >= 0 && RemoveUnit(FormationSlotKind.Support, supportIndex);
+            if (!removed)
+                return;
+
+            dragDropHandled = true;
+            PlayFormationMoveSucceededSound();
+            SaveFormation();
+        }
+
+        private static void PlayFormationMoveSucceededSound()
+        {
+            SoundConnector.RequestSfx(SoundId.UnitPositionMoveSucceeded);
+        }
+
+        private static void PlayFormationMoveFailedSound()
+        {
+            SoundConnector.RequestSfx(SoundId.UnitPositionMoveFailed);
+        }
+
+        /// <summary>
+        /// 드래그한 유닛을 지정한 슬롯(전투/서브 공통)에 배치·이동·교체·교환합니다.
+        /// 전투/서브 슬롯 로직이 동일한 규칙을 그대로 복제하고 있던 것을
+        /// FormationSlotState.TryDrop 하나로 통합한 것입니다.
+        /// </summary>
+        private bool TryDropOnSlot(FormationSlotKind kind, UnitItemView unitItem, UnitSlotItemView targetSlot)
+        {
+            int targetIndex = targetSlot.SlotIndex;
+
+            if (!IsValidSlot(kind, targetIndex))
+            {
+                return false;
+            }
+
+            if (!unitHandleByItem.TryGetValue(unitItem, out int handle) ||
+                !unitDataByItem.TryGetValue(unitItem, out UnitData unitData))
+            {
+                return false;
+            }
+
+            bool targetWasEmpty = GetSlotItem(kind, targetIndex) == null;
+            bool fromOtherKind = kind == FormationSlotKind.Battle
+                ? slotState.FindSupportSlot(handle) >= 0
+                : slotState.FindBattleSlot(handle) >= 0;
+            FormationSlotKind sourceKind = fromOtherKind
+                ? (kind == FormationSlotKind.Battle ? FormationSlotKind.Support : FormationSlotKind.Battle)
+                : kind;
+
+            FormationDropResult result = slotState.TryDrop(kind, handle, targetIndex);
+
+            switch (result.Outcome)
+            {
+                case FormationDropOutcome.Rejected:
+                    // 빈 대상 슬롯에 대한 거부는 해당 편성의 최대 인원 초과다.
+                    if (targetWasEmpty)
+                    {
+                        string message = kind == FormationSlotKind.Battle
+                            ? "[UnitFormationController] 전투 유닛은 최대 4명까지 배치할 수 있습니다."
+                            : "[UnitFormationController] 서브 유닛은 최대 2명까지 배치할 수 있습니다.";
+                        Debug.LogWarning(message, this);
+                    }
+
+                    return false;
+
+                case FormationDropOutcome.Repositioned:
+                    MoveUnitItemToSlot(unitItem, targetSlot);
+                    return true;
+
+                case FormationDropOutcome.PlacedInEmpty:
+                    SetSlotArrays(kind, targetIndex, unitItem, unitData);
+                    targetSlot.SetOccupied(true);
+                    MoveUnitItemToSlot(unitItem, targetSlot);
+                    UpdateUnitCount();
+                    return true;
+
+                case FormationDropOutcome.MovedToEmpty:
+                {
+                    UnitSlotItemView sourceSlot = FindSlot(sourceKind, result.SourceIndex);
+                    ClearSlotArrays(sourceKind, result.SourceIndex);
+                    SetSlotArrays(kind, targetIndex, unitItem, unitData);
+
+                    if (sourceSlot != null)
+                    {
+                        sourceSlot.SetOccupied(false);
+                    }
+
+                    targetSlot.SetOccupied(true);
+                    MoveUnitItemToSlot(unitItem, targetSlot);
+                    if (fromOtherKind)
+                        UpdateUnitCount();
+                    return true;
+                }
+
+                case FormationDropOutcome.Replaced:
+                {
+                    UnitItemView displacedItem = GetSlotItem(kind, targetIndex);
+                    SetSlotArrays(kind, targetIndex, unitItem, unitData);
+                    MoveUnitItemToList(displacedItem);
+                    targetSlot.SetOccupied(true);
+                    MoveUnitItemToSlot(unitItem, targetSlot);
+                    UpdateUnitCount();
+                    return true;
+                }
+
+                case FormationDropOutcome.Swapped:
+                {
+                    UnitSlotItemView sourceSlot = FindSlot(sourceKind, result.SourceIndex);
+                    UnitItemView displacedItem = GetSlotItem(kind, targetIndex);
+                    UnitData displacedData = GetSlotData(kind, targetIndex);
+
+                    SetSlotArrays(sourceKind, result.SourceIndex, displacedItem, displacedData);
+                    SetSlotArrays(kind, targetIndex, unitItem, unitData);
+
+                    if (sourceSlot != null)
+                    {
+                        MoveUnitItemToSlot(displacedItem, sourceSlot);
+                        sourceSlot.SetOccupied(true);
+                    }
+
+                    MoveUnitItemToSlot(unitItem, targetSlot);
+                    targetSlot.SetOccupied(true);
+                    if (fromOtherKind)
+                        UpdateUnitCount();
+                    return true;
+                }
+
+                default:
+                    return false;
+            }
+        }
+
+        private bool IsValidSlot(FormationSlotKind kind, int index) =>
+            kind == FormationSlotKind.Battle ? IsValidBattleSlot(index) : IsValidSupportSlot(index);
+
+        private UnitSlotItemView FindSlot(FormationSlotKind kind, int index) =>
+            FindSlot(kind == FormationSlotKind.Battle ? UnitSlotType.Battle : UnitSlotType.Support, index);
+
+        private UnitItemView GetSlotItem(FormationSlotKind kind, int index) =>
+            kind == FormationSlotKind.Battle ? battleUnitItems[index] : supportUnitItems[index];
+
+        private UnitData GetSlotData(FormationSlotKind kind, int index) =>
+            kind == FormationSlotKind.Battle ? battleUnitData[index] : supportUnitData[index];
+
+        private void SetSlotArrays(FormationSlotKind kind, int index, UnitItemView item, UnitData data)
+        {
+            if (kind == FormationSlotKind.Battle)
+            {
+                battleUnitItems[index] = item;
+                battleUnitData[index] = data;
+            }
+            else
+            {
+                supportUnitItems[index] = item;
+                supportUnitData[index] = data;
+            }
+        }
+
+        private void ClearSlotArrays(FormationSlotKind kind, int index) => SetSlotArrays(kind, index, null, null);
+
+        /// <summary>
+        /// 비어 있는 전투 슬롯을 앞에서부터 찾아 유닛을 배치합니다.
+        /// </summary>
+        private bool PlaceUnitInFirstEmptyBattleSlot(UnitItemView unitItem)
+        {
+            if (unitItem == null)
+            {
+                return false;
+            }
+
+            if (!unitHandleByItem.TryGetValue(unitItem, out int handle) ||
+                !unitDataByItem.TryGetValue(unitItem, out UnitData unitData))
+            {
+                return false;
+            }
+
+            if (!slotState.TryPlaceFirstEmptyBattle(handle, out int slotIndex))
+            {
+                Debug.LogWarning("[UnitFormationController] 전투 유닛은 최대 4명까지 배치할 수 있습니다.", this);
+                return false;
+            }
+
+            UnitSlotItemView slotItem = FindSlot(FormationSlotKind.Battle, slotIndex);
+
+            if (slotItem == null)
+            {
+                // View 슬롯을 못 찾았으면 배치를 포기하고 방금 반영한 Model 상태를 되돌린다.
+                slotState.RemoveBattle(slotIndex);
+                Debug.LogWarning($"[UnitFormationController] 전투 슬롯 {slotIndex}번을 찾을 수 없습니다.", this);
+                return false;
+            }
+
+            SetSlotArrays(FormationSlotKind.Battle, slotIndex, unitItem, unitData);
+            slotItem.SetOccupied(true);
+            MoveUnitItemToSlot(unitItem, slotItem);
+            UpdateUnitCount();
+
+            return true;
+        }
+
+        /// <summary>
+        /// 지정한 슬롯(전투/서브 공통)의 유닛을 보유 목록으로 되돌립니다.
+        /// </summary>
+        private bool RemoveUnit(FormationSlotKind kind, int slotIndex)
+        {
+            int? removedHandle = kind == FormationSlotKind.Battle
+                ? slotState.RemoveBattle(slotIndex)
+                : slotState.RemoveSupport(slotIndex);
+
+            if (!removedHandle.HasValue)
+            {
+                return false;
+            }
+
+            UnitItemView unitItem = GetSlotItem(kind, slotIndex);
+            UnitSlotItemView slotItem = FindSlot(kind, slotIndex);
+
+            ClearSlotArrays(kind, slotIndex);
+            MoveUnitItemToList(unitItem);
+
+            if (slotItem != null)
+            {
+                slotItem.SetOccupied(false);
+            }
+
+            UpdateUnitCount();
+            return true;
+        }
+
+        /// <summary>
+        /// 유닛 아이템을 지정한 슬롯 중앙으로 이동합니다.
+        /// </summary>
+        private void MoveUnitItemToSlot(UnitItemView unitItem, UnitSlotItemView slotItem)
+        {
+            if (unitItem == null || slotItem == null)
+            {
+                return;
+            }
+
+            // RectTransform unitRect = unitItem.RectTransform;
+            // RectTransform slotRect = slotItem.RectTransform;
+            // Slot_00 원본 프리팹의 참조가 비어 있어도 각 오브젝트 자신의 RectTransform을 사용
+            RectTransform unitRect = unitItem.RectTransform != null
+                ? unitItem.RectTransform
+                : unitItem.transform as RectTransform;
+
+            RectTransform slotRect = slotItem.RectTransform != null
+                ? slotItem.RectTransform
+                : slotItem.transform as RectTransform;
+
+            if (unitRect == null || slotRect == null)
+            {
+                return;
+            }
+
+            unitRect.SetParent(slotRect, false);
+            // unitRect.anchorMin = new Vector2(0.5f, 0.5f);
+            // unitRect.anchorMax = new Vector2(0.5f, 0.5f);
+            // unitRect.anchoredPosition = Vector2.zero;
+            // unitRect.sizeDelta = slotRect.rect.size;
+            // 슬롯 크기를 복사하지 않고 부모 슬롯 전체에 stretch하여 레이아웃 계산 이후에도 자동으로 맞춤
+            unitRect.anchorMin = Vector2.zero;
+            unitRect.anchorMax = Vector2.one;
+            unitRect.pivot = new Vector2(0.5f, 0.5f);
+            unitRect.anchoredPosition = Vector2.zero;
+            unitRect.offsetMin = Vector2.zero;
+            unitRect.offsetMax = Vector2.zero;
+            unitRect.localScale = Vector3.one;
+        }
+
+        /// <summary>
+        /// 유닛 아이템을 보유 유닛 목록으로 이동합니다.
+        /// </summary>
+        private void MoveUnitItemToList(UnitItemView unitItem)
+        {
+            if (unitItem == null || unitView == null)
+            {
+                return;
+            }
+
+            // RectTransform unitRect = unitItem.RectTransform;
+            // Inspector 참조가 비어 있는 UnitItem도 자신의 RectTransform으로 목록에 복귀
+            RectTransform unitRect = unitItem.RectTransform != null
+                ? unitItem.RectTransform
+                : unitItem.transform as RectTransform;
+
+            if (unitRect == null)
+            {
+                return;
+            }
+
+            unitRect.SetParent(unitView.UnitContentRoot, false);
+
+            unitRect.anchorMin = new Vector2(0f, 1f);
+            unitRect.anchorMax = new Vector2(0f, 1f);
+            unitRect.pivot = new Vector2(0.5f, 0.5f);
+            unitRect.sizeDelta = UnitListItemSize;
+            unitRect.localScale = Vector3.one;
+            unitRect.SetAsLastSibling();
+        }
+
+        /// <summary>
+        /// 드래그한 유닛 아이템을 원래 위치로 되돌립니다.
+        /// </summary>
+        private void ReturnDraggedUnitToOrigin()
+        {
+            if (draggingUnitItem == null || dragOriginParent == null)
+            {
+                return;
+            }
+
+            UnitSlotItemView originSlot = dragOriginParent.GetComponent<UnitSlotItemView>();
+
+            if (originSlot != null)
+            {
+                MoveUnitItemToSlot(draggingUnitItem, originSlot);
+
+                return;
+            }
+
+            RectTransform unitRect = draggingUnitItem.RectTransform;
+
+            unitRect.SetParent(dragOriginParent, false);
+
+            unitRect.anchorMin = new Vector2(0f, 1f);
+            unitRect.anchorMax = new Vector2(0f, 1f);
+            unitRect.pivot = new Vector2(0.5f, 0.5f);
+            unitRect.sizeDelta = UnitListItemSize;
+            unitRect.localScale = Vector3.one;
+
+            unitRect.SetSiblingIndex(dragOriginSiblingIndex);
+        }
+
+        /// <summary>
+        /// 유닛 아이템이 배치된 전투 슬롯 번호를 반환합니다.
+        /// </summary>
+        private int FindBattleSlotIndex(UnitItemView unitItem)
+        {
+            for (int i = 0; i < battleUnitItems.Length; i++)
+            {
+                if (battleUnitItems[i] == unitItem)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// 유닛 아이템이 배치된 서브 슬롯 번호를 반환합니다.
+        /// </summary>
+        private int FindSupportSlotIndex(UnitItemView unitItem)
+        {
+            for (int i = 0; i < supportUnitItems.Length; i++)
+            {
+                if (supportUnitItems[i] == unitItem)
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        /// <summary>
+        /// 종류와 번호가 일치하는 슬롯을 반환합니다.
+        /// </summary>
+        private UnitSlotItemView FindSlot(UnitSlotType slotType, int slotIndex)
+        {
+            if (unitView == null)
+            {
+                return null;
+            }
+
+            foreach (UnitSlotItemView slotItem in unitView.SlotItems)
+            {
+                if (slotItem == null)
+                {
+                    continue;
+                }
+
+                if (slotItem.SlotType == slotType && slotItem.SlotIndex == slotIndex)
+                {
+                    return slotItem;
+                }
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 현재 배치 인원 표시를 갱신합니다.
+        /// </summary>
+        private void UpdateUnitCount()
+        {
+            if (unitView == null)
+            {
+                return;
+            }
+
+            unitView.SetUnitCount(slotState.BattleUnitCount, MAX_BATTLE_UNIT_COUNT);
+
+            unitView.SetSupportUnitCount(slotState.SupportUnitCount, SUPPORT_SLOT_COUNT);
+
+            // 우클릭 배치 변경 후 현재 호버 데이터 갱신
+            RefreshHoveredDetail();
+            RefreshSynergyPanel();
+        }
+
+        /// <summary>
+        /// 현재 전투 및 서포트 슬롯에 배치된 유닛 기준으로 시너지 보유 현황을 다시 계산해 표시합니다.
+        /// 발동 수가 높은 시너지가 먼저 오도록 정렬합니다.
+        /// </summary>
+        private void RefreshSynergyPanel()
+        {
+            if (rosterData == null || unitView == null || unitView.SynergyContentRoot == null || synergyItemTemplate == null)
+            {
+                return;
+            }
+
+            Dictionary<SynergyDefinition, int> traitCounts = BuildTraitCounts();
+
+            Transform panelRoot = unitView.SynergyContentRoot;
+            for (int i = panelRoot.childCount - 1; i >= 0; i--)
+            {
+                Transform child = panelRoot.GetChild(i);
+
+                if (child == synergyItemTemplate.transform)
+                {
+                    continue;
+                }
+
+                Destroy(child.gameObject);
+            }
+
+            List<SynergyDefinition> sortedDefinitions = new List<SynergyDefinition>(rosterData.SynergyDefinitions);
+            sortedDefinitions.Sort((a, b) => GetTraitCount(traitCounts, b).CompareTo(GetTraitCount(traitCounts, a)));
+
+            foreach (SynergyDefinition definition in sortedDefinitions)
+            {
+                if (definition == null)
+                {
+                    continue;
+                }
+
+                int count = GetTraitCount(traitCounts, definition);
+                if (count <= 0)
+                {
+                    continue;
+                }
+
+                bool isActive = definition.TryGetActiveTier(count, out _);
+                string stackText = definition.TryGetNextThreshold(count, out int nextThreshold)
+                    ? $"{count}/{nextThreshold}"
+                    : count.ToString();
+
+                SynergyItemView item = Instantiate(synergyItemTemplate, panelRoot);
+                item.gameObject.SetActive(true);
+                item.SetTitle(definition.DisplayName);
+                item.SetStackText(stackText);
+                item.SetBackgroundColor(isActive ? synergyActiveColor : synergyInactiveColor);
+                _ = item.SetIconAsync(OzGameLab01.Effects.Models.SynergyPanelUtility.GetIconAddress(definition));
+            }
+        }
+
+        /// <summary>
+        /// 현재 전투 슬롯과 서포트 슬롯에 배치된 유닛들의
+        /// 시너지 트레이트 보유 수를 계산합니다.
+        /// </summary>
+        private Dictionary<SynergyDefinition, int> BuildTraitCounts()
+        {
+            Dictionary<SynergyDefinition, int> traitCounts = new Dictionary<SynergyDefinition, int>();
+
+            AddTraitCounts(battleUnitData, traitCounts);
+            AddTraitCounts(supportUnitData, traitCounts);
+
+            return traitCounts;
+        }
+
+        /// <summary>
+        /// 지정한 유닛 목록의 시너지 트레이트를 집계합니다.
+        /// </summary>
+        private void AddTraitCounts(UnitData[] unitDataList, Dictionary<SynergyDefinition, int> traitCounts)
+        {
+            foreach (UnitData data in unitDataList)
+            {
+                if (data == null)
+                {
+                    continue;
+                }
+
+                if (!unitTraitsById.TryGetValue(data.id, out List<SynergyDefinition> traits))
+                {
+                    continue;
+                }
+
+                if (traits == null)
+                {
+                    continue;
+                }
+
+                foreach (SynergyDefinition trait in traits)
+                {
+                    if (trait == null)
+                    {
+                        continue;
+                    }
+
+                    traitCounts.TryGetValue(trait, out int count);
+                    traitCounts[trait] = count + 1;
+                }
+            }
+        }
+
+        private static int GetTraitCount(Dictionary<SynergyDefinition, int> traitCounts, SynergyDefinition definition)
+        {
+            if (definition == null)
+            {
+                return 0;
+            }
+
+            traitCounts.TryGetValue(definition, out int count);
+            return count;
+        }
+
+        /// <summary>
+        /// 현재 드래그 상태를 초기화합니다.
+        /// </summary>
+        private void ClearDragState()
+        {
+            draggingUnitItem = null;
+            dragOriginParent = null;
+            dragOriginSiblingIndex = -1;
+            dragDropHandled = false;
+        }
+
+        /// <summary>
+        /// 현재 전투 및 서브 유닛 편성을 전투 씬 전달 데이터에 저장합니다.
+        /// </summary>
+        private void SaveFormation()
+        {
+            if (formationCombatLink != null)
+            {
+                formationCombatLink.SaveFormation();
+            }
+        }
+
+        private bool IsValidBattleSlot(int slotIndex)
+        {
+            return slotIndex >= 0 && slotIndex < BATTLE_SLOT_COUNT;
+        }
+
+        private bool IsValidSupportSlot(int slotIndex)
+        {
+            return slotIndex >= 0 && slotIndex < SUPPORT_SLOT_COUNT;
+        }
+
+        /// <summary>
+        /// 보유 유닛 아이템에 연결된 유닛 데이터를 반환합니다.
+        /// 연결된 데이터가 없다면 null을 반환합니다.
+        /// </summary>
+        public UnitData GetUnitData(UnitItemView unitItem)
+        {
+            if (unitItem == null)
+            {
+                return null;
+            }
+
+            if (unitDataByItem.TryGetValue(unitItem, out UnitData unitData))
+            {
+                return unitData;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// 지정한 전투 슬롯 위치의 유닛 데이터를 반환합니다.
+        /// 유닛이 없거나 유효하지 않은 위치라면 null을 반환합니다.
+        /// </summary>
+        public UnitData GetBattleUnitData(int slotIndex)
+        {
+            if (!IsValidBattleSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return battleUnitData[slotIndex];
+        }
+
+        /// <summary>
+        /// 지정한 서브 슬롯 위치의 유닛 데이터를 반환합니다.
+        /// 유닛이 없거나 유효하지 않은 위치라면 null을 반환합니다.
+        /// </summary>
+        public UnitData GetSupportUnitData(int slotIndex)
+        {
+            if (!IsValidSupportSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return supportUnitData[slotIndex];
+        }
+
+        /// <summary>
+        /// 전투 슬롯에 배치된 유닛 아이템을 반환합니다.
+        /// </summary>
+        public UnitItemView GetBattleUnitItem(int slotIndex)
+        {
+            if (!IsValidBattleSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return battleUnitItems[slotIndex];
+        }
+
+        /// <summary>
+        /// 서브 슬롯에 배치된 유닛 아이템을 반환합니다.
+        /// </summary>
+        public UnitItemView GetSupportUnitItem(int slotIndex)
+        {
+            if (!IsValidSupportSlot(slotIndex))
+            {
+                return null;
+            }
+
+            return supportUnitItems[slotIndex];
+        }
+
+        // [추가됨] 새 유닛을 얻었을 때 편성창(하단 목록)에 아이템을 즉시 1개 추가해주는 함수
+        private void AddNewUnitItem(UnitData source)
+        {
+            if (source == null || unitItemTemplate == null || unitView == null) return;
+            // 1. 편성창 전용 독립 데이터로 복사하여 내부 리스트에 추가
+            // (필드를 직접 나열하지 않고 PlayerFacade.CloneUnitData를 재사용해
+            //  UnitData에 필드가 추가되어도 이 복사가 누락되지 않도록 한다.)
+            UnitData newData = PlayerFacade.CloneUnitData(source);
+            int handle = testUnitDataList.Count;
+            testUnitDataList.Add(newData);
+            BuildUnitTraitLookup();
+            // 2. UI 아이템(프리팹) 1개 새로 생성 후 셋팅
+            UnitItemView unitItem = Instantiate(unitItemTemplate, unitView.UnitContentRoot);
+            unitItem.name = $"Unit_Item_{testUnitDataList.Count:00}";
+
+            // unitItem.SetIcon(unitIconSprite);
+            unitItem.SetIcon(GetUnitIcon(newData));
+            unitItem.SetIconColor(Color.white);
+            unitItem.SetSelected(false);
+            unitItem.gameObject.SetActive(true);
+            // 3. 컨트롤러가 관리하는 딕셔너리와 View에 등록
+            unitDataByItem.Add(unitItem, newData);
+            unitHandleByItem.Add(unitItem, handle);
+            unitView.RegisterUnitItem(unitItem);
+            // 4. 시너지나 카운트 갱신
+            UpdateUnitCount();
+        }
+
+        /// <summary>
+        /// 유닛별 아이콘을 id로 찾고, 등록되지 않은 유닛은 기존 공용 아이콘으로 폴백합니다.
+        /// </summary>
+        private Sprite GetUnitIcon(UnitData unitData)
+        {
+            if (unitData != null)
+            {
+                for (int index = 0; index < unitIcons.Count; index++)
+                {
+                    UnitIconEntry entry = unitIcons[index];
+                    if (entry.unitId == unitData.id && entry.icon != null)
+                    {
+                        return entry.icon;
+                    }
+                }
+            }
+
+            return unitIconSprite;
+        }
+    }
+}
